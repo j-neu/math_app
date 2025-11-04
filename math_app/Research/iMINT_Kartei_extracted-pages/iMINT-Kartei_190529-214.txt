@@ -1,0 +1,19 @@
+
+================================================================================
+PAGE 1
+================================================================================
+
+© Senatsverwaltung für Bildung, Jugend und Familie16 Subtraktion zweistelliger Zahlen mit Übergang (64 — 28)
+Material:  Punktematerial
+Lege die Aufgabe 64 — 28 und 
+erkläre, wie du sie rechnest!
+Ich nehme zuerst von den 64 Punkten 30 weg: 
+64 — 30 = 34. Damit habe ich aber 2 zu viel weg­
+genommen. Diese Punkte muss ich nun wieder 
+ dazugeben. Ich rechne: 34 + 2 = 36.TeilschrittverfahrenKraft der 10
+Ich nehme zuerst von den 64 Punkten 2 Zehner 
+weg. Übrig bleiben dann noch 4 Zehner und 4 Einer. 
+Nun nehme ich zuerst die 4 Einer weg (44 — 4 = 40) 
+und dann noch 4 Einer (denn 4 + 4 = 8). Es bleiben 
+36 Punkte übrig: 40 — 4 = 36.
+

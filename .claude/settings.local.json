@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter --version:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(flutter run:*)",
+      "Bash(flutter build:*)",
+      "Bash(dir:*)",
+      "Bash(python extract_pdf_text.py:*)",
+      "Bash(python extract_all_pdfs.py:*)",
+      "Bash(git -C \"C:\\Users\\jakob\\StudioProjects\\Math_App\" diff tasks.md)",
+      "Bash(python cleanup_tasks2.py:*)",
+      "Bash(python:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

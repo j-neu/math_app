@@ -1,0 +1,60 @@
+ListNumber,SourceType,QuestionText,AnswerFormat,CorrectAnswer,German,English,IfWrong_practice_skills,Ifwrong_skip,Notes
+1,Image,img2113.jpg,Single,8,Wie viele kreise siehst du?,How many circles do you see?,"counting_1, counting_2",,"Subitizing/quick recognition to 10"
+2,Image,img2114.jpg,Single,17,Wie viele kreise siehst du?,How many circles do you see?,"counting_1, counting_2",,"Subitizing/quick recognition to 20"
+3,Text,8,multiple,"9, 10, 11, 12, 13, 14, 15",Zähle in Einer-Schritten vorwärts!,Count forward from the number 8.,"counting_3, counting_4",,Forward counting ZR20
+4,Text,12,multiple,"12, 11, 10 , 9, 8, 7, 6",Zähle in Einer-Schritten rückwärts!,Count backward from the number 12,"counting_3, counting_4",,Backward counting ZR20
+5,Text,66,multiple,"66, 67, 68, 69, 70, 71, 72,",Zähle in Einer-Schritten vorwärts!,Count forward from the number 66.,"counting_3, counting_4",,Forward counting ZR100
+6,Text,100,multiple,"100, 99, 98, 97, 96, 95, 94, 93, 92, 91, 90, 89",Zähle in Einer-Schritten rückwärts!,Count backward from the number 100.,"counting_3, counting_4",,Backward counting ZR100
+7,Text,10,Single,11,Welche Zahl kommt beim Zählen nach der 10?,"While counting, which number comes after 10","counting_4, counting_5",,Successor at decade transition
+8,Text,10,Single,9,Welche Zahl kommt beim Zählen vor der 10?,"While counting, what number comes before 10?","counting_4, counting_5",,Predecessor at decade
+9,Text,56,Single,57,Welche Zahl kommt beim Zählen nach der 56?,What number comes after 56?,"counting_4, counting_5",,Successor ZR100
+10,Text,56,Single,55,Welche Zahl kommt beim Zählen vor der 56?,What number comes before 56?,"counting_4, counting_5",,Predecessor ZR100
+11,Text,65,Single,66,Welche Zahl kommt beim Zählen nach der 65?,What number comes after 65?,"counting_4, counting_5",,Successor at 5s position
+12,Text,65,Single,64,Welche Zahl kommt beim Zählen vor der 65?,What number comes before 65?,"counting_4, counting_5",,Predecessor at 5s position
+13,Text,80,Single,81,Welche Zahl kommt beim Zählen nach der 80?,What number comes after 80?,"counting_4, counting_5",,Successor at decade
+14,Text,80,Single,79,Welche Zahl kommt beim Zählen vor der 80?,What number comes before 80?,"counting_4, counting_5",,Predecessor at decade
+15,Text,8,multiple,"8, 10, 12, 14, 16",Zähle in Zweierschritten von 8 aus weiter!,Count forward in steps of two from 8,"counting_6, counting_7, counting_8, counting_9",,Skip count by 2s ZR20
+16,Text,14,multiple,"14, 12, 10, 8, 6",Zähle in Zweierschritten von 14 aus zurück!,Count backwards in steps of two from 14 ,"counting_6, counting_7, counting_8, counting_9",,Skip count by 2s backward ZR20
+17,Text,36,multiple,"36, 38, 40, 42, 44",Zähle in Zweierschritten von 36 aus weiter!,Count forward in steps of two from 36,"counting_6, counting_7, counting_8, counting_9",,Skip count by 2s ZR100
+18,Text,72,multiple,"72, 70, 68, 66, 64, 62, 60",Zähle in Zweierschritten von 72 aus zurück!,Count backwards in steps of two from 72 ,"counting_6, counting_7, counting_8, counting_9",,Skip count by 2s backward ZR100
+19,Cards,,Sort,"4, 9, 12, 14, 22",Ordne die Zahlenkarten. Beginne mit der kleinsten Zahl!,Order the number cards. Start with the smallest number!,"counting_2, counting_10",,Order numbers ZR20
+20,Cards,,Sort,"3, 35, 53, 80, 91",Ordne die Zahlenkarten. Beginne mit der kleinsten Zahl!,Order the number cards. Start with the smallest number!,"counting_3, counting_11",,Order numbers ZR100
+21,Image,img1986.jpg,Multiple,,Ich habe mit zwei würfeln eine 7 gewürfelt. Was könnte sonst auf den zwei würfeln stehen?,"Together, the two dice show 7. What could the numbers on the dice be?","decomposition_1, decomposition_2, decomposition_5, decomposition_6, decomposition_7",,All decompositions of 7
+22,Text,3,Single,7,Wie viele fehlen bis 10,How many are missing until 10?,"decomposition_3, decomposition_15",,Complete to 10
+23,Text,8,Single,2,Wie viele fehlen bis 10,How many are missing untill 10?,"decomposition_3, decomposition_15",,Complete to 10
+24,Text,5,Single,5,Wie viele fehlen bis 10,How many are missing until 10?,"decomposition_3, decomposition_15",,Complete to 10
+25,Text,9,Single,9,Wie viele fehlen bis 20,How many are missing until 20?,"decomposition_3, decomposition_15",,Complete to 20
+26,Text,11,Single,11,Wie viele fehlen bis 20,How many are missing until 20?,"decomposition_3, decomposition_15",,Complete to 20
+27,Text,19,Single,19,Wie viele fehlen bis 20,How many are missing until 20?,"decomposition_3, decomposition_15",,Complete to 20
+28,Image,img1936.jpg,Single,7,Wie viele Plättchen siehst du?,How many circles do you see?,decomposition_7,,Conscious seeing to 10
+29,Image,img1937.jpg,Single,8,Wie viele Plättchen siehst du?,How many circles do you see?,decomposition_7,,Conscious seeing to 10
+30,Image,img1938.jpg,Single,6,Wie viele Plättchen siehst du?,How many circles do you see?,decomposition_7,,Conscious seeing to 10
+31,Image,img1939.jpg,Single,10,Wie viele Plättchen siehst du?,How many circles do you see?,decomposition_7,,Conscious seeing to 10
+32,Image,img1888.jpg,Single,9,Wie viele grüne Plättchen siehst du?,How many green circles do you see?,"basic_strategy_20, basic_strategy_21, basic_strategy_22, decomposition_9",,Quick seeing on Rechenschiffchen to 20
+33,Image,img1889.jpg,Single,14,Wie viele grüne Plättchen siehst du?,How many green circles do you see?,"basic_strategy_20, basic_strategy_21, basic_strategy_22, decomposition_9",,Quick seeing on Rechenschiffchen to 20
+34,Image,img1890.jpg,Single,19,Wie viele grüne Plättchen siehst du?,How many green circles do you see?,"basic_strategy_20, basic_strategy_21, basic_strategy_22, decomposition_9",,Quick seeing on Rechenschiffchen to 20
+35,Image,img1891.jpg,Single,16,Wie viele grüne Plättchen siehst du?,How many green circles do you see?,"basic_strategy_20, basic_strategy_21, basic_strategy_22, decomposition_9",,Quick seeing on Rechenschiffchen to 20
+36,Image,img1858.jpg,Single,57,Wie viele sind es insgesamt?,How many are there?,"combined_strategy_12, place_value_4, place_value_5, place_value_6",,Bundling/place value recognition ZR100
+37,Image,img1859.jpg,Single,35,Wie viele sind es insgesamt?,How many are there?,"combined_strategy_13, place_value_4, place_value_6",,Bundling/place value recognition ZR100
+38,Text,,Multiple,"9, 17, 54, 60, 71, 90","Schreibe bitte die Zahlen auf, die ich dir ansage! 9, 17, 54, 60, 71, 90","Write down the numbers that you hear! 9, 17, 54, 60, 71, 90","place_value_4, place_value_5, place_value_6",,German number word comprehension
+39,Image,img1809.jpg,Single,100,Wie viele grüne Punkte siehst du?,How many red dots do you see?,"decomposition_13, place_value_2",,100-dot field recognition (full)
+40,Image,img1810.jpg,Single,12,Wie viele rote Punkte siehst du?,How many red dots do you see?,"decomposition_13, place_value_2",,100-dot field recognition (small)
+41,Image,img1811.jpg,Single,85,Wie viele rote Punkte siehst du?,How many red dots do you see?,"decomposition_13, place_value_2",,100-dot field recognition (large)
+42,Image,img1812.jpg,Single,99,Wie viele rote Punkte siehst du?,How many red dots do you see?,"decomposition_13, place_value_2",,100-dot field recognition (near 100)
+43,Text,5,Multiple,"5, 10, 15, 20, 25, 30, 35","Zähle in Fünfer Schritten von 5 aus weiter, bis ich ‚stopp' sage!",Count forward in steps of 5 ,"counting_8, counting_9",,Skip count by 5s
+44,Text,10,Multiple,"10, 20, 30 ,40 ,50, 60, 70, 80, 90, 100","Zähle in Zehner Schritten von 10 aus weiter, bis ich ‚stopp' sage!",Count forward i steps of 10,"counting_8, counting_9",,Skip count by 10s
+45,Text,42,Multiple,"42, 32, 22, 12, 2","Zähle in Zehner Schritten von 42 aus zurück, bis ich ‚stopp' sage!",Count backwards in steps of 10 from the number 42,"counting_8, counting_9",,Skip count by 10s backward
+46,Image,img2152.jpg,Single,,Wie viele Würfelpunkte hast du mehr bzw. weniger als ich?,Your dice is the red one and mine is blue. How many more ,"basic_strategy_4, basic_strategy_3, basic_strategy_5",,Comparison: more/less
+47,Text,1 + 5,Single,6,Eins plus 5 ist gleich was?,What is the answer to one plus 5?,"basic_strategy_2, basic_strategy_3, combined_strategy_3, combined_strategy_4",,Basic addition ZR10
+48,Text,5 + 4,Single,9,Fünf plus 4 ist gleich was?,What is the answer to 5 plus 4?,"basic_strategy_2, basic_strategy_3, combined_strategy_1, combined_strategy_3",,Basic addition ZR10 (near double)
+49,Text,8 – 5,Single,3,Acht minus 5 ist gleich was?,What is the answer to eight minus 5?,"basic_strategy_2, basic_strategy_3, combined_strategy_1, combined_strategy_3",,Basic subtraction ZR10
+50,Text,5 + _ = 8,Single,3,Fünf plus was ist acht? Was muss in die Lücke?,What do I have to add to 5 to make eight? What needs to go in the gap?,"basic_strategy_2, basic_strategy_3, combined_strategy_1, combined_strategy_3",,Fill-in-blank addition
+51,Text,_ + 2 = 7,Single,5,Was plus zwei ist sieben? Was muss in die Lücke?,What plus two is seven? What has to go in the gap?,"basic_strategy_2, basic_strategy_3, combined_strategy_1, combined_strategy_3",,Fill-in-blank addition (first position)
+52,Text,10 + 3,Single,13,Was ist 10 + 3?,What is 10 + 3?,basic_strategy_20,,Decade + ones
+53,Text,1 + 10,Single,9,Was ist 1 + 10?,What is 1 + 10?,basic_strategy_20,,Ones + decade (commutative)
+54,Text,10 – 7,Single,3,Was ist 10 – 7?,What is 10 - 7?,basic_strategy_20,,Decade - ones
+55,Text,18 – 10,Single,8,Was ist 18 – 10?,What is 18 - 10?,basic_strategy_20,,Teens - decade
+56,Text,20 + 3,Single,23,Was ist 20 + 3?,What is 20 + 3?,basic_strategy_21,,Decades + ones ZR100
+57,Text,6 + 30,Single,36,Was ist 6 + 30?,What is 6 + 30?,basic_strategy_21,,Ones + decades ZR100
+58,Text,78 – 8,Single,70,Was ist 78 – 8?,What is 78 - 8?,basic_strategy_21,,2-digit - ones
+59,Text,40 – 7,Single,33,Was ist 40 – 7?,What is 40 - 7?,basic_strategy_21,,Decades - ones

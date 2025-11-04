@@ -1,0 +1,73 @@
+
+================================================================================
+PAGE 1
+================================================================================
+
+Karten –  Übersicht
+Hinweise & Erklärkarte
+Zahlverständnis ZR bis 20
+1 Zahlwortreihe aufsagen
+2 Abzählen
+3 Darstellungen vernetzen
+4 Anzahlen zeichnen oder legen
+5 Anzahlen (quasi -)simultan 
+erfassen
+6 Ordnungszahlen nutzen
+7 Zahlenreihe
+8 Anzahlen vergleichen
+9 Zahlen zerlegen
+Zahlverständnis ZR bis 100
+10 Zahlwortreihe aufsagen
+11 Zahlen notieren
+12 Zehner und Einer
+13 Anzahlen strukturieren
+14 Strukturierte Anzahlen erfassen
+15 Darstellungen vernetzen
+16 Zahlen am Zahlenstrahl
+17 Zahlen am Rechenstrich
+18 Ergänzen bis 100Addition ZR bis 20
+19 Alltagssituationen
+20 Rechengeschichten
+21 Zwanzigerfeld
+22 Tauschaufgaben
+23 Einfache Aufgaben
+24 Einfache Aufgaben rechnen
+25 Ableitungsstrategien nutzen
+Addition ZR bis 100
+26 Einfache Aufgaben
+27 Aufgaben ableiten
+28 Verdoppeln und Halbieren
+29 Schrittweise rechnen
+30 Stellenweise rechnen
+31 Hilfsaufgabe nutzen
+32 Geschicktes Rechnen
+Subtraktion ZR bis 20
+33 Alltagssituationen
+34 Rechengeschichten
+35 Zwanzigerfeld
+36 Einfache Aufgaben
+37 Einfache Aufgaben rechnen
+38 Ableitungsstrategien nutzen
+39 AufgabenfamilienSubtraktion ZR bis 100
+40 Einfache Aufgaben
+41 Aufgaben ableiten
+42 Schrittweise rechnen
+43 Stellenweise rechnen
+44 Hilfsaufgabe nutzen
+45 Ergänzen
+46 Geschicktes Rechnen
+Multiplikation ZR bis 100
+47 Alltagssituationen
+48 Rechengeschichten
+49 Punktebild
+50 Punktereihe
+51 Einfache Aufgaben rechnen
+52 Ableitungsstrategien nutzen
+Division ZR bis 100
+53 Alltagssituationen
+54 Rechengeschichten
+55 Punktebild
+56 Punktereihe
+57 Aufgaben rechnen
+58 Aufgabenfamilien
+

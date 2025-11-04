@@ -1,0 +1,25 @@
+
+================================================================================
+PAGE 1
+================================================================================
+
+MustertürmeKlasse 1/2 Muster ca. 45 Min
+Ziel der Übung:
+Sammeln von Erfahrungen im Kontext kombinatorischer Problemstellungen und geschicktes Finden aller Möglichkeiten.
+Variationen:
+• Veränderung der Bauregeln:
+- Erhöhung der Anzahl der Steine bzw. der Anzahl der Farben.
+- In einem Turm dürfen auch mehrere Steine derselben 
+Farbe verbaut werden.
+Beobachtungshinweise:
+• Wurden die verschiedenen Türme probierend oder (zunehmend) systematisch gefunden? 
+• Welche Strategien wurden zum Finden aller Türme genutzt? Wie wurde sortiert?Durchführung der Übung:
+• Die Kinder bauen Zweiertürme aus Bausteinen mit vier ver-
+schiedenen Farben durch Probieren oder Entwicklung einer 
+Strategie.
+• Die Kinder dokumentieren (zeichnerisch) ihre gefundenen 
+Möglichkeiten.
+• Reflexionsfragen: „Wie hast du alle gefunden?“, „Bist du sicher, 
+dass du alle Möglichkeiten gefunden hast?“, „Warum sind das 
+alle Möglichkeiten?“
+

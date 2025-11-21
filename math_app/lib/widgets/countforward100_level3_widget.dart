@@ -43,8 +43,8 @@ class CountForwardLevel3Widget extends StatefulWidget {
 
 class _CountForwardLevel3WidgetState extends State<CountForwardLevel3Widget> {
   static const int minNumber = 1;
-  static const int maxNumber = 20;
-  static const List<int> decadeNumbers = [10, 20];
+  static const int maxNumber = 100;
+  static const List<int> decadeNumbers = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
   int _problemsCompleted = 0;
   int _consecutiveCorrect = 0;
@@ -366,7 +366,7 @@ class _CountForwardLevel3WidgetState extends State<CountForwardLevel3Widget> {
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                           ),
-                          maxLength: 2,
+                          maxLength: 3,
                           inputFormatters: [
                             FilteringTextInputFormatter.digitsOnly,
                           ],

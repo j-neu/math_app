@@ -43,9 +43,9 @@ class CountForwardLevel2Widget extends StatefulWidget {
 
 class _CountForwardLevel2WidgetState extends State<CountForwardLevel2Widget> {
   static const int minNumber = 1;
-  static const int maxNumber = 20;
+  static const int maxNumber = 100;
   static const int requiredProblems = 12;
-  static const List<int> decadeNumbers = [10, 20];
+  static const List<int> decadeNumbers = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
   int _problemsCompleted = 0;
   int _startNumber = 0;

@@ -3,21 +3,21 @@ import '../models/exercise_config.dart';
 import '../models/scaffold_level.dart';
 import '../models/user_profile.dart';
 import '../mixins/exercise_progress_mixin.dart';
-import '../widgets/countforward_level1_widget.dart';
-import '../widgets/countforward_level2_widget.dart';
-import '../widgets/countforward_level3_widget.dart';
-import '../widgets/countforward_level4_widget.dart';
+import '../widgets/countforward100_level1_widget.dart';
+import '../widgets/countforward100_level2_widget.dart';
+import '../widgets/countforward100_level3_widget.dart';
+import '../widgets/countforward100_level4_widget.dart';
 
-/// Complete implementation of C3.1: Count Forward to 20 exercise with Card-Based Scaffolding.
+/// Complete implementation of C3.3: Count Forward to 100 exercise with Card-Based Scaffolding.
 ///
 /// This exercise follows the framework documented in IMINT_TO_APP_FRAMEWORK.md
 /// to properly answer "Wie kommt die Handlung in den Kopf?" (How does action become mental?)
 ///
 /// **Source:** iMINT Arbeitskarte 3: "Zählen am Zahlenband bis 100" (Pages 77-78)
-/// **Note:** This is the 1-20 range version. See C3.2 (1-50) and C3.3 (1-100) for extended ranges.
+/// **Note:** This is the 1-100 range version. See C3.1 (1-20) and C3.2 (1-50) for other ranges.
 ///
 /// **Level 1: Tap Sequence (Activity B)**
-/// - Tap numbers in sequence on visible band (1-20)
+/// - Tap numbers in sequence on visible band (1-50)
 /// - Full visual support, SEE the sequence
 /// - Generic feedback ("Keep going!"), minimal hand-holding
 /// - Purpose: Recognize sequence patterns
@@ -51,24 +51,24 @@ import '../widgets/countforward_level4_widget.dart';
 /// - Level unlocks persist across app restarts
 /// - Child can exit and resume from same point
 ///
-/// **Pedagogical Goal:** Internalize counting sequence 1-20 through
+/// **Pedagogical Goal:** Internalize counting sequence 1-100 through
 /// progressive scaffolding: Tap → Identify → Fill → Practice
 ///
 /// **Skills:** counting_3 (forward/backward counting on number band)
-class CountForwardExercise extends StatefulWidget {
+class CountForward100Exercise extends StatefulWidget {
   final ExerciseConfig config;
   final UserProfile userProfile;
 
-  const CountForwardExercise({
+  const CountForward100Exercise({
     super.key,
     required this.userProfile,
   }) : config = const ExerciseConfig(
-          id: 'C3.1',
-          title: 'Count Forward to 20',
+          id: 'C3.3',
+          title: 'Count Forward to 100',
           skillTags: ['counting_3'],
-          sourceCard: 'iMINT Arbeitskarte 3: Zählen am Zahlenband bis 100 (Pages 77-78) - Adapted for 1-20 range',
+          sourceCard: 'iMINT Arbeitskarte 3: Zählen am Zahlenband bis 100 (Pages 77-78) - Adapted for 1-100 range',
           concept:
-              'Understanding the number sequence 1-20: recognizing patterns, '
+              'Understanding the number sequence 1-100: recognizing patterns, '
               'counting forward and backward fluently, internalizing the sequence',
           observationPoints: [
             'Can child tap numbers in sequence without specific prompts?',
@@ -80,7 +80,7 @@ class CountForwardExercise extends StatefulWidget {
           internalizationPath:
               'Level 1 (Tap sequence) → Level 2 (Identify covered number) → '
               'Level 3 (Fill missing numbers) → Level 4 (Finale consolidation)',
-          targetNumber: 20, // Count up to 20
+          targetNumber: 100, // Count up to 20
           hints: [
             'The ones-digit counts up: 1,2,3...9, then starts again at 11,12,13...',
             'After 9 comes 10, after 19 comes 20',
@@ -90,10 +90,10 @@ class CountForwardExercise extends StatefulWidget {
         );
 
   @override
-  State<CountForwardExercise> createState() => _CountForwardExerciseState();
+  State<CountForward100Exercise> createState() => _CountForward100ExerciseState();
 }
 
-class _CountForwardExerciseState extends State<CountForwardExercise>
+class _CountForward100ExerciseState extends State<CountForward100Exercise>
     with ExerciseProgressMixin {
   // Mixin requirements
   @override

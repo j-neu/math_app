@@ -1,48 +1,76 @@
 import 'package:flutter/material.dart';
 import '../models/exercise_config.dart';
 import '../models/scaffold_level.dart';
-import '../widgets/countobjects_level1_widget.dart';
-import '../widgets/countobjects_level2_widget.dart';
-import '../widgets/countobjects_level3_widget.dart';
+import '../models/user_profile.dart';
+import '../mixins/exercise_progress_mixin.dart';
+import '../widgets/countobjects_level1_widget_v2.dart';
+import '../widgets/countobjects_level2_widget_v2.dart';
+import '../widgets/countobjects_level3_widget_v2.dart';
+import '../widgets/countobjects_level4_widget_v2.dart';
+import '../widgets/countobjects_level5_widget_v2.dart';
 
-/// Complete implementation of C1.2: Count the Objects exercise with 3-Level Scaffolding.
+/// Complete implementation of C1.2: Count the Objects exercise with 5-Level Scaffolding.
 ///
-/// This exercise follows the framework documented in IMINT_TO_APP_FRAMEWORK.md
-/// to properly answer "Wie kommt die Handlung in den Kopf?" (How does action become mental?)
+/// This exercise follows the same iMINT Card 1 prescription as C1.1 but uses various
+/// object types instead of uniform dots. This teaches that counting works with ANY objects.
 ///
-/// **Level 1: Guided Exploration (Handlung)**
-/// - Tap each object (stars, hearts, circles, etc.) to count
-/// - Counter auto-displays as child taps
-/// - Pure exploration with various object types
-/// - Unlocks Level 2 after child counts 3 problems
+/// **iMINT Card 1: "Wie kommt die Handlung in den Kopf?"**
+/// 1. Zuerst wird das gezählte Objekt zur Seite geschoben (push aside while counting)
+/// 2. Später wird es beim lauten Zählen nur angetippt (tap/touch while counting)
+/// 3. Der nächste Schritt ist das laute Abzählen ohne weitere äußere Handlung (count without action)
+/// 4. Das Verfolgen der Zählhandlung mit den Augen und die Nennung des Ergebnisses (eyes only, then result)
 ///
-/// **Level 2: Supported Practice (Vorstellung begins)**
-/// - Structured objects displayed (apples, books, toys, animals)
-/// - Child must WRITE the number they counted
-/// - Immediate feedback with emoji representations
-/// - Unlocks Level 3 after 10 correct answers
+/// **CRITICAL DIFFERENCE FROM C1.1:** Child is NEVER shown the count during interaction.
+/// They must count mentally and enter the number themselves at each level.
 ///
-/// **Level 3: Independent Mastery (Vorstellung → Symbol)**
-/// - Objects FLASH briefly (2 seconds), then HIDDEN
-/// - Child counts from memory/mental imagery
-/// - Objects appear ONLY on errors (no-fail safety net)
-/// - Difficulty increases adaptively
+/// **Level 1: Drag Objects (zur Seite schieben)**
+/// - Drag each object (stars, hearts, shapes) to "counted" area
+/// - NO counter displayed (unlike C1.1)
+/// - After dragging, child enters the total count
+/// - Learn one-to-one correspondence without automatic feedback
 ///
-/// **Pedagogical Goal:** Build counting ability with diverse objects - from concrete (tap) to abstract (mental)
+/// **Level 2: Tap Objects (antippen)**
+/// - Tap objects (they mark as counted)
+/// - NO counter displayed
+/// - Child must count mentally and enter result
+/// - Reduced motor action, same concept
 ///
-/// **Difference from C1.1:** Uses various object types instead of uniform dots,
-/// teaching that counting works with any objects (abstraction of counting concept)
+/// **Level 3: No-Action Count (ohne Handlung)**
+/// - Objects visible but no interaction
+/// - Child counts silently and enters result
+/// - Mental counting with visual support
 ///
-/// Source: iMINT counting_1 (Objects counting / Gegenstände zählen)
+/// **Level 4: Flash-and-Memory (mit den Augen)**
+/// - Objects flash briefly (2 seconds) then hide
+/// - Child must remember pattern and count from memory
+/// - Pure mental imagery and recall
+///
+/// **Level 5: Finale - Mixed Review**
+/// - Easier than Level 4 (8-12 objects, structured layouts only)
+/// - ADHD-friendly Easy→Hard→Easy flow
+/// - Completion criteria: 10 problems, zero errors, <20s each
+///
+/// **Pedagogical Goal:** Learn that counting works with ANY objects (abstraction),
+/// progressing from physical action to pure mental imagery
+///
+/// **Difference from C1.1:**
+/// - Uses various object types (stars, hearts, apples, etc.) instead of uniform dots
+/// - Child never sees automatic count feedback - must count independently
+/// - Teaches abstraction: counting concept applies to all objects equally
+///
+/// Source: iMINT Green Card 1 (Gegenstände zählen / Count objects)
 class CountObjectsExercise extends StatefulWidget {
   final ExerciseConfig config;
+  final UserProfile userProfile;
 
-  const CountObjectsExercise({super.key})
-      : config = const ExerciseConfig(
+  const CountObjectsExercise({
+    super.key,
+    required this.userProfile,
+  }) : config = const ExerciseConfig(
           id: 'C1.2',
           title: 'Count the Objects',
           skillTags: ['counting_1'],
-          sourceCard: 'iMINT Green Card 1: Gegenstände zählen',
+          sourceCard: 'iMINT Green Card 1: Gegenstände zählen (5-level version)',
           concept:
               'Understanding that counting applies to any objects - abstraction of one-to-one correspondence',
           observationPoints: [
@@ -51,12 +79,14 @@ class CountObjectsExercise extends StatefulWidget {
             'Does object type affect counting accuracy?',
           ],
           internalizationPath:
-              'Level 1 (Tap objects to count) → Level 2 (See objects and write) → Level 3 (Imagine objects and count)',
-          targetNumber: 15, // Max objects in problems
+              'L1 (Drag) → L2 (Tap) → L3 (Look) → L4 (Flash) → L5 (Finale)',
+          targetNumber: 12, // Max objects in finale level
           hints: [
-            'It doesn\'t matter what the objects are - count them the same way!',
-            'Try counting in order: left to right, top to bottom.',
-            'Close your eyes and picture the objects you just saw.',
+            'Drag each object once as you count.',
+            'Tap each object once - no double counting!',
+            'Count the objects you see, then enter the number.',
+            'Try to remember the pattern - close your eyes and picture it!',
+            'You\'ve got this! Show your mastery!',
           ],
         );
 
@@ -64,67 +94,125 @@ class CountObjectsExercise extends StatefulWidget {
   State<CountObjectsExercise> createState() => _CountObjectsExerciseState();
 }
 
-class _CountObjectsExerciseState extends State<CountObjectsExercise> {
-  ScaffoldProgress _progress = const ScaffoldProgress();
+class _CountObjectsExerciseState extends State<CountObjectsExercise>
+    with ExerciseProgressMixin {
+  ScaffoldLevel _currentLevel = ScaffoldLevel.guidedExploration;
 
-  // Level 2 tracking
+  // Level completion tracking (ephemeral, for unlock logic)
+  int _level1ProblemsCompleted = 0;
   int _level2Correct = 0;
-  static const int _level2RequiredCorrect = 10;
-
-  // Level 3 tracking
   int _level3Correct = 0;
+  int _level4Correct = 0;
 
-  void _onLevel1Complete() {
-    setState(() {
-      _progress = _progress.copyWith(
-        level1Complete: true,
-        currentLevel: ScaffoldLevel.supportedPractice,
-      );
-    });
+  // Unlock thresholds
+  static const int _level1RequiredProblems = 3;
+  static const int _level2RequiredCorrect = 8;
+  static const int _level3RequiredCorrect = 10;
+  static const int _level4RequiredCorrect = 10;
 
-    _showLevelUnlockedMessage(ScaffoldLevel.supportedPractice);
+  // ExerciseProgressMixin implementation
+  @override
+  String get exerciseId => widget.config.id;
+
+  @override
+  UserProfile get userProfile => widget.userProfile;
+
+  @override
+  int get totalLevels => 5;
+
+  @override
+  int get finaleLevelNumber => 5;
+
+  @override
+  int get problemTimeLimit => 20; // 20 seconds per problem for completion
+
+  @override
+  int get finaleMinProblems => 10;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeExercise();
   }
 
-  void _onLevel2ProgressUpdate(int correctCount) {
-    setState(() {
-      _level2Correct = correctCount;
-      _progress = _progress.copyWith(
-        level2Correct: correctCount,
-        level2Total: _progress.level2Total + 1,
-      );
+  Future<void> _initializeExercise() async {
+    await initializeProgress();
 
-      // Unlock Level 3 after reaching required correct answers
-      if (correctCount >= _level2RequiredCorrect && !_progress.level3Unlocked) {
-        _progress = _progress.copyWith(
-          level3Unlocked: true,
-          currentLevel: ScaffoldLevel.independentMastery,
-        );
-        _showLevelUnlockedMessage(ScaffoldLevel.independentMastery);
+    // Restore current level based on what's unlocked
+    setState(() {
+      if (isLevelUnlocked(5)) {
+        _currentLevel = ScaffoldLevel.finale;
+      } else if (isLevelUnlocked(4)) {
+        _currentLevel = ScaffoldLevel.advancedChallenge;
+      } else if (isLevelUnlocked(3)) {
+        _currentLevel = ScaffoldLevel.independentMastery;
+      } else if (isLevelUnlocked(2)) {
+        _currentLevel = ScaffoldLevel.supportedPractice;
+      } else {
+        _currentLevel = ScaffoldLevel.guidedExploration;
       }
     });
   }
 
-  void _onLevel3ProgressUpdate(int correctCount) {
+  @override
+  void dispose() {
+    // Note: dispose is synchronous, we save in WillPopScope async callback
+    super.dispose();
+  }
+
+  void _onLevel1Progress(int problemsSolved) {
     setState(() {
-      _level3Correct = correctCount;
+      _level1ProblemsCompleted = problemsSolved;
+
+      if (_level1ProblemsCompleted >= _level1RequiredProblems &&
+          !isLevelUnlocked(2)) {
+        unlockLevel(2);
+        _showLevelUnlockedMessage('Level 2: Tap Objects',
+            'Tap objects instead of dragging them!');
+      }
     });
   }
 
-  void _showLevelUnlockedMessage(ScaffoldLevel level) {
+  void _onLevel2ProgressUpdate(int correct, int total) {
+    setState(() {
+      _level2Correct = correct;
+
+      if (correct >= _level2RequiredCorrect && !isLevelUnlocked(3)) {
+        unlockLevel(3);
+        _showLevelUnlockedMessage('Level 3: No-Action Count',
+            'Count without touching - just look and think!');
+      }
+    });
+  }
+
+  void _onLevel3ProgressUpdate(int correct, int total) {
+    setState(() {
+      _level3Correct = correct;
+
+      if (correct >= _level3RequiredCorrect && !isLevelUnlocked(4)) {
+        unlockLevel(4);
+        _showLevelUnlockedMessage('Level 4: Flash & Memory',
+            'The ultimate challenge - count from memory!');
+      }
+    });
+  }
+
+  void _onLevel4ProgressUpdate(int correct) {
+    setState(() {
+      _level4Correct = correct;
+
+      if (correct >= _level4RequiredCorrect && !isLevelUnlocked(5)) {
+        unlockLevel(5);
+        _showLevelUnlockedMessage('Level 5: Finale - Show Your Mastery!',
+            'Time for a victory lap! 🎉');
+      }
+    });
+  }
+
+  void _showLevelUnlockedMessage(String levelName, String description) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.lock_open, color: Colors.white),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                '${level.displayName} unlocked! 🎉',
-                style: const TextStyle(fontSize: 16),
-              ),
-            ),
-          ],
-        ),
+        content: Text('🎉 $levelName Unlocked!\n$description'),
         backgroundColor: Colors.green,
         duration: const Duration(seconds: 3),
       ),
@@ -132,215 +220,69 @@ class _CountObjectsExerciseState extends State<CountObjectsExercise> {
   }
 
   void _onLevelSelected(ScaffoldLevel level) {
-    // Check if level is unlocked
-    bool isUnlocked = false;
-    String lockMessage = '';
+    int levelNumber = _scaffoldLevelToInt(level);
 
-    switch (level) {
-      case ScaffoldLevel.guidedExploration:
-        isUnlocked = true; // Always unlocked
-        break;
-      case ScaffoldLevel.supportedPractice:
-        isUnlocked = _progress.level2Unlocked;
-        lockMessage = 'Complete Level 1 first!';
-        break;
-      case ScaffoldLevel.independentMastery:
-        isUnlocked = _progress.level3Unlocked;
-        lockMessage =
-            'Complete Level 2 with $_level2RequiredCorrect correct answers first!';
-        break;
-      case ScaffoldLevel.advancedChallenge:
-        isUnlocked = false;
-        lockMessage = 'Not available for this exercise';
-        break;
-      case ScaffoldLevel.finale:
-        isUnlocked = false;
-        lockMessage = 'Finale level not yet implemented';
-        break;
-    }
-
-    if (isUnlocked) {
+    if (isLevelUnlocked(levelNumber)) {
       setState(() {
-        _progress = _progress.copyWith(currentLevel: level);
+        _currentLevel = level;
       });
     } else {
+      String lockMessage = _getLockMessage(level);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.lock, color: Colors.white),
-              const SizedBox(width: 12),
-              Expanded(child: Text(lockMessage)),
-            ],
-          ),
+          content: Text(lockMessage),
           backgroundColor: Colors.orange,
-          duration: const Duration(seconds: 2),
         ),
       );
     }
   }
 
-  void _showInfoDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.info_outline, color: Colors.blue),
-            SizedBox(width: 12),
-            Text('About This Exercise'),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'This exercise uses 3 levels to help you master counting with various objects:',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              _buildLevelInfo(
-                'Level 1: Guided Exploration',
-                'Tap each object (stars, hearts, shapes) and watch the counter grow.',
-                Colors.blue,
-                Icons.touch_app,
-              ),
-              const SizedBox(height: 12),
-              _buildLevelInfo(
-                'Level 2: Supported Practice',
-                'See the objects (apples, books, animals) and write how many.',
-                Colors.orange,
-                Icons.create,
-              ),
-              const SizedBox(height: 12),
-              _buildLevelInfo(
-                'Level 3: Independent Mastery',
-                'The objects flash, then hide. Count from memory!',
-                Colors.purple,
-                Icons.visibility_off,
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.green.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.green),
-                ),
-                child: const Text(
-                  'Learn that counting works the same for any objects - dots, shapes, or things!',
-                  style: TextStyle(fontSize: 14),
-                ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Got it!'),
-          ),
-        ],
-      ),
-    );
+  int _scaffoldLevelToInt(ScaffoldLevel level) {
+    switch (level) {
+      case ScaffoldLevel.guidedExploration:
+        return 1;
+      case ScaffoldLevel.supportedPractice:
+        return 2;
+      case ScaffoldLevel.independentMastery:
+        return 3;
+      case ScaffoldLevel.advancedChallenge:
+        return 4;
+      case ScaffoldLevel.finale:
+        return 5;
+    }
   }
 
-  Widget _buildLevelInfo(
-      String title, String description, Color color, IconData icon) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(icon, color: color, size: 24),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                description,
-                style: const TextStyle(fontSize: 13),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
+  String _getLockMessage(ScaffoldLevel level) {
+    switch (level) {
+      case ScaffoldLevel.guidedExploration:
+        return '';
+      case ScaffoldLevel.supportedPractice:
+        return 'Complete $_level1RequiredProblems problems in Level 1 first!';
+      case ScaffoldLevel.independentMastery:
+        return 'Get $_level2RequiredCorrect correct in Level 2 first!';
+      case ScaffoldLevel.advancedChallenge:
+        return 'Get $_level3RequiredCorrect correct in Level 3 first!';
+      case ScaffoldLevel.finale:
+        return 'Get $_level4RequiredCorrect correct in Level 4 first!';
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        Navigator.pop(context);
-        return false;
+        await onExerciseExit();
+        return true;
       },
       child: Column(
         children: [
           // Level selector
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              border: Border(
-                bottom: BorderSide(color: Colors.grey.shade300, width: 1),
-              ),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _buildLevelButton(
-                    ScaffoldLevel.guidedExploration,
-                    'Level 1',
-                    Colors.blue,
-                    Icons.touch_app,
-                    true, // Always unlocked
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildLevelButton(
-                    ScaffoldLevel.supportedPractice,
-                    'Level 2',
-                    Colors.orange,
-                    Icons.create,
-                    _progress.level2Unlocked,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildLevelButton(
-                    ScaffoldLevel.independentMastery,
-                    'Level 3',
-                    Colors.purple,
-                    Icons.visibility_off,
-                    _progress.level3Unlocked,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          _buildLevelSelector(),
 
-          // Progress indicator for current level
+          // Progress indicator
           _buildLevelProgressIndicator(),
 
-          // Current level content
+          // Current level widget
           Expanded(
             child: _buildCurrentLevelWidget(),
           ),
@@ -349,44 +291,79 @@ class _CountObjectsExerciseState extends State<CountObjectsExercise> {
     );
   }
 
-  Widget _buildLevelButton(
-    ScaffoldLevel level,
-    String label,
-    Color color,
-    IconData icon,
-    bool isUnlocked,
-  ) {
-    final bool isActive = _progress.currentLevel == level;
-
-    return GestureDetector(
-      onTap: () => _onLevelSelected(level),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-        decoration: BoxDecoration(
-          color: isActive ? color : Colors.white,
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(
-            color: isActive ? color : Colors.grey.shade300,
-            width: isActive ? 2 : 1,
+  Widget _buildLevelSelector() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      color: Colors.grey.shade100,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildLevelButton(
+            level: ScaffoldLevel.guidedExploration,
+            label: 'L1\nDrag',
+            color: Colors.blue,
           ),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              isUnlocked ? icon : Icons.lock,
-              color: isActive ? Colors.white : (isUnlocked ? color : Colors.grey),
-              size: 14,
+          _buildLevelButton(
+            level: ScaffoldLevel.supportedPractice,
+            label: 'L2\nTap',
+            color: Colors.orange,
+          ),
+          _buildLevelButton(
+            level: ScaffoldLevel.independentMastery,
+            label: 'L3\nLook',
+            color: Colors.purple,
+          ),
+          _buildLevelButton(
+            level: ScaffoldLevel.advancedChallenge,
+            label: 'L4\nFlash',
+            color: Colors.red,
+          ),
+          _buildLevelButton(
+            level: ScaffoldLevel.finale,
+            label: 'L5\nFinale',
+            color: Colors.green,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLevelButton({
+    required ScaffoldLevel level,
+    required String label,
+    required Color color,
+  }) {
+    int levelNumber = _scaffoldLevelToInt(level);
+    bool isUnlocked = isLevelUnlocked(levelNumber);
+    bool isActive = _currentLevel == level;
+
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2),
+        child: ElevatedButton(
+          onPressed: isUnlocked ? () => _onLevelSelected(level) : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: isActive ? color : Colors.grey.shade300,
+            foregroundColor: isActive ? Colors.white : Colors.grey.shade600,
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+              side: isActive
+                  ? BorderSide(color: color, width: 2)
+                  : BorderSide.none,
             ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: isActive ? Colors.white : (isUnlocked ? color : Colors.grey),
-                fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                fontSize: 10,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (!isUnlocked) const Icon(Icons.lock, size: 14),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 10),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -397,54 +374,53 @@ class _CountObjectsExerciseState extends State<CountObjectsExercise> {
     double progressValue = 0.0;
     Color progressColor = Colors.blue;
 
-    switch (_progress.currentLevel) {
+    switch (_currentLevel) {
       case ScaffoldLevel.guidedExploration:
-        progressText = 'Explore freely - tap objects to count!';
-        progressValue = 0.0;
+        progressText =
+            'Problems completed: $_level1ProblemsCompleted/$_level1RequiredProblems';
+        progressValue = _level1ProblemsCompleted / _level1RequiredProblems;
         progressColor = Colors.blue;
         break;
       case ScaffoldLevel.supportedPractice:
         progressText =
-            'Progress: $_level2Correct/$_level2RequiredCorrect to unlock Level 3';
+            'Correct: $_level2Correct/$_level2RequiredCorrect to unlock Level 3';
         progressValue = _level2Correct / _level2RequiredCorrect;
         progressColor = Colors.orange;
         break;
       case ScaffoldLevel.independentMastery:
-        progressText = 'Mastery Level - Correct: $_level3Correct';
-        progressValue = 1.0;
+        progressText =
+            'Correct: $_level3Correct/$_level3RequiredCorrect to unlock Level 4';
+        progressValue = _level3Correct / _level3RequiredCorrect;
         progressColor = Colors.purple;
         break;
       case ScaffoldLevel.advancedChallenge:
-        progressText = '';
-        progressValue = 0.0;
-        progressColor = Colors.grey;
+        progressText =
+            'Correct: $_level4Correct/$_level4RequiredCorrect to unlock Finale';
+        progressValue = _level4Correct / _level4RequiredCorrect;
+        progressColor = Colors.red;
         break;
-
-      default:
-        // Finale level not yet implemented
-        return const Center(child: Text('Finale level coming soon!'));
+      case ScaffoldLevel.finale:
+        progressText = 'Finale Level - Show your mastery!';
+        progressValue = 1.0;
+        progressColor = Colors.green;
+        break;
     }
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       color: progressColor.withOpacity(0.1),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  progressText,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: progressColor.withOpacity(0.8),
-                  ),
-                ),
-              ),
-            ],
+          Text(
+            progressText,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: progressColor,
+            ),
           ),
-          if (_progress.currentLevel == ScaffoldLevel.supportedPractice) ...[
+          if (_currentLevel != ScaffoldLevel.finale) ...[
             const SizedBox(height: 4),
             ClipRRect(
               borderRadius: BorderRadius.circular(4),
@@ -462,16 +438,14 @@ class _CountObjectsExerciseState extends State<CountObjectsExercise> {
   }
 
   Widget _buildCurrentLevelWidget() {
-    switch (_progress.currentLevel) {
+    switch (_currentLevel) {
       case ScaffoldLevel.guidedExploration:
-        return CountObjectsLevel1Widget(
-          numberOfObjects: 8, // Start with 8 objects
-          onReadyForNextLevel: _onLevel1Complete,
+        return CountObjectsLevel1WidgetV2(
+          onProgressUpdate: _onLevel1Progress,
         );
 
       case ScaffoldLevel.supportedPractice:
-        return CountObjectsLevel2Widget(
-          correctAnswersRequired: _level2RequiredCorrect,
+        return CountObjectsLevel2WidgetV2(
           onProgressUpdate: _onLevel2ProgressUpdate,
         );
 
@@ -481,12 +455,24 @@ class _CountObjectsExerciseState extends State<CountObjectsExercise> {
         );
 
       case ScaffoldLevel.advancedChallenge:
-        return const SizedBox.shrink();
+        return CountObjectsLevel4Widget(
+          onProgressUpdate: _onLevel4ProgressUpdate,
+        );
 
       case ScaffoldLevel.finale:
-        // Finale level not yet implemented for this exercise
-        return const Center(
-          child: Text('Finale level coming soon!'),
+        return CountObjectsLevel5Widget(
+          onStartProblemTimer: startProblemTimer,
+          onProblemComplete: (correct, userAnswer) async {
+            await recordProblemResult(
+              levelNumber: 5,
+              correct: correct,
+              userAnswer: userAnswer,
+            );
+          },
+          onLevelComplete: () {
+            // Level 5 completed! Save progress and notify user
+            saveProgress();
+          },
         );
     }
   }

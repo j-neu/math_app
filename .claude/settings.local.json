@@ -10,7 +10,13 @@
       "Bash(python extract_all_pdfs.py:*)",
       "Bash(git -C \"C:\\Users\\jakob\\StudioProjects\\Math_App\" diff tasks.md)",
       "Bash(python cleanup_tasks2.py:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(awk:*)",
+      "Bash(mkdir:*)",
+      "Bash(git mv:*)",
+      "Bash(powershell:*)",
+      "Bash(findstr:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

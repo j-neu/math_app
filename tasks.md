@@ -1,326 +1,122 @@
 # Math App Development Tasks
 
-**Last Updated:** 2025-11-01
+**Last Updated:** 2025-11-19
 
-**For completed work history:** [COMPLETED_TASKS.md](COMPLETED_TASKS.md)
-**For implementation details:** [ARCHIVE_IMPLEMENTATIONS.md](ARCHIVE_IMPLEMENTATIONS.md)
+**For completed work:** [COMPLETED_TASKS.md](COMPLETED_TASKS.md)
+**For full task history:** [Archive/tasks_full.md](Archive/tasks_full.md)
 
 ---
 
 ## 🎯 CURRENT FOCUS: Phase 2.5 - Completion Tracking & Rewards
 
-**Status:** Ready to implement (Planning complete)
-**Timeline:** 6 weeks (Nov 2 - Dec 13, 2025)
-**Priority:** HIGH - Blocks all future exercise work
+**Timeline:** Week 4-6 (In Progress)
+**Priority:** HIGH - Foundation for all future exercises
 
-### What This Phase Adds
+### What's Left
 
-- ✨ **Exercise completion tracking** (finished vs completed status)
-- ✨ **Persistent progress** (saves level unlocks, accuracy, times across sessions)
-- ✨ **Finale levels** (ADHD-friendly Easy→Hard→Easy flow)
-- ✨ **Parent reward system** (configurable rewards for practice milestones)
-- ✨ **Learning path redesign** (vertical scrolling, milestone grouping, visual states)
+**Week 4: Update Remaining Exercises (COMPLETE)** ✅
+- [x] C2.1 (Order Cards) - ✅ COMPLETE with finale level
+- [x] C1.2 (Count the Objects) - ✅ COMPLETE with finale + ExerciseProgressMixin
+- [x] C3.1 (Count Forward) - ✅ COMPLETE with finale + ExerciseProgressMixin
+- [x] C4.1 (What Comes Next) - ✅ COMPLETE with Level 4 + Level 5 finale + ExerciseProgressMixin
+  - Extended to 5 levels (3 card levels + L4 challenge + L5 finale)
+  - L4: Two-number sequences (17, ___, ___ or ___, ___, 20)
+  - L5: Easier mixed review (range 6-14, 10 problems, 0 errors, <20s)
+  - Full state persistence with ExerciseProgressMixin
+  - ~3,700 lines total (coordinator + 5 level widgets)
 
-**📖 Full Specification:** [COMPLETION_CRITERIA.md](COMPLETION_CRITERIA.md) | [REWARDS_SYSTEM.md](REWARDS_SYSTEM.md)
+**Week 5: Z1 Completion (CRITICAL)**
+- [ ] Z1 (Decompose 10) - Add finale level (easier than L3) + ExerciseProgressMixin
+  - **BLOCKER:** Currently NOT completable - L3 is hardest level
+  - Proposed finale: Decompose 5-8 (easier than 10)
 
----
-
-## Phase 2.5 Checklist
-
-### Week 1: Data Models & Foundation ✅ COMPLETE
-- [x] Create `lib/models/exercise_progress.dart` (ExerciseProgress + enum)
-- [x] Create `lib/models/level_progress.dart` (LevelProgress + ProblemResult)
-- [x] Create `lib/models/reward_config.dart` (RewardConfig model)
-- [x] Create `lib/models/milestone.dart` (Milestone definitions)
-- [x] Extend `lib/models/user_profile.dart` with new fields:
-  - [x] Add `Map<String, ExerciseProgress>? exerciseProgress`
-  - [x] Add `RewardConfig? rewardConfig`
-  - [x] Add `DateTime? lastSessionDate`
-  - [x] Add `int totalExercisesCompleted`
-  - [x] Add `int exercisesCompletedToday`
-  - [x] Update JSON serialization
-  - [x] Update copyWith method
-- [x] Update `lib/models/scaffold_level.dart`:
-  - [x] Add `finale` to ScaffoldLevel enum
-- [x] Test save/load with UserService (JSON serialization confirmed working)
-
-**Note:** Non-exhaustive switch warnings for `ScaffoldLevel.finale` will be resolved as exercises are updated in Weeks 2-5.
-
-### Week 2: Exercise Framework
-- [x] Create `lib/mixins/exercise_progress_mixin.dart` (reusable progress logic)
-- [x] Update **C1.1** (Count Dots V2) as proof-of-concept:
-  - [x] Add Level 5: Finale (8-12 dots, structured only, easier)
-  - [x] Integrate ExerciseProgressMixin
-  - [x] Implement load progress on init
-  - [x] Implement save progress on level unlock
-  - [x] Implement save progress every 5 problems
-  - [x] Implement save progress on exit (WillPopScope)
-  - [x] Implement track time per problem (Stopwatch via mixin)
-  - [x] Define completion criteria (10 problems, <20s each, zero errors)
-  - [x] Test complete flow: start → progress → exit → reload → continue
-- [x] **BLOCKER:** Fix non-exhaustive switch warnings in other exercises
-  - Automated script corrupted files - need  fixes
-  - Files need cleanup and proper finale case addition
-- [x] Document C1.1 finale level pattern for reference
-
-### Week 3: Services & UI ✅ COMPLETE
-- [x] Create `lib/services/reward_service.dart`:
-  - [x] `shouldShowDailyReward()`
-  - [x] `shouldShowCompletedReward()`
-  - [x] `shouldShowMilestoneReward()`
-  - [x] `getNextRewardText()`
-  - [x] `markRewardEarned()`
-- [x] Extend `lib/services/exercise_service.dart`:
-  - [x] `getLearningPathGroupedByMilestone()`
-  - [x] `getExercisesByStatus()`
-  - [x] `getNextRecommendedExercise()`
-  - [x] `isMilestoneComplete()`
-  - [x] `getMilestoneProgress()`
-- [x] Redesign `lib/screens/learning_path_screen.dart`:
-  - [x] Vertical scrolling layout
-  - [x] Progress overview card (with daily reward trophy if applicable)
-  - [x] Milestone section widgets (with progress bars)
-  - [x] Exercise cards (left-right alternating)
-  - [x] Visual states: completed (green ✅), finished (blue ✓), in-progress (cyan →), not started (gray)
-  - [x] Trophy icons at reward points
-  - [x] Reward celebration modals (daily, completed, milestone)
-- [x] Add Rewards submenu to `lib/screens/settings_screen.dart`:
-  - [x] ListTile navigation to rewards settings
-- [x] Create `lib/screens/rewards_settings_screen.dart`:
-  - [x] Daily exercise reward checkbox
-  - [x] Completed exercise reward checkbox
-  - [x] Milestone reward checkbox
-  - [x] Add reward text field + button
-  - [x] Reward list (delete button)
-  - [x] Save to UserProfile
-- [ ] Test: Configure rewards → Complete exercise → See celebration
-
-### Week 4: Update Existing Exercises (Part 1)
-- [ ] Update **C2.1** (Order Cards):
-  - [ ] Add Level 4: Finale (5-7 numbers, easier)
-  - [ ] Add progress tracking
-  - [ ] Define completion criteria
-- [ ] Update **C3.1** (Count Forward):
-  - [ ] Add Level 4: Finale (forward by 1s/2s, 0-15 range)
-  - [ ] Add progress tracking
-  - [ ] Define completion criteria
-- [ ] Update **C4.1** (What Comes Next):
-  - [ ] Add Level 4: Finale (predecessor/successor 0-15 range)
-  - [ ] Add progress tracking
-  - [ ] Define completion criteria
-
-### Week 5: Update Existing Exercises (Part 2)
-- [ ] Update **C10.1** (Place Numbers on Line):
-  - [ ] Add Level 4: Finale (5 numbers on 0-20 line)
-  - [ ] Add progress tracking
-  - [ ] Define completion criteria
-- [ ] Update **Z1** (Decompose 10):
-  - [ ] Add Level 4: Finale (decompose 5-8, easier)
-  - [ ] Add progress tracking
-  - [ ] Define completion criteria
-- [ ] Test all 7 exercises:
-  - [ ] Progress saves correctly
-  - [ ] Progress loads on return
-  - [ ] Completion criteria work
-  - [ ] Finale levels unlock properly
-
-### Week 6: Testing & Documentation
-- [ ] End-to-end testing:
-  - [ ] New user → diagnostic → learning path shows correctly
-  - [ ] Complete exercise → progress saves → status updates
-  - [ ] Learning path filters by status
-  - [ ] Rewards trigger correctly (daily, completed, milestone)
-  - [ ] App restart preserves all progress
-- [ ] Edge case testing:
-  - [ ] Incomplete exercises handled correctly
-  - [ ] Reset progress works
-  - [ ] Multiple users don't interfere
-- [ ] Update documentation:
-  - [ ] CLAUDE.md (update exercise count, status)
-  - [ ] COMPLETION_CRITERIA.md (add any learnings)
-  - [ ] REWARDS_SYSTEM.md (add any adjustments)
-  - [ ] README.md (update feature list)
-- [ ] Code cleanup:
-  - [ ] Run `flutter analyze` (fix warnings)
-  - [ ] Remove debug prints
-  - [ ] Add code comments to complex logic
-- [ ] Create summary document:
-  - [ ] Phase 2.5 completion summary
-  - [ ] Move to COMPLETED_TASKS.md
+**Week 6: Testing & Wrap-Up**
+- [ ] Test all 6 exercises end-to-end (state persistence, completion tracking)
+- [ ] Test reward system (daily, completed, milestone triggers)
+- [ ] Update documentation (CLAUDE.md, IMINT_TO_APP_FRAMEWORK.md)
+- [ ] Code cleanup (flutter analyze, remove debug prints)
 
 ---
 
-## 📚 Exercise Creation Framework
+## 🔑 CRITICAL REQUIREMENTS
 
-**Every new exercise MUST include:**
+Every exercise MUST have:
+1. **ExerciseProgressMixin** - Load on init, save every 5 problems + on exit
+2. **Finale level** - Easier than hardest card level, MUST be completable
+3. **Completion criteria** - Clear time limits, accuracy requirements
+4. **State persistence** - Exit/resume works, level unlocks persist
 
-1. **Read the card** - Extract scaffolding from "Wie kommt die Handlung in den Kopf?"
-2. **Card-prescribed levels** - Implement exact levels from card (typically 2-4)
-3. **Finale level** - Add easier mixed review (Easy→Hard→Easy)
-4. **Progress tracking** - Integrate ExerciseProgressMixin, save/load from UserProfile
-5. **Completion criteria** - Define time limits per problem, accuracy requirements
-6. **Skill tags** - Tag with appropriate skills from taxonomy
-7. **No-fail feedback** - Hints, visual safety net, never say "wrong"
-
-**📖 Full Framework:** [IMINT_TO_APP_FRAMEWORK.md](IMINT_TO_APP_FRAMEWORK.md)
+**See:** [COMPLETION_CRITERIA.md](COMPLETION_CRITERIA.md) | [IMINT_TO_APP_FRAMEWORK.md](IMINT_TO_APP_FRAMEWORK.md)
 
 ---
 
-## 🚀 Future Work: Phase 2 Exercise Sets
+## 📋 Integration Checklist (Per Exercise)
 
-**Status:** ON HOLD until Phase 2.5 complete
-
-All future exercises will use the new completion tracking system and finale level pattern.
-
-### SET 1: Foundation Counting (Current - 7/7 done)
-- [x] C1.1: Count the Dots V2 (counting_1) - 4 card levels + finale
-- [ ] C1.2: Count the Objects (counting_1) - 3 card levels + finale --REMOVE
-- [ ] C2.1: Order Cards to 20 (counting_2) - 3 card levels + finale
-- [ ] C3.1: Count Forward to 20 (counting_3) - 3 card levels + finale
-- [ ] C4.1: What Comes Next? (counting_4, counting_5) - 3 card levels + finale
-- [ ] C10.1: Place Numbers on Line (counting_10, counting_11) - 3 card levels + finale
-- [ ] Z1: Decompose 10 (decomposition_1, decomposition_3) - 3 card levels + finale
-
-### SET 2: Number Decomposition Basics
-**Skills:** decomposition_1-5, decomposition_15
-**Widgets Needed:** WendeplättchenWidget, RechenschiffchenWidget
-
-- [ ] Z1.1: Decompose Numbers 2-9
-- [ ] Z1.2: Decompose on Boat
-- [ ] Z1.4: All Ways to Make 10
-- [ ] Z1.5: Decompose 20
-- [ ] Z1.6: Flip Card Game
-- [ ] Z2.2: Complete to 10
-
-### SET 3: Quick Recognition & Subitizing
-**Skills:** decomposition_6-8, decomposition_11
-**Widgets Needed:** FlashCardWidget, PatternDisplayWidget
-
-- [ ] Z3.1: Flash Recognition to 10
-- [ ] Z3.2: Flash Recognition to 20
-- [ ] Z3.3: Dice Patterns
-- [ ] Z3.4: Five-Frame Patterns
-- [ ] Z3.5: Quick See on Boat
-- [ ] Z3.6: How Many Without Counting?
-
-### SET 4: Place Value Foundations
-**Skills:** place_value_1-6
-**Widgets Needed:** DienesBlocksWidget (ESSENTIAL), StellentafelWidget, HundredChartWidget
-
-- [ ] P1.1: Bundle 10 Ones
-- [ ] P1.2: Make Bundles to 100
-- [ ] P2.1: Show Number with Blocks
-- [ ] P2.2: Read the Blocks
-- [ ] P3.1: Stellentafel Practice
-- [ ] P4.1: Hear and Write Numbers
-- [ ] P4.2: Inversion Challenge
-- [ ] P5.1: Tens-Ones Quiz
-- [ ] P6.1: 100-Chart Patterns
-- [ ] P6.2: Jump on 100-Chart
-
-### SET 5: Skip Counting & Patterns
-**Skills:** counting_6-9
-
-- [ ] C2.2: Skip by 2s on 100-Chart
-- [ ] C2.3: Skip Count by 5s
-- [ ] C2.4: Skip Count by 10s
-- [ ] C2.5: Find the Pattern
-- [ ] C2.6: Skip Count on Boat
-
-### Sets 6-18 (Future)
-**Total:** 110+ additional exercises covering:
-- Finger & dice strategies (6 ex)
-- Doubling & halving (10 ex)
-- Commutativity (5 ex)
-- Decade operations (8 ex)
-- Power of 5/10 strategies (8 ex)
-- Near-doubles (6 ex)
-- Partial steps (10 ex)
-- Number structures (6 ex)
-- Advanced 2-digit (10 ex)
-- Ordinal numbers (4 ex)
-- Representation networking (8 ex)
-- Operational sense (10 ex)
-- Number line strategies (8 ex)
-
-**📖 Future exercise details:** See ARCHIVE version of tasks.md if needed
+Before marking exercise complete:
+- [ ] ExerciseProgressMixin integrated
+- [ ] Finale level exists and tested
+- [ ] Completion criteria defined (in code comments)
+- [ ] State persistence tested (exit → relaunch → resume)
+- [ ] Can reach "completed" status (zero errors + time limits)
+- [ ] Reward celebration triggers (if enabled)
 
 ---
 
-## 🧩 Widget Library Status
+## 🚀 Next: Phase 2 Exercise Sets (ON HOLD)
 
-### Existing (3)
-- ✅ NumberLineWidget
-- ✅ TwentyFrameWidget
-- ✅ Custom Painters (Star, Heart, Triangle, Diamond)
+**Will resume after Phase 2.5 complete**
 
-### Critical Priority (Build for SET 2-4)
-- [ ] DienesBlocksWidget (Place value - SET 4)
-- [ ] RechenschiffchenWidget (Boat 5+5 - SET 2)
-- [ ] HundredChartWidget (10×10 grid - SET 4-5)
-- [ ] FlashCardWidget (Subitizing - SET 3)
-- [ ] WendeplättchenWidget (Two-color counters - SET 2)
+### SET 1: Foundation Counting ✅ (5/6 done)
+- [x] C1.1: Count the Dots V2 - ✅ COMPLETE (4 levels + finale)
+- [x] C1.2: Count the Objects - ✅ COMPLETE (5 levels + finale)
+- [x] C2.1: Order Cards - ✅ COMPLETE (3 levels + finale)
+- [x] C3.1: Count Forward - ✅ COMPLETE (3 levels + finale)
+- [x] C4.1: What Comes Next - ✅ COMPLETE (3 card levels + L4 challenge + L5 finale)
+- [ ] Z1: Decompose 10 - ⚠️ NEEDS FINALE + ExerciseProgressMixin (CRITICAL)
 
-### High Priority (Build Soon)
-- [ ] FingerWidget
-- [ ] Make10VisualizerWidget
-- [ ] StepVisualizerWidget
-- [ ] EmptyNumberLineWidget
-- [ ] MarkedNumberLineWidget
+### SET 2: Number Decomposition (Future - 0/6)
+Z1.1, Z1.2, Z1.4, Z1.5, Z1.6, Z2.2
+
+### SET 3: Subitizing (Future - 0/6)
+Z3.1-Z3.6
+
+### SET 4: Place Value (Future - 0/10)
+P1.1-P6.2
+
+**Full roadmap:** [Archive/tasks_full.md](Archive/tasks_full.md) - 120+ exercises total
 
 ---
 
 ## 📖 Key Documentation
 
-### Essential Reading
-- [IMINT_TO_APP_FRAMEWORK.md](IMINT_TO_APP_FRAMEWORK.md) - Scaffolding + finale level design
+**Essential:**
+- [IMINT_TO_APP_FRAMEWORK.md](IMINT_TO_APP_FRAMEWORK.md) - Card-based scaffolding framework
 - [COMPLETION_CRITERIA.md](COMPLETION_CRITERIA.md) - Completion tracking system
-- [REWARDS_SYSTEM.md](REWARDS_SYSTEM.md) - Parent reward configuration
-- [CLAUDE.md](CLAUDE.md) - Project guide for AI
-- [adhd guidelines.md](adhd%20guidelines.md) - ADHD design principles
+- [REWARDS_SYSTEM_QUICK_REF.md](REWARDS_SYSTEM_QUICK_REF.md) - Reward system overview
+- [CLAUDE.md](CLAUDE.md) - Project guide
 
-### Research Materials
+**Research:**
 - `Research/SKILLS_README.md` - 88 skills documentation
-- `Research/skills_taxonomy.csv` - Complete skill catalog
-- `Research/MathApp_Diagnostic_with_skills.csv` - 59 diagnostic questions
-- `Research/iMINT-Kartei_190529.pdf` - iMINT cards (German)
-- `Research/PIKAS_Analysis.md` - 36/58 PIKAS cards analyzed
+- `Research/REWARDS_SYSTEM.md` - Detailed reward spec
 
-### Historical Context
-- [COMPLETED_TASKS.md](COMPLETED_TASKS.md) - Phases 1, 1.5 summary
-- [ARCHIVE_IMPLEMENTATIONS.md](ARCHIVE_IMPLEMENTATIONS.md) - First 4 exercises detailed notes
+**Historical:**
+- [COMPLETED_TASKS.md](COMPLETED_TASKS.md) - Phases 1, 1.5, 2 summary
+- [Archive/ARCHIVE_IMPLEMENTATIONS.md](Archive/ARCHIVE_IMPLEMENTATIONS.md) - Z1 reference implementation
 
 ---
 
-## 🎓 Development Philosophy
+## 📊 Project Status
 
-**Research-Informed, App-Adapted:**
-- **iMINT Kartei:** Diagnostic-first approach, strategy-focused practice
-- **PIKAS:** Connecting representations (Action/Image/Symbol)
-- **ADHD:** Short lessons, immediate feedback, concrete visuals, no-fail approach
+| Phase | Status | Progress |
+|---|---|---|
+| Phase 1 (Core) | ✅ Complete | 100% |
+| Phase 1.5 (PIKAS) | ✅ Complete | 100% |
+| Phase 2 (Exercises) | 🔄 In Progress | 5% (6/120+) |
+| **Phase 2.5 (Tracking)** | **🔄 In Progress** | **95%** |
+| Phase 3 (Polish) | ⏳ Planned | 0% |
 
-**Skill System:** 88 semantic IDs (`counting_1`, `decomposition_3`, etc.)
-- 76 iMINT skills: counting, decomposition, place value, strategies
-- 12 PIKAS skills: ordinal, representation, operational sense, number line
-
-**Completion Tracking:**
-- `notStarted` → `inProgress` → `finished` (all levels unlocked) → `completed` (mastered with zero errors + time limits)
+**Current Milestone:** Complete Z1 finale → Phase 2.5 DONE → Resume SET 2 exercises
 
 ---
 
-## 📊 Project Status Summary
-
-| Phase | Status | Progress | Notes |
-|---|---|---|---|
-| **Phase 1** | ✅ Complete | 100% | Core architecture, diagnostic, navigation |
-| **Phase 1.5** | ✅ Complete | 100% | PIKAS integration, 88 skills |
-| **Phase 2** | 🔄 In Progress | 6% | 7/120+ exercises (SET 1 complete) |
-| **Phase 2.5** | ⏳ Ready | 0% | Completion tracking & rewards (6 weeks) |
-| **Phase 3** | ⏳ Planned | 0% | UI polish, ADHD features, localization |
-| **Phase 4** | ⏳ Planned | 0% | Content expansion, beta testing |
-
-**Next Milestone:** Phase 2.5 complete (Dec 13, 2025)
-
----
-
-**Current Priority:** Complete Phase 2.5 checklist before building new exercises
+**Priority:** Finish Z1 finale + ExerciseProgressMixin (last remaining SET 1 exercise)

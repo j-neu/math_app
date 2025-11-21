@@ -1,51 +1,44 @@
 import 'package:flutter/material.dart';
 
-/// Level 2: Find the Missing Cards
+/// Level 4: Finale - Easier Mixed Review
 ///
-/// **Source:** iMINT Green Card 2, Activity B
-/// **Physical Activity:** "Kind A hält sich nun die Augen zu und Kind B nimmt
-/// zwei Karten weg. Kind A muss jetzt die fehlenden Karten benennen und sie dann
-/// in die richtige Lücke einfügen."
+/// **Purpose:** ADHD-friendly "victory lap" after completing card-prescribed levels
 ///
-/// **Purpose:** Understand neighbor relationships and gap-filling in sequence
+/// **Difficulty:** EASIER than Level 3
+/// - Level 3: 4-6 missing numbers (harder)
+/// - Level 4: 2-3 missing numbers (easier, confidence-building)
 ///
-/// **How it works:**
-/// - Display full 2-row structure (1-10 top, 11-20 bottom) like Level 1
-/// - 2 cards are missing (shown as gaps with input fields)
-/// - Child must identify which numbers are missing using neighbor logic
-/// - After correct identification, asks: "Woher weißt du, dass die Zahl an
-///   diesen Platz gehört?" (How do you know this number belongs here?)
-/// - Shows positional relationships: "13 follows 12 and is below 3"
+/// **Layout:** Full 2-row structure (1-10 top, 11-20 bottom) - CONSISTENT with Levels 1-3
 ///
-/// **Pedagogical Goal:**
-/// - Use neighbor relationships to identify missing numbers
-/// - Understand the 2-row structure pattern (teens = ones + 10)
-/// - Build mental model of complete number sequence 1-20
+/// **Completion Criteria (from COMPLETION_CRITERIA.md):**
+/// - Minimum 10 problems completed
+/// - Zero errors (100% accuracy in last 10 problems)
+/// - Time limit: <30 seconds per problem
 ///
-/// **Unlocks Level 3:** After finding missing cards 10 times correctly
-class OrderCardsLevel2Widget extends StatefulWidget {
-  final Function(int correctCount, int totalAttempts) onProgressUpdate;
+/// **Integration:** Uses ExerciseProgressMixin callbacks for timing and result tracking
+class OrderCardsLevel4Widget extends StatefulWidget {
+  final VoidCallback onStartProblemTimer;
+  final Function(bool correct, String? userAnswer) onProblemComplete;
 
-  const OrderCardsLevel2Widget({
+  const OrderCardsLevel4Widget({
     super.key,
-    required this.onProgressUpdate,
+    required this.onStartProblemTimer,
+    required this.onProblemComplete,
   });
 
   @override
-  State<OrderCardsLevel2Widget> createState() => _OrderCardsLevel2WidgetState();
+  State<OrderCardsLevel4Widget> createState() => _OrderCardsLevel4WidgetState();
 }
 
-class _OrderCardsLevel2WidgetState extends State<OrderCardsLevel2Widget> {
-  // Show all 20 numbers with 2 missing
-  List<int> _missingNumbers = []; // Exactly 2 missing numbers
+class _OrderCardsLevel4WidgetState extends State<OrderCardsLevel4Widget> {
+  List<int> _missingNumbers = []; // 2-3 missing numbers (easier than L3)
   final Map<int, TextEditingController> _controllers = {};
 
-  int _correctCount = 0;
+  int _correctAnswers = 0;
   int _totalAttempts = 0;
   String? _feedbackMessage;
   Color _feedbackColor = Colors.blue;
-  bool _showingExplanation = false;
-  String? _explanationText;
+  bool _showingFeedback = false;
 
   @override
   void initState() {
@@ -62,10 +55,13 @@ class _OrderCardsLevel2WidgetState extends State<OrderCardsLevel2Widget> {
   }
 
   void _generateProblem() {
-    // Select 2 random numbers from 1-20 to hide
+    // Adaptive difficulty: Start with 2, increase to 3 after 5 correct
+    final difficulty = _correctAnswers < 5 ? 2 : 3;
+
+    // Select random numbers to hide
     final allNumbers = List.generate(20, (i) => i + 1);
     allNumbers.shuffle();
-    _missingNumbers = allNumbers.take(2).toList()..sort();
+    _missingNumbers = allNumbers.take(difficulty).toList()..sort();
 
     // Create controllers for missing numbers
     for (var controller in _controllers.values) {
@@ -77,87 +73,83 @@ class _OrderCardsLevel2WidgetState extends State<OrderCardsLevel2Widget> {
     }
 
     setState(() {
-      _feedbackMessage = 'Two numbers are missing! Can you find them?';
+      _feedbackMessage = 'Find the ${difficulty == 2 ? '2' : '3'} missing numbers!';
       _feedbackColor = Colors.blue;
-      _showingExplanation = false;
-      _explanationText = null;
+      _showingFeedback = false;
     });
+
+    // Start timer for this problem
+    widget.onStartProblemTimer();
   }
 
   void _checkAnswer() {
     _totalAttempts++;
 
+    bool allFilled = true;
     bool allCorrect = true;
-    List<String> wrongInputs = [];
+    List<String> userAnswers = [];
 
+    // Check if all fields are filled
     for (var number in _missingNumbers) {
       final text = _controllers[number]!.text.trim();
-      final userAnswer = int.tryParse(text);
-
-      if (userAnswer != number) {
-        allCorrect = false;
-        if (text.isNotEmpty) {
-          wrongInputs.add(text);
+      if (text.isEmpty) {
+        allFilled = false;
+      } else {
+        userAnswers.add(text);
+        final userAnswer = int.tryParse(text);
+        if (userAnswer != number) {
+          allCorrect = false;
         }
       }
     }
 
-    if (allCorrect) {
-      _correctCount++;
-
+    if (!allFilled) {
       setState(() {
-        _feedbackMessage = 'Perfect! You found both missing numbers: ${_missingNumbers.join(" and ")}!';
-        _feedbackColor = Colors.green;
-        _showingExplanation = true;
-        _explanationText = _generateExplanation();
+        _feedbackMessage = 'Fill in all ${_missingNumbers.length} missing numbers!';
+        _feedbackColor = Colors.orange;
+        _showingFeedback = true;
       });
 
-      widget.onProgressUpdate(_correctCount, _totalAttempts);
+      // Record as incorrect (incomplete answer)
+      widget.onProblemComplete(false, 'incomplete');
+      return;
+    }
 
-      // Show explanation, then generate new problem
-      Future.delayed(const Duration(seconds: 4), () {
+    // Record result with mixin
+    final userAnswerString = userAnswers.join(', ');
+    widget.onProblemComplete(allCorrect, userAnswerString);
+
+    if (allCorrect) {
+      _correctAnswers++;
+
+      setState(() {
+        _feedbackMessage = '🎉 Perfect! You found all ${_missingNumbers.length} numbers!';
+        _feedbackColor = Colors.green;
+        _showingFeedback = true;
+      });
+
+      // Auto-advance to next problem after brief celebration
+      Future.delayed(const Duration(milliseconds: 1500), () {
         if (mounted) {
           _generateProblem();
         }
       });
     } else {
       setState(() {
-        if (wrongInputs.isEmpty) {
-          _feedbackMessage = 'Fill in the missing numbers first!';
-        } else {
-          _feedbackMessage = 'Not quite! Look at the neighbors of the empty spots.';
-        }
-        _feedbackColor = Colors.orange;
-        _showingExplanation = false;
+        _feedbackMessage = 'Not quite! Check your answers and try again.';
+        _feedbackColor = Colors.red;
+        _showingFeedback = true;
       });
 
-      widget.onProgressUpdate(_correctCount, _totalAttempts);
+      // Clear incorrect answers after showing feedback
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          setState(() {
+            _showingFeedback = false;
+          });
+        }
+      });
     }
-  }
-
-  String _generateExplanation() {
-    // Generate explanation based on position logic
-    List<String> explanations = [];
-
-    for (var number in _missingNumbers) {
-      final before = number - 1;
-      final after = number + 1;
-      final above = number <= 10 ? null : number - 10;
-      final below = number >= 11 ? null : number + 10;
-
-      String exp = '$number: ';
-      List<String> clues = [];
-
-      if (before >= 1) clues.add('follows $before');
-      if (after <= 20) clues.add('comes before $after');
-      if (above != null) clues.add('is below $above');
-      if (below != null) clues.add('is above $below');
-
-      exp += clues.take(2).join(' and ');
-      explanations.add(exp);
-    }
-
-    return 'Woher weißt du das?\n${explanations.join('\n')}';
   }
 
   void _showHint() {
@@ -167,7 +159,7 @@ class _OrderCardsLevel2WidgetState extends State<OrderCardsLevel2Widget> {
     final before = firstMissing > 1 ? firstMissing - 1 : null;
     final after = firstMissing < 20 ? firstMissing + 1 : null;
 
-    String hint = 'Look for the gaps! ';
+    String hint = 'Look at the neighbors! ';
     if (before != null && after != null) {
       hint += 'What number goes between $before and $after?';
     } else if (before != null) {
@@ -179,32 +171,57 @@ class _OrderCardsLevel2WidgetState extends State<OrderCardsLevel2Widget> {
     setState(() {
       _feedbackMessage = hint;
       _feedbackColor = Colors.purple;
+      _showingFeedback = true;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final accuracy = _totalAttempts > 0
-        ? ((_correctCount / _totalAttempts) * 100).toStringAsFixed(0)
+        ? ((_correctAnswers / _totalAttempts) * 100).toStringAsFixed(0)
         : '0';
 
     return SingleChildScrollView(
       child: Column(
         children: [
-          // Instructions
-          Padding(
+          // Header - Level 4 Finale
+          Container(
+            width: double.infinity,
             padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Find the Missing Numbers!',
-              style: Theme.of(context).textTheme.titleLarge,
-              textAlign: TextAlign.center,
+            decoration: BoxDecoration(
+              color: Colors.green.shade100,
+              border: Border(
+                bottom: BorderSide(color: Colors.green.shade300, width: 2),
+              ),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  'Level 4: Finale 🎉',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Colors.green.shade900,
+                        fontWeight: FontWeight.bold,
+                      ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Easier mixed review - Show your mastery!',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.green.shade700,
+                    fontStyle: FontStyle.italic,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           ),
 
           // Feedback message
           if (_feedbackMessage != null)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
               child: Text(
                 _feedbackMessage!,
                 style: TextStyle(
@@ -216,54 +233,43 @@ class _OrderCardsLevel2WidgetState extends State<OrderCardsLevel2Widget> {
               ),
             ),
 
-          // Explanation (after correct answer)
-          if (_showingExplanation && _explanationText != null)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.blue.shade200),
-                ),
-                child: Text(
-                  _explanationText!,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontStyle: FontStyle.italic,
-                    height: 1.5,
-                  ),
-                  textAlign: TextAlign.left,
-                ),
-              ),
-            ),
-
           // Progress display
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(12.0),
             child: Column(
               children: [
-                Text(
-                  'Found: $_correctCount / $_totalAttempts',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  'Accuracy: $accuracy%',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade600,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Correct: $_correctAnswers',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(width: 20),
+                    Text(
+                      'Total: $_totalAttempts',
+                      style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                    ),
+                    const SizedBox(width: 20),
+                    Text(
+                      'Accuracy: $accuracy%',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: int.parse(accuracy) >= 90 ? Colors.green : Colors.grey.shade600,
+                        fontWeight: int.parse(accuracy) >= 90 ? FontWeight.bold : FontWeight.normal,
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 8),
                 LinearProgressIndicator(
-                  value: _correctCount / 10,
+                  value: _correctAnswers / 10,
                   backgroundColor: Colors.grey.shade300,
-                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.green.shade600),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '$_correctCount/10 to unlock Level 3',
+                  '$_correctAnswers/10 problems (need 10 with zero errors to complete)',
                   style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                 ),
               ],
@@ -272,15 +278,15 @@ class _OrderCardsLevel2WidgetState extends State<OrderCardsLevel2Widget> {
 
           const SizedBox(height: 20),
 
-          // Full 2-row structure with gaps
+          // Full 2-row structure (1-10 top, 11-20 bottom) with 2-3 gaps
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Column(
               children: [
-                // Row 1: Numbers 1-10 (some missing)
+                // Row 1: Numbers 1-10
                 _buildRow(List.generate(10, (i) => i + 1)),
                 const SizedBox(height: 16),
-                // Row 2: Numbers 11-20 (some missing)
+                // Row 2: Numbers 11-20
                 _buildRow(List.generate(10, (i) => i + 11)),
               ],
             ),
@@ -289,7 +295,7 @@ class _OrderCardsLevel2WidgetState extends State<OrderCardsLevel2Widget> {
           const SizedBox(height: 20),
 
           // Action buttons
-          if (!_showingExplanation)
+          if (!_showingFeedback || _feedbackColor != Colors.green)
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -299,6 +305,8 @@ class _OrderCardsLevel2WidgetState extends State<OrderCardsLevel2Widget> {
                     icon: const Icon(Icons.check_circle),
                     label: const Text('Check Answer'),
                     style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green.shade600,
+                      foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                       textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
@@ -307,11 +315,16 @@ class _OrderCardsLevel2WidgetState extends State<OrderCardsLevel2Widget> {
                   OutlinedButton.icon(
                     onPressed: _showHint,
                     icon: const Icon(Icons.lightbulb_outline),
-                    label: const Text('Hint'),
+                    label: const Text('Need a hint?'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.purple,
+                    ),
                   ),
                 ],
               ),
             ),
+
+          const SizedBox(height: 20),
         ],
       ),
     );
@@ -379,9 +392,9 @@ class _OrderCardsLevel2WidgetState extends State<OrderCardsLevel2Widget> {
       ),
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: Colors.green.shade50,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.orange, width: 3),
+        border: Border.all(color: Colors.green.shade600, width: 3),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.1),
@@ -392,13 +405,13 @@ class _OrderCardsLevel2WidgetState extends State<OrderCardsLevel2Widget> {
       ),
       child: Center(
         child: SizedBox(
-          width: 35,
+          width: 40,
           child: TextField(
             controller: _controllers[number],
             keyboardType: TextInputType.number,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
             decoration: const InputDecoration(

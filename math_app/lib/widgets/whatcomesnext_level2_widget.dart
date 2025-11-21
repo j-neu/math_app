@@ -25,13 +25,15 @@ import 'dart:math' as math;
 /// - Level 2: Now WRITE what comes before and after
 /// - Prepares for Level 3: RECALL from memory
 class WhatComesNextLevel2Widget extends StatefulWidget {
-  final int correctAnswersRequired;
   final Function(int correctCount) onProgressUpdate;
+  final VoidCallback onStartProblemTimer;
+  final Function(bool correct, String? userAnswer) onProblemComplete;
 
   const WhatComesNextLevel2Widget({
     super.key,
-    required this.correctAnswersRequired,
     required this.onProgressUpdate,
+    required this.onStartProblemTimer,
+    required this.onProblemComplete,
   });
 
   @override
@@ -77,6 +79,9 @@ class _WhatComesNextLevel2WidgetState extends State<WhatComesNextLevel2Widget> {
       _feedbackMessage = null;
     });
 
+    // Start problem timer
+    widget.onStartProblemTimer();
+
     // Focus on first field
     Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) {
@@ -118,7 +123,13 @@ class _WhatComesNextLevel2WidgetState extends State<WhatComesNextLevel2Widget> {
     final beforeCorrect = beforeAnswer == expectedBefore;
     final afterCorrect = afterAnswer == expectedAfter;
 
-    if (beforeCorrect && afterCorrect) {
+    final bothCorrect = beforeCorrect && afterCorrect;
+    final userAnswerString = 'Before: $beforeAnswer, After: $afterAnswer';
+
+    // Record the problem result
+    widget.onProblemComplete(bothCorrect, userAnswerString);
+
+    if (bothCorrect) {
       // Both correct!
       setState(() {
         _correctCount++;
@@ -246,14 +257,14 @@ class _WhatComesNextLevel2WidgetState extends State<WhatComesNextLevel2Widget> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Progress: $_correctCount/${widget.correctAnswersRequired}',
+                        'Progress: $_correctCount/10',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
-                        '${((_correctCount / widget.correctAnswersRequired) * 100).toInt()}%',
+                        '${((_correctCount / 10) * 100).toInt()}%',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -266,7 +277,7 @@ class _WhatComesNextLevel2WidgetState extends State<WhatComesNextLevel2Widget> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: LinearProgressIndicator(
-                      value: _correctCount / widget.correctAnswersRequired,
+                      value: _correctCount / 10,
                       backgroundColor: Colors.grey.shade300,
                       valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
                       minHeight: 10,

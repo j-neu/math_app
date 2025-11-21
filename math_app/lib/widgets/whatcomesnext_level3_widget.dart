@@ -24,10 +24,14 @@ import 'dart:math' as math;
 /// - Level 3: RECALL from memory (visual hidden, mental work)
 class WhatComesNextLevel3Widget extends StatefulWidget {
   final Function(int correctCount) onProgressUpdate;
+  final VoidCallback onStartProblemTimer;
+  final Function(bool correct, String? userAnswer) onProblemComplete;
 
   const WhatComesNextLevel3Widget({
     super.key,
     required this.onProgressUpdate,
+    required this.onStartProblemTimer,
+    required this.onProblemComplete,
   });
 
   @override
@@ -127,6 +131,9 @@ class _WhatComesNextLevel3WidgetState extends State<WhatComesNextLevel3Widget> {
       _peekUsed = false;
     });
 
+    // Start problem timer
+    widget.onStartProblemTimer();
+
     // Focus first field
     Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted && _focusNodes.isNotEmpty) {
@@ -185,6 +192,14 @@ class _WhatComesNextLevel3WidgetState extends State<WhatComesNextLevel3Widget> {
         explanation = '$expectedMiddle comes between $_targetNumber and ${_targetNumber + 2}';
         break;
     }
+
+    // Build user answer string
+    String userAnswerString = _problemType == 'sequence_gap'
+        ? 'Answer: ${answers[0]}'
+        : 'Before: ${answers[0]}, After: ${answers[1]}';
+
+    // Record the problem result
+    widget.onProblemComplete(isCorrect, userAnswerString);
 
     if (isCorrect) {
       setState(() {

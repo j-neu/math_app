@@ -23,11 +23,11 @@ import 'package:flutter/material.dart';
 /// - Prepares for Level 2: WRITE the predecessor/successor
 /// - Prepares for Level 3: RECALL from memory
 class WhatComesNextLevel1Widget extends StatefulWidget {
-  final VoidCallback onReadyForNextLevel;
+  final Function(int explorationsCount) onProgressUpdate;
 
   const WhatComesNextLevel1Widget({
     super.key,
-    required this.onReadyForNextLevel,
+    required this.onProgressUpdate,
   });
 
   @override
@@ -89,6 +89,9 @@ class _WhatComesNextLevel1WidgetState extends State<WhatComesNextLevel1Widget>
       _explorationsCount++;
     });
 
+    // Notify coordinator of progress
+    widget.onProgressUpdate(_explorationsCount);
+
     _pulseController.forward(from: 0);
 
     // Auto-hide highlight after 2 seconds
@@ -122,6 +125,9 @@ class _WhatComesNextLevel1WidgetState extends State<WhatComesNextLevel1Widget>
       _highlightType = 'after';
       _explorationsCount++;
     });
+
+    // Notify coordinator of progress
+    widget.onProgressUpdate(_explorationsCount);
 
     _pulseController.forward(from: 0);
 
@@ -195,7 +201,7 @@ class _WhatComesNextLevel1WidgetState extends State<WhatComesNextLevel1Widget>
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              widget.onReadyForNextLevel();
+              // Progress already reported via onProgressUpdate
             },
             child: const Text('Go to Level 2'),
           ),

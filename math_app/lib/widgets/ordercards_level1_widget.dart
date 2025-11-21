@@ -21,7 +21,7 @@ import 'package:flutter/material.dart';
 /// - Understand positional patterns in number sequence
 /// - Build foundation for place value understanding
 ///
-/// **Unlocks Level 2:** After reading sequence 3 times
+/// **Unlocks Level 2:** After reading sequence once (to emphasize structure recognition)
 class OrderCardsLevel1Widget extends StatefulWidget {
   final Function(int problemsSolved) onProgressUpdate;
 
@@ -37,7 +37,7 @@ class OrderCardsLevel1Widget extends StatefulWidget {
 class _OrderCardsLevel1WidgetState extends State<OrderCardsLevel1Widget>
     with SingleTickerProviderStateMixin {
   int _nextExpected = 1;
-  int _sequencesCompleted = 0;
+  bool _sequenceCompleted = false;
   String? _feedbackMessage;
   final Set<int> _highlightedCards = {};
   int? _shakingCard;
@@ -77,16 +77,9 @@ class _OrderCardsLevel1WidgetState extends State<OrderCardsLevel1Widget>
           _feedbackMessage = 'Now the second row! Tap $_nextExpected';
         } else {
           // Completed sequence!
-          _sequencesCompleted++;
-          _feedbackMessage = '🎉 Perfect! You read all 20 numbers in order!';
-          widget.onProgressUpdate(_sequencesCompleted);
-
-          // Reset after 2 seconds
-          Future.delayed(const Duration(seconds: 2), () {
-            if (mounted) {
-              _resetSequence();
-            }
-          });
+          _sequenceCompleted = true;
+          _feedbackMessage = '🎉 Perfect! You read all 20 numbers in order!\n\nNotice: Each number in row 2 is 10 more than the number above it!';
+          widget.onProgressUpdate(1); // Signal completion (only need once)
         }
       });
     } else {
@@ -110,13 +103,7 @@ class _OrderCardsLevel1WidgetState extends State<OrderCardsLevel1Widget>
     }
   }
 
-  void _resetSequence() {
-    setState(() {
-      _nextExpected = 1;
-      _highlightedCards.clear();
-      _feedbackMessage = 'Great work! Let\'s read the sequence again.';
-    });
-  }
+  // Removed: No need to reset - complete once is enough
 
   void _showPatternDialog() {
     showDialog(
@@ -192,20 +179,19 @@ class _OrderCardsLevel1WidgetState extends State<OrderCardsLevel1Widget>
         // Progress indicator
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Next: $_nextExpected',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(width: 20),
-              Text(
-                'Sequences completed: $_sequencesCompleted/3',
-                style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
-              ),
-            ],
-          ),
+          child: _sequenceCompleted
+              ? const Text(
+                  '✅ Sequence complete! Ready for Level 2',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                  ),
+                )
+              : Text(
+                  'Next: $_nextExpected',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
         ),
 
         const SizedBox(height: 20),
@@ -239,7 +225,7 @@ class _OrderCardsLevel1WidgetState extends State<OrderCardsLevel1Widget>
         ),
 
         // Completion status
-        if (_sequencesCompleted >= 3)
+        if (_sequenceCompleted)
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Container(
@@ -249,7 +235,7 @@ class _OrderCardsLevel1WidgetState extends State<OrderCardsLevel1Widget>
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Text(
-                '✨ Excellent! You understand the pattern! Ready for Level 2?',
+                '✨ Excellent! You understand the 2-row structure! Ready for Level 2?',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -264,11 +250,16 @@ class _OrderCardsLevel1WidgetState extends State<OrderCardsLevel1Widget>
   }
 
   Widget _buildRow(List<int> numbers) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      alignment: WrapAlignment.center,
-      children: numbers.map((number) => _buildCard(number)).toList(),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: numbers.map((number) {
+        return Flexible(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: _buildCard(number),
+          ),
+        );
+      }).toList(),
     );
   }
 
@@ -278,8 +269,13 @@ class _OrderCardsLevel1WidgetState extends State<OrderCardsLevel1Widget>
     final isShaking = _shakingCard == number;
 
     Widget card = Container(
-      width: 55,
-      height: 70,
+      constraints: const BoxConstraints(
+        minWidth: 30,
+        maxWidth: 50,
+        minHeight: 50,
+        maxHeight: 65,
+      ),
+      padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: isHighlighted
             ? Colors.green.shade100
@@ -300,12 +296,15 @@ class _OrderCardsLevel1WidgetState extends State<OrderCardsLevel1Widget>
         ],
       ),
       child: Center(
-        child: Text(
-          number.toString(),
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: isHighlighted ? Colors.green.shade800 : Colors.black,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            number.toString(),
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: isHighlighted ? Colors.green.shade800 : Colors.black,
+            ),
           ),
         ),
       ),

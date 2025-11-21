@@ -10,12 +10,11 @@ import 'package:flutter/material.dart';
 /// **Purpose:** Internalize the complete number sequence 1-20 from mental imagery
 ///
 /// **How it works:**
-/// - Flash the 2-row structure briefly (3 seconds)
-/// - Hide everything
-/// - Child must write ALL 20 numbers in correct sequence from memory
-/// - No structure hints given (testing complete internalization)
-/// - On error: Show structure again briefly (no-fail safety net)
-/// - Success: Validates complete sequence understanding
+/// - Show the 2-row structure with 4-6 cards missing (gaps shown)
+/// - Child must identify ALL missing numbers
+/// - Tests deeper internalization than Level 2 (more gaps to fill)
+/// - On error: Show complete structure briefly (no-fail safety net)
+/// - Success: Validates understanding of full sequence 1-20
 ///
 /// **Pedagogical Goal:**
 /// - Complete internalization: "die Auslage ohne Vorgabe einer Struktur aufschreiben"
@@ -36,10 +35,9 @@ class OrderCardsLevel3Widget extends StatefulWidget {
 }
 
 class _OrderCardsLevel3WidgetState extends State<OrderCardsLevel3Widget> {
-  List<TextEditingController> _controllers = [];
+  List<int> _missingNumbers = []; // 4-6 missing numbers
+  final Map<int, TextEditingController> _controllers = {};
   int _correctCount = 0;
-  bool _showStructure = true;
-  bool _isFlashing = false;
   String? _feedbackMessage;
   Color _feedbackColor = Colors.blue;
 
@@ -54,141 +52,93 @@ class _OrderCardsLevel3WidgetState extends State<OrderCardsLevel3Widget> {
   @override
   void initState() {
     super.initState();
-    _initializeControllers();
-    _startFlashSequence();
+    _generateProblem();
   }
 
   @override
   void dispose() {
-    for (var controller in _controllers) {
+    for (var controller in _controllers.values) {
       controller.dispose();
     }
     super.dispose();
   }
 
-  void _initializeControllers() {
-    _controllers = List.generate(20, (_) => TextEditingController());
-    _feedbackMessage = 'Watch the pattern carefully!';
-    _feedbackColor = Colors.blue;
-  }
+  void _generateProblem() {
+    // Select 4-6 random numbers to hide (adaptive difficulty)
+    final difficulty = _correctCount < 3 ? 4 : (_correctCount < 7 ? 5 : 6);
+    final allNumbers = List.generate(20, (i) => i + 1);
+    allNumbers.shuffle();
+    _missingNumbers = allNumbers.take(difficulty).toList()..sort();
 
-  void _startFlashSequence() async {
+    // Create controllers for missing numbers
+    for (var controller in _controllers.values) {
+      controller.dispose();
+    }
+    _controllers.clear();
+    for (var number in _missingNumbers) {
+      _controllers[number] = TextEditingController();
+    }
+
     setState(() {
-      _isFlashing = true;
-      _showStructure = true;
-      _feedbackMessage = 'Memorize all 20 numbers and their positions...';
+      _feedbackMessage = '$difficulty numbers are missing! Use the 2-row pattern to find them.';
       _feedbackColor = Colors.blue;
     });
-
-    await Future.delayed(const Duration(seconds: 3));
-
-    if (mounted) {
-      setState(() {
-        _showStructure = false;
-        _isFlashing = false;
-        _feedbackMessage = 'Now write all 20 numbers in order from memory!';
-        _feedbackColor = Colors.orange;
-      });
-    }
   }
 
   void _checkAnswer() {
-    List<int?> userAnswers = _controllers.map((c) {
-      final text = c.text.trim();
-      return text.isEmpty ? null : int.tryParse(text);
-    }).toList();
+    bool allCorrect = true;
+    List<String> wrongInputs = [];
+
+    for (var number in _missingNumbers) {
+      final text = _controllers[number]!.text.trim();
+      final userAnswer = int.tryParse(text);
+
+      if (userAnswer != number) {
+        allCorrect = false;
+        if (text.isNotEmpty) {
+          wrongInputs.add('$text (should be $number)');
+        }
+      }
+    }
 
     // Check if all filled
-    if (userAnswers.contains(null)) {
+    if (_missingNumbers.any((n) => _controllers[n]!.text.trim().isEmpty)) {
       setState(() {
-        _feedbackMessage = 'Please fill in all 20 numbers!';
+        _feedbackMessage = 'Fill in all ${_missingNumbers.length} missing numbers!';
         _feedbackColor = Colors.orange;
       });
       return;
     }
 
-    // Check if sequence is correct (1, 2, 3, ..., 20)
-    bool isCorrect = true;
-    int? firstWrong;
-    for (int i = 0; i < 20; i++) {
-      if (userAnswers[i] != i + 1) {
-        isCorrect = false;
-        firstWrong = i + 1;
-        break;
-      }
-    }
-
-    if (isCorrect) {
+    if (allCorrect) {
       _correctCount++;
 
       setState(() {
-        _feedbackMessage = '🎉 Perfect! You wrote all 20 numbers from memory!';
+        _feedbackMessage = '🎉 Perfect! You found all ${_missingNumbers.length} missing numbers!';
         _feedbackColor = Colors.green;
       });
 
       widget.onProgressUpdate(_correctCount);
 
-      // Reset and start new round
-      Future.delayed(const Duration(seconds: 3), () {
+      // Generate new problem
+      Future.delayed(const Duration(seconds: 2), () {
         if (mounted) {
-          _resetProblem();
+          _generateProblem();
         }
       });
     } else {
       setState(() {
-        _feedbackMessage = 'Not quite! Position $firstWrong needs attention. Let\'s see the pattern again!';
-        _feedbackColor = Colors.orange;
-        _showStructure = true;
-      });
-
-      // Flash structure briefly, then hide
-      Future.delayed(const Duration(seconds: 3), () {
-        if (mounted) {
-          setState(() {
-            _showStructure = false;
-            _feedbackMessage = 'Try again! Remember the sequence: 1, 2, 3...';
-          });
+        if (wrongInputs.isEmpty) {
+          _feedbackMessage = 'Fill in all the gaps first!';
+        } else {
+          _feedbackMessage = 'Not quite! Check: ${wrongInputs.take(2).join(", ")}';
         }
+        _feedbackColor = Colors.orange;
       });
     }
   }
 
-  void _resetProblem() {
-    // Clear all inputs
-    for (var controller in _controllers) {
-      controller.clear();
-    }
-
-    setState(() {
-      _feedbackMessage = 'Great work! Let\'s try another round.';
-      _feedbackColor = Colors.green;
-      _currentHint = 0;
-    });
-
-    // Start new flash sequence
-    Future.delayed(const Duration(seconds: 1), () {
-      if (mounted) {
-        _startFlashSequence();
-      }
-    });
-  }
-
-  void _peek() {
-    setState(() {
-      _showStructure = true;
-      _feedbackMessage = 'Here\'s the pattern! Study it, then I\'ll hide it again.';
-      _feedbackColor = Colors.blue;
-    });
-
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
-        setState(() {
-          _showStructure = false;
-          _feedbackMessage = 'Now try to write all 20 numbers!';
-        });
-      }
-    });
-  }
+  // Removed _resetProblem - now using _generateProblem directly
 
   void _showHint() {
     setState(() {
@@ -207,7 +157,7 @@ class _OrderCardsLevel3WidgetState extends State<OrderCardsLevel3Widget> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              'Write All 20 Numbers from Memory!',
+              'Find All Missing Numbers!',
               style: Theme.of(context).textTheme.titleLarge,
               textAlign: TextAlign.center,
             ),
@@ -239,167 +189,142 @@ class _OrderCardsLevel3WidgetState extends State<OrderCardsLevel3Widget> {
 
           const SizedBox(height: 20),
 
-          // Structure display (flash or hidden)
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 500),
-            padding: const EdgeInsets.all(20),
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: _showStructure ? Colors.blue.shade50 : Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: _showStructure ? Colors.blue : Colors.grey,
-                width: 2,
-              ),
+          // 2-row structure with gaps
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Column(
+              children: [
+                // Row 1: Numbers 1-10 (some missing)
+                _buildRow(List.generate(10, (i) => i + 1)),
+                const SizedBox(height: 16),
+                // Row 2: Numbers 11-20 (some missing)
+                _buildRow(List.generate(10, (i) => i + 11)),
+              ],
             ),
-            child: _showStructure
-                ? Column(
-                    children: [
-                      // Row 1: 1-10
-                      _buildStructureRow(List.generate(10, (i) => i + 1)),
-                      const SizedBox(height: 12),
-                      // Row 2: 11-20
-                      _buildStructureRow(List.generate(10, (i) => i + 11)),
-                    ],
-                  )
-                : Column(
-                    children: [
-                      Icon(Icons.visibility_off, size: 48, color: Colors.grey.shade400),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Pattern hidden\nImagine it in your mind...',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey.shade600,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ],
-                  ),
           ),
-
-          const SizedBox(height: 30),
-
-          // Input area - 20 fields in sequence
-          if (!_isFlashing)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                children: [
-                  const Text(
-                    'Write the numbers 1-20 in order:',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 16),
-                  // Input grid (2 rows like the structure)
-                  Column(
-                    children: [
-                      _buildInputRow(0, 10), // Positions 0-9 (numbers 1-10)
-                      const SizedBox(height: 12),
-                      _buildInputRow(10, 20), // Positions 10-19 (numbers 11-20)
-                    ],
-                  ),
-                ],
-              ),
-            ),
 
           const SizedBox(height: 20),
 
           // Action buttons
-          if (!_isFlashing)
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: _checkAnswer,
-                    icon: const Icon(Icons.check_circle),
-                    label: const Text('Check Answer'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                      textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                ElevatedButton.icon(
+                  onPressed: _checkAnswer,
+                  icon: const Icon(Icons.check_circle),
+                  label: const Text('Check Answer'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                    textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      OutlinedButton.icon(
-                        onPressed: _showStructure ? null : _peek,
-                        icon: const Icon(Icons.visibility),
-                        label: const Text('Peek'),
-                      ),
-                      const SizedBox(width: 12),
-                      OutlinedButton.icon(
-                        onPressed: _showHint,
-                        icon: const Icon(Icons.lightbulb_outline),
-                        label: const Text('Hint'),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  onPressed: _showHint,
+                  icon: const Icon(Icons.lightbulb_outline),
+                  label: const Text('Hint'),
+                ),
+              ],
             ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildStructureRow(List<int> numbers) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      alignment: WrapAlignment.center,
+  Widget _buildRow(List<int> numbers) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: numbers.map((number) {
-        return Container(
-          width: 50,
-          height: 65,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.blue, width: 2),
-          ),
-          child: Center(
-            child: Text(
-              number.toString(),
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+        return Flexible(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: _missingNumbers.contains(number)
+                ? _buildGapCard(number)
+                : _buildCard(number),
           ),
         );
       }).toList(),
     );
   }
 
-  Widget _buildInputRow(int startIndex, int endIndex) {
-    return Wrap(
-      spacing: 6,
-      runSpacing: 6,
-      alignment: WrapAlignment.center,
-      children: List.generate(endIndex - startIndex, (i) {
-        final index = startIndex + i;
-        return SizedBox(
-          width: 50,
+  Widget _buildCard(int number) {
+    return Container(
+      constraints: const BoxConstraints(
+        minWidth: 30,
+        maxWidth: 50,
+        minHeight: 50,
+        maxHeight: 65,
+      ),
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade400, width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 4,
+            offset: const Offset(2, 2),
+          ),
+        ],
+      ),
+      child: Center(
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            number.toString(),
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGapCard(int number) {
+    return Container(
+      constraints: const BoxConstraints(
+        minWidth: 30,
+        maxWidth: 50,
+        minHeight: 50,
+        maxHeight: 65,
+      ),
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: Colors.orange.shade50,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.orange, width: 3),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 4,
+            offset: const Offset(2, 2),
+          ),
+        ],
+      ),
+      child: Center(
+        child: SizedBox(
+          width: 40,
           child: TextField(
-            controller: _controllers[index],
+            controller: _controllers[number],
             keyboardType: TextInputType.number,
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
-            decoration: InputDecoration(
-              hintText: '${index + 1}',
-              hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 12),
-              border: const OutlineInputBorder(),
-              contentPadding: const EdgeInsets.symmetric(vertical: 12),
+            decoration: const InputDecoration(
+              hintText: '?',
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.zero,
             ),
           ),
-        );
-      }),
+        ),
+      ),
     );
   }
 }

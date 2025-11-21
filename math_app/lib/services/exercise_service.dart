@@ -8,8 +8,11 @@ import '../exercises/count_dots_exercise_v2.dart';
 import '../exercises/count_objects_exercise.dart';
 import '../exercises/order_cards_exercise.dart';
 import '../exercises/count_forward_exercise.dart';
+import '../exercises/count_forward_50_exercise.dart';
+import '../exercises/count_forward_100_exercise.dart';
 import '../exercises/what_comes_next_exercise.dart';
 import '../exercises/place_numbers_exercise.dart';
+import '../exercises/find_neighbors_exercise.dart';
 
 class ExerciseService {
   // Exercise library with both legacy placeholders and new functional exercises
@@ -23,33 +26,61 @@ class ExerciseService {
       skillTags: ['counting_1'],
       exerciseBuilder: (userProfile) => CountDotsExerciseV2(userProfile: userProfile),
     ),
-    // NEW: C1.2 - Count the Objects with various object types
+    // NEW: C1.2 - Count the Objects with various object types (V2 + Finale)
+    // Phase 2.5: Uses exerciseBuilder for progress tracking
     Exercise(
       id: 'C1.2',
       title: 'Count the Objects',
       skillTags: ['counting_1'],
-      exerciseWidget: const CountObjectsExercise(),
+      exerciseBuilder: (userProfile) => CountObjectsExercise(userProfile: userProfile),
     ),
-    // NEW: C2.1 - Order Cards to 20 with 3-level scaffolding
+    // NEW: C2.1 - Order Cards to 20 with 4-level scaffolding + Finale
+    // Phase 2.5: Uses exerciseBuilder for progress tracking
     Exercise(
       id: 'C2.1',
       title: 'Order Cards to 20',
       skillTags: ['counting_2'],
-      exerciseWidget: const OrderCardsExercise(),
+      exerciseBuilder: (userProfile) => OrderCardsExercise(userProfile: userProfile),
     ),
-    // NEW: C3.1 - Count Forward to 20 with 3-level scaffolding
+    // NEW: C3.1 - Count Forward to 20 with 4-level scaffolding + Finale
+    // Phase 2.5: Uses exerciseBuilder for progress tracking
     Exercise(
       id: 'C3.1',
       title: 'Count Forward to 20',
       skillTags: ['counting_3'],
-      exerciseWidget: const CountForwardExercise(),
+      exerciseBuilder: (userProfile) => CountForwardExercise(userProfile: userProfile),
     ),
-    // NEW: C4.1 - What Comes Next? (Predecessor/Successor) with 3-level scaffolding
+    // NEW: C3.2 - Count Forward to 50 with 4-level scaffolding + Finale
+    // Phase 2.5: Uses exerciseBuilder for progress tracking
+    Exercise(
+      id: 'C3.2',
+      title: 'Count Forward to 50',
+      skillTags: ['counting_3'],
+      exerciseBuilder: (userProfile) => CountForward50Exercise(userProfile: userProfile),
+    ),
+    // NEW: C3.3 - Count Forward to 100 with 4-level scaffolding + Finale
+    // Phase 2.5: Uses exerciseBuilder for progress tracking
+    Exercise(
+      id: 'C3.3',
+      title: 'Count Forward to 100',
+      skillTags: ['counting_3'],
+      exerciseBuilder: (userProfile) => CountForward100Exercise(userProfile: userProfile),
+    ),
+    // NEW: C4.1 - What Comes Next? (Predecessor/Successor) with 5-level scaffolding + Finale
+    // Phase 2.5: Uses exerciseBuilder for progress tracking
     Exercise(
       id: 'C4.1',
       title: 'What Comes Next?',
       skillTags: ['counting_4', 'counting_5'],
-      exerciseWidget: const WhatComesNextExercise(),
+      exerciseBuilder: (userProfile) => WhatComesNextExercise(userProfile: userProfile),
+    ),
+    // NEW: C5.1 - Find Neighboring Numbers (Card Game) with 4-level scaffolding + Finale
+    // Phase 2.5: Uses exerciseBuilder for progress tracking
+    Exercise(
+      id: 'C5.1',
+      title: 'Find Neighboring Numbers',
+      skillTags: ['counting_5'],
+      exerciseBuilder: (userProfile) => FindNeighborsExercise(userProfile: userProfile),
     ),
     // NEW: C10.1 - Place Numbers on Line with 3-level scaffolding
     Exercise(

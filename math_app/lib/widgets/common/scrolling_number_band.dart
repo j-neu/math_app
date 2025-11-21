@@ -97,19 +97,34 @@ class _ScrollingNumberBandState extends State<ScrollingNumberBand> {
 
   /// Scrolls to center the given number position
   void _scrollToPosition(int position, {required bool animated}) {
-    if (!_scrollController.hasClients) return;
+    if (!_scrollController.hasClients) {
+      // If scroll controller isn't ready, wait and retry
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _scrollController.hasClients) {
+          _scrollToPosition(position, animated: false);
+        }
+      });
+      return;
+    }
 
     // Calculate index (0-based)
     final index = position - widget.minNumber;
 
+    // Account for horizontal margins (4px each side = 8px total per cell)
+    const horizontalMargin = 8.0;
+    final effectiveCellWidth = widget.cellWidth + horizontalMargin;
+
     // Calculate scroll offset to center this number
     final totalNumbers = widget.maxNumber - widget.minNumber + 1;
-    final maxScrollExtent = (totalNumbers * widget.cellWidth) -
-                            (widget.visibleCount * widget.cellWidth);
+    final maxScrollExtent = (totalNumbers * effectiveCellWidth) -
+                            (widget.visibleCount * effectiveCellWidth);
+
+    // Ensure maxScrollExtent is positive
+    if (maxScrollExtent <= 0) return;
 
     // Center the current number
-    final targetOffset = (index * widget.cellWidth) -
-                         ((widget.visibleCount / 2).floor() * widget.cellWidth);
+    final targetOffset = (index * effectiveCellWidth) -
+                         ((widget.visibleCount / 2).floor() * effectiveCellWidth);
 
     final clampedOffset = targetOffset.clamp(0.0, maxScrollExtent);
 

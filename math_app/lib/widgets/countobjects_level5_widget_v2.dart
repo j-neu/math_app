@@ -6,14 +6,14 @@ import 'package:flutter/material.dart';
 /// **Purpose:** ADHD-friendly Easy→Hard→Easy flow for rewarding completion
 ///
 /// **Mixed Interaction Types:**
-/// - **Type 1: Drag & Drop** (from Level 1) - Drag dots to "counted" area
-/// - **Type 2: Tap/Click** (from Level 2) - Tap dots to mark as counted
+/// - **Type 1: Drag & Drop** (from Level 1) - Drag objects to "counted" area
+/// - **Type 2: Tap/Click** (from Level 2) - Tap objects to mark as counted
 /// - **Type 3: Just Count** (from Level 3) - No interaction, count by looking
 ///
 /// **Difficulty:** Easier than Level 4 (the hardest card-prescribed level)
-/// - Dot count: 8-12 (medium range, not maximum 20)
+/// - Object count: 8-12 (medium range, not maximum 20)
 /// - Layout: Structured only (grid layout for easier counting)
-/// - No flash/hide mechanic (dots stay visible)
+/// - No flash/hide mechanic (objects stay visible)
 /// - Cycles through all 3 interaction types for variety
 ///
 /// **Completion Criteria:**
@@ -24,12 +24,12 @@ import 'package:flutter/material.dart';
 /// This level provides a "victory lap" - the child has proven mastery
 /// through the 4 card-prescribed levels, now they get to demonstrate
 /// consistent performance using mixed methods to end on success.
-class CountDotsLevel5Widget extends StatefulWidget {
+class CountObjectsLevel5Widget extends StatefulWidget {
   final VoidCallback onStartProblemTimer;
   final Function(bool correct, String? userAnswer) onProblemComplete;
   final VoidCallback? onLevelComplete; // NEW: callback when level is complete
 
-  const CountDotsLevel5Widget({
+  const CountObjectsLevel5Widget({
     super.key,
     required this.onStartProblemTimer,
     required this.onProblemComplete,
@@ -37,31 +37,50 @@ class CountDotsLevel5Widget extends StatefulWidget {
   });
 
   @override
-  State<CountDotsLevel5Widget> createState() => _CountDotsLevel5WidgetState();
+  State<CountObjectsLevel5Widget> createState() =>
+      _CountObjectsLevel5WidgetState();
 }
 
 enum InteractionType {
-  drag,   // Level 1: Drag to counted area
-  tap,    // Level 2: Tap to mark
-  count,  // Level 3: Just count
+  drag, // Level 1: Drag to counted area
+  tap, // Level 2: Tap to mark
+  count, // Level 3: Just count
 }
 
-class DotState {
+enum ObjectType {
+  star,
+  heart,
+  circle,
+  square,
+  triangle,
+  diamond,
+}
+
+class ObjectState {
   final Offset position;
+  final ObjectType type;
+  final Color color;
   bool isCounted;
 
-  DotState({required this.position, this.isCounted = false});
+  ObjectState({
+    required this.position,
+    required this.type,
+    required this.color,
+    this.isCounted = false,
+  });
 }
 
-class _CountDotsLevel5WidgetState extends State<CountDotsLevel5Widget> {
+class _CountObjectsLevel5WidgetState extends State<CountObjectsLevel5Widget> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   final Random _random = Random();
 
-  int _currentDotCount = 8;
+  int _currentObjectCount = 8;
   InteractionType _currentInteractionType = InteractionType.drag;
-  List<DotState> _dots = [];
-  int _dotsCountedInArea = 0;
+  List<ObjectState> _objects = [];
+  int _objectsCountedInArea = 0;
+  ObjectType _currentObjectType = ObjectType.star;
+  Color _currentColor = Colors.amber;
 
   int _correctAnswers = 0;
   int _totalAttempts = 0;
@@ -88,17 +107,56 @@ class _CountDotsLevel5WidgetState extends State<CountDotsLevel5Widget> {
     super.dispose();
   }
 
+  Color _getColorForObjectType(ObjectType type) {
+    switch (type) {
+      case ObjectType.star:
+        return Colors.amber;
+      case ObjectType.heart:
+        return Colors.red;
+      case ObjectType.circle:
+        return Colors.blue;
+      case ObjectType.square:
+        return Colors.green;
+      case ObjectType.triangle:
+        return Colors.purple;
+      case ObjectType.diamond:
+        return Colors.pink;
+    }
+  }
+
+  String _getObjectTypeName() {
+    switch (_currentObjectType) {
+      case ObjectType.star:
+        return 'stars';
+      case ObjectType.heart:
+        return 'hearts';
+      case ObjectType.circle:
+        return 'circles';
+      case ObjectType.square:
+        return 'squares';
+      case ObjectType.triangle:
+        return 'triangles';
+      case ObjectType.diamond:
+        return 'diamonds';
+    }
+  }
+
   void _generateNewProblem() {
     setState(() {
       // Random count between 8-12 (easier range)
-      _currentDotCount = 8 + _random.nextInt(5); // 8, 9, 10, 11, or 12
+      _currentObjectCount = 8 + _random.nextInt(5); // 8, 9, 10, 11, or 12
 
       // Cycle through interaction types
       _currentInteractionType = InteractionType.values[_totalAttempts % 3];
 
-      // Generate dots in structured grid
-      _dots = _generateStructuredDots();
-      _dotsCountedInArea = 0;
+      // Pick random object type for this problem
+      _currentObjectType =
+          ObjectType.values[_random.nextInt(ObjectType.values.length)];
+      _currentColor = _getColorForObjectType(_currentObjectType);
+
+      // Generate objects in structured grid
+      _objects = _generateStructuredObjects();
+      _objectsCountedInArea = 0;
 
       _controller.clear();
       _showFeedback = false;
@@ -115,43 +173,45 @@ class _CountDotsLevel5WidgetState extends State<CountDotsLevel5Widget> {
     }
   }
 
-  List<DotState> _generateStructuredDots() {
-    final List<DotState> dots = [];
-    final dotsPerRow = _currentDotCount <= 8 ? 4 : 5;
-    final rows = (_currentDotCount / dotsPerRow).ceil();
+  List<ObjectState> _generateStructuredObjects() {
+    final List<ObjectState> objects = [];
+    final objectsPerRow = _currentObjectCount <= 8 ? 4 : 5;
+    final rows = (_currentObjectCount / objectsPerRow).ceil();
 
     for (int row = 0; row < rows; row++) {
-      for (int col = 0; col < dotsPerRow; col++) {
-        final index = row * dotsPerRow + col;
-        if (index >= _currentDotCount) break;
+      for (int col = 0; col < objectsPerRow; col++) {
+        final index = row * objectsPerRow + col;
+        if (index >= _currentObjectCount) break;
 
-        dots.add(DotState(
+        objects.add(ObjectState(
           position: Offset(
             col * 70.0 + 35.0,
             row * 70.0 + 35.0,
           ),
+          type: _currentObjectType,
+          color: _currentColor,
         ));
       }
     }
 
-    return dots;
+    return objects;
   }
 
-  void _onDotTapped(int index) {
+  void _onObjectTapped(int index) {
     if (_currentInteractionType != InteractionType.tap) return;
 
     setState(() {
-      _dots[index].isCounted = !_dots[index].isCounted;
+      _objects[index].isCounted = !_objects[index].isCounted;
     });
   }
 
-  void _onDotDragEnd(int index, DragTargetDetails details) {
+  void _onObjectDragEnd(int index, DragTargetDetails details) {
     if (_currentInteractionType != InteractionType.drag) return;
 
     setState(() {
-      if (!_dots[index].isCounted) {
-        _dots[index].isCounted = true;
-        _dotsCountedInArea++;
+      if (!_objects[index].isCounted) {
+        _objects[index].isCounted = true;
+        _objectsCountedInArea++;
       }
     });
   }
@@ -177,21 +237,22 @@ class _CountDotsLevel5WidgetState extends State<CountDotsLevel5Widget> {
       userAnswer = parsedAnswer;
       userAnswerString = userInput;
     } else {
-      // For drag/tap, count marked dots
-      userAnswer = _dots.where((dot) => dot.isCounted).length;
+      // For drag/tap, count marked objects
+      userAnswer = _objects.where((obj) => obj.isCounted).length;
       userAnswerString = userAnswer.toString();
     }
 
-    final isCorrect = userAnswer == _currentDotCount;
+    final isCorrect = userAnswer == _currentObjectCount;
 
     setState(() {
       _totalAttempts++;
       if (isCorrect) {
         _correctAnswers++;
-        _feedback = 'Correct! 🎉';
+        _feedback = 'Correct!';
         _feedbackColor = Colors.green;
       } else {
-        _feedback = 'Oops! The answer was $_currentDotCount. Let\'s try another!';
+        _feedback =
+            'Oops! The answer was $_currentObjectCount ${_getObjectTypeName()}. Let\'s try another!';
         _feedbackColor = Colors.red;
       }
       _showFeedback = true;
@@ -237,7 +298,8 @@ class _CountDotsLevel5WidgetState extends State<CountDotsLevel5Widget> {
     if (allCorrect && lastTen.length >= _requiredProblems) {
       setState(() {
         _isComplete = true;
-        _feedback = '🎊 Level Complete! You\'ve mastered counting! 🎊\n\nGo back to see your progress!';
+        _feedback =
+            'Level Complete! You\'ve mastered counting objects!\n\nGo back to see your progress!';
         _feedbackColor = Colors.green;
         _showFeedback = true;
       });
@@ -250,11 +312,11 @@ class _CountDotsLevel5WidgetState extends State<CountDotsLevel5Widget> {
   String _getInstructionText() {
     switch (_currentInteractionType) {
       case InteractionType.drag:
-        return 'Drag each dot to the "Counted" area below';
+        return 'Drag each ${_currentObjectType.name} to the "Counted" area below';
       case InteractionType.tap:
-        return 'Tap each dot as you count it';
+        return 'Tap each ${_currentObjectType.name} as you count it';
       case InteractionType.count:
-        return 'Count the dots and enter the total';
+        return 'Count the ${_getObjectTypeName()} and enter the total';
     }
   }
 
@@ -276,7 +338,8 @@ class _CountDotsLevel5WidgetState extends State<CountDotsLevel5Widget> {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.emoji_events, color: Colors.amber.shade700, size: 32),
+                    Icon(Icons.emoji_events,
+                        color: Colors.amber.shade700, size: 32),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -306,7 +369,8 @@ class _CountDotsLevel5WidgetState extends State<CountDotsLevel5Widget> {
                 const SizedBox(height: 12),
                 // Progress display
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(8),
@@ -404,14 +468,14 @@ class _CountDotsLevel5WidgetState extends State<CountDotsLevel5Widget> {
   Widget _buildDragInteraction() {
     return Column(
       children: [
-        // Dots area
+        // Objects area
         Expanded(
           flex: 2,
           child: Container(
             width: double.infinity, // Force full width
             constraints: const BoxConstraints(
               minHeight: 200, // Prevent vertical collapse
-              minWidth: 300,  // Prevent horizontal collapse
+              minWidth: 300, // Prevent horizontal collapse
             ),
             decoration: BoxDecoration(
               border: Border.all(color: Colors.blue.shade300, width: 2),
@@ -419,20 +483,20 @@ class _CountDotsLevel5WidgetState extends State<CountDotsLevel5Widget> {
               color: Colors.blue.shade50,
             ),
             child: Stack(
-              children: _dots.asMap().entries.map((entry) {
+              children: _objects.asMap().entries.map((entry) {
                 final index = entry.key;
-                final dot = entry.value;
+                final obj = entry.value;
 
-                if (dot.isCounted) return const SizedBox.shrink();
+                if (obj.isCounted) return const SizedBox.shrink();
 
                 return Positioned(
-                  left: dot.position.dx,
-                  top: dot.position.dy,
+                  left: obj.position.dx,
+                  top: obj.position.dy,
                   child: Draggable<int>(
                     data: index,
-                    feedback: _buildDot(Colors.blue.shade400, 40),
+                    feedback: _buildObject(obj.type, obj.color, 40, true),
                     childWhenDragging: const SizedBox.shrink(),
-                    child: _buildDot(Colors.blue.shade600, 40),
+                    child: _buildObject(obj.type, obj.color, 40, false),
                   ),
                 );
               }).toList(),
@@ -446,7 +510,8 @@ class _CountDotsLevel5WidgetState extends State<CountDotsLevel5Widget> {
         Expanded(
           flex: 1,
           child: DragTarget<int>(
-            onAcceptWithDetails: (details) => _onDotDragEnd(details.data, details),
+            onAcceptWithDetails: (details) =>
+                _onObjectDragEnd(details.data, details),
             builder: (context, candidateData, rejectedData) {
               return Container(
                 decoration: BoxDecoration(
@@ -472,7 +537,7 @@ class _CountDotsLevel5WidgetState extends State<CountDotsLevel5Widget> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Counted: $_dotsCountedInArea',
+                        'Counted: $_objectsCountedInArea',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -480,7 +545,7 @@ class _CountDotsLevel5WidgetState extends State<CountDotsLevel5Widget> {
                         ),
                       ),
                       Text(
-                        'Drop dots here',
+                        'Drop ${_getObjectTypeName()} here',
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.green.shade700,
@@ -503,38 +568,26 @@ class _CountDotsLevel5WidgetState extends State<CountDotsLevel5Widget> {
         spacing: 20,
         runSpacing: 20,
         alignment: WrapAlignment.center,
-        children: _dots.asMap().entries.map((entry) {
+        children: _objects.asMap().entries.map((entry) {
           final index = entry.key;
-          final dot = entry.value;
+          final obj = entry.value;
 
           return GestureDetector(
-            onTap: () => _onDotTapped(index),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: dot.isCounted
-                    ? Colors.green.shade400
-                    : Colors.blue.shade600,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: dot.isCounted
-                      ? Colors.green.shade700
-                      : Colors.blue.shade800,
-                  width: 3,
+            onTap: () => _onObjectTapped(index),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  child: _buildObject(obj.type, obj.color, 50, false),
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 4,
-                    offset: const Offset(2, 2),
+                if (obj.isCounted)
+                  Icon(
+                    Icons.check_circle,
+                    color: Colors.green.shade700,
+                    size: 30,
                   ),
-                ],
-              ),
-              child: dot.isCounted
-                  ? const Icon(Icons.check, color: Colors.white, size: 30)
-                  : null,
+              ],
             ),
           );
         }).toList(),
@@ -545,10 +598,10 @@ class _CountDotsLevel5WidgetState extends State<CountDotsLevel5Widget> {
   Widget _buildCountInteraction() {
     return Column(
       children: [
-        // Dots display area (structured grid layout)
+        // Objects display area (structured grid layout)
         Expanded(
           child: Center(
-            child: _buildStructuredDotsGrid(),
+            child: _buildStructuredObjectsGrid(),
           ),
         ),
 
@@ -570,7 +623,8 @@ class _CountDotsLevel5WidgetState extends State<CountDotsLevel5Widget> {
                 focusNode: _focusNode,
                 keyboardType: TextInputType.number,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -587,25 +641,26 @@ class _CountDotsLevel5WidgetState extends State<CountDotsLevel5Widget> {
     );
   }
 
-  Widget _buildStructuredDotsGrid() {
-    final dotsPerRow = _currentDotCount <= 8 ? 4 : 5;
-    final rows = (_currentDotCount / dotsPerRow).ceil();
+  Widget _buildStructuredObjectsGrid() {
+    final objectsPerRow = _currentObjectCount <= 8 ? 4 : 5;
+    final rows = (_currentObjectCount / objectsPerRow).ceil();
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: List.generate(rows, (rowIndex) {
-        final startIdx = rowIndex * dotsPerRow;
-        final endIdx = min(startIdx + dotsPerRow, _currentDotCount);
-        final dotsInRow = endIdx - startIdx;
+        final startIdx = rowIndex * objectsPerRow;
+        final endIdx = min(startIdx + objectsPerRow, _currentObjectCount);
+        final objectsInRow = endIdx - startIdx;
 
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0),
           child: Row(
             mainAxisSize: MainAxisSize.min,
-            children: List.generate(dotsInRow, (colIndex) {
+            children: List.generate(objectsInRow, (colIndex) {
               return Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: _buildDot(Colors.blue.shade600, 40),
+                child: _buildObject(
+                    _currentObjectType, _currentColor, 40, false),
               );
             }),
           ),
@@ -614,22 +669,68 @@ class _CountDotsLevel5WidgetState extends State<CountDotsLevel5Widget> {
     );
   }
 
-  Widget _buildDot(Color color, double size) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 4,
-            offset: const Offset(2, 2),
-          ),
-        ],
-      ),
+  Widget _buildObject(
+      ObjectType type, Color color, double size, bool isDragging) {
+    final shadow = BoxShadow(
+      color: Colors.black.withOpacity(0.2),
+      blurRadius: isDragging ? 8 : 4,
+      offset: Offset(0, isDragging ? 4 : 2),
     );
+
+    switch (type) {
+      case ObjectType.star:
+        return SizedBox(
+          width: size,
+          height: size,
+          child: CustomPaint(
+            painter: StarPainter(color: color, shadow: shadow),
+          ),
+        );
+      case ObjectType.heart:
+        return SizedBox(
+          width: size,
+          height: size,
+          child: CustomPaint(
+            painter: HeartPainter(color: color, shadow: shadow),
+          ),
+        );
+      case ObjectType.circle:
+        return Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: color,
+            boxShadow: [shadow],
+          ),
+        );
+      case ObjectType.square:
+        return Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(6),
+            boxShadow: [shadow],
+          ),
+        );
+      case ObjectType.triangle:
+        return SizedBox(
+          width: size,
+          height: size,
+          child: CustomPaint(
+            painter: TrianglePainter(color: color, shadow: shadow),
+          ),
+        );
+      case ObjectType.diamond:
+        return SizedBox(
+          width: size,
+          height: size,
+          child: CustomPaint(
+            painter: DiamondPainter(color: color, shadow: shadow),
+          ),
+        );
+    }
   }
 
   Widget _buildSubmitButton() {
@@ -682,4 +783,158 @@ class _CountDotsLevel5WidgetState extends State<CountDotsLevel5Widget> {
       ),
     );
   }
+}
+
+// Custom painters for different shapes
+
+class StarPainter extends CustomPainter {
+  final Color color;
+  final BoxShadow shadow;
+
+  StarPainter({required this.color, required this.shadow});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final path = Path();
+    final double centerX = size.width / 2;
+    final double centerY = size.height / 2;
+    final double outerRadius = size.width / 2;
+    final double innerRadius = outerRadius * 0.4;
+
+    for (int i = 0; i < 5; i++) {
+      double outerAngle = (i * 2 * pi / 5) - pi / 2;
+      double innerAngle = outerAngle + pi / 5;
+
+      double outerX = centerX + outerRadius * cos(outerAngle);
+      double outerY = centerY + outerRadius * sin(outerAngle);
+      double innerX = centerX + innerRadius * cos(innerAngle);
+      double innerY = centerY + innerRadius * sin(innerAngle);
+
+      if (i == 0) {
+        path.moveTo(outerX, outerY);
+      } else {
+        path.lineTo(outerX, outerY);
+      }
+      path.lineTo(innerX, innerY);
+    }
+    path.close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class HeartPainter extends CustomPainter {
+  final Color color;
+  final BoxShadow shadow;
+
+  HeartPainter({required this.color, required this.shadow});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final path = Path();
+    final width = size.width;
+    final height = size.height;
+
+    path.moveTo(width / 2, height * 0.35);
+
+    path.cubicTo(
+      width / 2,
+      height * 0.25,
+      width * 0.35,
+      height * 0.1,
+      width * 0.25,
+      height * 0.25,
+    );
+    path.cubicTo(
+      width * 0.1,
+      height * 0.4,
+      width * 0.1,
+      height * 0.55,
+      width / 2,
+      height * 0.9,
+    );
+    path.cubicTo(
+      width * 0.9,
+      height * 0.55,
+      width * 0.9,
+      height * 0.4,
+      width * 0.75,
+      height * 0.25,
+    );
+    path.cubicTo(
+      width * 0.65,
+      height * 0.1,
+      width / 2,
+      height * 0.25,
+      width / 2,
+      height * 0.35,
+    );
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class TrianglePainter extends CustomPainter {
+  final Color color;
+  final BoxShadow shadow;
+
+  TrianglePainter({required this.color, required this.shadow});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final path = Path();
+    path.moveTo(size.width / 2, 0);
+    path.lineTo(size.width, size.height);
+    path.lineTo(0, size.height);
+    path.close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class DiamondPainter extends CustomPainter {
+  final Color color;
+  final BoxShadow shadow;
+
+  DiamondPainter({required this.color, required this.shadow});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final path = Path();
+    path.moveTo(size.width / 2, 0);
+    path.lineTo(size.width, size.height / 2);
+    path.lineTo(size.width / 2, size.height);
+    path.lineTo(0, size.height / 2);
+    path.close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

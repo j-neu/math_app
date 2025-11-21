@@ -189,12 +189,20 @@ Every exercise MUST:
 2. **Follow the CARD'S scaffolding** (see [IMINT_TO_APP_FRAMEWORK.md](IMINT_TO_APP_FRAMEWORK.md))
 3. **Implement the NUMBER of levels the card prescribes** (may be 2, 3, 4, or more - NOT always 3!)
 4. **ADD A FINALE LEVEL** - After card-prescribed levels, add one final "Summary" level with easier mixed review (ADHD: Easy→Hard→Easy flow)
+   - **⚠️ CRITICAL:** Finale MUST be completable - child must be able to reach "completed" status
+   - Define clear completion criteria (accuracy, time, minimum problems)
+   - Test that criteria are achievable by target age group
 5. **Use the SPECIFIC actions from the card** (schieben/drag, antippen/tap, no action, flash-hide, etc.)
 6. **Tag with appropriate `skillTags`** from skills taxonomy
 7. **Support "no-fail" feedback** (hints, representation switching, visual safety net)
-8. **Track response time** for strategy analysis and completion criteria
+8. **Integrate ExerciseProgressMixin** - ALL exercises must save/load state:
+   - Load progress on initState (restores level unlocks, problem history)
+   - Save progress every 5 problems (auto-save)
+   - Save progress on exit (WillPopScope/PopScope)
+   - Track time per problem with Stopwatch
 9. **Implement completion tracking** - Save progress to UserProfile, distinguish "finished" vs "completed" (see [COMPLETION_CRITERIA.md](COMPLETION_CRITERIA.md))
 10. **Define completion criteria** - Specify time limits per problem and accuracy requirements for "completed" status
+11. **Test state persistence** - Verify child can exit and resume from same point
 
 ### Exercise Creation Workflow
 
@@ -202,14 +210,25 @@ When implementing any exercise:
 
 1. **READ the card** - Extract exact scaffolding levels from "Wie kommt die Handlung in den Kopf?"
 2. Create N level widget files in `widgets/` directory (where N = number of levels from card)
-3. Create exercise coordinator in `exercises/` directory
-4. Register in `exercise_service.dart`
-5. Run `flutter analyze` to check for errors
-6. **DO NOT** create individual implementation summary documents (*.md files)
-   - ARCHIVE_IMPLEMENTATIONS.md already documents the first 4 exercises as reference
-   - New exercises should be documented in code comments only
-   - Major design decisions can be noted in git commit messages
-7. Update this file (CLAUDE.md) only if status changes significantly
+3. Create N+1 level widget file for finale level (easier mixed review)
+4. Create exercise coordinator in `exercises/` directory
+5. **Integrate ExerciseProgressMixin:**
+   - Extend coordinator with `ExerciseProgressMixin`
+   - Implement `loadProgress()` in `initState()`
+   - Implement `saveProgress()` in `dispose()` and every 5 problems
+   - Pass `startProblemTimer` and `recordProblemResult` to level widgets
+6. **Define completion criteria** in coordinator comments (accuracy %, time limit, min problems)
+7. Register in `exercise_service.dart`
+8. Run `flutter analyze` to check for errors
+9. **Test state persistence:**
+   - Start exercise → solve some problems → exit
+   - Reopen exercise → verify progress restored
+   - Complete finale → verify "completed" status reached
+10. **DO NOT** create individual implementation summary documents (*.md files)
+    - ARCHIVE_IMPLEMENTATIONS.md already documents the first 4 exercises as reference
+    - New exercises should be documented in code comments only
+    - Major design decisions can be noted in git commit messages
+11. Update this file (CLAUDE.md) only if status changes significantly
 
 ### Exercise Planning Questions
 
@@ -252,19 +271,20 @@ Before implementing, answer these IN ORDER:
 **Essential Reading:**
 - [IMINT_TO_APP_FRAMEWORK.md](IMINT_TO_APP_FRAMEWORK.md) - Scaffolding framework + finale level design (CRITICAL)
 - [COMPLETION_CRITERIA.md](COMPLETION_CRITERIA.md) - Exercise completion tracking system (finished vs completed)
-- [REWARDS_SYSTEM.md](REWARDS_SYSTEM.md) - Parent-configured reward system design
+- [REWARDS_SYSTEM_QUICK_REF.md](REWARDS_SYSTEM_QUICK_REF.md) - Parent-configured reward system (quick reference)
 - [tasks.md](tasks.md) - Current work and roadmap
 - [adhd guidelines.md](adhd%20guidelines.md) - ADHD design principles
 
 **Historical Context:**
 - [COMPLETED_TASKS.md](COMPLETED_TASKS.md) - What's been done (Phases 1 & 1.5)
-- [ARCHIVE_IMPLEMENTATIONS.md](ARCHIVE_IMPLEMENTATIONS.md) - Detailed notes on Z1, C1.1, C1.2, C2.1
+- [Archive/ARCHIVE_IMPLEMENTATIONS.md](Archive/ARCHIVE_IMPLEMENTATIONS.md) - Reference implementation (Z1 only)
 
 **Research Materials:**
 - `Research/SKILLS_README.md` - Complete skill system documentation
 - `Research/skills_taxonomy.csv` - All 88 skills cataloged
 - `Research/PIKAS_Analysis.md` - 36/58 PIKAS cards analyzed
 - `Research/iMINT-Kartei_190529.pdf` - iMINT cards (German)
+- `Research/REWARDS_SYSTEM.md` - Detailed reward system spec (UI, modals, milestones)
 
 ---
 

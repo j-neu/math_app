@@ -9,11 +9,11 @@ import 'common/scrolling_number_band.dart';
 /// **App translation:** Tap numbers in sequence → they highlight/animate
 ///
 /// **Features:**
-/// - Horizontal scrollable band (1-20), ~5 numbers visible at once
+/// - Horizontal scrollable band (1-50), ~5 numbers visible at once
 /// - Child taps next number in sequence, immediate visual/audio feedback
 /// - Band auto-scrolls to keep current number centered
-/// - Task: "Count forward from X to Y" (5-10 step sequences)
-/// - Decade numbers (10, 20) have special visual styling
+/// - Task: "Count forward from X to Y" (5-12 step sequences)
+/// - Decade numbers (10, 20, 30, 40, 50) have special visual styling
 ///
 /// **Pedagogical Purpose:**
 /// - Full visual support (SEE numbers, POINT/tap, COUNT forward)
@@ -40,9 +40,9 @@ class CountForwardLevel1Widget extends StatefulWidget {
 
 class _CountForwardLevel1WidgetState extends State<CountForwardLevel1Widget> {
   static const int minNumber = 1;
-  static const int maxNumber = 20;
+  static const int maxNumber = 50;
   static const int requiredProblems = 5;
-  static const List<int> decadeNumbers = [10, 20];
+  static const List<int> decadeNumbers = [10, 20, 30, 40, 50];
 
   int _problemsCompleted = 0;
   int _startNumber = 0;

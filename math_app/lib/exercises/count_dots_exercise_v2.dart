@@ -57,7 +57,7 @@ class CountDotsExerciseV2 extends StatefulWidget {
     super.key,
     required this.userProfile,
   }) : config = const ExerciseConfig(
-          id: 'C1.1-V2',
+          id: 'C1.1',
           title: 'Count the Dots',
           skillTags: ['counting_1'],
           sourceCard: 'iMINT Green Card 1: Plättchen zählen (5-level version)',
@@ -459,6 +459,10 @@ class _CountDotsExerciseV2State extends State<CountDotsExerciseV2>
               correct: correct,
               userAnswer: userAnswer,
             );
+          },
+          onLevelComplete: () {
+            // Level 5 completed! Save progress and notify user
+            saveProgress();
           },
         );
     }

@@ -58,6 +58,8 @@ class Milestone {
       'C1.2',  // Count the Objects
       'C2.1',  // Order Cards to 20
       'C3.1',  // Count Forward to 20
+      'C3.2',  // Count Forward to 50
+      'C3.3',  // Count Forward to 100
       'C4.1',  // What Comes Next?
       'C10.1', // Place Numbers on Line
     ],

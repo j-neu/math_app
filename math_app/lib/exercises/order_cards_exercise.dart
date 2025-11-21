@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import '../models/exercise_config.dart';
 import '../models/scaffold_level.dart';
+import '../models/user_profile.dart';
+import '../mixins/exercise_progress_mixin.dart';
 import '../widgets/ordercards_level1_widget.dart';
 import '../widgets/ordercards_level2_widget.dart';
 import '../widgets/ordercards_level3_widget.dart';
+import '../widgets/ordercards_level4_widget.dart';
 
 /// Complete implementation of EX-C2.1: Order Cards to 20 exercise
 /// **REDESIGNED to follow iMINT Green Card 2 exactly**
@@ -33,11 +36,28 @@ import '../widgets/ordercards_level3_widget.dart';
 /// - Unlocks Level 3 after 10 correct identifications
 ///
 /// **Level 3: Reproduce from Memory (Assessment)**
-/// - Flash 2-row structure briefly (3 seconds), then hide
-/// - Child writes ALL 20 numbers in order from memory
-/// - Tests complete internalization: "ohne Vorgabe einer Struktur aufschreiben"
+/// - 2-row structure with 4-6 cards missing (gaps shown)
+/// - Child identifies ALL missing numbers
+/// - Tests deeper internalization than Level 2
 /// - On error: Show structure briefly (no-fail safety net)
 /// - Continuous practice with feedback
+///
+/// **Level 4: Finale (ADHD-Friendly Victory Lap)**
+/// - 2-row structure with 2-3 cards missing (EASIER than Level 3)
+/// - Mixed review, confidence-building completion level
+/// - Unlocks after 5 correct in Level 3
+///
+/// **COMPLETION CRITERIA (Level 4 Finale):**
+/// - Minimum problems: 10
+/// - Accuracy required: 100% (zero errors in last 10 problems)
+/// - Time limit: 30 seconds per problem
+/// - Status: "finished" → "completed" when all criteria met
+///
+/// **State Persistence:**
+/// - Progress saves every 5 problems via ExerciseProgressMixin
+/// - Progress saves on exit (WillPopScope/dispose)
+/// - Level unlocks persist across app restarts
+/// - Child can exit and resume from same point
 ///
 /// **Pedagogical Goals:**
 /// - Understand number sequence 1-20 has fixed order
@@ -50,9 +70,12 @@ import '../widgets/ordercards_level3_widget.dart';
 /// New: Read-structured → Find-gaps → Reproduce-from-memory (follows card exactly)
 class OrderCardsExercise extends StatefulWidget {
   final ExerciseConfig config;
+  final UserProfile userProfile;
 
-  const OrderCardsExercise({super.key})
-      : config = const ExerciseConfig(
+  const OrderCardsExercise({
+    super.key,
+    required this.userProfile,
+  }) : config = const ExerciseConfig(
           id: 'C2.1',
           title: 'Order Cards to 20',
           skillTags: ['counting_2'],
@@ -67,7 +90,7 @@ class OrderCardsExercise extends StatefulWidget {
             'Does child understand "13 is below 3 and follows 12" logic?',
           ],
           internalizationPath:
-              'Level 1 (Read structured sequence) → Level 2 (Find missing with neighbors) → Level 3 (Reproduce from pure memory)',
+              'Level 1 (Read structured sequence) → Level 2 (Find missing with neighbors) → Level 3 (Multiple missing) → Level 4 (Finale easier review)',
           targetNumber: 20, // Working with numbers 1-20
           hints: [
             'Look at the pattern: first row is 1-10, second row is 11-20.',
@@ -81,33 +104,79 @@ class OrderCardsExercise extends StatefulWidget {
   State<OrderCardsExercise> createState() => _OrderCardsExerciseState();
 }
 
-class _OrderCardsExerciseState extends State<OrderCardsExercise> {
+class _OrderCardsExerciseState extends State<OrderCardsExercise>
+    with ExerciseProgressMixin {
+  // Mixin requirements
+  @override
+  String get exerciseId => widget.config.id;
+
+  @override
+  UserProfile get userProfile => widget.userProfile;
+
+  @override
+  int get totalLevels => 4; // 3 card levels + 1 finale
+
+  @override
+  int get finaleLevelNumber => 4;
+
+  @override
+  int get problemTimeLimit => 30; // 30 seconds per problem
+
+  @override
+  int get finaleMinProblems => 10;
+
+  // UI state
   ScaffoldLevel _currentLevel = ScaffoldLevel.guidedExploration;
   late ScaffoldProgress _progress;
 
-  // Level 1 tracking
+  // Level tracking
   int _level1Sequences = 0;
-
-  // Level 2 tracking
   int _level2Correct = 0;
   int _level2Total = 0;
-
-  // Level 3 tracking
   int _level3Correct = 0;
 
   @override
   void initState() {
     super.initState();
     _progress = ScaffoldProgress();
+    _initializeExercise();
   }
 
-  void _onLevel1Progress(int sequencesCompleted) {
+  Future<void> _initializeExercise() async {
+    await initializeProgress();
+
+    // Restore unlocked levels from saved progress
+    setState(() {
+      if (isLevelUnlocked(2)) {
+        _progress = _progress.copyWith(level1Complete: true);
+      }
+      if (isLevelUnlocked(3)) {
+        _progress = _progress.copyWith(level3Unlocked: true);
+      }
+      if (isLevelUnlocked(4)) {
+        _progress = _progress.copyWith(level4Unlocked: true);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    onExerciseExit(); // Save progress on exit
+    super.dispose();
+  }
+
+  void _onLevel1Progress(int sequencesCompleted) async {
     setState(() {
       _level1Sequences = sequencesCompleted;
+    });
 
-      // Unlock Level 2 after 3 complete sequences
-      if (_level1Sequences >= 3 && !_progress.level2Unlocked) {
+    // Unlock Level 2 after 1 complete sequence
+    if (_level1Sequences >= 1 && !isLevelUnlocked(2)) {
+      await unlockLevel(2);
+      setState(() {
         _progress = _progress.copyWith(level1Complete: true);
+      });
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('🎉 Level 2 Unlocked! Now find the missing numbers!'),
@@ -115,42 +184,57 @@ class _OrderCardsExerciseState extends State<OrderCardsExercise> {
           ),
         );
       }
-    });
+    }
   }
 
-  void _onLevel2Progress(int correct, int total) {
+  void _onLevel2Progress(int correct, int total) async {
     setState(() {
       _level2Correct = correct;
       _level2Total = total;
-
-      // Update progress tracker
       _progress = _progress.copyWith(
         level2Correct: correct,
         level2Total: total,
       );
+    });
 
-      // Unlock Level 3 after 10 correct
-      if (_level2Correct >= 10 && !_progress.level3Unlocked) {
+    // Unlock Level 3 after 10 correct
+    if (_level2Correct >= 10 && !isLevelUnlocked(3)) {
+      await unlockLevel(3);
+      setState(() {
         _progress = _progress.copyWith(level3Unlocked: true);
+      });
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text(
-                '🎉 Level 3 Unlocked! Challenge: reproduce from memory!'),
+            content: Text('🎉 Level 3 Unlocked! More missing numbers!'),
             duration: Duration(seconds: 3),
           ),
         );
       }
-    });
+    }
   }
 
-  void _onLevel3Progress(int correct) {
+  void _onLevel3Progress(int correct) async {
     setState(() {
       _level3Correct = correct;
     });
+
+    // Unlock Level 4 (finale) after 5 correct in Level 3
+    if (_level3Correct >= 5 && !isLevelUnlocked(4)) {
+      await unlockLevel(4);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('🎉 Finale Unlocked! Easier review to complete the exercise!'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 
   void _switchLevel(ScaffoldLevel level) {
-    if (level == ScaffoldLevel.supportedPractice && !_progress.level2Unlocked) {
+    if (level == ScaffoldLevel.supportedPractice && !isLevelUnlocked(2)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Complete Level 1 first to unlock Level 2!'),
@@ -160,10 +244,20 @@ class _OrderCardsExerciseState extends State<OrderCardsExercise> {
       return;
     }
 
-    if (level == ScaffoldLevel.independentMastery && !_progress.level3Unlocked) {
+    if (level == ScaffoldLevel.independentMastery && !isLevelUnlocked(3)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Complete Level 2 first to unlock Level 3!'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    if (level == ScaffoldLevel.finale && !isLevelUnlocked(4)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Complete Level 3 first to unlock the Finale!'),
           duration: Duration(seconds: 2),
         ),
       );
@@ -221,13 +315,19 @@ class _OrderCardsExerciseState extends State<OrderCardsExercise> {
             level: ScaffoldLevel.supportedPractice,
             label: 'Level 2',
             icon: Icons.search,
-            isLocked: !_progress.level2Unlocked,
+            isLocked: !isLevelUnlocked(2),
           ),
           _buildLevelButton(
             level: ScaffoldLevel.independentMastery,
             label: 'Level 3',
             icon: Icons.psychology,
-            isLocked: !_progress.level3Unlocked,
+            isLocked: !isLevelUnlocked(3),
+          ),
+          _buildLevelButton(
+            level: ScaffoldLevel.finale,
+            label: 'Finale',
+            icon: Icons.celebration,
+            isLocked: !isLevelUnlocked(4),
           ),
         ],
       ),
@@ -282,7 +382,9 @@ class _OrderCardsExerciseState extends State<OrderCardsExercise> {
     String progressText;
     switch (_currentLevel) {
       case ScaffoldLevel.guidedExploration:
-        progressText = 'Sequences read: $_level1Sequences/3 (unlock Level 2)';
+        progressText = _level1Sequences >= 1
+            ? 'Sequence complete! ✅'
+            : 'Tap all 20 cards in order (unlock Level 2)';
         break;
       case ScaffoldLevel.supportedPractice:
         final accuracy = _level2Total > 0
@@ -292,15 +394,20 @@ class _OrderCardsExerciseState extends State<OrderCardsExercise> {
             'Found: $_level2Correct/10 | Accuracy: $accuracy% (unlock Level 3)';
         break;
       case ScaffoldLevel.independentMastery:
-        progressText = 'Completed from memory: $_level3Correct times';
+        progressText = 'Completed: $_level3Correct times (5 to unlock Finale)';
+        break;
+      case ScaffoldLevel.finale:
+        final finaleProgress = getLevelProgress(4);
+        final finaleCorrect = finaleProgress?.correctAnswers ?? 0;
+        final finaleTotal = finaleProgress?.totalAttempts ?? 0;
+        final accuracy = finaleTotal > 0
+            ? ((finaleCorrect / finaleTotal) * 100).toStringAsFixed(0)
+            : '0';
+        progressText = 'Finale: $finaleCorrect correct | Accuracy: $accuracy% (Need 10 with 100%)';
         break;
       case ScaffoldLevel.advancedChallenge:
         progressText = '';
         break;
-
-      default:
-        // Finale level not yet implemented
-        return const Center(child: Text('Finale level coming soon!'));
     }
 
     return Container(
@@ -333,13 +440,19 @@ class _OrderCardsExerciseState extends State<OrderCardsExercise> {
         return OrderCardsLevel3Widget(
           onProgressUpdate: _onLevel3Progress,
         );
+      case ScaffoldLevel.finale:
+        return OrderCardsLevel4Widget(
+          onStartProblemTimer: startProblemTimer,
+          onProblemComplete: (correct, userAnswer) async {
+            await recordProblemResult(
+              levelNumber: 4,
+              correct: correct,
+              userAnswer: userAnswer,
+            );
+          },
+        );
       case ScaffoldLevel.advancedChallenge:
         return const SizedBox.shrink();
-      case ScaffoldLevel.finale:
-        // Finale level not yet implemented for this exercise
-        return const Center(
-          child: Text('Finale level coming soon!'),
-        );
     }
   }
 
@@ -359,7 +472,7 @@ class _OrderCardsExerciseState extends State<OrderCardsExercise> {
               ),
               const SizedBox(height: 16),
               const Text(
-                '3-Level Learning Path:',
+                '4-Level Learning Path:',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
@@ -368,12 +481,16 @@ class _OrderCardsExerciseState extends State<OrderCardsExercise> {
                 'Tap cards 1-20 in order. Notice the 2-row pattern: 1-10 on top, 11-20 below.',
               ),
               _buildInfoSection(
-                '🔍 Level 2: Find Missing Numbers',
+                '🔍 Level 2: Find 2 Missing Numbers',
                 'Two numbers are hidden! Use neighbor logic to find them: "13 follows 12 and is below 3"',
               ),
               _buildInfoSection(
-                '🧠 Level 3: Write from Memory',
-                'Flash, then hide! Write all 20 numbers in order from your mental image.',
+                '🧠 Level 3: Find 4-6 Missing Numbers',
+                'More gaps to fill! Use the 2-row pattern and neighbor relationships.',
+              ),
+              _buildInfoSection(
+                '🎉 Level 4: Finale (Easy Review)',
+                'Just 2-3 missing numbers. Show your mastery with easier problems!',
               ),
               const SizedBox(height: 16),
               Text(

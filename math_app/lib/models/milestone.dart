@@ -50,6 +50,9 @@ class Milestone {
       'counting_3',
       'counting_4',
       'counting_5',
+      'counting_6',
+      'counting_7',
+      'counting_8',
       'counting_10',
       'counting_11',
     ],
@@ -61,7 +64,13 @@ class Milestone {
       'C3.2',  // Count Forward to 50
       'C3.3',  // Count Forward to 100
       'C4.1',  // What Comes Next?
+      'C5.1',  // Find Neighboring Numbers
+      'C6.0',  // Number Sequences on 100-Field
+      'C6.1',  // Count in Steps of 2
+      'C6.2',  // Count in Steps on 100-Field
+      'C6.3',  // Count Backwards Steps on 100-Field
       'C10.1', // Place Numbers on Line
+      'C10.2', // Place Numbers on Line (0-100)
     ],
     icon: Icons.onetwothree,
   );
@@ -143,7 +152,7 @@ class Milestone {
       'basic_strategy_10',
     ],
     exerciseIds: [
-      'F1.1',  // Finger Addition (future)
+      'S1.1',  // Fingerblitz (implemented)
       'F1.2',  // Finger Subtraction (future)
       'D1.1',  // Doubles to 20 (future)
       'D2.1',  // Near Doubles (future)
@@ -217,6 +226,7 @@ class Milestone {
     return [
       foundationCounting,
       numberDecomposition,
+      basicStrategies,
     ];
   }
 }

@@ -148,20 +148,10 @@ class _OrderCardsLevel1WidgetState extends State<OrderCardsLevel1Widget>
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Instructions
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            'Read the Numbers: Tap them in order from 1 to 20',
-            style: Theme.of(context).textTheme.titleMedium,
-            textAlign: TextAlign.center,
-          ),
-        ),
-
         // Feedback message
         if (_feedbackMessage != null)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
             child: Text(
               _feedbackMessage!,
               style: TextStyle(
@@ -176,37 +166,7 @@ class _OrderCardsLevel1WidgetState extends State<OrderCardsLevel1Widget>
             ),
           ),
 
-        // Progress indicator
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: _sequenceCompleted
-              ? const Text(
-                  '✅ Sequence complete! Ready for Level 2',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green,
-                  ),
-                )
-              : Text(
-                  'Next: $_nextExpected',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-        ),
-
-        const SizedBox(height: 20),
-
-        // Pattern help button
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: OutlinedButton.icon(
-            onPressed: _showPatternDialog,
-            icon: const Icon(Icons.help_outline),
-            label: const Text('Was fällt dir auf? (What do you notice?)'),
-          ),
-        ),
-
-        const SizedBox(height: 20),
+        const SizedBox(height: 8),
 
         // Number cards in 2-row structure
         Expanded(

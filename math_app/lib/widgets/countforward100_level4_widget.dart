@@ -181,96 +181,11 @@ class _CountForwardLevel4WidgetState extends State<CountForwardLevel4Widget> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          // Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.celebration, color: Colors.green[700], size: 28),
-              const SizedBox(width: 8),
-              Text(
-                'Level 4: Finale',
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green[700],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-
-          // Progress indicator
-          Text(
-            'Problems completed: $_problemsCompleted / $minProblems',
-            style: theme.textTheme.titleMedium,
-          ),
-          const SizedBox(height: 16),
-
-          // Instructions / Feedback
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: _showSuccess
-                  ? Colors.green[100]
-                  : Colors.green[50],
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: _showSuccess ? Colors.green : Colors.green[300]!,
-                width: 2,
-              ),
-            ),
-            child: Row(
-              children: [
-                if (_showSuccess)
-                  Icon(Icons.check_circle, color: Colors.green[700], size: 32)
-                else
-                  Icon(Icons.info_outline, color: Colors.green[700], size: 32),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    _feedbackMessage,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
           const SizedBox(height: 24),
-
-          // Direction indicator
-          if (!_isComplete) ...[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  _isForward ? Icons.arrow_forward : Icons.arrow_back,
-                  size: 32,
-                  color: _isForward ? Colors.green : Colors.orange,
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  _isForward ? 'Counting FORWARD' : 'Counting BACKWARD',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: _isForward ? Colors.green : Colors.orange,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Current: $_currentPosition  →  Target: $_targetNumber',
-              style: theme.textTheme.titleMedium,
-            ),
-            const SizedBox(height: 16),
-          ],
 
           // Scrolling Number Band (VISIBLE for easier practice)
           ScrollingNumberBand(
@@ -283,40 +198,7 @@ class _CountForwardLevel4WidgetState extends State<CountForwardLevel4Widget> {
             allowManualScroll: true,
           ),
 
-          const SizedBox(height: 32),
-
-          // Helper text
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.green[50],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.lightbulb_outline, color: Colors.green[700]),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'This is the finale! Practice counting forward and backward to 50. '
-                    'The number band is visible to help you succeed!',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: Colors.green[900],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
           const Spacer(),
-
-          // Manual advance button (if problem complete)
-          if (_isComplete && _problemsCompleted < minProblems)
-            ElevatedButton(
-              onPressed: _generateNewProblem,
-              child: const Text('Next Problem'),
-            ),
 
           if (_problemsCompleted >= minProblems)
             ElevatedButton.icon(

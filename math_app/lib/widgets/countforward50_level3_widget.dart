@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:math';
-import 'common/scrolling_number_band.dart';
 
-/// Level 3: Mental Counting - Hidden Band (No Visual Support)
+/// Level 3: Mental Counting - Fill Missing Numbers (No Visual Support)
 ///
 /// **Source:** iMINT Card 3, Activity D (pages 77-78)
 /// **Physical action from card:** Count with eyes closed, no visual reference
-/// **App translation:** Flash starting number, then hide entire band
+/// **App translation:** Show first 2 and last 2 numbers, child fills in the rest
 ///
 /// **Features:**
-/// - Starting number shown briefly (2 seconds) then band disappears
-/// - Child counts mentally from starting number to target
-/// - After counting, child enters final number or entire sequence
-/// - "Peek" button reveals band if child is lost (with reflection prompt)
+/// - Starting and ending numbers shown
+/// - Middle numbers are blank text fields
+/// - Child fills in missing numbers by counting mentally
 /// - Both forward AND backward counting
 /// - Adaptive difficulty (longer sequences, decade crossings)
 ///
@@ -21,11 +19,10 @@ import 'common/scrolling_number_band.dart';
 /// - No visual support during counting (complete mental representation)
 /// - Child must have internalized the number sequence
 /// - "Die Zahlenfolge muss verinnerlicht sein"
-/// - Safety net available (peek) matches card's philosophy
 ///
-/// **Scaffolding Level 3 of 3:**
+/// **Scaffolding Level 3 of 4:**
 /// This is "mit geschlossenen Augen" (with closed eyes) - complete internalization
-/// The final step where counting has truly "come into the head"
+/// The final step before the finale where counting has truly "come into the head"
 class CountForwardLevel3Widget extends StatefulWidget {
   final Function(bool)? onProblemComplete;
   final Function()? onLevelComplete;
@@ -44,19 +41,15 @@ class CountForwardLevel3Widget extends StatefulWidget {
 class _CountForwardLevel3WidgetState extends State<CountForwardLevel3Widget> {
   static const int minNumber = 1;
   static const int maxNumber = 50;
-  static const List<int> decadeNumbers = [10, 20, 30, 40, 50];
 
   int _problemsCompleted = 0;
-  int _consecutiveCorrect = 0;
   int _startNumber = 0;
   int _targetNumber = 0;
   bool _isForward = true;
   bool _isComplete = false;
   String _feedbackMessage = '';
-  bool _showSuccess = false;
 
   List<int> _sequence = [];
-  List<int> _visibleNumbers = [];
   List<int> _hiddenIndices = [];
   List<TextEditingController> _controllers = [];
   List<FocusNode> _focusNodes = [];
@@ -93,7 +86,7 @@ class _CountForwardLevel3WidgetState extends State<CountForwardLevel3Widget> {
       // Randomly choose forward or backward
       _isForward = _random.nextBool();
 
-      // Fixed 1-20 range with varying sequence lengths
+      // Fixed 1-50 range with varying sequence lengths
       int sequenceLength;
 
       if (_problemsCompleted < 3) {
@@ -146,10 +139,7 @@ class _CountForwardLevel3WidgetState extends State<CountForwardLevel3Widget> {
       );
 
       _isComplete = false;
-      _feedbackMessage = _isForward
-          ? 'Fill in the missing numbers counting FORWARD'
-          : 'Fill in the missing numbers counting BACKWARD';
-      _showSuccess = false;
+      _feedbackMessage = '';
     });
   }
 
@@ -166,7 +156,6 @@ class _CountForwardLevel3WidgetState extends State<CountForwardLevel3Widget> {
     if (!allFilled) {
       setState(() {
         _feedbackMessage = 'Please fill in all the blanks!';
-        _showSuccess = false;
       });
       return;
     }
@@ -188,17 +177,13 @@ class _CountForwardLevel3WidgetState extends State<CountForwardLevel3Widget> {
       setState(() {
         _isComplete = true;
         _problemsCompleted++;
-        _consecutiveCorrect++;
-        _feedbackMessage = _isForward
-            ? 'Perfect! You counted forward correctly!'
-            : 'Excellent! You counted backward correctly!';
-        _showSuccess = true;
+        _feedbackMessage = '';
       });
 
       widget.onProblemComplete?.call(true);
 
       // Move to next problem or complete level
-      Future.delayed(const Duration(seconds: 2), () {
+      Future.delayed(const Duration(seconds: 1), () {
         if (mounted) {
           if (_problemsCompleted >= 8) {
             widget.onLevelComplete?.call();
@@ -208,11 +193,9 @@ class _CountForwardLevel3WidgetState extends State<CountForwardLevel3Widget> {
         }
       });
     } else {
-      // Incorrect - show correct answers
-      _consecutiveCorrect = 0; // Reset streak
+      // Incorrect - clear and try again
       setState(() {
         _feedbackMessage = 'Not quite. Check your answers and try again!';
-        _showSuccess = false;
       });
 
       // Clear wrong answers after showing feedback
@@ -222,15 +205,12 @@ class _CountForwardLevel3WidgetState extends State<CountForwardLevel3Widget> {
             for (var controller in _controllers) {
               controller.clear();
             }
-            _feedbackMessage = _isForward
-                ? 'Try again! Count forward from ${_sequence[0]}'
-                : 'Try again! Count backward from ${_sequence[0]}';
+            _feedbackMessage = '';
           });
         }
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -240,69 +220,6 @@ class _CountForwardLevel3WidgetState extends State<CountForwardLevel3Widget> {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          // Header
-          Text(
-            'Level 3: Mental Counting',
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.primary,
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // Progress indicator
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Problems: $_problemsCompleted / 8',
-                style: theme.textTheme.titleMedium,
-              ),
-              const SizedBox(width: 24),
-              Icon(Icons.local_fire_department, color: Colors.orange, size: 20),
-              const SizedBox(width: 4),
-              Text(
-                'Streak: $_consecutiveCorrect',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: Colors.orange,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // Instructions / Feedback
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: _showSuccess
-                  ? Colors.green[100]
-                  : theme.colorScheme.tertiaryContainer.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: _showSuccess ? Colors.green : theme.colorScheme.tertiary,
-                width: 2,
-              ),
-            ),
-            child: Row(
-              children: [
-                if (_showSuccess)
-                  Icon(Icons.check_circle, color: Colors.green[700], size: 32)
-                else
-                  Icon(Icons.psychology, color: theme.colorScheme.tertiary, size: 32),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    _feedbackMessage,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
           const SizedBox(height: 24),
 
           // Direction indicator
@@ -316,25 +233,36 @@ class _CountForwardLevel3WidgetState extends State<CountForwardLevel3Widget> {
                   color: _isForward ? Colors.green : Colors.orange,
                 ),
                 const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _isForward ? 'Count FORWARD' : 'Count BACKWARD',
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: _isForward ? Colors.green : Colors.orange,
-                      ),
-                    ),
-                    Text(
-                      'From $_startNumber to $_targetNumber',
-                      style: theme.textTheme.bodyLarge,
-                    ),
-                  ],
+                Text(
+                  _isForward ? 'Forward' : 'Backward',
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: _isForward ? Colors.green : Colors.orange,
+                  ),
                 ),
               ],
             ),
+            const SizedBox(height: 8),
+            Text(
+              'From $_startNumber to $_targetNumber',
+              style: theme.textTheme.titleMedium,
+            ),
+            const SizedBox(height: 24),
+          ],
+
+          // Success message
+          if (_isComplete) ...[
+            Icon(Icons.check_circle, color: Colors.green[700], size: 64),
             const SizedBox(height: 16),
+            Text(
+              'Perfect! You counted correctly!',
+              style: theme.textTheme.titleLarge?.copyWith(
+                color: Colors.green[700],
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
           ],
 
           // Sequence display with input fields
@@ -430,6 +358,27 @@ class _CountForwardLevel3WidgetState extends State<CountForwardLevel3Widget> {
             const SizedBox(height: 24),
           ],
 
+          // Feedback message
+          if (_feedbackMessage.isNotEmpty) ...[
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.orange[100],
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.orange, width: 2),
+              ),
+              child: Text(
+                _feedbackMessage,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: Colors.orange[900],
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+
           const Spacer(),
 
           // Action button
@@ -449,24 +398,6 @@ class _CountForwardLevel3WidgetState extends State<CountForwardLevel3Widget> {
               ),
             ),
           ],
-
-          if (_isComplete && _problemsCompleted < 8)
-            ElevatedButton(
-              onPressed: _generateNewProblem,
-              child: const Text('Next Problem'),
-            ),
-
-          if (_problemsCompleted >= 8)
-            ElevatedButton.icon(
-              onPressed: () => widget.onLevelComplete?.call(),
-              icon: const Icon(Icons.celebration),
-              label: const Text('Level Complete!'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              ),
-            ),
         ],
       ),
     );

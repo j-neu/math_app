@@ -15,21 +15,34 @@
 
 **Example:** iMINT Card 1 prescribes 4 levels (schieben → antippen → ohne Handlung → mit Augen), so C1.1 implements 4 levels (Drag → Tap → Look → Flash). NOT a 3-level template!
 
-## Finale Level Requirement (ADHD Support)
+## Finale Level (Optional - ADHD Support)
 
-**⚠️ Add ONE final "Finale" level after card-prescribed levels.**
+**⚠️ Consider adding a final "Finale" level if appropriate for the skill.**
 
-**Purpose:** Easy→Hard→Easy flow. ADHD children need end-of-exercise success.
+**Purpose:** Easy→Hard→Easy flow. ADHD children benefit from ending on success.
 
-**Design Rules:**
-1. **Easier** than hardest card level (mixed review, not new concepts)
+**When to add finale:**
+- Skill has natural difficulty progression that benefits from easier final level
+- Card's final level is the hardest (child ends on maximum difficulty)
+- Skill structure allows for meaningful "easier review" content
+
+**When NOT to add finale:**
+- Card explicitly prescribes final level as completion/mastery
+- Skill already ends on easier content
+- No meaningful easier variant exists
+
+**Design Rules (if adding finale):**
+1. **Completable** - Defines "completed" status (zero errors + time limits)
 2. **10 problems** (demonstrate mastery without fatigue)
-3. **Completable** - Defines "completed" status (zero errors + time limits)
-4. **State persistence** via ExerciseProgressMixin (load/save every 5 problems)
+3. **State persistence** via ExerciseProgressMixin (load/save every 5 problems)
+4. **Follows DIFFICULTY_CURVE.md** - Standard Easy→Hard→Easy within the finale level
 
-**Examples:** C1.1 finale = 8-12 dots (no flash) | Z1 finale = Decompose 5-8 | C2.1 finale = Order 5-7 numbers
+**Examples:**
+- C1.1 finale = 8-12 dots (no flash) | Z1 finale = Decompose 5-8
+- C2.1 = NO finale (card ends with completion task)
+- C5.8 (100-field) = NO finale (card ends with mastery task)
 
-**Completion:** notStarted → inProgress → finished (all levels unlocked) → completed (finale mastered)
+**Completion:** notStarted → inProgress → finished (all levels unlocked) → completed (finale mastered OR final card level mastered)
 
 ## Core Progression: Handlung → Vorstellung → Symbol
 
@@ -72,17 +85,20 @@ iMINT progression: **Action** (manipulate) → **Mental Imagery** (imagine) → 
 **Before coding:**
 1. Read card's "Wie kommt die Handlung in den Kopf?" section → Extract scaffolding steps → Count levels (2-4+)
 2. Map each physical action to digital (see table above) → Preserve pedagogical intent
-3. Design finale level (easier mixed review, 10 problems, completable)
-4. Decide: Order-dependent (2+8 ≠ 8+2 for pattern recognition) or order-independent (sum only)
-5. Plan data tracking (response time, error patterns) and no-fail hints
+3. Decide if finale level appropriate (see "Finale Level" section above)
+4. Apply DIFFICULTY_CURVE.md to each level (Easy→Hard→Easy within each level)
+5. Decide: Order-dependent (2+8 ≠ 8+2 for pattern recognition) or order-independent (sum only)
+6. Plan data tracking (response time, error patterns) and no-fail hints
 
 **Pattern Example - Decompose 10:**
 - L1: Tap counters to flip, see equation update (explore)
 - L2: See counters, write equation (practice)
 - L3: Hidden counters, write from memory (master) - shows briefly on errors
-- L4 (Finale): Decompose 5-8 (easier, completable)
+- L4 (Optional Finale): Decompose 5-8 (easier, completable) - added for ADHD support
 
 **Typical Scaffolding:**
-L1 (Explore): Manipulate + see | L2 (Practice): See + write | L3 (Master): Hidden + memory | L4 (Finale): Easy review
+L1 (Explore): Manipulate + see | L2 (Practice): See + write | L3 (Master): Hidden + memory
+
+Optional: L4 (Finale): Easier review for completion tracking
 
 This ensures "Wie kommt die Handlung in den Kopf?" (action → mental) through progressive scaffolding.

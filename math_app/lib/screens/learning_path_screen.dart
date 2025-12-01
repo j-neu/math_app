@@ -31,6 +31,9 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   final RewardService _rewardService = RewardService();
   final Set<String> _shownMilestones = {};
 
+  // DEVELOPMENT MODE: Set to true to show ALL exercises regardless of skill tags
+  bool _showAllExercises = true;
+
   @override
   void initState() {
     super.initState();
@@ -43,7 +46,10 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   @override
   Widget build(BuildContext context) {
     final groupedExercises =
-        _exerciseService.getLearningPathGroupedByMilestone(widget.userProfile);
+        _exerciseService.getLearningPathGroupedByMilestone(
+          widget.userProfile,
+          showAll: _showAllExercises,
+        );
     final completedCount =
         _exerciseService.getCompletedExercises(widget.userProfile).length;
     final totalCount = _exerciseService.getAllExercises().length;
@@ -55,6 +61,16 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
         actions: [
+          // Development mode toggle - shows ALL exercises
+          IconButton(
+            icon: Icon(_showAllExercises ? Icons.visibility : Icons.visibility_off),
+            tooltip: _showAllExercises ? 'Showing all exercises' : 'Showing matched exercises only',
+            onPressed: () {
+              setState(() {
+                _showAllExercises = !_showAllExercises;
+              });
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () async {

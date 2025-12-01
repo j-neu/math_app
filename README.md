@@ -6,49 +6,59 @@ A Flutter-based math learning application for pre-1st to 4th grade students, wit
 
 ## Project Status
 
-**Phase:** 2 - Exercise Engine
-**Progress:** 4/120+ exercises complete (3%)
-**Last Updated:** 2025-10-30
+**Phase:** 2 - Skill Engine
+**Progress:** 6/120+ skills complete (5%)
+**Last Updated:** 2025-11-23
 
 ### Completed
 - ✅ Phase 1: Core Architecture (Diagnostic, Navigation, User Profiles)
 - ✅ Phase 1.5: PIKAS Integration (88 skills, sufficient for Phase 2)
 - ✅ Card-Based Scaffolding Framework (follows iMINT/PIKAS card prescriptions)
-- ✅ 4 functional exercises: Z1, C1.1 (4-level), C1.2, C2.1
+- ✅ 6 functional skills: Z1, C1.1, C1.2, C2.1, C3.1, C4.1
 
 ---
 
 ## Documentation Structure
 
 ### Essential Files (Read These First)
-1. **[CLAUDE.md](CLAUDE.md)** - Main project guide (11KB)
-   - Quick start commands
-   - 3-level scaffolding framework summary
-   - Architecture overview
-   - Exercise creation checklist
+1. **[TERMINOLOGY.md](TERMINOLOGY.md)** - Terminology guide (NEW!)
+   - Skill vs. Level vs. Problem vs. Exercise
+   - Avoids confusion in documentation
+   - **Read this first if joining the project**
 
-2. **[IMINT_TO_APP_FRAMEWORK.md](IMINT_TO_APP_FRAMEWORK.md)** - Core pedagogical framework (13KB)
-   - Complete 3-level scaffolding methodology
+2. **[CLAUDE.md](CLAUDE.md)** - Main project guide (11KB)
+   - Quick start commands
+   - Card-based scaffolding framework summary
+   - Architecture overview
+   - Skill creation checklist
+
+3. **[IMINT_TO_APP_FRAMEWORK.md](IMINT_TO_APP_FRAMEWORK.md)** - Core pedagogical framework (13KB)
+   - Complete card-based scaffolding methodology
    - Translation rules (physical → digital)
    - "Wie kommt die Handlung in den Kopf?" implementation guide
 
-3. **[tasks.md](tasks.md)** - Current/future work roadmap (11KB)
-   - Phase 2 exercise sets (18 sets, 120-150 exercises)
+4. **[DIFFICULTY_CURVE.md](DIFFICULTY_CURVE.md)** - Standard difficulty progression (NEW!)
+   - Easy→Hard→Easy pattern for all levels
+   - Default: Trivial (P1-2), Easy (P3-4), Medium (P5-6), Hard (P7-8), Medium (P9), Easy (P10)
+   - ADHD-friendly: Build confidence, challenge, end positively
+
+5. **[tasks.md](tasks.md)** - Current/future work roadmap (11KB)
+   - Phase 2 skill sets (18 sets, 120-150 skills)
    - Widget library status
    - Current focus: SET 1 completion
 
-4. **[adhd guidelines.md](adhd%20guidelines.md)** - ADHD design principles (3KB)
+6. **[adhd guidelines.md](adhd%20guidelines.md)** - ADHD design principles (3KB)
    - 7 core principles from research
    - Concrete & visual learning
    - No-fail approach
 
 ### Historical Context
-5. **[COMPLETED_TASKS.md](COMPLETED_TASKS.md)** - Brief history (7KB)
+7. **[COMPLETED_TASKS.md](COMPLETED_TASKS.md)** - Brief history (7KB)
    - Phase 1 & 1.5 summary
-   - 4 completed exercises overview
+   - 6 completed skills overview
    - Key architectural decisions
 
-6. **[ARCHIVE_IMPLEMENTATIONS.md](ARCHIVE_IMPLEMENTATIONS.md)** - Detailed implementation notes (11KB)
+8. **[ARCHIVE_IMPLEMENTATIONS.md](ARCHIVE_IMPLEMENTATIONS.md)** - Detailed implementation notes (11KB)
    - Z1, C1.1, C1.2, C2.1 complete documentation
    - Reusable patterns
    - Common issues & solutions
@@ -63,27 +73,36 @@ flutter pub get
 flutter run
 ```
 
-**For AI assistance:** Start by reading [CLAUDE.md](CLAUDE.md)
+**For AI assistance:** Start by reading [TERMINOLOGY.md](TERMINOLOGY.md), then [CLAUDE.md](CLAUDE.md)
 
 **For new developers:** Read in order:
-1. CLAUDE.md (overview)
-2. IMINT_TO_APP_FRAMEWORK.md (framework)
-3. adhd guidelines.md (design principles)
-4. tasks.md (current work)
+1. TERMINOLOGY.md (definitions)
+2. CLAUDE.md (overview)
+3. IMINT_TO_APP_FRAMEWORK.md (framework)
+4. DIFFICULTY_CURVE.md (difficulty progression)
+5. adhd guidelines.md (design principles)
+6. tasks.md (current work)
 
 ---
 
 ## Key Concepts
 
-### 3-Level Scaffolding Framework
-Every exercise implements progressive scaffolding:
-- **Level 1:** Guided exploration (manipulate, observe)
-- **Level 2:** Supported practice (visual shown, child writes)
-- **Level 3:** Independent mastery (visual hidden, memory work)
+### Terminology: Skill > Level > Problem
+- **Skill** = Complete learning module (e.g., C1.1 "Count the Dots") with 3-5 levels
+- **Level** = Scaffolding stage (e.g., Level 2: "Tap to Count")
+- **Problem** = Individual question (e.g., "Count these 7 dots")
+
+See [TERMINOLOGY.md](TERMINOLOGY.md) for complete clarification.
+
+### Card-Based Scaffolding Framework
+Every skill implements progressive scaffolding based on iMINT/PIKAS cards:
+- Cards prescribe 2-4+ levels (NOT always 3!)
+- Each level has specific action (drag, tap, no-action, flash-hide, etc.)
+- Plus one finale level (easier mixed review)
 
 **Purpose:** Answer "Wie kommt die Handlung in den Kopf?" (How does action become mental?)
 
-### 88 Skills System
+### 88 Skill Tags System
 - 76 iMINT skills: `counting_1` through `combined_strategy_20`
 - 12 PIKAS skills: `ordinal_`, `representation_`, `operation_sense_`, `number_line_`
 - Format: `category_number` (self-documenting)
@@ -133,10 +152,10 @@ Math_App/
 - Navigation & user profiles
 - Semantic skill IDs system
 
-### Phase 2: Exercise Engine (IN PROGRESS - 3%)
-- **Target:** 120-150 exercises covering 88 skills
-- **Current:** 4 exercises complete
-- **Focus:** SET 1 - Foundation Counting (3/6 done)
+### Phase 2: Skill Engine (IN PROGRESS - 5%)
+- **Target:** 120-150 skills covering 88 skill tags
+- **Current:** 6 skills complete
+- **Focus:** SET 1 - Foundation Counting (5/6 done, Z1 finale pending)
 
 ### Phase 3: UI Polish & ADHD Features (PLANNED)
 - Gamification
@@ -180,14 +199,16 @@ Math_App/
 
 ## Contributing
 
-When adding exercises:
-1. Follow 3-Level Scaffolding Framework
-2. Document source (iMINT/PIKAS card)
-3. Answer "Wie kommt die Handlung in den Kopf?"
-4. Tag with appropriate skill IDs
-5. Implement no-fail feedback
+When adding skills:
+1. Read [TERMINOLOGY.md](TERMINOLOGY.md) for correct terminology
+2. Follow Card-Based Scaffolding Framework
+3. Document source (iMINT/PIKAS card)
+4. Answer "Wie kommt die Handlung in den Kopf?"
+5. Tag with appropriate skill tags
+6. Implement no-fail feedback
+7. Add finale level (easier than hardest card level)
 
-**See [CLAUDE.md](CLAUDE.md) Exercise Creation Checklist**
+**See [CLAUDE.md](CLAUDE.md) Skill Creation Checklist**
 
 ---
 

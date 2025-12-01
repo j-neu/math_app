@@ -1,34 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 
-/// Level 2: Find the Missing Cards
+/// A widget that displays the "Find Missing Cards" challenge for levels 2, 3, and 4.
 ///
-/// **Source:** iMINT Green Card 2, Activity B
-/// **Physical Activity:** "Kind A hält sich nun die Augen zu und Kind B nimmt
-/// zwei Karten weg. Kind A muss jetzt die fehlenden Karten benennen und sie dann
-/// in die richtige Lücke einfügen."
-///
-/// **Purpose:** Understand neighbor relationships and gap-filling in sequence
-///
-/// **How it works:**
-/// - Display full 2-row structure (1-10 top, 11-20 bottom) like Level 1
-/// - 2 cards are missing (shown as gaps with input fields)
-/// - Child must identify which numbers are missing using neighbor logic
-/// - After correct identification, asks: "Woher weißt du, dass die Zahl an
-///   diesen Platz gehört?" (How do you know this number belongs here?)
-/// - Shows positional relationships: "13 follows 12 and is below 3"
-///
-/// **Pedagogical Goal:**
-/// - Use neighbor relationships to identify missing numbers
-/// - Understand the 2-row structure pattern (teens = ones + 10)
-/// - Build mental model of complete number sequence 1-20
-///
-/// **Unlocks Level 3:** After finding missing cards 10 times correctly
+/// This widget is now stateless from a problem-generation perspective. It receives
+/// the numbers to hide (`missingNumbers`) from its parent and invokes a callback
+/// when the user submits an answer.
 class OrderCardsLevel2Widget extends StatefulWidget {
-  final Function(int correctCount, int totalAttempts) onProgressUpdate;
+  final List<int> missingNumbers;
+  final Function(bool isCorrect) onCompleted;
 
   const OrderCardsLevel2Widget({
     super.key,
-    required this.onProgressUpdate,
+    required this.missingNumbers,
+    required this.onCompleted,
   });
 
   @override
@@ -36,175 +21,94 @@ class OrderCardsLevel2Widget extends StatefulWidget {
 }
 
 class _OrderCardsLevel2WidgetState extends State<OrderCardsLevel2Widget> {
-  // Show all 20 numbers with 2 missing
-  List<int> _missingNumbers = []; // Exactly 2 missing numbers
   final Map<int, TextEditingController> _controllers = {};
-
-  int _correctCount = 0;
-  int _totalAttempts = 0;
   String? _feedbackMessage;
-  Color _feedbackColor = Colors.blue;
-  bool _showingExplanation = false;
-  String? _explanationText;
+  Color _feedbackColor = Colors.transparent;
 
   @override
   void initState() {
     super.initState();
-    _generateProblem();
+    _createControllers();
   }
 
   @override
-  void dispose() {
-    for (var controller in _controllers.values) {
-      controller.dispose();
+  void didUpdateWidget(OrderCardsLevel2Widget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // If the missing numbers change, we have a new problem.
+    // We need to recreate the controllers.
+    if (!const ListEquality().equals(widget.missingNumbers, oldWidget.missingNumbers)) {
+      _clearControllers();
+      _createControllers();
+      setState(() {
+        _feedbackMessage = null;
+      });
     }
-    super.dispose();
   }
 
-  void _generateProblem() {
-    // Select 2 random numbers from 1-20 to hide
-    final allNumbers = List.generate(20, (i) => i + 1);
-    allNumbers.shuffle();
-    _missingNumbers = allNumbers.take(2).toList()..sort();
+  void _createControllers() {
+    for (var number in widget.missingNumbers) {
+      _controllers[number] = TextEditingController();
+    }
+  }
 
-    // Create controllers for missing numbers
+  void _clearControllers() {
     for (var controller in _controllers.values) {
       controller.dispose();
     }
     _controllers.clear();
-    for (var number in _missingNumbers) {
-      _controllers[number] = TextEditingController();
-    }
+  }
 
-    setState(() {
-      _feedbackMessage = 'Two numbers are missing! Can you find them?';
-      _feedbackColor = Colors.blue;
-      _showingExplanation = false;
-      _explanationText = null;
-    });
+  @override
+  void dispose() {
+    _clearControllers();
+    super.dispose();
   }
 
   void _checkAnswer() {
-    _totalAttempts++;
-
     bool allCorrect = true;
-    List<String> wrongInputs = [];
-
-    for (var number in _missingNumbers) {
-      final text = _controllers[number]!.text.trim();
-      final userAnswer = int.tryParse(text);
+    if (widget.missingNumbers.isEmpty) {
+      widget.onCompleted(true);
+      return;
+    }
+    
+    for (var number in widget.missingNumbers) {
+      final text = _controllers[number]?.text.trim();
+      final userAnswer = int.tryParse(text ?? '');
 
       if (userAnswer != number) {
         allCorrect = false;
-        if (text.isNotEmpty) {
-          wrongInputs.add(text);
-        }
+        break;
       }
     }
 
-    if (allCorrect) {
-      _correctCount++;
-
+    if (!allCorrect) {
       setState(() {
-        _feedbackMessage = 'Perfect! You found both missing numbers: ${_missingNumbers.join(" and ")}!';
-        _feedbackColor = Colors.green;
-        _showingExplanation = true;
-        _explanationText = _generateExplanation();
-      });
-
-      widget.onProgressUpdate(_correctCount, _totalAttempts);
-
-      // Show explanation, then generate new problem
-      Future.delayed(const Duration(seconds: 4), () {
-        if (mounted) {
-          _generateProblem();
-        }
-      });
-    } else {
-      setState(() {
-        if (wrongInputs.isEmpty) {
-          _feedbackMessage = 'Fill in the missing numbers first!';
-        } else {
-          _feedbackMessage = 'Not quite! Look at the neighbors of the empty spots.';
-        }
+        _feedbackMessage = 'Not quite! Look at the neighbors of the empty spots.';
         _feedbackColor = Colors.orange;
-        _showingExplanation = false;
       });
-
-      widget.onProgressUpdate(_correctCount, _totalAttempts);
-    }
-  }
-
-  String _generateExplanation() {
-    // Generate explanation based on position logic
-    List<String> explanations = [];
-
-    for (var number in _missingNumbers) {
-      final before = number - 1;
-      final after = number + 1;
-      final above = number <= 10 ? null : number - 10;
-      final below = number >= 11 ? null : number + 10;
-
-      String exp = '$number: ';
-      List<String> clues = [];
-
-      if (before >= 1) clues.add('follows $before');
-      if (after <= 20) clues.add('comes before $after');
-      if (above != null) clues.add('is below $above');
-      if (below != null) clues.add('is above $below');
-
-      exp += clues.take(2).join(' and ');
-      explanations.add(exp);
+      // Vibrate or shake animation can be triggered here
     }
 
-    return 'Woher weißt du das?\n${explanations.join('\n')}';
-  }
-
-  void _showHint() {
-    if (_missingNumbers.isEmpty) return;
-
-    final firstMissing = _missingNumbers.first;
-    final before = firstMissing > 1 ? firstMissing - 1 : null;
-    final after = firstMissing < 20 ? firstMissing + 1 : null;
-
-    String hint = 'Look for the gaps! ';
-    if (before != null && after != null) {
-      hint += 'What number goes between $before and $after?';
-    } else if (before != null) {
-      hint += 'What number comes after $before?';
-    } else if (after != null) {
-      hint += 'What number comes before $after?';
+    // The coordinator handles correct feedback and moving to the next problem.
+    widget.onCompleted(allCorrect);
+    
+    if(allCorrect) {
+        // Clear inputs for the next problem
+        for (var controller in _controllers.values) {
+            controller.clear();
+        }
     }
-
-    setState(() {
-      _feedbackMessage = hint;
-      _feedbackColor = Colors.purple;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final accuracy = _totalAttempts > 0
-        ? ((_correctCount / _totalAttempts) * 100).toStringAsFixed(0)
-        : '0';
-
     return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          // Instructions
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Find the Missing Numbers!',
-              style: Theme.of(context).textTheme.titleLarge,
-              textAlign: TextAlign.center,
-            ),
-          ),
-
-          // Feedback message
           if (_feedbackMessage != null)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Text(
                 _feedbackMessage!,
                 style: TextStyle(
@@ -215,103 +119,20 @@ class _OrderCardsLevel2WidgetState extends State<OrderCardsLevel2Widget> {
                 textAlign: TextAlign.center,
               ),
             ),
-
-          // Explanation (after correct answer)
-          if (_showingExplanation && _explanationText != null)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.blue.shade200),
-                ),
-                child: Text(
-                  _explanationText!,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontStyle: FontStyle.italic,
-                    height: 1.5,
-                  ),
-                  textAlign: TextAlign.left,
-                ),
-              ),
-            ),
-
-          // Progress display
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                Text(
-                  'Found: $_correctCount / $_totalAttempts',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  'Accuracy: $accuracy%',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                LinearProgressIndicator(
-                  value: _correctCount / 10,
-                  backgroundColor: Colors.grey.shade300,
-                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '$_correctCount/10 to unlock Level 3',
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                ),
-              ],
+          const SizedBox(height: 20),
+          _buildRow(List.generate(10, (i) => i + 1)),
+          const SizedBox(height: 16),
+          _buildRow(List.generate(10, (i) => i + 11)),
+          const SizedBox(height: 30),
+          ElevatedButton.icon(
+            onPressed: _checkAnswer,
+            icon: const Icon(Icons.check_circle),
+            label: const Text('Check Answer'),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
-
-          const SizedBox(height: 20),
-
-          // Full 2-row structure with gaps
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Column(
-              children: [
-                // Row 1: Numbers 1-10 (some missing)
-                _buildRow(List.generate(10, (i) => i + 1)),
-                const SizedBox(height: 16),
-                // Row 2: Numbers 11-20 (some missing)
-                _buildRow(List.generate(10, (i) => i + 11)),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 20),
-
-          // Action buttons
-          if (!_showingExplanation)
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: _checkAnswer,
-                    icon: const Icon(Icons.check_circle),
-                    label: const Text('Check Answer'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                      textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  OutlinedButton.icon(
-                    onPressed: _showHint,
-                    icon: const Icon(Icons.lightbulb_outline),
-                    label: const Text('Hint'),
-                  ),
-                ],
-              ),
-            ),
         ],
       ),
     );
@@ -324,7 +145,7 @@ class _OrderCardsLevel2WidgetState extends State<OrderCardsLevel2Widget> {
         return Flexible(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 2),
-            child: _missingNumbers.contains(number)
+            child: widget.missingNumbers.contains(number)
                 ? _buildGapCard(number)
                 : _buildCard(number),
           ),
@@ -348,7 +169,7 @@ class _OrderCardsLevel2WidgetState extends State<OrderCardsLevel2Widget> {
         border: Border.all(color: Colors.grey.shade400, width: 2),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: Colors.black.withOpacity(0.1),
             blurRadius: 4,
             offset: const Offset(2, 2),
           ),
@@ -382,13 +203,6 @@ class _OrderCardsLevel2WidgetState extends State<OrderCardsLevel2Widget> {
         color: Colors.orange.shade50,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Colors.orange, width: 3),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 4,
-            offset: const Offset(2, 2),
-          ),
-        ],
       ),
       child: Center(
         child: SizedBox(

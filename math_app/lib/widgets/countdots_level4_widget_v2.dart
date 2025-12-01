@@ -18,7 +18,7 @@ import 'dart:math';
 /// - For larger quantities, efficient eye-scanning patterns
 /// - Child enters total after visual counting
 class CountDotsLevel4Widget extends StatefulWidget {
-  final Function(int correct) onProgressUpdate;
+  final Function(int correct, int total) onProgressUpdate;
 
   const CountDotsLevel4Widget({
     super.key,
@@ -43,7 +43,6 @@ class _CountDotsLevel4WidgetState extends State<CountDotsLevel4Widget>
   bool _isCorrect = false;
   String _feedbackMessage = '';
   List<Offset> _dotPositions = [];
-  bool _useStructuredArrangement = true;
 
   late AnimationController _feedbackController;
   late Animation<double> _feedbackAnimation;
@@ -72,21 +71,16 @@ class _CountDotsLevel4WidgetState extends State<CountDotsLevel4Widget>
 
   void _generateNewProblem() {
     setState(() {
-      // Adaptive difficulty with increased challenge
-      if (_correctCount < 3) {
-        _targetCount = 4 + _random.nextInt(3); // 4-6 (subitizing range)
-        _useStructuredArrangement = true;
-      } else if (_correctCount < 7) {
-        _targetCount = 6 + _random.nextInt(5); // 6-10
-        _useStructuredArrangement = _random.nextBool();
-      } else if (_correctCount < 12) {
-        _targetCount = 10 + _random.nextInt(6); // 10-15
-        _useStructuredArrangement = _random.nextBool();
-      } else {
-        _targetCount = 15 + _random.nextInt(6); // 15-20
-        _useStructuredArrangement = false; // Harder: scattered
-      }
+      // STANDARD DIFFICULTY CURVE (per DIFFICULTY_CURVE.md):
+      // P0-1: Trivial (3-5 dots)
+      // P2-3: Easy (6-8 dots)
+      // P4-5: Medium (10-12 dots)
+      // P6-7: Hard (15-20 dots)
+      // P8: Medium (10-12 dots)
+      // P9: Easy (6-8 dots)
+      _targetCount = _getDotCountForProblem(_totalAttempts);
 
+      // Level 4: ALWAYS uses random arrangement (tests eye-tracking)
       _generateDotPositions();
       _answerController.clear();
       _showFeedback = false;
@@ -102,32 +96,40 @@ class _CountDotsLevel4WidgetState extends State<CountDotsLevel4Widget>
     });
   }
 
-  void _generateDotPositions() {
-    _dotPositions = [];
-    if (_useStructuredArrangement) {
-      // Structured: grid or rows
-      _dotPositions = _generateStructuredPositions();
-    } else {
-      // Scattered: random positions (tests eye-tracking)
-      _dotPositions = _generateScatteredPositions();
+  int _getDotCountForProblem(int problemIndex) {
+    // Standard difficulty curve for Level 4
+    switch (problemIndex) {
+      case 0:
+      case 1:
+        // Trivial: 3-5 dots
+        return 3 + _random.nextInt(3);
+      case 2:
+      case 3:
+        // Easy: 6-8 dots
+        return 6 + _random.nextInt(3);
+      case 4:
+      case 5:
+        // Medium: 10-12 dots
+        return 10 + _random.nextInt(3);
+      case 6:
+      case 7:
+        // Hard: 15-20 dots
+        return 15 + _random.nextInt(6);
+      case 8:
+        // Medium: 10-12 dots
+        return 10 + _random.nextInt(3);
+      case 9:
+        // Easy: 6-8 dots
+        return 6 + _random.nextInt(3);
+      default:
+        // Fallback
+        return 8;
     }
   }
 
-  List<Offset> _generateStructuredPositions() {
-    final positions = <Offset>[];
-    // Simple grid layout
-    final cols = (_targetCount / 2).ceil();
-    final rows = 2;
-
-    for (int i = 0; i < _targetCount; i++) {
-      final row = i ~/ cols;
-      final col = i % cols;
-      positions.add(Offset(
-        (col + 0.5) / cols,
-        (row + 0.5) / rows,
-      ));
-    }
-    return positions;
+  void _generateDotPositions() {
+    // Level 4: ALWAYS uses scattered/random positions (tests eye-tracking)
+    _dotPositions = _generateScatteredPositions();
   }
 
   List<Offset> _generateScatteredPositions() {
@@ -163,10 +165,10 @@ class _CountDotsLevel4WidgetState extends State<CountDotsLevel4Widget>
       }
 
       // Fallback: if we couldn't find a valid random position after many attempts,
-      // switch to structured layout for this problem
+      // use the best position we found
       if (attempts >= maxAttempts && !validPosition) {
-        // Too many dots for random placement - use structured instead
-        return _generateStructuredPositions();
+        // Use the last attempted position as fallback
+        // This should rarely happen with maxAttempts = 200
       }
 
       positions.add(newPos);
@@ -188,7 +190,7 @@ class _CountDotsLevel4WidgetState extends State<CountDotsLevel4Widget>
         _correctCount++;
         _consecutiveCorrect++;
         _feedbackMessage = 'Excellent! You counted $_targetCount dots just by looking!';
-        widget.onProgressUpdate(_correctCount);
+        widget.onProgressUpdate(_correctCount, _totalAttempts);
 
         // Move to next problem
         Future.delayed(const Duration(seconds: 2), () {
@@ -198,7 +200,7 @@ class _CountDotsLevel4WidgetState extends State<CountDotsLevel4Widget>
         });
       } else {
         _consecutiveCorrect = 0;
-        widget.onProgressUpdate(_correctCount);
+        widget.onProgressUpdate(_correctCount, _totalAttempts);
         final difference = (answer - _targetCount).abs();
         if (difference == 1) {
           _feedbackMessage = 'So close! Off by just 1. Follow each dot with your eyes carefully.';
@@ -214,140 +216,11 @@ class _CountDotsLevel4WidgetState extends State<CountDotsLevel4Widget>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
             children: [
-              // Instructions
-              Card(
-                color: Colors.teal.shade50,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      const Row(
-                        children: [
-                          Icon(Icons.remove_red_eye, color: Colors.teal),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Level 4: Track with Your Eyes',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.teal,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'This is the hardest level! Follow each dot with your EYES ONLY. Count by looking - can you do it?',
-                        style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Progress indicator
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Correct: $_correctCount',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: _useStructuredArrangement
-                                  ? Colors.blue.shade100
-                                  : Colors.orange.shade100,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              _useStructuredArrangement ? 'Structured' : 'Scattered',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: _useStructuredArrangement
-                                    ? Colors.blue.shade800
-                                    : Colors.orange.shade800,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      // Toggle button
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          setState(() {
-                            _useStructuredArrangement = !_useStructuredArrangement;
-                            _generateDotPositions();
-                          });
-                        },
-                        icon: Icon(
-                          _useStructuredArrangement ? Icons.grid_on : Icons.scatter_plot,
-                          size: 18,
-                        ),
-                        label: Text(
-                          _useStructuredArrangement ? 'Switch to Random' : 'Switch to Structured',
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _useStructuredArrangement ? Colors.orange : Colors.blue,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Icon(Icons.local_fire_department,
-                              size: 16, color: Colors.orange.shade700),
-                          const SizedBox(width: 4),
-                          Text(
-                            'Streak: $_consecutiveCorrect',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey.shade700,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          if (_totalAttempts > 0)
-                            Text(
-                              'Accuracy: ${((_correctCount / _totalAttempts) * 100).toStringAsFixed(0)}%',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey.shade700,
-                              ),
-                            ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
               // Dots area (eye-tracking challenge)
               Expanded(
                 child: Container(
@@ -488,7 +361,6 @@ class _CountDotsLevel4WidgetState extends State<CountDotsLevel4Widget>
                   ),
                 ),
             ],
-          ),
         ),
       ),
     );

@@ -7,6 +7,9 @@ import '../widgets/countforward_level1_widget.dart';
 import '../widgets/countforward_level2_widget.dart';
 import '../widgets/countforward_level3_widget.dart';
 import '../widgets/countforward_level4_widget.dart';
+import '../widgets/common/instruction_modal.dart';
+import '../widgets/common/level_selection_drawer.dart';
+import '../widgets/common/segmented_progress_bar.dart';
 
 /// Complete implementation of C3.1: Count Forward to 20 exercise with Card-Based Scaffolding.
 ///
@@ -117,6 +120,10 @@ class _CountForwardExerciseState extends State<CountForwardExercise>
   // UI state
   ScaffoldProgress _progress = const ScaffoldProgress();
 
+  // Progress bar tracking
+  List<bool> _currentLevelResults = [];
+  int _currentLevelTotalProblems = 10; // Default, updated per level
+
   @override
   void initState() {
     super.initState();
@@ -137,6 +144,9 @@ class _CountForwardExerciseState extends State<CountForwardExercise>
       if (isLevelUnlocked(4)) {
         _progress = _progress.copyWith(level1Complete: true, level3Unlocked: true, level4Unlocked: true);
       }
+
+      // Initialize progress bar for current level
+      _currentLevelTotalProblems = _getProblemsForLevel(_progress.currentLevel);
     });
   }
 
@@ -153,6 +163,9 @@ class _CountForwardExerciseState extends State<CountForwardExercise>
         level1Complete: true,
         currentLevel: ScaffoldLevel.supportedPractice,
       );
+      // Reset progress bar for new level
+      _currentLevelResults = [];
+      _currentLevelTotalProblems = _getProblemsForLevel(ScaffoldLevel.supportedPractice);
     });
 
     _showLevelUnlockedMessage(ScaffoldLevel.supportedPractice);
@@ -165,6 +178,9 @@ class _CountForwardExerciseState extends State<CountForwardExercise>
         level3Unlocked: true,
         currentLevel: ScaffoldLevel.independentMastery,
       );
+      // Reset progress bar for new level
+      _currentLevelResults = [];
+      _currentLevelTotalProblems = _getProblemsForLevel(ScaffoldLevel.independentMastery);
     });
 
     _showLevelUnlockedMessage(ScaffoldLevel.independentMastery);
@@ -177,6 +193,9 @@ class _CountForwardExerciseState extends State<CountForwardExercise>
         level4Unlocked: true,
         currentLevel: ScaffoldLevel.finale,
       );
+      // Reset progress bar for new level
+      _currentLevelResults = [];
+      _currentLevelTotalProblems = _getProblemsForLevel(ScaffoldLevel.finale);
     });
 
     _showLevelUnlockedMessage(ScaffoldLevel.finale);
@@ -234,6 +253,8 @@ class _CountForwardExerciseState extends State<CountForwardExercise>
     if (isUnlocked) {
       setState(() {
         _progress = _progress.copyWith(currentLevel: level);
+        _currentLevelResults = []; // Reset progress bar for new level
+        _currentLevelTotalProblems = _getProblemsForLevel(level);
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -252,117 +273,62 @@ class _CountForwardExerciseState extends State<CountForwardExercise>
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        Navigator.pop(context);
-        return false;
-      },
-      child: Column(
-        children: [
-          // Level selector
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              border: Border(
-                bottom: BorderSide(color: Colors.grey.shade300, width: 1),
-              ),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _buildLevelButton(
-                    ScaffoldLevel.guidedExploration,
-                    'Level 1',
-                    Colors.blue,
-                    Icons.touch_app,
-                    true, // Always unlocked
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: _buildLevelButton(
-                    ScaffoldLevel.supportedPractice,
-                    'Level 2',
-                    Colors.orange,
-                    Icons.create,
-                    _progress.level2Unlocked,
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: _buildLevelButton(
-                    ScaffoldLevel.independentMastery,
-                    'Level 3',
-                    Colors.purple,
-                    Icons.psychology,
-                    _progress.level3Unlocked,
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: _buildLevelButton(
-                    ScaffoldLevel.finale,
-                    'Finale',
-                    Colors.green,
-                    Icons.celebration,
-                    _progress.level4Unlocked,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Progress indicator for current level
-          _buildLevelProgressIndicator(),
-
-          // Current level content
-          Expanded(
-            child: _buildCurrentLevelWidget(),
-          ),
-        ],
-      ),
-    );
+  int _getProblemsForLevel(ScaffoldLevel level) {
+    switch (level) {
+      case ScaffoldLevel.guidedExploration:
+        return 5; // Level 1
+      case ScaffoldLevel.supportedPractice:
+        return 12; // Level 2
+      case ScaffoldLevel.independentMastery:
+        return 8; // Level 3
+      case ScaffoldLevel.finale:
+        return 10; // Level 4
+      default:
+        return 10;
+    }
   }
 
-  Widget _buildLevelButton(
-    ScaffoldLevel level,
-    String label,
-    Color color,
-    IconData icon,
-    bool isUnlocked,
-  ) {
-    final bool isActive = _progress.currentLevel == level;
+  void _onProblemComplete(bool correct) {
+    setState(() {
+      _currentLevelResults.add(correct);
+    });
+  }
 
-    return GestureDetector(
-      onTap: () => _onLevelSelected(level),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-        decoration: BoxDecoration(
-          color: isActive ? color : Colors.white,
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(
-            color: isActive ? color : Colors.grey.shade300,
-            width: isActive ? 2 : 1,
-          ),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              isUnlocked ? icon : Icons.lock,
-              color: isActive ? Colors.white : (isUnlocked ? color : Colors.grey),
-              size: 14,
+  @override
+  Widget build(BuildContext context) {
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) {
+          await saveProgress();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.config.title),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.menu),
+              tooltip: 'Choose Level',
+              onPressed: _showLevelSelector,
             ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: isActive ? Colors.white : (isUnlocked ? color : Colors.grey),
-                fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                fontSize: 10,
-              ),
+            IconButton(
+              icon: const Icon(Icons.help_outline),
+              tooltip: 'Instructions',
+              onPressed: _showInstructions,
+            ),
+          ],
+        ),
+        body: Column(
+          children: [
+            // Segmented Progress Bar
+            SegmentedProgressBar(
+              totalSegments: _currentLevelTotalProblems,
+              currentSegment: _currentLevelResults.length,
+              results: _currentLevelResults,
+            ),
+            // Level content
+            Expanded(
+              child: _buildCurrentLevelWidget(),
             ),
           ],
         ),
@@ -370,80 +336,83 @@ class _CountForwardExerciseState extends State<CountForwardExercise>
     );
   }
 
-  Widget _buildLevelProgressIndicator() {
-    String progressText = '';
-    double progressValue = 0.0;
-    Color progressColor = Colors.blue;
+  void _showLevelSelector() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => LevelSelectionDrawer(
+        levels: [
+          ScaffoldLevel.guidedExploration,
+          ScaffoldLevel.supportedPractice,
+          ScaffoldLevel.independentMastery,
+          ScaffoldLevel.finale,
+        ],
+        currentLevel: _progress.currentLevel,
+        onLevelSelected: _onLevelSelected,
+        isLevelUnlocked: (level) {
+          switch (level) {
+            case ScaffoldLevel.guidedExploration:
+              return true;
+            case ScaffoldLevel.supportedPractice:
+              return _progress.level2Unlocked;
+            case ScaffoldLevel.independentMastery:
+              return _progress.level3Unlocked;
+            case ScaffoldLevel.finale:
+              return _progress.level4Unlocked;
+            case ScaffoldLevel.advancedChallenge:
+              return false;
+          }
+        },
+      ),
+    );
+  }
+
+  void _showInstructions() {
+    String levelTitle = '';
+    String instructionText = '';
 
     switch (_progress.currentLevel) {
       case ScaffoldLevel.guidedExploration:
-        progressText = 'Explore the number line - hop forward and backward!';
-        progressValue = 0.0;
-        progressColor = Colors.blue;
+        levelTitle = 'Level 1: Count Forward';
+        instructionText = 'Tap the numbers in order and say them out loud! '
+            'The number line will help you see the pattern. '
+            'Notice how 10 and 20 are highlighted - these are decade numbers!';
         break;
       case ScaffoldLevel.supportedPractice:
-        progressText = 'Level 2: Walking Marker - Practice counting!';
-        progressValue = 0.5;
-        progressColor = Colors.orange;
+        levelTitle = 'Level 2: Walking Marker';
+        instructionText = 'Count forward or backward! The marker covers the current number (shown as ?). '
+            'You must THINK what number you\'re on before typing your answer.';
         break;
       case ScaffoldLevel.independentMastery:
-        progressText = 'Level 3: Mental Counting - Test your memory!';
-        progressValue = 1.0;
-        progressColor = Colors.purple;
-        break;
-      case ScaffoldLevel.advancedChallenge:
-        progressText = '';
-        progressValue = 0.0;
-        progressColor = Colors.grey;
+        levelTitle = 'Level 3: Mental Counting';
+        instructionText = 'Fill in the missing numbers! You\'ll see the first 2 and last 2 numbers. '
+            'Count in your head to fill in the middle numbers.';
         break;
       case ScaffoldLevel.finale:
-        progressText = 'Finale: Final review!';
-        progressValue = 1.0;
-        progressColor = Colors.green;
+        levelTitle = 'Level 4: Finale';
+        instructionText = 'Practice counting forward and backward to 20! '
+            'This is the finale - the number band is visible to help you succeed. '
+            'Sequences are shorter than Level 3.';
+        break;
+      case ScaffoldLevel.advancedChallenge:
+        levelTitle = 'Not Available';
+        instructionText = '';
         break;
     }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      color: progressColor.withOpacity(0.1),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  progressText,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: progressColor.withOpacity(0.8),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          if (_progress.currentLevel == ScaffoldLevel.supportedPractice) ...[
-            const SizedBox(height: 4),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: progressValue,
-                backgroundColor: Colors.grey.shade300,
-                valueColor: AlwaysStoppedAnimation<Color>(progressColor),
-                minHeight: 6,
-              ),
-            ),
-          ],
-        ],
-      ),
+    InstructionModal.show(
+      context,
+      levelTitle: levelTitle,
+      instructionText: instructionText,
     );
   }
+
 
   Widget _buildCurrentLevelWidget() {
     switch (_progress.currentLevel) {
       case ScaffoldLevel.guidedExploration:
         return CountForwardLevel1Widget(
           onProblemComplete: (correct) {
+            _onProblemComplete(correct);
             recordProblemResult(correct: correct, levelNumber: 1);
           },
           onLevelComplete: _onLevel1Complete,
@@ -452,6 +421,7 @@ class _CountForwardExerciseState extends State<CountForwardExercise>
       case ScaffoldLevel.supportedPractice:
         return CountForwardLevel2Widget(
           onProblemComplete: (correct) {
+            _onProblemComplete(correct);
             recordProblemResult(correct: correct, levelNumber: 2);
           },
           onLevelComplete: _onLevel2Complete,
@@ -460,6 +430,7 @@ class _CountForwardExerciseState extends State<CountForwardExercise>
       case ScaffoldLevel.independentMastery:
         return CountForwardLevel3Widget(
           onProblemComplete: (correct) {
+            _onProblemComplete(correct);
             recordProblemResult(correct: correct, levelNumber: 3);
           },
           onLevelComplete: _onLevel3Complete,
@@ -475,7 +446,7 @@ class _CountForwardExerciseState extends State<CountForwardExercise>
             recordProblemResult(correct: correct, levelNumber: 4);
           },
           onProblemComplete: (correct) {
-            // Already recorded via recordProblemResult
+            _onProblemComplete(correct);
           },
           onLevelComplete: () {
             // Mark exercise as completed
@@ -485,7 +456,7 @@ class _CountForwardExerciseState extends State<CountForwardExercise>
                   children: [
                     Icon(Icons.celebration, color: Colors.white),
                     SizedBox(width: 12),
-                    Text('Congratulations! You\'ve completed counting to 100!'),
+                    Text('Congratulations! You\'ve completed counting to 20!'),
                   ],
                 ),
                 backgroundColor: Colors.green,

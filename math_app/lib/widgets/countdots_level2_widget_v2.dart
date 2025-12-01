@@ -68,16 +68,14 @@ class _CountDotsLevel2WidgetState extends State<CountDotsLevel2Widget>
 
   void _generateNewProblem() {
     setState(() {
-      // Adaptive difficulty
-      if (_correctCount < 3) {
-        _targetCount = 5 + _random.nextInt(3); // 5-7
-      } else if (_correctCount < 7) {
-        _targetCount = 7 + _random.nextInt(4); // 7-10
-      } else if (_correctCount < 12) {
-        _targetCount = 10 + _random.nextInt(6); // 10-15
-      } else {
-        _targetCount = 15 + _random.nextInt(6); // 15-20
-      }
+      // STANDARD DIFFICULTY CURVE (per DIFFICULTY_CURVE.md):
+      // P0-1: Trivial (3-5 dots)
+      // P2-3: Easy (6-8 dots)
+      // P4-5: Medium (10-12 dots)
+      // P6-7: Hard (15-20 dots)
+      // P8: Medium (10-12 dots)
+      // P9: Easy (6-8 dots)
+      _targetCount = _getDotCountForProblem(_totalAttempts);
 
       _tappedDots.clear();
       _answerController.clear();
@@ -86,6 +84,37 @@ class _CountDotsLevel2WidgetState extends State<CountDotsLevel2Widget>
       _feedbackMessage = '';
       _allDotsTapped = false;
     });
+  }
+
+  int _getDotCountForProblem(int problemIndex) {
+    // Standard difficulty curve for Level 2
+    switch (problemIndex) {
+      case 0:
+      case 1:
+        // Trivial: 3-5 dots
+        return 3 + _random.nextInt(3);
+      case 2:
+      case 3:
+        // Easy: 6-8 dots
+        return 6 + _random.nextInt(3);
+      case 4:
+      case 5:
+        // Medium: 10-12 dots
+        return 10 + _random.nextInt(3);
+      case 6:
+      case 7:
+        // Hard: 15-20 dots
+        return 15 + _random.nextInt(6);
+      case 8:
+        // Medium: 10-12 dots
+        return 10 + _random.nextInt(3);
+      case 9:
+        // Easy: 6-8 dots
+        return 6 + _random.nextInt(3);
+      default:
+        // Fallback
+        return 8;
+    }
   }
 
   void _onDotTapped(int dotId) {
@@ -153,74 +182,11 @@ class _CountDotsLevel2WidgetState extends State<CountDotsLevel2Widget>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
             children: [
-              // Instructions
-              Card(
-                color: Colors.orange.shade50,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      const Row(
-                        children: [
-                          Icon(Icons.touch_app, color: Colors.orange),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Level 2: Tap to Count',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.orange,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Tap each dot as you count. Watch them change color! After tapping all dots, enter how many you counted.',
-                        style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Progress indicator
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Correct: $_correctCount/10',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      if (_totalAttempts > 0)
-                        Text(
-                          'Accuracy: ${((_correctCount / _totalAttempts) * 100).toStringAsFixed(0)}%',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey.shade700,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-
               const SizedBox(height: 16),
 
               // Counter display
@@ -267,11 +233,8 @@ class _CountDotsLevel2WidgetState extends State<CountDotsLevel2Widget>
                     border: Border.all(color: Colors.grey.shade300, width: 2),
                   ),
                   child: Center(
-                    child: Wrap(
-                      spacing: 16,
-                      runSpacing: 16,
-                      alignment: WrapAlignment.center,
-                      children: List.generate(_targetCount, (index) {
+                    child: _buildDotGrid(
+                      List.generate(_targetCount, (index) {
                         final isTapped = _tappedDots.contains(index);
                         return GestureDetector(
                           onTap: () => _onDotTapped(index),
@@ -422,9 +385,38 @@ class _CountDotsLevel2WidgetState extends State<CountDotsLevel2Widget>
                   ),
                 ),
             ],
-          ),
         ),
       ),
+    );
+  }
+
+  /// Builds a grid of dots with maximum 5 dots per row
+  Widget _buildDotGrid(List<Widget> dots) {
+    const maxDotsPerRow = 5;
+    final rows = <Widget>[];
+
+    for (int i = 0; i < dots.length; i += maxDotsPerRow) {
+      final rowDots = dots.sublist(
+        i,
+        (i + maxDotsPerRow > dots.length) ? dots.length : i + maxDotsPerRow,
+      );
+
+      rows.add(
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: rowDots.map((dot) {
+            return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: dot,
+            );
+          }).toList(),
+        ),
+      );
+    }
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: rows,
     );
   }
 }

@@ -262,104 +262,37 @@ class _CountObjectsLevel3WidgetState extends State<CountObjectsLevel3Widget>
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              // Instructions
-              Card(
-                color: Colors.purple.shade50,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      const Row(
-                        children: [
-                          Icon(Icons.visibility, color: Colors.purple),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Level 3: Count by Looking',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.purple,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Just LOOK at the ${_getObjectTypeName()} and count in your head. No touching! Can you count without moving them?',
-                        style: TextStyle(
-                            fontSize: 14, color: Colors.grey.shade700),
-                      ),
-                    ],
+              // Toggle button for structured/random layout (minimal UI)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12.0),
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      _useStructuredArrangement = !_useStructuredArrangement;
+                      _generateObjectPositions();
+                    });
+                  },
+                  icon: Icon(
+                    _useStructuredArrangement
+                        ? Icons.grid_on
+                        : Icons.scatter_plot,
+                    size: 18,
+                  ),
+                  label: Text(
+                    _useStructuredArrangement
+                        ? 'Switch to Random'
+                        : 'Switch to Structured',
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _useStructuredArrangement
+                        ? Colors.orange
+                        : Colors.blue,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 8),
                   ),
                 ),
               ),
-
-              const SizedBox(height: 16),
-
-              // Progress indicator
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Correct: $_correctCount/10',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          if (_totalAttempts > 0)
-                            Text(
-                              'Accuracy: ${((_correctCount / _totalAttempts) * 100).toStringAsFixed(0)}%',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey.shade700,
-                              ),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      // Toggle button
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          setState(() {
-                            _useStructuredArrangement =
-                                !_useStructuredArrangement;
-                            _generateObjectPositions();
-                          });
-                        },
-                        icon: Icon(
-                          _useStructuredArrangement
-                              ? Icons.grid_on
-                              : Icons.scatter_plot,
-                          size: 18,
-                        ),
-                        label: Text(
-                          _useStructuredArrangement
-                              ? 'Switch to Random'
-                              : 'Switch to Structured',
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _useStructuredArrangement
-                              ? Colors.orange
-                              : Colors.blue,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 24),
 
               // Objects area (non-interactive)
               Expanded(

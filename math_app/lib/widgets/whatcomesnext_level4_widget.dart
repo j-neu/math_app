@@ -224,58 +224,6 @@ class _WhatComesNextLevel4WidgetState extends State<WhatComesNextLevel4Widget> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              // Header
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.deepPurple.shade50,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.deepPurple, width: 2),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.extension, color: Colors.deepPurple, size: 32),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Level 4: Extended Sequences',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.deepPurple,
-                                ),
-                              ),
-                              Text(
-                                'Fill in TWO consecutive numbers! Correct: $_correctCount',
-                                style: const TextStyle(fontSize: 14),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    // Peek button
-                    ElevatedButton.icon(
-                      onPressed: _toggleNumberLine,
-                      icon: Icon(_showNumberLine ? Icons.visibility_off : Icons.visibility),
-                      label: Text(_showNumberLine ? 'Hide Number Line' : 'Show Number Line'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.deepPurple.shade100,
-                        foregroundColor: Colors.deepPurple,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
               // Number line (conditionally shown)
               if (_showNumberLine) ...[
                 Container(

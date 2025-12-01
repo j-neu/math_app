@@ -13,7 +13,7 @@ import 'common/scrolling_number_band.dart';
 /// - Scrollable band with animated marker/character
 /// - Active number is COVERED/HIDDEN by marker (shown as ?)
 /// - Surrounding numbers visible for context
-/// - Child taps to advance marker (must think number before seeing next)
+/// - Child enters number they think is covered
 /// - Both FORWARD and BACKWARD counting
 /// - Crosses decade boundaries (19→20, 29→30)
 ///
@@ -23,7 +23,7 @@ import 'common/scrolling_number_band.dart';
 /// - Builds mental representation while retaining spatial context
 /// - Prepares for Level 3 where band is completely hidden
 ///
-/// **Scaffolding Level 2 of 3:**
+/// **Scaffolding Level 2 of 4:**
 /// This is "Die einzelne Zahl schon 'gedacht', da das wandernde Plättchen die Zahl jeweils verdeckt"
 /// (The individual number is already "thought" as the wandering counter covers each number)
 class CountForwardLevel2Widget extends StatefulWidget {
@@ -55,8 +55,6 @@ class _CountForwardLevel2WidgetState extends State<CountForwardLevel2Widget> {
   bool _isForward = true;
   bool _isComplete = false;
   String _feedbackMessage = '';
-  bool _showSuccess = false;
-  bool _waitingForInput = false;
 
   final Random _random = Random();
   final TextEditingController _answerController = TextEditingController();
@@ -80,7 +78,7 @@ class _CountForwardLevel2WidgetState extends State<CountForwardLevel2Widget> {
       // Randomly choose forward or backward
       _isForward = _random.nextBool();
 
-      // Fixed 1-20 range with varying sequence lengths
+      // Fixed 1-50 range with varying sequence lengths
       int sequenceLength;
 
       if (_problemsCompleted < 6) {
@@ -103,13 +101,9 @@ class _CountForwardLevel2WidgetState extends State<CountForwardLevel2Widget> {
 
       _currentPosition = _startNumber;
       _stepCount = 0;
-      _waitingForInput = false;
       _answerController.clear();
 
-      _feedbackMessage = _isForward
-          ? 'Count FORWARD. What number is covered by the marker?'
-          : 'Count BACKWARD. What number is covered by the marker?';
-      _showSuccess = false;
+      _feedbackMessage = '';
       _isComplete = false;
     });
   }
@@ -122,7 +116,6 @@ class _CountForwardLevel2WidgetState extends State<CountForwardLevel2Widget> {
     if (answer == null) {
       setState(() {
         _feedbackMessage = 'Please enter a number!';
-        _showSuccess = false;
       });
       return;
     }
@@ -132,29 +125,24 @@ class _CountForwardLevel2WidgetState extends State<CountForwardLevel2Widget> {
       setState(() {
         _stepCount++;
         _answerController.clear();
-        _waitingForInput = false;
+        _feedbackMessage = '';
 
         if (_isForward) {
           _currentPosition++;
           if (_currentPosition > _targetNumber) {
             _completeSequence();
-          } else {
-            _feedbackMessage = 'Correct! What number is covered now?';
           }
         } else {
           _currentPosition--;
           if (_currentPosition < _targetNumber) {
             _completeSequence();
-          } else {
-            _feedbackMessage = 'Correct! What number is covered now?';
           }
         }
       });
     } else {
-      // Incorrect answer
+      // Incorrect answer - show correct number
       setState(() {
-        _feedbackMessage = 'Not quite. The covered number is $_currentPosition. Try again!';
-        _showSuccess = false;
+        _feedbackMessage = 'The covered number was $_currentPosition. Try again!';
         _answerController.clear();
       });
     }
@@ -163,23 +151,19 @@ class _CountForwardLevel2WidgetState extends State<CountForwardLevel2Widget> {
   void _completeSequence() {
     _isComplete = true;
     _problemsCompleted++;
-    _feedbackMessage = _isForward
-        ? 'Perfect! You counted forward from $_startNumber to $_targetNumber!'
-        : 'Excellent! You counted backward from $_startNumber to $_targetNumber!';
-    _showSuccess = true;
 
     widget.onProblemComplete?.call(true);
 
     if (_problemsCompleted >= requiredProblems) {
       // Level complete
-      Future.delayed(const Duration(seconds: 2), () {
+      Future.delayed(const Duration(seconds: 1), () {
         if (mounted) {
           widget.onLevelComplete?.call();
         }
       });
     } else {
       // Generate next problem
-      Future.delayed(const Duration(seconds: 2), () {
+      Future.delayed(const Duration(seconds: 1), () {
         if (mounted) {
           _generateNewProblem();
         }
@@ -195,57 +179,9 @@ class _CountForwardLevel2WidgetState extends State<CountForwardLevel2Widget> {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          // Header
-          Text(
-            'Level 2: Walking Marker',
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.primary,
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // Progress indicator
-          Text(
-            'Problems completed: $_problemsCompleted / $requiredProblems',
-            style: theme.textTheme.titleMedium,
-          ),
-          const SizedBox(height: 16),
-
-          // Instructions / Feedback
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: _showSuccess
-                  ? Colors.green[100]
-                  : theme.colorScheme.secondaryContainer.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: _showSuccess ? Colors.green : theme.colorScheme.secondary,
-                width: 2,
-              ),
-            ),
-            child: Row(
-              children: [
-                if (_showSuccess)
-                  Icon(Icons.check_circle, color: Colors.green[700], size: 32)
-                else
-                  Icon(Icons.info_outline, color: theme.colorScheme.secondary, size: 32),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    _feedbackMessage,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
           const SizedBox(height: 24),
 
-          // Direction indicator
+          // Direction indicator and task
           if (!_isComplete) ...[
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -257,8 +193,8 @@ class _CountForwardLevel2WidgetState extends State<CountForwardLevel2Widget> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  _isForward ? 'Counting FORWARD' : 'Counting BACKWARD',
-                  style: theme.textTheme.titleLarge?.copyWith(
+                  _isForward ? 'Forward' : 'Backward',
+                  style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: _isForward ? Colors.green : Colors.orange,
                   ),
@@ -267,10 +203,27 @@ class _CountForwardLevel2WidgetState extends State<CountForwardLevel2Widget> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Step: $_stepCount / ${(_targetNumber - _startNumber).abs()}',
-              style: theme.textTheme.bodyLarge,
+              'Step $_stepCount / ${(_targetNumber - _startNumber).abs()}',
+              style: theme.textTheme.titleMedium,
             ),
+            const SizedBox(height: 24),
+          ],
+
+          // Success message
+          if (_isComplete) ...[
+            Icon(Icons.check_circle, color: Colors.green[700], size: 64),
             const SizedBox(height: 16),
+            Text(
+              _isForward
+                  ? 'Perfect! You counted forward!'
+                  : 'Excellent! You counted backward!',
+              style: theme.textTheme.titleLarge?.copyWith(
+                color: Colors.green[700],
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
           ],
 
           // Scrolling Number Band with masked current number
@@ -282,34 +235,31 @@ class _CountForwardLevel2WidgetState extends State<CountForwardLevel2Widget> {
             highlightedNumbers: decadeNumbers,
             maskedNumber: _currentPosition, // Current number is covered by marker
             onNumberTapped: null, // No tapping in Level 2
-            allowManualScroll: true, // Allow scrolling to see position if marker wanders off
+            allowManualScroll: true,
           ),
 
           const SizedBox(height: 32),
 
-          // Helper text
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.purple[50],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.visibility_off, color: Colors.purple[700]),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'The marker covers the current number (shown as ?). '
-                    'You must THINK what number you\'re on before moving forward!',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: Colors.purple[900],
-                    ),
-                  ),
+          // Feedback message
+          if (_feedbackMessage.isNotEmpty) ...[
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.orange[100],
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.orange, width: 2),
+              ),
+              child: Text(
+                _feedbackMessage,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: Colors.orange[900],
+                  fontWeight: FontWeight.w500,
                 ),
-              ],
+                textAlign: TextAlign.center,
+              ),
             ),
-          ),
+            const SizedBox(height: 16),
+          ],
 
           const Spacer(),
 
@@ -381,24 +331,6 @@ class _CountForwardLevel2WidgetState extends State<CountForwardLevel2Widget> {
               ),
             ),
           ],
-
-          if (_isComplete && _problemsCompleted < requiredProblems)
-            ElevatedButton(
-              onPressed: _generateNewProblem,
-              child: const Text('Next Problem'),
-            ),
-
-          if (_problemsCompleted >= requiredProblems)
-            ElevatedButton.icon(
-              onPressed: () => widget.onLevelComplete?.call(),
-              icon: const Icon(Icons.arrow_forward),
-              label: const Text('Advance to Level 3'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              ),
-            ),
         ],
       ),
     );

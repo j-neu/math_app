@@ -69,6 +69,7 @@ flutter:
     - Research/MathApp - Diagnostic.csv
     - Research/MathApp_Diagnostic_with_skills.csv
     - Research/DiagnosticPictures/
+    - assets/images/fingers/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

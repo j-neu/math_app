@@ -1,0 +1,44 @@
+Performing hot restart...
+Syncing files to device sdk gphone64 x86 64...
+lib/exercises/count_100field_exercise.dart:150:17: Error: Superclass has no method named 'loadProgress'.
+    await super.loadProgress();
+                ^^^^^^^^^^^^
+lib/exercises/count_100field_exercise.dart:153:13: Error: The getter 'progress' isn't defined for the type '_Count100FieldExerciseState'.
+ - '_Count100FieldExerciseState' is from 'package:math_app/exercises/count_100field_exercise.dart' ('lib/exercises/count_100field_exercise.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'progress'.
+        if (progress.currentLevel > 0) {
+            ^^^^^^^^
+lib/exercises/count_100field_exercise.dart:154:33: Error: The getter 'progress' isn't defined for the type '_Count100FieldExerciseState'.
+ - '_Count100FieldExerciseState' is from 'package:math_app/exercises/count_100field_exercise.dart' ('lib/exercises/count_100field_exercise.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'progress'.
+          _currentLevelNumber = progress.currentLevel;
+                                ^^^^^^^^
+lib/exercises/count_100field_exercise.dart:179:7: Error: No named parameter with the name 'isCorrect'.
+      isCorrect: isCorrect,
+      ^^^^^^^^^
+lib/exercises/count_100field_exercise.dart:204:10: Error: The method 'updateExerciseStatus' isn't defined for the type '_Count100FieldExerciseState'.
+ - '_Count100FieldExerciseState' is from 'package:math_app/exercises/count_100field_exercise.dart' ('lib/exercises/count_100field_exercise.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'updateExerciseStatus'.
+         updateExerciseStatus(ExerciseStatus.completed);
+         ^^^^^^^^^^^^^^^^^^^^
+lib/exercises/count_100field_exercise.dart:204:31: Error: The getter 'ExerciseStatus' isn't defined for the type '_Count100FieldExerciseState'.
+ - '_Count100FieldExerciseState' is from 'package:math_app/exercises/count_100field_exercise.dart' ('lib/exercises/count_100field_exercise.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'ExerciseStatus'.
+         updateExerciseStatus(ExerciseStatus.completed);
+                              ^^^^^^^^^^^^^^
+lib/exercises/count_100field_exercise.dart:206:10: Error: The method 'updateExerciseStatus' isn't defined for the type '_Count100FieldExerciseState'.
+ - '_Count100FieldExerciseState' is from 'package:math_app/exercises/count_100field_exercise.dart' ('lib/exercises/count_100field_exercise.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'updateExerciseStatus'.
+         updateExerciseStatus(ExerciseStatus.finished);
+         ^^^^^^^^^^^^^^^^^^^^
+lib/exercises/count_100field_exercise.dart:206:31: Error: The getter 'ExerciseStatus' isn't defined for the type '_Count100FieldExerciseState'.
+ - '_Count100FieldExerciseState' is from 'package:math_app/exercises/count_100field_exercise.dart' ('lib/exercises/count_100field_exercise.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'ExerciseStatus'.
+         updateExerciseStatus(ExerciseStatus.finished);
+                              ^^^^^^^^^^^^^^
+lib/exercises/count_100field_exercise.dart:252:7: Error: The method 'updateCurrentLevel' isn't defined for the type '_Count100FieldExerciseState'.
+ - '_Count100FieldExerciseState' is from 'package:math_app/exercises/count_100field_exercise.dart' ('lib/exercises/count_100field_exercise.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'updateCurrentLevel'.
+      updateCurrentLevel(_currentLevelNumber);
+      ^^^^^^^^^^^^^^^^^^
+Restarted application in 673ms.

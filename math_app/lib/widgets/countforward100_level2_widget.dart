@@ -195,83 +195,7 @@ class _CountForwardLevel2WidgetState extends State<CountForwardLevel2Widget> {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          // Header
-          Text(
-            'Level 2: Walking Marker',
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.primary,
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // Progress indicator
-          Text(
-            'Problems completed: $_problemsCompleted / $requiredProblems',
-            style: theme.textTheme.titleMedium,
-          ),
-          const SizedBox(height: 16),
-
-          // Instructions / Feedback
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: _showSuccess
-                  ? Colors.green[100]
-                  : theme.colorScheme.secondaryContainer.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: _showSuccess ? Colors.green : theme.colorScheme.secondary,
-                width: 2,
-              ),
-            ),
-            child: Row(
-              children: [
-                if (_showSuccess)
-                  Icon(Icons.check_circle, color: Colors.green[700], size: 32)
-                else
-                  Icon(Icons.info_outline, color: theme.colorScheme.secondary, size: 32),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    _feedbackMessage,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
           const SizedBox(height: 24),
-
-          // Direction indicator
-          if (!_isComplete) ...[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  _isForward ? Icons.arrow_forward : Icons.arrow_back,
-                  size: 32,
-                  color: _isForward ? Colors.green : Colors.orange,
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  _isForward ? 'Counting FORWARD' : 'Counting BACKWARD',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: _isForward ? Colors.green : Colors.orange,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Step: $_stepCount / ${(_targetNumber - _startNumber).abs()}',
-              style: theme.textTheme.bodyLarge,
-            ),
-            const SizedBox(height: 16),
-          ],
 
           // Scrolling Number Band with masked current number
           ScrollingNumberBand(
@@ -282,33 +206,7 @@ class _CountForwardLevel2WidgetState extends State<CountForwardLevel2Widget> {
             highlightedNumbers: decadeNumbers,
             maskedNumber: _currentPosition, // Current number is covered by marker
             onNumberTapped: null, // No tapping in Level 2
-            allowManualScroll: true, // Allow scrolling to see position if marker wanders off
-          ),
-
-          const SizedBox(height: 32),
-
-          // Helper text
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.purple[50],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.visibility_off, color: Colors.purple[700]),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'The marker covers the current number (shown as ?). '
-                    'You must THINK what number you\'re on before moving forward!',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: Colors.purple[900],
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            allowManualScroll: true,
           ),
 
           const Spacer(),
@@ -321,14 +219,6 @@ class _CountForwardLevel2WidgetState extends State<CountForwardLevel2Widget> {
                 padding: const EdgeInsets.all(24),
                 child: Column(
                   children: [
-                    const Text(
-                      'What number is covered?',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
                     SizedBox(
                       width: 120,
                       child: TextField(
@@ -340,7 +230,7 @@ class _CountForwardLevel2WidgetState extends State<CountForwardLevel2Widget> {
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
                         ),
-                        maxLength: 2,
+                        maxLength: 3,
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly,
                         ],
@@ -382,17 +272,11 @@ class _CountForwardLevel2WidgetState extends State<CountForwardLevel2Widget> {
             ),
           ],
 
-          if (_isComplete && _problemsCompleted < requiredProblems)
-            ElevatedButton(
-              onPressed: _generateNewProblem,
-              child: const Text('Next Problem'),
-            ),
-
           if (_problemsCompleted >= requiredProblems)
             ElevatedButton.icon(
               onPressed: () => widget.onLevelComplete?.call(),
               icon: const Icon(Icons.arrow_forward),
-              label: const Text('Advance to Level 3'),
+              label: const Text('Continue to Level 3'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 foregroundColor: Colors.white,

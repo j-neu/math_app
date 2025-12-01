@@ -33,7 +33,51 @@ flutter analyze
 
 ---
 
-## Exercise Implementation: Card-Based Scaffolding Framework
+## Terminology
+
+### Key Terms
+
+**Skill** (e.g., C1.1, Z1, C4.1)
+- The complete learning module addressing one or more skill tags
+- Contains multiple levels with progressive scaffolding
+- Example: "C1.1: Count the Dots" is a complete skill with 5 levels
+- File location: `exercises/count_dots_exercise_v2.dart` (coordinator)
+
+**Level** (e.g., Level 1, Level 2, Level 3)
+- Individual scaffolding stage within a skill
+- Each level implements specific pedagogical action (drag, tap, no-action, etc.)
+- Example: "Level 2: Tap to Count" within C1.1 skill
+- File location: `widgets/countdots_level2_widget_v2.dart`
+
+**Problem**
+- Individual question/task within a level
+- Example: "Count these 7 dots" is one problem
+- Typically 10 problems per level
+
+**Exercise** (AMBIGUOUS - avoid or clarify)
+- Historically used to mean "Skill" - prefer using "Skill" instead
+- In code: `Exercise` model, `ExerciseService`, `exercises/` directory all refer to Skills
+- When discussing: Say "Skill C1.1" not "Exercise C1.1" to avoid confusion
+
+### Example Hierarchy
+
+```
+Skill C1.1: "Count the Dots"
+├── Level 1: Drag dots (10 problems)
+│   ├── Problem 1: Count 5 dots
+│   ├── Problem 2: Count 8 dots
+│   └── ...
+├── Level 2: Tap dots (10 problems)
+├── Level 3: Look-only (10 problems)
+├── Level 4: Flash-hide (10 problems)
+└── Level 5: Finale (10 problems, easier)
+```
+
+**When writing documentation:** Use "Skill" for the complete module, "Level" for scaffolding stages, "Problem" for individual questions.
+
+---
+
+## Skill Implementation: Card-Based Scaffolding Framework
 
 **⚠️ CRITICAL PRINCIPLE: The CARDS define the scaffolding, NOT a predetermined template!**
 
@@ -172,18 +216,18 @@ math_app/
 
 ## Current Development Phase
 
-**Phase 2:** Exercise Engine & Core Content
-- **Status:** 6/120+ exercises complete (5%)
+**Phase 2:** Skill Engine & Core Content
+- **Status:** 6/120+ skills complete (5%)
 - **Current Set:** SET 1 - Foundation Counting (5/6 done, 83%)
-- **Next:** C10.1 (Place Numbers on Line)
+- **Next:** Z1 finale completion
 
 **See [tasks.md](tasks.md) for complete roadmap**
 
 ---
 
-## When Adding Exercises
+## When Adding Skills
 
-Every exercise MUST:
+Every skill MUST:
 
 1. **⚠️ READ THE CARD FIRST** - Find and read the iMINT/PIKAS card's "Wie kommt die Handlung in den Kopf?" section
 2. **Follow the CARD'S scaffolding** (see [IMINT_TO_APP_FRAMEWORK.md](IMINT_TO_APP_FRAMEWORK.md))
@@ -192,26 +236,36 @@ Every exercise MUST:
    - **⚠️ CRITICAL:** Finale MUST be completable - child must be able to reach "completed" status
    - Define clear completion criteria (accuracy, time, minimum problems)
    - Test that criteria are achievable by target age group
-5. **Use the SPECIFIC actions from the card** (schieben/drag, antippen/tap, no action, flash-hide, etc.)
-6. **Tag with appropriate `skillTags`** from skills taxonomy
-7. **Support "no-fail" feedback** (hints, representation switching, visual safety net)
-8. **Integrate ExerciseProgressMixin** - ALL exercises must save/load state:
+5. **APPLY STANDARD DIFFICULTY CURVE** - Every level follows Easy→Hard→Easy progression (see [DIFFICULTY_CURVE.md](DIFFICULTY_CURVE.md))
+   - **Standard curve (10 problems):** Trivial (P1-2), Easy (P3-4), Medium (P5-6), Hard (P7-8), Medium (P9), Easy (P10)
+   - **Purpose:** Build confidence, challenge appropriately, end positively (ADHD-friendly)
+   - **Override only when:** Card prescribes different pattern OR skill has natural constraints
+   - **Document overrides** in code comments with rationale
+6. **Use the SPECIFIC actions from the card** (schieben/drag, antippen/tap, no action, flash-hide, etc.)
+7. **Tag with appropriate `skillTags`** from skills taxonomy
+8. **Support "no-fail" feedback** (hints, representation switching, visual safety net)
+9. **Integrate ExerciseProgressMixin** - ALL skills must save/load state:
    - Load progress on initState (restores level unlocks, problem history)
    - Save progress every 5 problems (auto-save)
    - Save progress on exit (WillPopScope/PopScope)
    - Track time per problem with Stopwatch
-9. **Implement completion tracking** - Save progress to UserProfile, distinguish "finished" vs "completed" (see [COMPLETION_CRITERIA.md](COMPLETION_CRITERIA.md))
-10. **Define completion criteria** - Specify time limits per problem and accuracy requirements for "completed" status
-11. **Test state persistence** - Verify child can exit and resume from same point
+10. **Implement level completion flow** - After completing all problems in a level:
+   - Show dialog: "Continue to Next Level" OR "Stop for Today"
+   - Save progress BEFORE executing either choice
+   - NO option to replay current level immediately
+   - See "Level Completion & Navigation Flow" section below
+11. **Implement completion tracking** - Save progress to UserProfile, distinguish "finished" vs "completed" (see [COMPLETION_CRITERIA.md](COMPLETION_CRITERIA.md))
+12. **Define completion criteria** - Specify time limits per problem and accuracy requirements for "completed" status
+13. **Test state persistence** - Verify child can exit and resume from same point
 
-### Exercise Creation Workflow
+### Skill Creation Workflow
 
-When implementing any exercise:
+When implementing any skill:
 
 1. **READ the card** - Extract exact scaffolding levels from "Wie kommt die Handlung in den Kopf?"
 2. Create N level widget files in `widgets/` directory (where N = number of levels from card)
 3. Create N+1 level widget file for finale level (easier mixed review)
-4. Create exercise coordinator in `exercises/` directory
+4. Create skill coordinator in `exercises/` directory
 5. **Integrate ExerciseProgressMixin:**
    - Extend coordinator with `ExerciseProgressMixin`
    - Implement `loadProgress()` in `initState()`
@@ -221,16 +275,16 @@ When implementing any exercise:
 7. Register in `exercise_service.dart`
 8. Run `flutter analyze` to check for errors
 9. **Test state persistence:**
-   - Start exercise → solve some problems → exit
-   - Reopen exercise → verify progress restored
+   - Start skill → solve some problems → exit
+   - Reopen skill → verify progress restored
    - Complete finale → verify "completed" status reached
 10. **DO NOT** create individual implementation summary documents (*.md files)
-    - ARCHIVE_IMPLEMENTATIONS.md already documents the first 4 exercises as reference
-    - New exercises should be documented in code comments only
+    - ARCHIVE_IMPLEMENTATIONS.md already documents the first 4 skills as reference
+    - New skills should be documented in code comments only
     - Major design decisions can be noted in git commit messages
 11. Update this file (CLAUDE.md) only if status changes significantly
 
-### Exercise Planning Questions
+### Skill Planning Questions
 
 Before implementing, answer these IN ORDER:
 
@@ -249,13 +303,125 @@ Before implementing, answer these IN ORDER:
 
 ---
 
+## Level Completion & Navigation Flow
+
+### After Completing All Problems in a Level
+
+When a child finishes all problems in a level (e.g., completes 10/10 problems), they are presented with **two options only**:
+
+**Option 1: Continue to Next Level**
+- If next level is unlocked: Immediately advance to next level
+- **CRITICAL:** Save progress BEFORE advancing (level completion must persist)
+- Child continues learning in same session
+
+**Option 2: Stop for Today**
+- Return child to Learning Path screen
+- **CRITICAL:** Save progress BEFORE exiting (level completion must persist)
+- Next session: Child resumes at the NEXT level (not the one they just completed)
+
+**❌ NOT ALLOWED:** Staying on the same level to repeat problems
+- Child cannot replay completed level immediately
+- Prevents obsessive repetition (ADHD concern)
+- Forces progression or healthy break
+
+### Progress Saving Requirements
+
+**What MUST be saved when level completes:**
+1. **Level completion status** - Mark current level as "finished"
+2. **Next level unlock** - Unlock next level if criteria met
+3. **Problem history** - Save all problem results, times, accuracy
+4. **Overall skill progress** - Update skill status (notStarted → inProgress → finished → completed)
+
+**When to save:**
+- **On "Continue"** - Save immediately before advancing to next level
+- **On "Stop for Today"** - Save immediately before returning to Learning Path
+- **On app exit** - Save in WillPopScope/PopScope callback
+- **Every 5 problems** - Auto-save during level (safety net)
+
+**Implementation:**
+```dart
+void _onLevelComplete() async {
+  // Save progress first
+  await saveProgress();
+
+  // Unlock next level
+  unlockLevel(_currentLevelNumber + 1);
+
+  // Show completion dialog
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) => AlertDialog(
+      title: Text('Level $_currentLevelNumber Complete! 🎉'),
+      content: Text('Great job! Ready to continue?'),
+      actions: [
+        TextButton(
+          onPressed: () async {
+            Navigator.pop(context); // Close dialog
+            await saveProgress(); // Save again (redundant but safe)
+            Navigator.pop(context); // Return to Learning Path
+          },
+          child: Text('Stop for Today'),
+        ),
+        ElevatedButton(
+          onPressed: () async {
+            Navigator.pop(context); // Close dialog
+            await saveProgress(); // Save again (redundant but safe)
+            _advanceToNextLevel();
+          },
+          child: Text('Continue to Level ${_currentLevelNumber + 1}'),
+        ),
+      ],
+    ),
+  );
+}
+```
+
+**Resumption Behavior:**
+- If child stopped after Level 2: Next session starts at Level 3
+- If child continued to Level 3: Next session continues from Level 3 (if they exit mid-level)
+- If child completed all levels: Skill marked as "finished" (or "completed" if criteria met)
+
+**See:** [COMPLETION_CRITERIA.md](COMPLETION_CRITERIA.md) for finished vs. completed distinction
+
+---
+
 ## Important Constraints
 
 ### When Modifying UI
 1. Maintain minimalist design (ADHD principle: low cognitive load)
 2. Keep feedback instant and positive
 3. Use consistent color-coding from theme
-4. Preserve 3-level progression pattern
+4. Preserve card-based scaffolding progression
+
+### ⚠️ CRITICAL: Stacked/Doubled App Bar Issue
+
+**Problem:** Exercises that use `exerciseBuilder` manage their own Scaffold (via MinimalistExerciseScaffold). If ExerciseScreen wraps them in another Scaffold, you get doubled/stacked app bars.
+
+**Solution:** ExerciseScreen must NOT wrap exercises with `exerciseBuilder` in a Scaffold:
+
+```dart
+// In ExerciseScreen.build():
+if (currentExercise.exerciseBuilder != null) {
+  return _buildRepresentationView(currentExercise);  // Direct return, no Scaffold wrapper
+}
+
+// Only legacy exercises need ExerciseScreen's Scaffold
+return Scaffold(
+  appBar: AppBar(title: Text(currentExercise.title)),
+  body: _buildRepresentationView(currentExercise),
+);
+```
+
+**When to use exerciseBuilder:**
+- ALL new skills using MinimalistExerciseScaffold
+- Skills with ExerciseProgressMixin (C1.1, C1.2, C2.1, C3.1, C4.1, etc.)
+
+**When NOT to use exerciseBuilder:**
+- Legacy placeholder exercises (use `exerciseWidget` instead)
+- Exercises that don't manage their own Scaffold
+
+**Reference:** [exercise_screen.dart:74-78](math_app/lib/screens/exercise_screen.dart#L74-L78)
 
 ### Data Structure
 - Skill tags are strings, not integers (e.g., 'counting_4' not 4)
@@ -269,7 +435,9 @@ Before implementing, answer these IN ORDER:
 ## Key Documentation
 
 **Essential Reading:**
+- [TERMINOLOGY.md](TERMINOLOGY.md) - Skill vs. Level vs. Problem clarification (READ FIRST)
 - [IMINT_TO_APP_FRAMEWORK.md](IMINT_TO_APP_FRAMEWORK.md) - Scaffolding framework + finale level design (CRITICAL)
+- [DIFFICULTY_CURVE.md](DIFFICULTY_CURVE.md) - Standard difficulty progression for all levels (NEW)
 - [COMPLETION_CRITERIA.md](COMPLETION_CRITERIA.md) - Exercise completion tracking system (finished vs completed)
 - [REWARDS_SYSTEM_QUICK_REF.md](REWARDS_SYSTEM_QUICK_REF.md) - Parent-configured reward system (quick reference)
 - [tasks.md](tasks.md) - Current work and roadmap
@@ -288,41 +456,96 @@ Before implementing, answer these IN ORDER:
 
 ---
 
-## Completed Exercises (Reference)
+## Completed Skills (Reference)
 
-**Z1: Decompose 10** - `decomposition_1`, `decomposition_3`
+**Skill Z1: Decompose 10** - Tags: `decomposition_1`, `decomposition_3`
+- 3 levels + finale (needs implementation)
 - Tap-to-flip counters, hidden visual on L3, tracks 11 ordered pairs
 - ~1,654 lines
 
-**C1.1: Count the Dots (V2)** - `counting_1`
-- 4-level implementation: L1 drag, L2 tap, L3 look-only, L4 eye-tracking
+**Skill C1.1: Count the Dots (V2)** - Tags: `counting_1`
+- 4 card levels + finale (5 total)
+- L1 drag, L2 tap, L3 look-only, L4 flash-hide, L5 finale
 - Structured & random layouts (toggle in L3/L4)
 - Non-overlapping random positioning (0.08 min distance)
 - Adaptive difficulty 5→20
 - ~2,000 lines
 
-**C1.2: Count the Objects** - `counting_1`
+**Skill C1.2: Count the Objects** - Tags: `counting_1`
+- 4 card levels + finale (5 total)
 - Various objects (stars, hearts, emoji), custom painters
 - ~1,929 lines
 
-**C2.1: Order Cards to 20** - `counting_2`
-- Tap/drag/memory sorting, adaptive 5→10 numbers
+**Skill C2.1: Order Cards to 20** - Tags: `counting_2`
+- 3 card levels (NO finale - per iMINT card 2)
+- L1: Read sequence, L2: Find 2-3 missing, L3: Find 5+ missing
 - ~1,326 lines
 
-**C3.1: Count Forward to 20** - `counting_3`
+**Skill C3.1: Count Forward to 20** - Tags: `counting_3`
+- 3 card levels + finale (4 total)
 - Interactive number line with hopping, custom painter, adaptive difficulty
 - ~2,000 lines
 
-**C4.1: What Comes Next?** - `counting_4`, `counting_5`
+**Skill C4.1: What Comes Next?** - Tags: `counting_4`, `counting_5`
+- 3 card levels + challenge + finale (5 total)
 - Predecessor/successor exploration, 3 problem types in L3, pulse animations
 - ~1,900 lines
 
-**Total:** ~10,809 lines of exercise code (6 exercises)
-**Note:** C1.1 uses V2 (4-level implementation with non-overlapping random positioning)
+**Total:** ~10,809 lines across 6 skills (each skill contains 3-5 levels, each level contains ~10 problems)
 
-**See [ARCHIVE_IMPLEMENTATIONS.md](ARCHIVE_IMPLEMENTATIONS.md) for detailed notes on first 4 exercises.**
+**See [ARCHIVE_IMPLEMENTATIONS.md](ARCHIVE_IMPLEMENTATIONS.md) for detailed notes on first 4 skills.**
 
 ---
 
-**Last Updated:** 2025-10-30
+## Common Issues & Troubleshooting
+
+### Doubled/Stacked App Bar
+
+**Symptom:** Two app bars appear stacked on top of each other with the same title.
+
+**Cause:** ExerciseScreen wrapping an exercise that already has its own Scaffold (via MinimalistExerciseScaffold).
+
+**Fix:** Ensure ExerciseScreen does NOT wrap exercises with `exerciseBuilder` in a Scaffold:
+```dart
+// In ExerciseScreen.build():
+if (currentExercise.exerciseBuilder != null) {
+  return _buildRepresentationView(currentExercise);  // Direct return
+}
+```
+
+**See:** "⚠️ CRITICAL: Stacked/Doubled App Bar Issue" section above for full details.
+
+### Level Selector Not Showing
+
+**Cause:** DraggableScrollableSheet without proper constraints or missing builder parameters.
+
+**Fix:** Use LevelSelectionDrawer directly in showModalBottomSheet:
+```dart
+showModalBottomSheet(
+  context: context,
+  builder: (context) => LevelSelectionDrawer(
+    levels: [...],
+    currentLevel: _currentLevel,
+    onLevelSelected: _switchLevel,
+    isLevelUnlocked: (level) => isLevelUnlocked(level.levelNumber),
+  ),
+);
+```
+
+### Skill Won't Complete After Final Level
+
+**Cause:** `totalLevels` or `finaleLevelNumber` set incorrectly, or trying to unlock Level 4/5 when only 3 levels exist.
+
+**Fix:** Set `totalLevels` and `finaleLevelNumber` to match actual number of levels:
+```dart
+@override
+int get totalLevels => 3;  // Match actual level count
+
+@override
+int get finaleLevelNumber => 3;  // Last level number
+```
+
+---
+
+**Last Updated:** 2025-11-24
 **Current Focus:** SET 1 completion (Foundation Counting)

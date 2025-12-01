@@ -12,7 +12,13 @@ import '../exercises/count_forward_50_exercise.dart';
 import '../exercises/count_forward_100_exercise.dart';
 import '../exercises/what_comes_next_exercise.dart';
 import '../exercises/place_numbers_exercise.dart';
+import '../exercises/place_numbers_100_exercise.dart';
 import '../exercises/find_neighbors_exercise.dart';
+import '../exercises/count_steps2_exercise.dart';
+import '../exercises/count_steps_100field_exercise.dart';
+import '../exercises/count_steps_backwards_100field_exercise.dart';
+import '../exercises/count_100field_exercise.dart';
+import '../exercises/finger_blitz_exercise.dart';
 
 class ExerciseService {
   // Exercise library with both legacy placeholders and new functional exercises
@@ -82,18 +88,55 @@ class ExerciseService {
       skillTags: ['counting_5'],
       exerciseBuilder: (userProfile) => FindNeighborsExercise(userProfile: userProfile),
     ),
-    // NEW: C10.1 - Place Numbers on Line with 3-level scaffolding
+    // NEW: C10.1 - Place Numbers on Line (0-20) with 3-level scaffolding
     Exercise(
       id: 'C10.1',
-      title: 'Place Numbers on Line',
+      title: 'Place Numbers on Line (0-20)',
       skillTags: ['counting_10', 'counting_11'],
-      exerciseWidget: const PlaceNumbersExercise(),
+      exerciseBuilder: (userProfile) => PlaceNumbersExercise(userProfile: userProfile),
     ),
+    // NEW: C10.2 - Place Numbers on Line (0-100)
     Exercise(
-      id: 'C2',
-      title: 'Skip Counting in 2s',
-      skillTags: ['counting_6', 'counting_7', 'counting_8', 'counting_9'],
-      actionContent: const NumberLineWidget(),
+      id: 'C10.2',
+      title: 'Place Numbers on Line (0-100)',
+      skillTags: ['counting_10', 'counting_11', 'number_range_100'],
+      exerciseBuilder: (userProfile) => PlaceNumbers100Exercise(userProfile: userProfile),
+    ),
+    // NEW: C6.0 - Understanding Number Sequences on 100-Field with 5-level scaffolding
+    Exercise(
+      id: 'C6.0',
+      title: 'Number Sequences on 100-Field',
+      skillTags: ['counting_8'],
+      exerciseBuilder: (userProfile) => Count100FieldExercise(userProfile: userProfile),
+    ),
+    // NEW: C6.1 - Count in Steps of 2 with 4-level scaffolding (NO finale)
+    // Phase 2.5: Uses exerciseBuilder for progress tracking
+    Exercise(
+      id: 'C6.1',
+      title: 'Count in Steps of 2',
+      skillTags: ['counting_6', 'counting_7'],
+      exerciseBuilder: (userProfile) => CountSteps2Exercise(userProfile: userProfile),
+    ),
+    // NEW: C6.2 - Count in Steps on 100-Field with 6-level scaffolding
+    Exercise(
+      id: 'C6.2',
+      title: 'Count in Steps on 100-Field',
+      skillTags: ['counting_8', 'counting_6', 'counting_7'],
+      exerciseBuilder: (userProfile) => CountSteps100FieldExercise(userProfile: userProfile),
+    ),
+    // NEW: C6.3 - Count BACKWARDS on 100-Field with 6-level scaffolding
+    Exercise(
+      id: 'C6.3',
+      title: 'Count Backwards Steps on 100-Field',
+      skillTags: ['counting_8', 'counting_6', 'counting_7', 'counting_backward'],
+      exerciseBuilder: (userProfile) => CountStepsBackwards100FieldExercise(userProfile: userProfile),
+    ),
+    // NEW: S1.1 - Fingerblitz (Finger Patterns)
+    Exercise(
+      id: 'S1.1',
+      title: 'Fingerblitz',
+      skillTags: ['basic_strategy_1'],
+      exerciseBuilder: (userProfile) => FingerBlitzExercise(userProfile: userProfile),
     ),
     // NEW: Fully functional Z1 implementation based on PIKAS Card 9
     Exercise(
@@ -129,9 +172,12 @@ class ExerciseService {
   ///
   /// Returns a map of Milestone → List<Exercise> for all milestones that
   /// contain at least one exercise relevant to the user's skill tags.
+  ///
+  /// If [showAll] is true (development mode), shows ALL exercises regardless of skill tags.
   Map<Milestone, List<Exercise>> getLearningPathGroupedByMilestone(
-    UserProfile userProfile,
-  ) {
+    UserProfile userProfile, {
+    bool showAll = false,
+  }) {
     final grouped = <Milestone, List<Exercise>>{};
     final userTags = userProfile.skillTags.toSet();
 
@@ -148,8 +194,10 @@ class ExerciseService {
           ),
         );
 
-        // Include exercise if user has any matching skill tags
-        if (exercise.skillTags.any((tag) => userTags.contains(tag))) {
+        // Include exercise if:
+        // 1. showAll is true (development mode), OR
+        // 2. User has any matching skill tags
+        if (showAll || exercise.skillTags.any((tag) => userTags.contains(tag))) {
           milestoneExercises.add(exercise);
         }
       }

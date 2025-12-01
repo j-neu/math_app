@@ -240,73 +240,10 @@ class _CountForwardLevel3WidgetState extends State<CountForwardLevel3Widget> {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          // Header
-          Text(
-            'Level 3: Mental Counting',
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.primary,
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // Progress indicator
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Problems: $_problemsCompleted / 8',
-                style: theme.textTheme.titleMedium,
-              ),
-              const SizedBox(width: 24),
-              Icon(Icons.local_fire_department, color: Colors.orange, size: 20),
-              const SizedBox(width: 4),
-              Text(
-                'Streak: $_consecutiveCorrect',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: Colors.orange,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
           const SizedBox(height: 16),
 
-          // Instructions / Feedback
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: _showSuccess
-                  ? Colors.green[100]
-                  : theme.colorScheme.tertiaryContainer.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: _showSuccess ? Colors.green : theme.colorScheme.tertiary,
-                width: 2,
-              ),
-            ),
-            child: Row(
-              children: [
-                if (_showSuccess)
-                  Icon(Icons.check_circle, color: Colors.green[700], size: 32)
-                else
-                  Icon(Icons.psychology, color: theme.colorScheme.tertiary, size: 32),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    _feedbackMessage,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-
           // Direction indicator
-          if (!_isComplete) ...[
+          if (!_isComplete)
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -321,21 +258,52 @@ class _CountForwardLevel3WidgetState extends State<CountForwardLevel3Widget> {
                   children: [
                     Text(
                       _isForward ? 'Count FORWARD' : 'Count BACKWARD',
-                      style: theme.textTheme.titleLarge?.copyWith(
+                      style: TextStyle(
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: _isForward ? Colors.green : Colors.orange,
                       ),
                     ),
                     Text(
                       'From $_startNumber to $_targetNumber',
-                      style: theme.textTheme.bodyLarge,
+                      style: const TextStyle(fontSize: 16),
                     ),
                   ],
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-          ],
+
+          if (_showSuccess)
+            Container(
+              margin: const EdgeInsets.only(top: 16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.green[100],
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.green,
+                  width: 2,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.check_circle, color: Colors.green[700], size: 32),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      _feedbackMessage,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+          const SizedBox(height: 24),
 
           // Sequence display with input fields
           if (!_isComplete && _sequence.isNotEmpty) ...[

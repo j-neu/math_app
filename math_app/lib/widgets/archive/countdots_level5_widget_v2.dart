@@ -265,88 +265,7 @@ class _CountDotsLevel5WidgetState extends State<CountDotsLevel5Widget> {
       child: Column(
         children: [
           // Header
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.green.shade50,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.green.shade300, width: 2),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.emoji_events, color: Colors.amber.shade700, size: 32),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Level 5: Finale - Mixed Review',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green.shade800,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            _getInstructionText(),
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.green.shade700,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                // Progress display
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Correct: $_correctAnswers',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        'Total: $_totalAttempts',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      if (_totalAttempts > 0)
-                        Text(
-                          'Accuracy: ${(_correctAnswers / _totalAttempts * 100).toStringAsFixed(0)}%',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: _correctAnswers == _totalAttempts
-                                ? Colors.green
-                                : Colors.orange,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 32),
+          const SizedBox(height: 16),
 
           // Main interaction area
           Expanded(
@@ -499,11 +418,8 @@ class _CountDotsLevel5WidgetState extends State<CountDotsLevel5Widget> {
 
   Widget _buildTapInteraction() {
     return Center(
-      child: Wrap(
-        spacing: 20,
-        runSpacing: 20,
-        alignment: WrapAlignment.center,
-        children: _dots.asMap().entries.map((entry) {
+      child: _buildDotGrid(
+        _dots.asMap().entries.map((entry) {
           final index = entry.key;
           final dot = entry.value;
 
@@ -588,7 +504,8 @@ class _CountDotsLevel5WidgetState extends State<CountDotsLevel5Widget> {
   }
 
   Widget _buildStructuredDotsGrid() {
-    final dotsPerRow = _currentDotCount <= 8 ? 4 : 5;
+    // Maximum 5 dots per row (to avoid crowding with large numbers up to 20)
+    const dotsPerRow = 5;
     final rows = (_currentDotCount / dotsPerRow).ceil();
 
     return Column(
@@ -680,6 +597,36 @@ class _CountDotsLevel5WidgetState extends State<CountDotsLevel5Widget> {
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
       ),
+    );
+  }
+
+  /// Builds a grid of dots with maximum 5 dots per row
+  Widget _buildDotGrid(List<Widget> dots) {
+    const maxDotsPerRow = 5;
+    final rows = <Widget>[];
+
+    for (int i = 0; i < dots.length; i += maxDotsPerRow) {
+      final rowDots = dots.sublist(
+        i,
+        (i + maxDotsPerRow > dots.length) ? dots.length : i + maxDotsPerRow,
+      );
+
+      rows.add(
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: rowDots.map((dot) {
+            return Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: dot,
+            );
+          }).toList(),
+        ),
+      );
+    }
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: rows,
     );
   }
 }

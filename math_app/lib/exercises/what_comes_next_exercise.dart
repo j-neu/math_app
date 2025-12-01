@@ -8,6 +8,9 @@ import '../widgets/whatcomesnext_level2_widget.dart';
 import '../widgets/whatcomesnext_level3_widget.dart';
 import '../widgets/whatcomesnext_level4_widget.dart';
 import '../widgets/whatcomesnext_level5_widget.dart';
+import '../widgets/common/instruction_modal.dart';
+import '../widgets/common/level_selection_drawer.dart';
+import '../widgets/common/segmented_progress_bar.dart';
 
 /// Complete implementation of C4.1: What Comes Next? exercise with 5-Level Scaffolding.
 ///
@@ -131,6 +134,10 @@ class _WhatComesNextExerciseState extends State<WhatComesNextExercise>
   ScaffoldLevel _currentLevel = ScaffoldLevel.guidedExploration;
   late ScaffoldProgress _progress;
 
+  // Progress bar tracking
+  List<bool> _currentLevelResults = [];
+  int _currentLevelTotalProblems = 5; // Default for Level 1
+
   // Level tracking (for UI/unlocking logic)
   int _level1Explorations = 0;
   int _level2Correct = 0;
@@ -174,6 +181,31 @@ class _WhatComesNextExerciseState extends State<WhatComesNextExercise>
     super.dispose();
   }
 
+  /// Get total problems for a given level
+  int _getProblemsForLevel(int level) {
+    switch (level) {
+      case 1:
+        return 5; // Level 1: 5 explorations
+      case 2:
+        return 10; // Level 2: 10 problems
+      case 3:
+        return 8; // Level 3: 8 problems
+      case 4:
+        return 5; // Level 4: 5 problems
+      case 5:
+        return 10; // Level 5 finale: 10 problems
+      default:
+        return 10;
+    }
+  }
+
+  /// Called when a problem is completed
+  void _onProblemComplete(bool correct) {
+    setState(() {
+      _currentLevelResults.add(correct);
+    });
+  }
+
   void _onLevel1Progress(int explorations) async {
     setState(() {
       _level1Explorations = explorations;
@@ -184,6 +216,9 @@ class _WhatComesNextExerciseState extends State<WhatComesNextExercise>
       await unlockLevel(2);
       setState(() {
         _progress = _progress.copyWith(level1Complete: true);
+        // CRITICAL: Reset progress bar for next level
+        _currentLevelResults = [];
+        _currentLevelTotalProblems = _getProblemsForLevel(2);
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -206,6 +241,9 @@ class _WhatComesNextExerciseState extends State<WhatComesNextExercise>
       await unlockLevel(3);
       setState(() {
         _progress = _progress.copyWith(level3Unlocked: true);
+        // CRITICAL: Reset progress bar for next level
+        _currentLevelResults = [];
+        _currentLevelTotalProblems = _getProblemsForLevel(3);
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -228,6 +266,9 @@ class _WhatComesNextExerciseState extends State<WhatComesNextExercise>
       await unlockLevel(4);
       setState(() {
         _progress = _progress.copyWith(level4Unlocked: true);
+        // CRITICAL: Reset progress bar for next level
+        _currentLevelResults = [];
+        _currentLevelTotalProblems = _getProblemsForLevel(4);
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -248,6 +289,11 @@ class _WhatComesNextExerciseState extends State<WhatComesNextExercise>
     // Unlock Level 5 (finale) after 5 correct in Level 4
     if (_level4Correct >= _level4RequiredCorrect && !isLevelUnlocked(5)) {
       await unlockLevel(5);
+      setState(() {
+        // CRITICAL: Reset progress bar for next level
+        _currentLevelResults = [];
+        _currentLevelTotalProblems = _getProblemsForLevel(5);
+      });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -284,6 +330,9 @@ class _WhatComesNextExerciseState extends State<WhatComesNextExercise>
     if (isLevelUnlocked(levelNumber)) {
       setState(() {
         _currentLevel = level;
+        // CRITICAL: Reset progress bar when manually switching levels
+        _currentLevelResults = [];
+        _currentLevelTotalProblems = _getProblemsForLevel(levelNumber);
       });
     } else {
       // Show lock message
@@ -321,199 +370,122 @@ class _WhatComesNextExerciseState extends State<WhatComesNextExercise>
     }
   }
 
-  void _showInfoDialog() {
-    showDialog(
+  /// Show level selection drawer
+  void _showLevelDrawer() {
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.info_outline, color: Colors.blue),
-            SizedBox(width: 12),
-            Text('About This Exercise'),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Learn about predecessor (before) and successor (after) with 5 levels:',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              _buildLevelInfo(
-                'Level 1: Guided Exploration',
-                'Click numbers and explore which numbers come before and after using the buttons.',
-                Colors.blue,
-                Icons.touch_app,
-              ),
-              const SizedBox(height: 12),
-              _buildLevelInfo(
-                'Level 2: Supported Practice',
-                'See the number on the line and write what comes before and after it.',
-                Colors.orange,
-                Icons.create,
-              ),
-              const SizedBox(height: 12),
-              _buildLevelInfo(
-                'Level 3: Independent Mastery',
-                'Find the predecessor and successor from memory! Various challenge types.',
-                Colors.purple,
-                Icons.psychology,
-              ),
-              const SizedBox(height: 12),
-              _buildLevelInfo(
-                'Level 4: Extended Sequences',
-                'Fill in TWO consecutive numbers! Example: 17, ___, ___ or ___, ___, 20',
-                Colors.deepPurple,
-                Icons.extension,
-              ),
-              const SizedBox(height: 12),
-              _buildLevelInfo(
-                'Level 5: Finale',
-                'Easier mixed review to show your mastery! Complete 10 problems to finish.',
-                Colors.green,
-                Icons.celebration,
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.green.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.green),
-                ),
-                child: const Text(
-                  'You can switch between levels anytime for more practice!',
-                  style: TextStyle(fontSize: 14),
-                ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Got it!'),
-          ),
+      builder: (context) => LevelSelectionDrawer(
+        levels: [
+          ScaffoldLevel.guidedExploration,
+          ScaffoldLevel.supportedPractice,
+          ScaffoldLevel.independentMastery,
+          ScaffoldLevel.advancedChallenge,
+          ScaffoldLevel.finale,
         ],
+        currentLevel: _currentLevel,
+        onLevelSelected: _onLevelSelected,
+        isLevelUnlocked: (level) => isLevelUnlocked(level.levelNumber),
       ),
     );
   }
 
-  Widget _buildLevelInfo(
-      String title, String description, Color color, IconData icon) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(icon, color: color, size: 24),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                description,
-                style: const TextStyle(fontSize: 13),
-              ),
-            ],
-          ),
-        ),
-      ],
+  /// Show instructions modal for current level
+  void _showInstructions() {
+    String levelTitle;
+    String instructionText;
+    Color levelColor;
+
+    switch (_currentLevel) {
+      case ScaffoldLevel.guidedExploration:
+        levelTitle = 'Level 1: Guided Exploration';
+        instructionText = 'Explore which numbers come BEFORE and AFTER.\n\n'
+            '• Tap a number on the line\n'
+            '• Press "Before" to see the predecessor\n'
+            '• Press "After" to see the successor\n'
+            '• Explore 5 times to unlock Level 2';
+        levelColor = Colors.blue;
+        break;
+
+      case ScaffoldLevel.supportedPractice:
+        levelTitle = 'Level 2: Supported Practice';
+        instructionText = 'Write the predecessor AND successor.\n\n'
+            '• See the number highlighted on the line\n'
+            '• Fill in what comes BEFORE and AFTER\n'
+            '• Complete 10 correct answers to unlock Level 3';
+        levelColor = Colors.orange;
+        break;
+
+      case ScaffoldLevel.independentMastery:
+        levelTitle = 'Level 3: Independent Mastery';
+        instructionText = 'Find predecessor and successor from memory!\n\n'
+            '• Number line hidden (appears on errors)\n'
+            '• Three different problem types\n'
+            '• Complete 8 correct answers to unlock Level 4';
+        levelColor = Colors.purple;
+        break;
+
+      case ScaffoldLevel.advancedChallenge:
+        levelTitle = 'Level 4: Extended Sequences';
+        instructionText = 'Fill in TWO consecutive numbers!\n\n'
+            '• Example: 17, ___, ___ or ___, ___, 20\n'
+            '• Tests deeper pattern recognition\n'
+            '• Complete 5 correct answers to unlock Finale';
+        levelColor = Colors.deepPurple;
+        break;
+
+      case ScaffoldLevel.finale:
+        levelTitle = 'Level 5: Finale';
+        instructionText = 'Easier mixed review to show your mastery!\n\n'
+            '• Before/after with narrower range (5-15)\n'
+            '• Complete 10 problems with 100% accuracy\n'
+            '• Time limit: <20s per problem';
+        levelColor = Colors.green;
+        break;
+
+      default:
+        levelTitle = 'Instructions';
+        instructionText = 'Select a level to see instructions.';
+        levelColor = Colors.grey;
+    }
+
+    InstructionModal.show(
+      context,
+      levelTitle: levelTitle,
+      instructionText: instructionText,
+      levelColor: levelColor,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        Navigator.pop(context);
-        return false;
-      },
-      child: Column(
-        children: [
-          // Level selector
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              border: Border(
-                bottom: BorderSide(color: Colors.grey.shade300, width: 1),
-              ),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _buildLevelButton(
-                    ScaffoldLevel.guidedExploration,
-                    'L1',
-                    Colors.blue,
-                    Icons.touch_app,
-                    isLevelUnlocked(1),
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: _buildLevelButton(
-                    ScaffoldLevel.supportedPractice,
-                    'L2',
-                    Colors.orange,
-                    Icons.create,
-                    isLevelUnlocked(2),
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: _buildLevelButton(
-                    ScaffoldLevel.independentMastery,
-                    'L3',
-                    Colors.purple,
-                    Icons.psychology,
-                    isLevelUnlocked(3),
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: _buildLevelButton(
-                    ScaffoldLevel.advancedChallenge,
-                    'L4',
-                    Colors.deepPurple,
-                    Icons.extension,
-                    isLevelUnlocked(4),
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: _buildLevelButton(
-                    ScaffoldLevel.finale,
-                    'L5',
-                    Colors.green,
-                    Icons.celebration,
-                    isLevelUnlocked(5),
-                  ),
-                ),
-              ],
-            ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.config.title),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.menu),
+            tooltip: 'Choose Level',
+            onPressed: _showLevelDrawer,
           ),
-
-          // Progress indicator for current level
-          _buildLevelProgressIndicator(),
+          IconButton(
+            icon: const Icon(Icons.help_outline),
+            tooltip: 'Instructions',
+            onPressed: _showInstructions,
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Segmented Progress Bar
+          SegmentedProgressBar(
+            totalSegments: _currentLevelTotalProblems,
+            currentSegment: _currentLevelResults.length,
+            results: _currentLevelResults,
+          ),
 
           // Current level content
           Expanded(
@@ -524,135 +496,15 @@ class _WhatComesNextExerciseState extends State<WhatComesNextExercise>
     );
   }
 
-  Widget _buildLevelButton(
-    ScaffoldLevel level,
-    String label,
-    Color color,
-    IconData icon,
-    bool isUnlocked,
-  ) {
-    final bool isActive = _progress.currentLevel == level;
-
-    return GestureDetector(
-      onTap: () => _onLevelSelected(level),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-        decoration: BoxDecoration(
-          color: isActive ? color : Colors.white,
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(
-            color: isActive ? color : Colors.grey.shade300,
-            width: isActive ? 2 : 1,
-          ),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              isUnlocked ? icon : Icons.lock,
-              color: isActive ? Colors.white : (isUnlocked ? color : Colors.grey),
-              size: 14,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: isActive ? Colors.white : (isUnlocked ? color : Colors.grey),
-                fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                fontSize: 10,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLevelProgressIndicator() {
-    String progressText = '';
-    double progressValue = 0.0;
-    Color progressColor = Colors.blue;
-    bool showProgressBar = false;
-
-    switch (_currentLevel) {
-      case ScaffoldLevel.guidedExploration:
-        progressText = 'Explore: $_level1Explorations explorations (5 to unlock Level 2)';
-        progressValue = _level1Explorations / 5.0;
-        progressColor = Colors.blue;
-        showProgressBar = true;
-        break;
-      case ScaffoldLevel.supportedPractice:
-        progressText = 'Practice: $_level2Correct/$_level2RequiredCorrect correct (unlock Level 3)';
-        progressValue = _level2Correct / _level2RequiredCorrect;
-        progressColor = Colors.orange;
-        showProgressBar = true;
-        break;
-      case ScaffoldLevel.independentMastery:
-        progressText = 'Mastery: $_level3Correct/$_level3RequiredCorrect correct (unlock Level 4)';
-        progressValue = _level3Correct / _level3RequiredCorrect;
-        progressColor = Colors.purple;
-        showProgressBar = true;
-        break;
-      case ScaffoldLevel.advancedChallenge:
-        progressText = 'Challenge: $_level4Correct/$_level4RequiredCorrect correct (unlock Finale)';
-        progressValue = _level4Correct / _level4RequiredCorrect;
-        progressColor = Colors.deepPurple;
-        showProgressBar = true;
-        break;
-      case ScaffoldLevel.finale:
-        final finaleProgress = getLevelProgress(5);
-        final finaleCorrect = finaleProgress?.correctAnswers ?? 0;
-        final finaleTotal = finaleProgress?.totalAttempts ?? 0;
-        final accuracy = finaleTotal > 0
-            ? ((finaleCorrect / finaleTotal) * 100).toStringAsFixed(0)
-            : '0';
-        progressText = 'Finale: $finaleCorrect correct | Accuracy: $accuracy% (Need 10 with 100%)';
-        progressValue = (finaleCorrect / 10).clamp(0.0, 1.0);
-        progressColor = Colors.green;
-        showProgressBar = true;
-        break;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      color: progressColor.withOpacity(0.1),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  progressText,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: progressColor.withOpacity(0.8),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          if (showProgressBar) ...[
-            const SizedBox(height: 4),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: progressValue,
-                backgroundColor: Colors.grey.shade300,
-                valueColor: AlwaysStoppedAnimation<Color>(progressColor),
-                minHeight: 6,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
   Widget _buildCurrentLevelWidget() {
     switch (_currentLevel) {
       case ScaffoldLevel.guidedExploration:
         return WhatComesNextLevel1Widget(
-          onProgressUpdate: _onLevel1Progress,
+          onProgressUpdate: (explorations) {
+            _onLevel1Progress(explorations);
+            // Each exploration counts as a "problem" for progress bar
+            _onProblemComplete(true);
+          },
         );
 
       case ScaffoldLevel.supportedPractice:
@@ -660,6 +512,7 @@ class _WhatComesNextExerciseState extends State<WhatComesNextExercise>
           onProgressUpdate: _onLevel2Progress,
           onStartProblemTimer: startProblemTimer,
           onProblemComplete: (correct, userAnswer) async {
+            _onProblemComplete(correct);
             await recordProblemResult(
               levelNumber: 2,
               correct: correct,
@@ -673,6 +526,7 @@ class _WhatComesNextExerciseState extends State<WhatComesNextExercise>
           onProgressUpdate: _onLevel3Progress,
           onStartProblemTimer: startProblemTimer,
           onProblemComplete: (correct, userAnswer) async {
+            _onProblemComplete(correct);
             await recordProblemResult(
               levelNumber: 3,
               correct: correct,
@@ -686,6 +540,7 @@ class _WhatComesNextExerciseState extends State<WhatComesNextExercise>
           onProgressUpdate: _onLevel4Progress,
           onStartProblemTimer: startProblemTimer,
           onProblemComplete: (correct, userAnswer) async {
+            _onProblemComplete(correct);
             await recordProblemResult(
               levelNumber: 4,
               correct: correct,
@@ -698,6 +553,7 @@ class _WhatComesNextExerciseState extends State<WhatComesNextExercise>
         return WhatComesNextLevel5Widget(
           onStartProblemTimer: startProblemTimer,
           onProblemComplete: (correct, userAnswer) async {
+            _onProblemComplete(correct);
             await recordProblemResult(
               levelNumber: 5,
               correct: correct,

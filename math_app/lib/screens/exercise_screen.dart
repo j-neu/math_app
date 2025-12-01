@@ -71,14 +71,20 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
 
     final currentExercise = _learningPath[_currentExerciseIndex];
 
+    // Phase 2.5+: If exercise has a builder, it manages its own Scaffold
+    // Don't wrap it in another Scaffold to avoid double app bars
+    if (currentExercise.exerciseBuilder != null) {
+      return _buildRepresentationView(currentExercise);
+    }
+
+    // Legacy: Wrap exercise widget or placeholder in Scaffold
     return Scaffold(
       appBar: AppBar(
         title: Text(currentExercise.title),
       ),
       body: _buildRepresentationView(currentExercise),
       // Only show representation switcher for legacy placeholder exercises
-      bottomNavigationBar: (currentExercise.exerciseBuilder == null &&
-                            currentExercise.exerciseWidget == null)
+      bottomNavigationBar: currentExercise.exerciseWidget == null
           ? BottomNavigationBar(
               currentIndex: _currentRepresentation,
               onTap: (index) {

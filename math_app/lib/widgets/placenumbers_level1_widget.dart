@@ -1,492 +1,414 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 
-/// Level 1: Guided Exploration - Drag numbers to correct positions on number line
-///
-/// **Purpose:** Child sees the number line structure and learns where numbers
-/// belong by dragging them to the correct positions. Visual feedback confirms
-/// correct placement.
-///
-/// **Pedagogical Goal (Handlung):**
-/// - See the number line with marked positions
-/// - Drag number cards to positions
-/// - Understand spatial relationship between numbers
-/// - Build mental model of number positioning
-///
-/// **Progression:** After successfully placing 5 complete sets, Level 2 unlocks
 class PlaceNumbersLevel1Widget extends StatefulWidget {
-  final Function(int problemsSolved) onProgressUpdate;
+  final Function(bool) onProblemSolved;
+  final int cardCount; // Number of cards to place (3 or 5)
+  final int maxNumber; // Maximum number on the line (20 or 100)
+  final int tolerance; // Allowed difference for approximate position
 
   const PlaceNumbersLevel1Widget({
     super.key,
-    required this.onProgressUpdate,
+    required this.onProblemSolved,
+    this.cardCount = 3,
+    this.maxNumber = 20,
+    this.tolerance = 3,
   });
 
   @override
-  State<PlaceNumbersLevel1Widget> createState() =>
-      _PlaceNumbersLevel1WidgetState();
+  State<PlaceNumbersLevel1Widget> createState() => _PlaceNumbersLevel1WidgetState();
 }
 
-class _PlaceNumbersLevel1WidgetState extends State<PlaceNumbersLevel1Widget>
-    with SingleTickerProviderStateMixin {
+class _PlaceNumbersLevel1WidgetState extends State<PlaceNumbersLevel1Widget> {
   final Random _random = Random();
-  List<int> _numbersToPlace = [];
-  Map<int, int?> _placedNumbers = {}; // position -> number placed there
-  Set<int> _correctlyPlaced = {};
-  int _problemsSolved = 0;
-  int _minNumber = 0;
-  int _maxNumber = 10;
-  int _numberOfPositions = 11; // 0 to 10
-
-  late AnimationController _successController;
-  late Animation<double> _successAnimation;
-  bool _showingSuccess = false;
+  final GlobalKey _lineKey = GlobalKey();
+  
+  List<int> _targetNumbers = [];
+  Map<int, int> _placedCards = {}; // Map<NumberValue, PositionValue>
+  
+  // Hover state for visual feedback
+  int? _hoverValue;
+  
+  bool _isChecking = false;
+  String? _feedbackMessage;
+  bool _isSuccess = false;
 
   @override
   void initState() {
     super.initState();
-    _successController = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-    );
-    _successAnimation = CurvedAnimation(
-      parent: _successController,
-      curve: Curves.elasticOut,
-    );
-    _generateNewProblem();
+    _generateProblem();
   }
 
-  @override
-  void dispose() {
-    _successController.dispose();
-    super.dispose();
-  }
-
-  void _generateNewProblem() {
+  void _generateProblem() {
     setState(() {
-      _correctlyPlaced.clear();
-      _placedNumbers.clear();
-      _showingSuccess = false;
+      _placedCards.clear();
+      _isChecking = false;
+      _feedbackMessage = null;
+      _isSuccess = false;
+      _hoverValue = null;
 
-      // Generate 3-5 random numbers to place
-      final count = 3 + _random.nextInt(3); // 3, 4, or 5 numbers
-      final allNumbers =
-          List.generate(_numberOfPositions, (i) => _minNumber + i);
-      allNumbers.shuffle(_random);
-      _numbersToPlace = allNumbers.take(count).toList()..sort();
+      final Set<int> numbers = {};
+      while (numbers.length < widget.cardCount) {
+        numbers.add(_random.nextInt(widget.maxNumber - 1) + 1);
+      }
+      _targetNumbers = numbers.toList();
     });
   }
 
-  void _onNumberPlaced(int number, int position) {
-    final correctPosition = number - _minNumber;
+  void _onCardDropped(int number, int position) {
+    setState(() {
+      _placedCards.remove(number);
+      _placedCards[number] = position;
+      _feedbackMessage = null;
+      _hoverValue = null; // Clear ghost
+    });
+  }
 
-    // Check if this position already has a number
-    if (_placedNumbers.containsValue(number)) {
-      // Remove old placement
-      _placedNumbers.removeWhere((key, value) => value == number);
+  void _returnCardToHand(int number) {
+    setState(() {
+      _placedCards.remove(number);
+      _feedbackMessage = null;
+    });
+  }
+
+  void _checkAnswer() {
+    if (_placedCards.length < _targetNumbers.length) {
+      setState(() => _feedbackMessage = 'Please place all cards first!');
+      return;
+    }
+
+    final placedEntries = _placedCards.entries.toList()
+      ..sort((a, b) => a.value.compareTo(b.value));
+
+    // 1. Check Order
+    bool orderCorrect = true;
+    for (int i = 0; i < placedEntries.length - 1; i++) {
+      if (placedEntries[i].key > placedEntries[i+1].key) {
+        orderCorrect = false;
+        break;
+      }
+    }
+
+    if (!orderCorrect) {
+      setState(() => _feedbackMessage = 'Check the order! Smaller numbers go to the left.');
+      return;
+    }
+
+    // 2. Check Position with Tolerance
+    bool positionCorrect = true;
+    for (var entry in placedEntries) {
+      int value = entry.key;
+      int pos = entry.value;
+      if ((pos - value).abs() > widget.tolerance) {
+        positionCorrect = false;
+        break;
+      }
+    }
+
+    if (!positionCorrect) {
+      setState(() => _feedbackMessage = 'Good order, but check positions! Some numbers are too far off.');
+      return;
     }
 
     setState(() {
-      _placedNumbers[position] = number;
-
-      if (position == correctPosition) {
-        _correctlyPlaced.add(number);
-
-        // Check if all numbers are correctly placed
-        if (_correctlyPlaced.length == _numbersToPlace.length) {
-          _showingSuccess = true;
-          _successController.forward(from: 0);
-          _problemsSolved++;
-          widget.onProgressUpdate(_problemsSolved);
-
-          // Generate new problem after delay
-          Future.delayed(const Duration(seconds: 2), () {
-            if (mounted) {
-              _generateNewProblem();
-            }
-          });
-        }
-      } else {
-        _correctlyPlaced.remove(number);
-      }
+      _isSuccess = true;
+      _feedbackMessage = 'Correct! Great estimation!';
     });
-  }
-
-  void _onNumberRemoved(int number) {
-    setState(() {
-      _placedNumbers.removeWhere((key, value) => value == number);
-      _correctlyPlaced.remove(number);
+    
+    widget.onProblemSolved(true);
+    
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        _generateProblem();
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              // Instructions
-              Card(
-                color: Colors.blue.shade50,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      const Row(
-                        children: [
-                          Icon(Icons.touch_app, color: Colors.blue),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Level 1: Drag Numbers to the Line',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Drag each number to its correct position on the number line. Watch where each number belongs!',
-                        style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
-                      ),
-                    ],
-                  ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              height: 80,
+              alignment: Alignment.center,
+              child: Text(
+                _feedbackMessage ?? 'Drag the cards to the correct spot on the line.',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: _isSuccess 
+                      ? Colors.green 
+                      : (_feedbackMessage != null ? Colors.orange : Colors.grey[700]),
                 ),
+                textAlign: TextAlign.center,
               ),
+            ),
 
-              const SizedBox(height: 16),
-
-              // Progress indicator
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Problems solved: $_problemsSolved',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        'Placed: ${_correctlyPlaced.length}/${_numbersToPlace.length}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey.shade700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // Number line with drag targets
-              Expanded(
-                flex: 2,
+            Expanded(
+              flex: 3,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    return _buildNumberLine(constraints);
+                  builder: (context, lineConstraints) {
+                    return Center(
+                      child: SizedBox(
+                        key: _lineKey,
+                        height: 200,
+                        width: lineConstraints.maxWidth,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            // The Line
+                            Container(
+                              height: 4,
+                              color: Colors.black,
+                              width: double.infinity,
+                            ),
+                            
+                            // Endpoints
+                            const Positioned(
+                              left: 0,
+                              top: 110,
+                              child: Text('0', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                            ),
+                            Positioned(
+                              right: 0,
+                              top: 110,
+                              child: Text('${widget.maxNumber}', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                            ),
+                            
+                            // Ticks
+                            ..._buildTicks(lineConstraints.maxWidth),
+
+                            // Drop Zone & Ghost
+                            Positioned.fill(
+                              child: _buildDropZone(lineConstraints.maxWidth),
+                            ),
+
+                            // Placed Cards
+                            ..._placedCards.entries.map((entry) {
+                              double relativePos = entry.value / widget.maxNumber;
+                              double left = (relativePos * lineConstraints.maxWidth) - 22;
+                              return Positioned(
+                                left: left,
+                                top: 40, 
+                                child: _buildPlacedCard(entry.key),
+                              );
+                            }).toList(),
+                          ],
+                        ),
+                      ),
+                    );
                   },
                 ),
               ),
-
-              const SizedBox(height: 24),
-
-              // Draggable numbers area
-              Expanded(
-                child: _buildNumbersArea(),
-              ),
-
-              // Success message
-              if (_showingSuccess)
-                ScaleTransition(
-                  scale: _successAnimation,
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    margin: const EdgeInsets.only(top: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.green.shade100,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.green, width: 2),
-                    ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.check_circle, color: Colors.green, size: 32),
-                        SizedBox(width: 12),
-                        Text(
-                          'Perfect! All numbers placed correctly!',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.green,
-                          ),
-                        ),
-                      ],
-                    ),
+            ),
+            
+            Expanded(
+              flex: 2,
+              child: Container(
+                color: Colors.grey[100],
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                child: Center(
+                  child: Wrap(
+                    spacing: 16,
+                    runSpacing: 16,
+                    alignment: WrapAlignment.center,
+                    children: _targetNumbers.map((number) {
+                      if (_placedCards.containsKey(number)) {
+                        return const SizedBox(width: 60, height: 80);
+                      }
+                      return _buildDraggableCard(number);
+                    }).toList(),
                   ),
                 ),
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ElevatedButton(
+                onPressed: _checkAnswer,
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
+                  textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                child: const Text('Check'),
+              ),
+            ),
+          ],
+        );
+      }
+    );
+  }
+
+  List<Widget> _buildTicks(double width) {
+    List<Widget> ticks = [];
+    // 0-20: tick every 5. 0-100: tick every 10.
+    int interval = widget.maxNumber > 20 ? 10 : 5;
+    
+    for (int i = 0; i <= widget.maxNumber; i += interval) {
+      double relativeX = i / widget.maxNumber;
+      double left = relativeX * width;
+      bool isEndpoint = i == 0 || i == widget.maxNumber;
+      
+      ticks.add(Positioned(
+        left: left - (isEndpoint ? 2 : 1), // Center the tick
+        child: Container(
+          width: isEndpoint ? 4 : 2,
+          height: isEndpoint ? 20 : 10,
+          color: isEndpoint ? Colors.black : Colors.grey.shade400,
+        ),
+      ));
+    }
+    return ticks;
+  }
+
+  Widget _buildDropZone(double totalWidth) {
+    return DragTarget<int>(
+      onWillAccept: (_) => true,
+      onMove: (details) {
+         final RenderBox? renderBox = _lineKey.currentContext?.findRenderObject() as RenderBox?;
+         if (renderBox != null) {
+           final localOffset = renderBox.globalToLocal(details.offset);
+           double relativeX = localOffset.dx.clamp(0.0, renderBox.size.width);
+           double value = (relativeX / renderBox.size.width) * widget.maxNumber;
+           int snappedValue = value.round().clamp(0, widget.maxNumber);
+           
+           if (_hoverValue != snappedValue) {
+             setState(() => _hoverValue = snappedValue);
+           }
+         }
+      },
+      onAcceptWithDetails: (details) {
+        // Find render box to calculate local position
+        final RenderBox? renderBox = _lineKey.currentContext?.findRenderObject() as RenderBox?;
+        if (renderBox != null) {
+          final localOffset = renderBox.globalToLocal(details.offset);
+          double relativeX = localOffset.dx.clamp(0.0, renderBox.size.width);
+          double value = (relativeX / renderBox.size.width) * widget.maxNumber;
+          int snappedValue = value.round().clamp(0, widget.maxNumber);
+          
+          _onCardDropped(details.data, snappedValue);
+        }
+      },
+      onLeave: (_) {
+        setState(() => _hoverValue = null);
+      },
+      builder: (context, candidateData, rejectedData) {
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            // Transparent hit test area
+            Container(color: Colors.transparent),
+            
+            // Ghost Card (Visual Feedback)
+            if (candidateData.isNotEmpty && _hoverValue != null) ...[
+              // Preview Dot on Line
+              Positioned(
+                left: (_hoverValue! / widget.maxNumber * totalWidth) - 5, // Center 10px dot
+                top: 95, // Line is at 100 (height 200 / 2). Dot 10px tall -> top 95.
+                child: Container(
+                  width: 10,
+                  height: 10,
+                  decoration: const BoxDecoration(
+                    color: Colors.black,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+              
+              // Ghost Card
+              Positioned(
+                left: (_hoverValue! / widget.maxNumber * totalWidth) - 22,
+                top: 40,
+                child: Opacity(
+                  opacity: 0.5,
+                  child: _buildCardVisual(candidateData.first!, scale: 1.0),
+                ),
+              ),
             ],
+          ],
+        );
+      },
+    );
+  }
+  
+  Widget _buildDraggableCard(int number) {
+    return Draggable<int>(
+      data: number,
+      dragAnchorStrategy: pointerDragAnchorStrategy,
+      feedback: Material(
+        color: Colors.transparent,
+        child: _buildCardVisual(number, scale: 1.1),
+      ),
+      childWhenDragging: Opacity(
+        opacity: 0.3,
+        child: _buildCardVisual(number),
+      ),
+      child: _buildCardVisual(number),
+    );
+  }
+
+  Widget _buildPlacedCard(int number) {
+    return GestureDetector(
+      onTap: () => _returnCardToHand(number),
+      child: Draggable<int>(
+        data: number,
+        dragAnchorStrategy: pointerDragAnchorStrategy,
+        feedback: Material(
+          color: Colors.transparent,
+          child: _buildCardVisual(number, scale: 1.1),
+        ),
+        childWhenDragging: Opacity(
+          opacity: 0.0,
+          child: _buildCardVisual(number),
+        ),
+        child: _buildCardVisual(number, isPlaced: true),
+        onDragEnd: (details) {
+           if (!details.wasAccepted) {
+             _returnCardToHand(number);
+           }
+        },
+      ),
+    );
+  }
+
+  Widget _buildCardVisual(int number, {double scale = 1.0, bool isPlaced = false}) {
+    return Transform.scale(
+      scale: scale,
+      child: Container(
+        width: 44,
+        height: 60,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.blue, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        alignment: Alignment.center,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            '$number',
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.blue,
+            ),
           ),
         ),
       ),
     );
   }
-
-  Widget _buildNumberLine(BoxConstraints constraints) {
-    final width = constraints.maxWidth;
-    final positionWidth = width / _numberOfPositions;
-
-    return CustomPaint(
-      size: Size(width, constraints.maxHeight),
-      painter: NumberLinePainter(
-        minNumber: _minNumber,
-        maxNumber: _maxNumber,
-      ),
-      child: Stack(
-        children: [
-          // Position indicators and drag targets
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: List.generate(_numberOfPositions, (index) {
-              final number = _minNumber + index;
-              return Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Drag target slot
-                    DragTarget<int>(
-                      onAccept: (draggedNumber) {
-                        _onNumberPlaced(draggedNumber, index);
-                      },
-                      builder: (context, candidateData, rejectedData) {
-                        final placedNumber = _placedNumbers[index];
-                        final isOccupied = placedNumber != null;
-                        final isCorrect = _correctlyPlaced.contains(placedNumber);
-
-                        return Container(
-                          width: positionWidth * 0.8,
-                          height: 50,
-                          margin: const EdgeInsets.symmetric(horizontal: 2),
-                          decoration: BoxDecoration(
-                            color: isOccupied
-                                ? (isCorrect ? Colors.green.shade200 : Colors.red.shade200)
-                                : (candidateData.isNotEmpty
-                                    ? Colors.blue.shade100
-                                    : Colors.grey.shade200),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: isOccupied
-                                  ? (isCorrect ? Colors.green : Colors.red)
-                                  : (candidateData.isNotEmpty
-                                      ? Colors.blue
-                                      : Colors.grey.shade400),
-                              width: 2,
-                            ),
-                          ),
-                          child: Center(
-                            child: isOccupied
-                                ? GestureDetector(
-                                    onTap: () => _onNumberRemoved(placedNumber),
-                                    child: Text(
-                                      placedNumber.toString(),
-                                      style: TextStyle(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.bold,
-                                        color: isCorrect ? Colors.green.shade800 : Colors.red.shade800,
-                                      ),
-                                    ),
-                                  )
-                                : Text(
-                                    '?',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      color: Colors.grey.shade400,
-                                    ),
-                                  ),
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 8),
-                    // Position label
-                    Text(
-                      number.toString(),
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNumbersArea() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Column(
-        children: [
-          const Text(
-            'Drag these numbers:',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 12),
-          Expanded(
-            child: Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              alignment: WrapAlignment.center,
-              children: _numbersToPlace.map((number) {
-                final isPlaced = _correctlyPlaced.contains(number);
-
-                if (isPlaced) {
-                  // Show grayed out version
-                  return Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey, width: 2),
-                    ),
-                    child: Center(
-                      child: Text(
-                        number.toString(),
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey.shade500,
-                        ),
-                      ),
-                    ),
-                  );
-                }
-
-                return Draggable<int>(
-                  data: number,
-                  feedback: Material(
-                    elevation: 4,
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      width: 60,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        color: Colors.blue.shade300,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.blue, width: 2),
-                      ),
-                      child: Center(
-                        child: Text(
-                          number.toString(),
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  childWhenDragging: Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade200,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey.shade400, width: 2),
-                    ),
-                  ),
-                  child: Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: Colors.blue.shade100,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.blue, width: 2),
-                    ),
-                    child: Center(
-                      child: Text(
-                        number.toString(),
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Custom painter for the number line
-class NumberLinePainter extends CustomPainter {
-  final int minNumber;
-  final int maxNumber;
-
-  NumberLinePainter({
-    required this.minNumber,
-    required this.maxNumber,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.black
-      ..strokeWidth = 3
-      ..strokeCap = StrokeCap.round;
-
-    final tickPaint = Paint()
-      ..color = Colors.grey.shade600
-      ..strokeWidth = 2;
-
-    // Draw main horizontal line
-    final y = size.height * 0.5;
-    canvas.drawLine(
-      Offset(0, y),
-      Offset(size.width, y),
-      paint,
-    );
-
-    // Draw tick marks
-    final numberOfPositions = maxNumber - minNumber + 1;
-    for (int i = 0; i < numberOfPositions; i++) {
-      final x = (size.width / numberOfPositions) * i + (size.width / numberOfPositions / 2);
-      canvas.drawLine(
-        Offset(x, y - 10),
-        Offset(x, y + 10),
-        tickPaint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(NumberLinePainter oldDelegate) => false;
 }

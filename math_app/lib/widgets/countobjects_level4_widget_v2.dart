@@ -16,7 +16,7 @@ import 'dart:math';
 /// - Both structured and scattered layouts available
 /// - Tests memory and visual-spatial counting skills
 class CountObjectsLevel4Widget extends StatefulWidget {
-  final Function(int correct) onProgressUpdate;
+  final Function(int correct, int total) onProgressUpdate;
 
   const CountObjectsLevel4Widget({
     super.key,
@@ -245,7 +245,7 @@ class _CountObjectsLevel4WidgetState extends State<CountObjectsLevel4Widget>
         _consecutiveCorrect++;
         _feedbackMessage =
             'Excellent! You counted $_targetCount ${_getObjectTypeName()} from memory!';
-        widget.onProgressUpdate(_correctCount);
+        widget.onProgressUpdate(_correctCount, _totalAttempts);
 
         // Move to next problem
         Future.delayed(const Duration(seconds: 2), () {
@@ -255,7 +255,7 @@ class _CountObjectsLevel4WidgetState extends State<CountObjectsLevel4Widget>
         });
       } else {
         _consecutiveCorrect = 0;
-        widget.onProgressUpdate(_correctCount);
+        widget.onProgressUpdate(_correctCount, _totalAttempts);
         final difference = (answer - _targetCount).abs();
         if (difference == 1) {
           _feedbackMessage =
@@ -279,153 +279,46 @@ class _CountObjectsLevel4WidgetState extends State<CountObjectsLevel4Widget>
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              // Instructions
-              Card(
-                color: Colors.teal.shade50,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      const Row(
-                        children: [
-                          Icon(Icons.remove_red_eye, color: Colors.teal),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Level 4: Flash & Memory',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.teal,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'This is the hardest level! The ${_getObjectTypeName()} will flash for 2 seconds, then disappear. Can you count from memory?',
-                        style: TextStyle(
-                            fontSize: 14, color: Colors.grey.shade700),
-                      ),
-                    ],
+              // Toggle button for structured/random layout (minimal UI)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12.0),
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      _useStructuredArrangement = !_useStructuredArrangement;
+                      _generateObjectPositions();
+                      _showingObjects = true;
+                    });
+                    // Flash objects for 2 seconds, then hide
+                    Future.delayed(const Duration(seconds: 2), () {
+                      if (mounted) {
+                        setState(() {
+                          _showingObjects = false;
+                        });
+                      }
+                    });
+                  },
+                  icon: Icon(
+                    _useStructuredArrangement
+                        ? Icons.grid_on
+                        : Icons.scatter_plot,
+                    size: 18,
+                  ),
+                  label: Text(
+                    _useStructuredArrangement
+                        ? 'Switch to Random'
+                        : 'Switch to Structured',
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _useStructuredArrangement
+                        ? Colors.orange
+                        : Colors.blue,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 8),
                   ),
                 ),
               ),
-
-              const SizedBox(height: 16),
-
-              // Progress indicator
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Correct: $_correctCount',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: _useStructuredArrangement
-                                  ? Colors.blue.shade100
-                                  : Colors.orange.shade100,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              _useStructuredArrangement
-                                  ? 'Structured'
-                                  : 'Scattered',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: _useStructuredArrangement
-                                    ? Colors.blue.shade800
-                                    : Colors.orange.shade800,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      // Toggle button
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          setState(() {
-                            _useStructuredArrangement =
-                                !_useStructuredArrangement;
-                            _generateObjectPositions();
-                            _showingObjects = true;
-                          });
-                          // Flash objects for 2 seconds, then hide
-                          Future.delayed(const Duration(seconds: 2), () {
-                            if (mounted) {
-                              setState(() {
-                                _showingObjects = false;
-                              });
-                            }
-                          });
-                        },
-                        icon: Icon(
-                          _useStructuredArrangement
-                              ? Icons.grid_on
-                              : Icons.scatter_plot,
-                          size: 18,
-                        ),
-                        label: Text(
-                          _useStructuredArrangement
-                              ? 'Switch to Random'
-                              : 'Switch to Structured',
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _useStructuredArrangement
-                              ? Colors.orange
-                              : Colors.blue,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Icon(Icons.local_fire_department,
-                              size: 16, color: Colors.orange.shade700),
-                          const SizedBox(width: 4),
-                          Text(
-                            'Streak: $_consecutiveCorrect',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey.shade700,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          if (_totalAttempts > 0)
-                            Text(
-                              'Accuracy: ${((_correctCount / _totalAttempts) * 100).toStringAsFixed(0)}%',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey.shade700,
-                              ),
-                            ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 24),
 
               // Objects area (flash & hide)
               Expanded(

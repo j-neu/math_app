@@ -137,72 +137,52 @@ class _CountForwardLevel1WidgetState extends State<CountForwardLevel1Widget> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          // Header
-          Text(
-            'Level 1: Count Forward',
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.primary,
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // Progress indicator
-          Text(
-            'Problems completed: $_problemsCompleted / $requiredProblems',
-            style: theme.textTheme.titleMedium,
-          ),
           const SizedBox(height: 16),
 
-          // Instructions / Feedback
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: _showSuccess
-                  ? Colors.green[100]
-                  : theme.colorScheme.primaryContainer.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: _showSuccess ? Colors.green : theme.colorScheme.primary,
-                width: 2,
-              ),
-            ),
-            child: Row(
-              children: [
-                if (_showSuccess)
-                  Icon(Icons.check_circle, color: Colors.green[700], size: 32)
-                else
-                  Icon(Icons.info_outline, color: theme.colorScheme.primary, size: 32),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    _feedbackMessage,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 32),
-
           // Current task display
-          if (!_isComplete) ...[
+          if (!_isComplete)
             Text(
-              'Current: $_currentPosition  →  Target: $_targetNumber',
-              style: theme.textTheme.titleLarge?.copyWith(
+              'Count from $_startNumber to $_targetNumber',
+              style: const TextStyle(
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 16),
-          ],
+
+          if (_showSuccess)
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.green[100],
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.green,
+                  width: 2,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.check_circle, color: Colors.green[700], size: 32),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      _feedbackMessage,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+          const SizedBox(height: 32),
 
           // Scrolling Number Band
           ScrollingNumberBand(
@@ -213,32 +193,6 @@ class _CountForwardLevel1WidgetState extends State<CountForwardLevel1Widget> {
             highlightedNumbers: decadeNumbers,
             onNumberTapped: _onNumberTapped,
             allowManualScroll: true,
-          ),
-
-          const SizedBox(height: 32),
-
-          // Helper text
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.blue[50],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.lightbulb_outline, color: Colors.blue[700]),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Notice how the numbers 10, 20, 30... are highlighted? '
-                    'These are "decade" numbers! The ones-digit pattern repeats after each decade.',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: Colors.blue[900],
-                    ),
-                  ),
-                ),
-              ],
-            ),
           ),
 
           const Spacer(),
@@ -254,7 +208,7 @@ class _CountForwardLevel1WidgetState extends State<CountForwardLevel1Widget> {
             ElevatedButton.icon(
               onPressed: () => widget.onLevelComplete?.call(),
               icon: const Icon(Icons.arrow_forward),
-              label: const Text('Advance to Level 2'),
+              label: const Text('Continue to Level 2'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 foregroundColor: Colors.white,

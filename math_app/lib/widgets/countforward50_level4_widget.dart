@@ -5,7 +5,7 @@ import 'common/scrolling_number_band.dart';
 /// Level 4: Finale - Victory Lap (ADHD: Easy→Hard→Easy flow)
 ///
 /// **Purpose:** Easier mixed review after mastering Level 3's mental counting
-/// **Range:** 1-20 (same as other levels)
+/// **Range:** 1-50 (same as other levels)
 /// **Visual Support:** Number band VISIBLE (restored visual support)
 /// **Directions:** Both forward and backward (mixed review)
 /// **Sequence Length:** 5-8 steps (shorter than L3's 10-15)
@@ -45,8 +45,8 @@ class CountForwardLevel4Widget extends StatefulWidget {
 
 class _CountForwardLevel4WidgetState extends State<CountForwardLevel4Widget> {
   static const int minNumber = 1;
-  static const int maxNumber = 50; // Same range as other levels
-  static const int minProblems = 10; // Minimum for completion
+  static const int maxNumber = 50;
+  static const int minProblems = 10;
   static const List<int> decadeNumbers = [10, 20, 30, 40, 50];
 
   int _problemsCompleted = 0;
@@ -55,8 +55,6 @@ class _CountForwardLevel4WidgetState extends State<CountForwardLevel4Widget> {
   int _currentPosition = 0;
   bool _isForward = true;
   bool _isComplete = false;
-  String _feedbackMessage = '';
-  bool _showSuccess = false;
 
   final Random _random = Random();
 
@@ -89,10 +87,6 @@ class _CountForwardLevel4WidgetState extends State<CountForwardLevel4Widget> {
 
       _currentPosition = _startNumber;
 
-      _feedbackMessage = _isForward
-          ? 'Tap the numbers in order from $_startNumber to $_targetNumber (forward)'
-          : 'Tap the numbers in order from $_startNumber to $_targetNumber (backward)';
-      _showSuccess = false;
       _isComplete = false;
     });
   }
@@ -116,37 +110,17 @@ class _CountForwardLevel4WidgetState extends State<CountForwardLevel4Widget> {
           _currentPosition++;
           if (_currentPosition > _targetNumber) {
             _completeProblem(true);
-          } else {
-            _feedbackMessage = 'Good! Now tap $_currentPosition';
           }
         } else {
           _currentPosition--;
           if (_currentPosition < _targetNumber) {
             _completeProblem(true);
-          } else {
-            _feedbackMessage = 'Good! Now tap $_currentPosition';
           }
         }
       });
     } else {
       // Incorrect tap - record error
       widget.recordProblemResult?.call(false);
-
-      setState(() {
-        if (_isForward) {
-          if (number > _currentPosition) {
-            _feedbackMessage = 'Not so fast! Tap $_currentPosition first';
-          } else {
-            _feedbackMessage = 'You already counted $number. Tap $_currentPosition next';
-          }
-        } else {
-          if (number < _currentPosition) {
-            _feedbackMessage = 'Not so fast! Tap $_currentPosition first';
-          } else {
-            _feedbackMessage = 'You already counted $number. Tap $_currentPosition next';
-          }
-        }
-      });
     }
   }
 
@@ -154,24 +128,20 @@ class _CountForwardLevel4WidgetState extends State<CountForwardLevel4Widget> {
     _isComplete = true;
     _problemsCompleted++;
 
-    final direction = _isForward ? 'forward' : 'backward';
-    _feedbackMessage = 'Perfect! You counted $direction from $_startNumber to $_targetNumber!';
-    _showSuccess = true;
-
     // Record result (if callback provided)
     widget.recordProblemResult?.call(correct);
     widget.onProblemComplete?.call(correct);
 
     if (_problemsCompleted >= minProblems) {
       // Level complete
-      Future.delayed(const Duration(seconds: 2), () {
+      Future.delayed(const Duration(seconds: 1), () {
         if (mounted) {
           widget.onLevelComplete?.call();
         }
       });
     } else {
       // Generate next problem
-      Future.delayed(const Duration(seconds: 2), () {
+      Future.delayed(const Duration(seconds: 1), () {
         if (mounted) {
           _generateNewProblem();
         }
@@ -187,64 +157,9 @@ class _CountForwardLevel4WidgetState extends State<CountForwardLevel4Widget> {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          // Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.celebration, color: Colors.green[700], size: 28),
-              const SizedBox(width: 8),
-              Text(
-                'Level 4: Finale',
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green[700],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-
-          // Progress indicator
-          Text(
-            'Problems completed: $_problemsCompleted / $minProblems',
-            style: theme.textTheme.titleMedium,
-          ),
-          const SizedBox(height: 16),
-
-          // Instructions / Feedback
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: _showSuccess
-                  ? Colors.green[100]
-                  : Colors.green[50],
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: _showSuccess ? Colors.green : Colors.green[300]!,
-                width: 2,
-              ),
-            ),
-            child: Row(
-              children: [
-                if (_showSuccess)
-                  Icon(Icons.check_circle, color: Colors.green[700], size: 32)
-                else
-                  Icon(Icons.info_outline, color: Colors.green[700], size: 32),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    _feedbackMessage,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
           const SizedBox(height: 24),
 
-          // Direction indicator
+          // Direction indicator and task
           if (!_isComplete) ...[
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -256,8 +171,8 @@ class _CountForwardLevel4WidgetState extends State<CountForwardLevel4Widget> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  _isForward ? 'Counting FORWARD' : 'Counting BACKWARD',
-                  style: theme.textTheme.titleLarge?.copyWith(
+                  _isForward ? 'Forward' : 'Backward',
+                  style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: _isForward ? Colors.green : Colors.orange,
                   ),
@@ -266,10 +181,25 @@ class _CountForwardLevel4WidgetState extends State<CountForwardLevel4Widget> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Current: $_currentPosition  →  Target: $_targetNumber',
+              'Tap from $_startNumber to $_targetNumber',
               style: theme.textTheme.titleMedium,
             ),
+            const SizedBox(height: 24),
+          ],
+
+          // Success message
+          if (_isComplete) ...[
+            Icon(Icons.check_circle, color: Colors.green[700], size: 64),
             const SizedBox(height: 16),
+            Text(
+              'Perfect! You counted ${_isForward ? 'forward' : 'backward'}!',
+              style: theme.textTheme.titleLarge?.copyWith(
+                color: Colors.green[700],
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
           ],
 
           // Scrolling Number Band (VISIBLE for easier practice)
@@ -283,52 +213,7 @@ class _CountForwardLevel4WidgetState extends State<CountForwardLevel4Widget> {
             allowManualScroll: true,
           ),
 
-          const SizedBox(height: 32),
-
-          // Helper text
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.green[50],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.lightbulb_outline, color: Colors.green[700]),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'This is the finale! Practice counting forward and backward to 50. '
-                    'The number band is visible to help you succeed!',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: Colors.green[900],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
           const Spacer(),
-
-          // Manual advance button (if problem complete)
-          if (_isComplete && _problemsCompleted < minProblems)
-            ElevatedButton(
-              onPressed: _generateNewProblem,
-              child: const Text('Next Problem'),
-            ),
-
-          if (_problemsCompleted >= minProblems)
-            ElevatedButton.icon(
-              onPressed: () => widget.onLevelComplete?.call(),
-              icon: const Icon(Icons.celebration),
-              label: const Text('Exercise Complete!'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              ),
-            ),
         ],
       ),
     );

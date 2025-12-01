@@ -69,14 +69,14 @@ class _CountDotsLevel1WidgetState extends State<CountDotsLevel1Widget>
 
   void _generateNewProblem() {
     setState(() {
-      // Adaptive difficulty: start at 5, gradually increase
-      if (_problemsSolved < 3) {
-        _targetCount = 5 + _random.nextInt(3); // 5-7
-      } else if (_problemsSolved < 6) {
-        _targetCount = 7 + _random.nextInt(4); // 7-10
-      } else {
-        _targetCount = 10 + _random.nextInt(6); // 10-15
-      }
+      // DIFFICULTY CURVE (Standard per DIFFICULTY_CURVE.md):
+      // P0-1: Trivial (3-5 dots)
+      // P2-3: Easy (6-8 dots)
+      // P4-5: Medium (10-12 dots)
+      // P6-7: Hard (15-20 dots)
+      // P8: Medium (10-12 dots)
+      // P9: Easy (6-8 dots)
+      _targetCount = _getDotCountForProblem(_problemsSolved);
 
       _sourceDotsIds = List.generate(_targetCount, (i) => i);
       _countedDotsIds = [];
@@ -86,6 +86,43 @@ class _CountDotsLevel1WidgetState extends State<CountDotsLevel1Widget>
       _feedbackMessage = '';
       _allDotsMovedToCountedArea = false;
     });
+  }
+
+  int _getDotCountForProblem(int problemIndex) {
+    // STANDARD DIFFICULTY CURVE (per DIFFICULTY_CURVE.md):
+    // P0-1: Trivial (3-5 dots)
+    // P2-3: Easy (6-8 dots)
+    // P4-5: Medium (10-12 dots)
+    // P6-7: Hard (15-20 dots)
+    // P8: Medium (10-12 dots)
+    // P9: Easy (6-8 dots)
+    switch (problemIndex) {
+      case 0:
+      case 1:
+        // Trivial: 3-5 dots
+        return 3 + _random.nextInt(3);
+      case 2:
+      case 3:
+        // Easy: 6-8 dots
+        return 6 + _random.nextInt(3);
+      case 4:
+      case 5:
+        // Medium: 10-12 dots
+        return 10 + _random.nextInt(3);
+      case 6:
+      case 7:
+        // Hard: 15-20 dots
+        return 15 + _random.nextInt(6);
+      case 8:
+        // Medium: 10-12 dots
+        return 10 + _random.nextInt(3);
+      case 9:
+        // Easy: 6-8 dots
+        return 6 + _random.nextInt(3);
+      default:
+        // Fallback (shouldn't happen in normal 10-problem flow)
+        return 8;
+    }
   }
 
   void _onDotMoved(int dotId) {
@@ -141,73 +178,11 @@ class _CountDotsLevel1WidgetState extends State<CountDotsLevel1Widget>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
             children: [
-              // Instructions
-              Card(
-                color: Colors.blue.shade50,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      const Row(
-                        children: [
-                          Icon(Icons.swap_horiz, color: Colors.blue),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Level 1: Move Dots to Count',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Drag each dot to the "Counted" area as you count. After moving all dots, enter how many you counted.',
-                        style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Progress indicator
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Problems solved: $_problemsSolved',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        'Moved: ${_countedDotsIds.length}/$_targetCount',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey.shade700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
               const SizedBox(height: 16),
 
               // Counting areas
@@ -336,7 +311,6 @@ class _CountDotsLevel1WidgetState extends State<CountDotsLevel1Widget>
                   ),
                 ),
             ],
-          ),
         ),
       ),
     );
@@ -371,11 +345,8 @@ class _CountDotsLevel1WidgetState extends State<CountDotsLevel1Widget>
                       ),
                     ),
                   )
-                : Wrap(
-                    spacing: 12,
-                    runSpacing: 12,
-                    alignment: WrapAlignment.center,
-                    children: _sourceDotsIds.map((id) {
+                : _buildDotGrid(
+                    _sourceDotsIds.map((id) {
                       return Draggable<int>(
                         data: id,
                         feedback: _buildDot(Colors.blue.shade300, 40),
@@ -441,11 +412,8 @@ class _CountDotsLevel1WidgetState extends State<CountDotsLevel1Widget>
                           ),
                         ),
                       )
-                    : Wrap(
-                        spacing: 12,
-                        runSpacing: 12,
-                        alignment: WrapAlignment.center,
-                        children: _countedDotsIds.map((id) {
+                    : _buildDotGrid(
+                        _countedDotsIds.map((id) {
                           return _buildDot(Colors.green, 40);
                         }).toList(),
                       ),
@@ -472,6 +440,36 @@ class _CountDotsLevel1WidgetState extends State<CountDotsLevel1Widget>
           ),
         ],
       ),
+    );
+  }
+
+  /// Builds a grid of dots with maximum 5 dots per row
+  Widget _buildDotGrid(List<Widget> dots) {
+    const maxDotsPerRow = 5;
+    final rows = <Widget>[];
+
+    for (int i = 0; i < dots.length; i += maxDotsPerRow) {
+      final rowDots = dots.sublist(
+        i,
+        (i + maxDotsPerRow > dots.length) ? dots.length : i + maxDotsPerRow,
+      );
+
+      rows.add(
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: rowDots.map((dot) {
+            return Padding(
+              padding: const EdgeInsets.all(6.0),
+              child: dot,
+            );
+          }).toList(),
+        ),
+      );
+    }
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: rows,
     );
   }
 }

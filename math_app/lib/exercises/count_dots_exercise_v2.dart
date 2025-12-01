@@ -7,12 +7,14 @@ import '../widgets/countdots_level1_widget_v2.dart';
 import '../widgets/countdots_level2_widget_v2.dart';
 import '../widgets/countdots_level3_widget_v2.dart';
 import '../widgets/countdots_level4_widget_v2.dart';
-import '../widgets/countdots_level5_widget_v2.dart';
+import '../widgets/common/segmented_progress_bar.dart';
+import '../widgets/common/instruction_modal.dart';
+import '../widgets/common/level_selection_drawer.dart';
 
-/// Complete implementation of C1.1 V2: Count the Dots exercise with 5-Level Scaffolding.
+/// Complete implementation of C1.1 V2: Count the Dots exercise with 4-Level Scaffolding.
 ///
 /// This exercise follows the iMINT Card 1 prescription for "Plättchen zählen" which
-/// explicitly describes 4 scaffolding levels (not 3), PLUS a finale level for ADHD support:
+/// explicitly describes 4 scaffolding levels:
 ///
 /// **iMINT Card 1: "Wie kommt die Handlung in den Kopf?"**
 /// 1. Zuerst wird das gezählte Objekt zur Seite geschoben (push aside while counting)
@@ -24,29 +26,27 @@ import '../widgets/countdots_level5_widget_v2.dart';
 /// - Drag each dot to "counted" area
 /// - Counter displays current count
 /// - Learn one-to-one correspondence through physical action
+/// - Structured layout (max 5 dots per row)
 ///
 /// **Level 2: Tap to Count (antippen)**
 /// - Tap dots (they mark as counted)
 /// - Counter displays current count
 /// - Reduced motor action, same concept
+/// - Structured layout (max 5 dots per row)
 ///
 /// **Level 3: No-Action Count (ohne Handlung)**
-/// - Dots visible but no interaction
+/// - Dots visible but no interaction (structured layout only)
 /// - Child counts silently and enters result
 /// - Mental counting with visual support
+/// - Always structured layout (max 5 dots per row)
 ///
-/// **Level 4: Flash-and-Memory (mit den Augen)**
-/// - Dots flash briefly (2 seconds) then hide
-/// - Child must remember pattern and count from memory
-/// - Pure mental imagery and recall
+/// **Level 4: Eye-Tracking Count (mit den Augen)**
+/// - Dots visible with random/scattered layout
+/// - Child must count by tracking with eyes only
+/// - Tests efficient eye-scanning patterns
+/// - Always random layout (challenges eye-tracking)
 ///
-/// **Level 5: Finale - Mixed Review**
-/// - Easier than Level 4 (8-12 dots, structured layouts only)
-/// - ADHD-friendly Easy→Hard→Easy flow
-/// - Completion criteria: 10 problems, zero errors, <20s each
-///
-/// **Pedagogical Goal:** Progressive reduction of support from physical to mental,
-/// followed by confidence-building review
+/// **Pedagogical Goal:** Progressive reduction of support from physical to mental
 ///
 /// Source: iMINT Green Card 1 (Plättchen zählen / Count dots)
 class CountDotsExerciseV2 extends StatefulWidget {
@@ -60,23 +60,22 @@ class CountDotsExerciseV2 extends StatefulWidget {
           id: 'C1.1',
           title: 'Count the Dots',
           skillTags: ['counting_1'],
-          sourceCard: 'iMINT Green Card 1: Plättchen zählen (5-level version)',
+          sourceCard: 'iMINT Green Card 1: Plättchen zählen (4-level version)',
           concept:
               'Understanding counting through one-to-one correspondence with progressive scaffolding',
           observationPoints: [
             'Does child systematically move/tap dots or work randomly?',
             'Can child count without physical action (Level 3)?',
-            'Can child retain visual pattern in memory (Level 4)?',
+            'Can child efficiently track and count with eyes only (Level 4)?',
           ],
           internalizationPath:
-              'L1 (Drag) → L2 (Tap) → L3 (Look) → L4 (Flash) → L5 (Finale)',
-          targetNumber: 12, // Max dots in finale level
+              'L1 (Drag) → L2 (Tap) → L3 (Look-Structured) → L4 (Look-Random)',
+          targetNumber: 20, // Max dots across all levels
           hints: [
             'Move each dot once as you count.',
             'Tap each dot once - no double counting!',
             'Count the dots you see, then enter the number.',
-            'Try to remember the pattern - close your eyes and picture it!',
-            'You\'ve got this! Show your mastery!',
+            'Track each dot with your eyes - don\'t miss any!',
           ],
         );
 
@@ -88,17 +87,22 @@ class _CountDotsExerciseV2State extends State<CountDotsExerciseV2>
     with ExerciseProgressMixin {
   ScaffoldLevel _currentLevel = ScaffoldLevel.guidedExploration;
 
+  // Progress tracking for segmented bar
+  List<bool> _problemResults = []; // true = correct, false = incorrect
+  int _currentProblemIndex = 0;
+  static const int _problemsPerLevel = 10; // ALL levels have 10 problems (standard difficulty curve)
+
   // Level completion tracking (ephemeral, for unlock logic)
   int _level1ProblemsCompleted = 0;
   int _level2Correct = 0;
   int _level3Correct = 0;
   int _level4Correct = 0;
 
-  // Unlock thresholds
-  static const int _level1RequiredProblems = 3;
-  static const int _level2RequiredCorrect = 8;
-  static const int _level3RequiredCorrect = 10;
-  static const int _level4RequiredCorrect = 10;
+  // Unlock thresholds (minimum correct to unlock next level)
+  static const int _level1RequiredProblems = 10; // All 10 problems
+  static const int _level2RequiredCorrect = 8;   // 8/10 correct
+  static const int _level3RequiredCorrect = 8;   // 8/10 correct
+  static const int _level4RequiredCorrect = 8;   // 8/10 correct
 
   // ExerciseProgressMixin implementation
   @override
@@ -108,10 +112,10 @@ class _CountDotsExerciseV2State extends State<CountDotsExerciseV2>
   UserProfile get userProfile => widget.userProfile;
 
   @override
-  int get totalLevels => 5;
+  int get totalLevels => 4;
 
   @override
-  int get finaleLevelNumber => 5;
+  int get finaleLevelNumber => 4;
 
   @override
   int get problemTimeLimit => 20; // 20 seconds per problem for completion
@@ -130,9 +134,7 @@ class _CountDotsExerciseV2State extends State<CountDotsExerciseV2>
 
     // Restore current level based on what's unlocked
     setState(() {
-      if (isLevelUnlocked(5)) {
-        _currentLevel = ScaffoldLevel.finale;
-      } else if (isLevelUnlocked(4)) {
+      if (isLevelUnlocked(4)) {
         _currentLevel = ScaffoldLevel.advancedChallenge;
       } else if (isLevelUnlocked(3)) {
         _currentLevel = ScaffoldLevel.independentMastery;
@@ -141,7 +143,14 @@ class _CountDotsExerciseV2State extends State<CountDotsExerciseV2>
       } else {
         _currentLevel = ScaffoldLevel.guidedExploration;
       }
+      _updateProblemsPerLevel();
     });
+  }
+
+  void _updateProblemsPerLevel() {
+    // All levels have 10 problems (standard difficulty curve)
+    // No need to update _problemsPerLevel as it's now a constant
+    // This method kept for compatibility but does nothing
   }
 
   @override
@@ -154,48 +163,74 @@ class _CountDotsExerciseV2State extends State<CountDotsExerciseV2>
     setState(() {
       _level1ProblemsCompleted = problemsSolved;
 
+      // Update segmented bar (Level 1 doesn't track correct/incorrect, just completion)
+      if (_problemResults.length < problemsSolved) {
+        _problemResults.add(true); // Mark as correct (green)
+        _currentProblemIndex = problemsSolved;
+      }
+
       if (_level1ProblemsCompleted >= _level1RequiredProblems &&
           !isLevelUnlocked(2)) {
         unlockLevel(2);
         _showLevelUnlockedMessage('Level 2: Tap to Count',
             'Tap dots instead of dragging them!');
+        _autoAdvanceToNextLevel();
       }
     });
   }
 
   void _onLevel2ProgressUpdate(int correct, int total) {
     setState(() {
+      // Update segmented bar
+      if (_problemResults.length < total) {
+        bool isCorrect = (total - _problemResults.length == 1 && correct > _level2Correct);
+        _problemResults.add(isCorrect);
+        _currentProblemIndex = total;
+      }
+
       _level2Correct = correct;
 
       if (correct >= _level2RequiredCorrect && !isLevelUnlocked(3)) {
         unlockLevel(3);
         _showLevelUnlockedMessage('Level 3: No-Action Count',
             'Count without touching - just look and think!');
+        _autoAdvanceToNextLevel();
       }
     });
   }
 
   void _onLevel3ProgressUpdate(int correct, int total) {
     setState(() {
+      // Update segmented bar
+      if (_problemResults.length < total) {
+        bool isCorrect = (total - _problemResults.length == 1 && correct > _level3Correct);
+        _problemResults.add(isCorrect);
+        _currentProblemIndex = total;
+      }
+
       _level3Correct = correct;
 
       if (correct >= _level3RequiredCorrect && !isLevelUnlocked(4)) {
         unlockLevel(4);
         _showLevelUnlockedMessage('Level 4: Flash & Memory',
             'The ultimate challenge - count from memory!');
+        _autoAdvanceToNextLevel();
       }
     });
   }
 
-  void _onLevel4ProgressUpdate(int correct) {
+  void _onLevel4ProgressUpdate(int correct, int total) {
     setState(() {
+      // Update segmented bar
+      if (_problemResults.length < total) {
+        bool isCorrect = (total - _problemResults.length == 1 && correct > _level4Correct);
+        _problemResults.add(isCorrect);
+        _currentProblemIndex = total;
+      }
+
       _level4Correct = correct;
 
-      if (correct >= _level4RequiredCorrect && !isLevelUnlocked(5)) {
-        unlockLevel(5);
-        _showLevelUnlockedMessage('Level 5: Finale - Show Your Mastery!',
-            'Time for a victory lap! 🎉');
-      }
+      // Level 4 is the final level - no more levels to unlock
     });
   }
 
@@ -210,12 +245,31 @@ class _CountDotsExerciseV2State extends State<CountDotsExerciseV2>
     );
   }
 
+  Future<void> _autoAdvanceToNextLevel() async {
+    // Wait a moment for celebration
+    await Future.delayed(const Duration(seconds: 2));
+
+    setState(() {
+      // Advance to next level
+      final nextLevelNumber = _scaffoldLevelToInt(_currentLevel) + 1;
+      if (nextLevelNumber <= 4 && isLevelUnlocked(nextLevelNumber)) {
+        _currentLevel = _intToScaffoldLevel(nextLevelNumber);
+        _problemResults = []; // Reset progress bar for new level
+        _currentProblemIndex = 0;
+        _updateProblemsPerLevel();
+      }
+    });
+  }
+
   void _onLevelSelected(ScaffoldLevel level) {
     int levelNumber = _scaffoldLevelToInt(level);
 
     if (isLevelUnlocked(levelNumber)) {
       setState(() {
         _currentLevel = level;
+        _problemResults = []; // Reset progress bar for new level
+        _currentProblemIndex = 0;
+        _updateProblemsPerLevel();
       });
     } else {
       String lockMessage = _getLockMessage(level);
@@ -243,6 +297,23 @@ class _CountDotsExerciseV2State extends State<CountDotsExerciseV2>
     }
   }
 
+  ScaffoldLevel _intToScaffoldLevel(int levelNumber) {
+    switch (levelNumber) {
+      case 1:
+        return ScaffoldLevel.guidedExploration;
+      case 2:
+        return ScaffoldLevel.supportedPractice;
+      case 3:
+        return ScaffoldLevel.independentMastery;
+      case 4:
+        return ScaffoldLevel.advancedChallenge;
+      case 5:
+        return ScaffoldLevel.finale;
+      default:
+        return ScaffoldLevel.guidedExploration;
+    }
+  }
+
   String _getLockMessage(ScaffoldLevel level) {
     switch (level) {
       case ScaffoldLevel.guidedExploration:
@@ -267,13 +338,31 @@ class _CountDotsExerciseV2State extends State<CountDotsExerciseV2>
       },
       child: Column(
         children: [
-          // Level selector
-          _buildLevelSelector(),
-
-          // Progress indicator
-          _buildLevelProgressIndicator(),
-
-          // Current level widget
+          // Action buttons row (replacing AppBar actions)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            color: Colors.grey.shade100,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.menu),
+                  tooltip: 'Choose Level',
+                  onPressed: _showLevelSelector,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.help_outline),
+                  tooltip: 'Instructions',
+                  onPressed: _showInstructions,
+                ),
+              ],
+            ),
+          ),
+          SegmentedProgressBar(
+            totalSegments: _problemsPerLevel,
+            currentSegment: _currentProblemIndex,
+            results: _problemResults,
+          ),
           Expanded(
             child: _buildCurrentLevelWidget(),
           ),
@@ -282,151 +371,78 @@ class _CountDotsExerciseV2State extends State<CountDotsExerciseV2>
     );
   }
 
-  Widget _buildLevelSelector() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-      color: Colors.grey.shade100,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildLevelButton(
-            level: ScaffoldLevel.guidedExploration,
-            label: 'L1\nDrag',
-            color: Colors.blue,
-          ),
-          _buildLevelButton(
-            level: ScaffoldLevel.supportedPractice,
-            label: 'L2\nTap',
-            color: Colors.orange,
-          ),
-          _buildLevelButton(
-            level: ScaffoldLevel.independentMastery,
-            label: 'L3\nLook',
-            color: Colors.purple,
-          ),
-          _buildLevelButton(
-            level: ScaffoldLevel.advancedChallenge,
-            label: 'L4\nFlash',
-            color: Colors.red,
-          ),
-          _buildLevelButton(
-            level: ScaffoldLevel.finale,
-            label: 'L5\nFinale',
-            color: Colors.green,
-          ),
+  void _showInstructions() {
+    final levelNumber = _scaffoldLevelToInt(_currentLevel);
+    InstructionModal.show(
+      context,
+      levelTitle: 'Level $levelNumber: ${_getLevelTitle(_currentLevel)}',
+      instructionText: _getLevelInstructions(_currentLevel),
+      levelColor: _getLevelColor(_currentLevel),
+    );
+  }
+
+  void _showLevelSelector() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => LevelSelectionDrawer(
+        levels: const [
+          ScaffoldLevel.guidedExploration,
+          ScaffoldLevel.supportedPractice,
+          ScaffoldLevel.independentMastery,
+          ScaffoldLevel.advancedChallenge,
         ],
+        currentLevel: _currentLevel,
+        onLevelSelected: _onLevelSelected,
+        isLevelUnlocked: (level) => isLevelUnlocked(_scaffoldLevelToInt(level)),
       ),
     );
   }
 
-  Widget _buildLevelButton({
-    required ScaffoldLevel level,
-    required String label,
-    required Color color,
-  }) {
-    int levelNumber = _scaffoldLevelToInt(level);
-    bool isUnlocked = isLevelUnlocked(levelNumber);
-    bool isActive = _currentLevel == level;
-
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 2),
-        child: ElevatedButton(
-          onPressed: isUnlocked ? () => _onLevelSelected(level) : null,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: isActive ? color : Colors.grey.shade300,
-            foregroundColor: isActive ? Colors.white : Colors.grey.shade600,
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(6),
-              side: isActive
-                  ? BorderSide(color: color, width: 2)
-                  : BorderSide.none,
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (!isUnlocked) const Icon(Icons.lock, size: 14),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 10),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLevelProgressIndicator() {
-    String progressText = '';
-    double progressValue = 0.0;
-    Color progressColor = Colors.blue;
-
-    switch (_currentLevel) {
+  String _getLevelTitle(ScaffoldLevel level) {
+    switch (level) {
       case ScaffoldLevel.guidedExploration:
-        progressText =
-            'Problems completed: $_level1ProblemsCompleted/$_level1RequiredProblems';
-        progressValue = _level1ProblemsCompleted / _level1RequiredProblems;
-        progressColor = Colors.blue;
-        break;
+        return 'Drag to Count';
       case ScaffoldLevel.supportedPractice:
-        progressText =
-            'Correct: $_level2Correct/$_level2RequiredCorrect to unlock Level 3';
-        progressValue = _level2Correct / _level2RequiredCorrect;
-        progressColor = Colors.orange;
-        break;
+        return 'Tap to Count';
       case ScaffoldLevel.independentMastery:
-        progressText =
-            'Correct: $_level3Correct/$_level3RequiredCorrect to unlock Level 4';
-        progressValue = _level3Correct / _level3RequiredCorrect;
-        progressColor = Colors.purple;
-        break;
+        return 'Look-Structured';
       case ScaffoldLevel.advancedChallenge:
-        progressText =
-            'Correct: $_level4Correct/$_level4RequiredCorrect to unlock Finale';
-        progressValue = _level4Correct / _level4RequiredCorrect;
-        progressColor = Colors.red;
-        break;
+        return 'Look-Random';
       case ScaffoldLevel.finale:
-        progressText = 'Finale Level - Show your mastery!';
-        progressValue = 1.0;
-        progressColor = Colors.green;
-        break;
+        return 'Not used in C1.1';
     }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      color: progressColor.withOpacity(0.1),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            progressText,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: progressColor,
-            ),
-          ),
-          if (_currentLevel != ScaffoldLevel.finale) ...[
-            const SizedBox(height: 4),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: progressValue,
-                backgroundColor: Colors.grey.shade300,
-                valueColor: AlwaysStoppedAnimation<Color>(progressColor),
-                minHeight: 6,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
   }
+
+  String _getLevelInstructions(ScaffoldLevel level) {
+    switch (level) {
+      case ScaffoldLevel.guidedExploration:
+        return 'Drag each dot to the "counted" area as you count them out loud. This helps you match each dot with a number word.';
+      case ScaffoldLevel.supportedPractice:
+        return 'Tap each dot once as you count. The dots will mark themselves as counted. No double counting!';
+      case ScaffoldLevel.independentMastery:
+        return 'Look at the dots (structured layout) and count them silently. When you know how many there are, enter the number.';
+      case ScaffoldLevel.advancedChallenge:
+        return 'Look at the randomly scattered dots and count by tracking with your eyes. Test your eye-scanning skills!';
+      case ScaffoldLevel.finale:
+        return 'Not used in C1.1 - this skill has 4 levels only.';
+    }
+  }
+
+  Color _getLevelColor(ScaffoldLevel level) {
+    switch (level) {
+      case ScaffoldLevel.guidedExploration:
+        return Colors.blue;
+      case ScaffoldLevel.supportedPractice:
+        return Colors.orange;
+      case ScaffoldLevel.independentMastery:
+        return Colors.purple;
+      case ScaffoldLevel.advancedChallenge:
+        return Colors.red;
+      case ScaffoldLevel.finale:
+        return Colors.green;
+    }
+  }
+
 
   Widget _buildCurrentLevelWidget() {
     switch (_currentLevel) {
@@ -451,81 +467,11 @@ class _CountDotsExerciseV2State extends State<CountDotsExerciseV2>
         );
 
       case ScaffoldLevel.finale:
-        return CountDotsLevel5Widget(
-          onStartProblemTimer: startProblemTimer,
-          onProblemComplete: (correct, userAnswer) async {
-            await recordProblemResult(
-              levelNumber: 5,
-              correct: correct,
-              userAnswer: userAnswer,
-            );
-          },
-          onLevelComplete: () {
-            // Level 5 completed! Save progress and notify user
-            saveProgress();
-          },
+        // C1.1 has no finale level - only 4 card-prescribed levels
+        return const Center(
+          child: Text('Level 5 removed - C1.1 has 4 levels only'),
         );
     }
   }
 
-  void _showInfoDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('About This Exercise'),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                widget.config.sourceCard,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              Text(widget.config.concept),
-              const SizedBox(height: 12),
-              const Text(
-                'Scaffolding Progression:',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Text(widget.config.internalizationPath),
-              const SizedBox(height: 12),
-              const Text(
-                'What to observe:',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              ...widget.config.observationPoints
-                  .map((point) => Padding(
-                        padding: const EdgeInsets.only(left: 8, top: 4),
-                        child: Text('• $point'),
-                      ))
-                  .toList(),
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  'Progress: ${getProgressSummary()}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.blue.shade800,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
-  }
 }

@@ -39,7 +39,6 @@ class _CountDotsLevel3WidgetState extends State<CountDotsLevel3Widget>
   bool _showFeedback = false;
   bool _isCorrect = false;
   String _feedbackMessage = '';
-  bool _useStructuredArrangement = true;
   List<Offset> _dotPositions = [];
 
   late AnimationController _feedbackController;
@@ -69,16 +68,14 @@ class _CountDotsLevel3WidgetState extends State<CountDotsLevel3Widget>
 
   void _generateNewProblem() {
     setState(() {
-      // Adaptive difficulty
-      if (_correctCount < 3) {
-        _targetCount = 5 + _random.nextInt(3); // 5-7
-      } else if (_correctCount < 7) {
-        _targetCount = 7 + _random.nextInt(4); // 7-10
-      } else if (_correctCount < 12) {
-        _targetCount = 10 + _random.nextInt(6); // 10-15
-      } else {
-        _targetCount = 15 + _random.nextInt(6); // 15-20
-      }
+      // STANDARD DIFFICULTY CURVE (per DIFFICULTY_CURVE.md):
+      // P0-1: Trivial (3-5 dots)
+      // P2-3: Easy (6-8 dots)
+      // P4-5: Medium (10-12 dots)
+      // P6-7: Hard (15-20 dots)
+      // P8: Medium (10-12 dots)
+      // P9: Easy (6-8 dots)
+      _targetCount = _getDotCountForProblem(_totalAttempts);
 
       _generateDotPositions();
       _answerController.clear();
@@ -95,20 +92,48 @@ class _CountDotsLevel3WidgetState extends State<CountDotsLevel3Widget>
     });
   }
 
-  void _generateDotPositions() {
-    _dotPositions = [];
-    if (_useStructuredArrangement) {
-      _dotPositions = _generateStructuredPositions();
-    } else {
-      _dotPositions = _generateScatteredPositions();
+  int _getDotCountForProblem(int problemIndex) {
+    // Standard difficulty curve for Level 3
+    switch (problemIndex) {
+      case 0:
+      case 1:
+        // Trivial: 3-5 dots
+        return 3 + _random.nextInt(3);
+      case 2:
+      case 3:
+        // Easy: 6-8 dots
+        return 6 + _random.nextInt(3);
+      case 4:
+      case 5:
+        // Medium: 10-12 dots
+        return 10 + _random.nextInt(3);
+      case 6:
+      case 7:
+        // Hard: 15-20 dots
+        return 15 + _random.nextInt(6);
+      case 8:
+        // Medium: 10-12 dots
+        return 10 + _random.nextInt(3);
+      case 9:
+        // Easy: 6-8 dots
+        return 6 + _random.nextInt(3);
+      default:
+        // Fallback
+        return 8;
     }
+  }
+
+  void _generateDotPositions() {
+    // Level 3: ALWAYS uses structured arrangement (easier to count)
+    _dotPositions = _generateStructuredPositions();
   }
 
   List<Offset> _generateStructuredPositions() {
     final positions = <Offset>[];
-    // Simple grid layout
-    final cols = (_targetCount / 2).ceil();
-    final rows = 2;
+    // Grid layout with maximum 5 dots per row (to avoid crowding)
+    const maxDotsPerRow = 5;
+    final cols = _targetCount <= maxDotsPerRow ? _targetCount : maxDotsPerRow;
+    final rows = (_targetCount / maxDotsPerRow).ceil();
 
     for (int i = 0; i < _targetCount; i++) {
       final row = i ~/ cols;
@@ -121,45 +146,6 @@ class _CountDotsLevel3WidgetState extends State<CountDotsLevel3Widget>
     return positions;
   }
 
-  List<Offset> _generateScatteredPositions() {
-    final positions = <Offset>[];
-
-    // CRITICAL: Ensure minimum distance to prevent overlaps
-    const minDistance = 0.08;
-    const maxAttempts = 200;
-
-    for (int i = 0; i < _targetCount; i++) {
-      bool validPosition = false;
-      Offset newPos = Offset.zero;
-
-      int attempts = 0;
-      while (!validPosition && attempts < maxAttempts) {
-        newPos = Offset(
-          0.1 + _random.nextDouble() * 0.8,
-          0.1 + _random.nextDouble() * 0.8,
-        );
-
-        // Check if too close to existing dots
-        validPosition = true;
-        for (final existing in positions) {
-          final distance = (newPos - existing).distance;
-          if (distance < minDistance) {
-            validPosition = false;
-            break;
-          }
-        }
-        attempts++;
-      }
-
-      // Fallback: if we couldn't find a valid random position, use structured
-      if (attempts >= maxAttempts && !validPosition) {
-        return _generateStructuredPositions();
-      }
-
-      positions.add(newPos);
-    }
-    return positions;
-  }
 
   void _checkAnswer() {
     if (_answerController.text.isEmpty) return;
@@ -201,102 +187,11 @@ class _CountDotsLevel3WidgetState extends State<CountDotsLevel3Widget>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
             children: [
-              // Instructions
-              Card(
-                color: Colors.purple.shade50,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      const Row(
-                        children: [
-                          Icon(Icons.visibility, color: Colors.purple),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Level 3: Count by Looking',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.purple,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Just LOOK at the dots and count in your head. No touching! Can you count without moving them?',
-                        style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Progress indicator
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Correct: $_correctCount/10',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          if (_totalAttempts > 0)
-                            Text(
-                              'Accuracy: ${((_correctCount / _totalAttempts) * 100).toStringAsFixed(0)}%',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey.shade700,
-                              ),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      // Toggle button
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          setState(() {
-                            _useStructuredArrangement = !_useStructuredArrangement;
-                            _generateDotPositions();
-                          });
-                        },
-                        icon: Icon(
-                          _useStructuredArrangement ? Icons.grid_on : Icons.scatter_plot,
-                          size: 18,
-                        ),
-                        label: Text(
-                          _useStructuredArrangement ? 'Switch to Random' : 'Switch to Structured',
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _useStructuredArrangement ? Colors.orange : Colors.blue,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
               // Dots area (non-interactive)
               Expanded(
                 child: Container(
@@ -453,7 +348,6 @@ class _CountDotsLevel3WidgetState extends State<CountDotsLevel3Widget>
                   ),
                 ),
             ],
-          ),
         ),
       ),
     );

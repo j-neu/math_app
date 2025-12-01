@@ -10,11 +10,17 @@
 ## 🎯 CURRENT FOCUS: Phase 2.5 - Completion Tracking & Rewards
 
 **Timeline:** Week 4-6 (In Progress)
-**Priority:** HIGH - Foundation for all future exercises
+**Priority:** HIGH - Foundation for all future skills
+
+### Terminology Note
+- **Skill** = Complete learning module (e.g., C1.1, Z1) with multiple levels
+- **Level** = Scaffolding stage within a skill (e.g., Level 1, Level 2)
+- **Problem** = Individual question within a level
+- See [CLAUDE.md](CLAUDE.md) Terminology section for details
 
 ### What's Left
 
-**Week 4: Update Remaining Exercises (COMPLETE)** ✅
+**Week 4: Update Remaining Skills (COMPLETE)** ✅
 - [x] C2.1 (Order Cards) - ✅ COMPLETE with finale level
 - [x] C1.2 (Count the Objects) - ✅ COMPLETE with finale + ExerciseProgressMixin
 - [x] C3.1 (Count Forward) - ✅ COMPLETE with finale + ExerciseProgressMixin
@@ -40,7 +46,7 @@
 
 ## 🔑 CRITICAL REQUIREMENTS
 
-Every exercise MUST have:
+Every skill MUST have:
 1. **ExerciseProgressMixin** - Load on init, save every 5 problems + on exit
 2. **Finale level** - Easier than hardest card level, MUST be completable
 3. **Completion criteria** - Clear time limits, accuracy requirements
@@ -50,9 +56,9 @@ Every exercise MUST have:
 
 ---
 
-## 📋 Integration Checklist (Per Exercise)
+## 📋 Integration Checklist (Per Skill)
 
-Before marking exercise complete:
+Before marking skill complete:
 - [ ] ExerciseProgressMixin integrated
 - [ ] Finale level exists and tested
 - [ ] Completion criteria defined (in code comments)
@@ -62,11 +68,11 @@ Before marking exercise complete:
 
 ---
 
-## 🚀 Next: Phase 2 Exercise Sets (ON HOLD)
+## 🚀 Next: Phase 2 Skill Sets (ON HOLD)
 
 **Will resume after Phase 2.5 complete**
 
-### SET 1: Foundation Counting ✅ (5/6 done)
+### SET 1: Foundation Counting ✅ (5/6 skills done)
 - [x] C1.1: Count the Dots V2 - ✅ COMPLETE (4 levels + finale)
 - [x] C1.2: Count the Objects - ✅ COMPLETE (5 levels + finale)
 - [x] C2.1: Order Cards - ✅ COMPLETE (3 levels + finale)
@@ -83,7 +89,7 @@ Z3.1-Z3.6
 ### SET 4: Place Value (Future - 0/10)
 P1.1-P6.2
 
-**Full roadmap:** [Archive/tasks_full.md](Archive/tasks_full.md) - 120+ exercises total
+**Full roadmap:** [Archive/tasks_full.md](Archive/tasks_full.md) - 120+ skills total
 
 ---
 
@@ -111,12 +117,12 @@ P1.1-P6.2
 |---|---|---|
 | Phase 1 (Core) | ✅ Complete | 100% |
 | Phase 1.5 (PIKAS) | ✅ Complete | 100% |
-| Phase 2 (Exercises) | 🔄 In Progress | 5% (6/120+) |
+| Phase 2 (Skills) | 🔄 In Progress | 5% (6/120+) |
 | **Phase 2.5 (Tracking)** | **🔄 In Progress** | **95%** |
 | Phase 3 (Polish) | ⏳ Planned | 0% |
 
-**Current Milestone:** Complete Z1 finale → Phase 2.5 DONE → Resume SET 2 exercises
+**Current Milestone:** Complete Z1 finale → Phase 2.5 DONE → Resume SET 2 skills
 
 ---
 
-**Priority:** Finish Z1 finale + ExerciseProgressMixin (last remaining SET 1 exercise)
+**Priority:** Finish Z1 finale + ExerciseProgressMixin (last remaining SET 1 skill)

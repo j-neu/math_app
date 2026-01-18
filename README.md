@@ -26,7 +26,7 @@ A Flutter-based math learning application for pre-1st to 4th grade students, wit
    - Avoids confusion in documentation
    - **Read this first if joining the project**
 
-2. **[CLAUDE.md](CLAUDE.md)** - Main project guide (11KB)
+2. **[GEMINI.md](GEMINI.md)** - Main project guide (11KB)
    - Quick start commands
    - Card-based scaffolding framework summary
    - Architecture overview
@@ -73,11 +73,11 @@ flutter pub get
 flutter run
 ```
 
-**For AI assistance:** Start by reading [TERMINOLOGY.md](TERMINOLOGY.md), then [CLAUDE.md](CLAUDE.md)
+**For AI assistance:** Start by reading [TERMINOLOGY.md](TERMINOLOGY.md), then [GEMINI.md](GEMINI.md)
 
 **For new developers:** Read in order:
 1. TERMINOLOGY.md (definitions)
-2. CLAUDE.md (overview)
+2. GEMINI.md (overview)
 3. IMINT_TO_APP_FRAMEWORK.md (framework)
 4. DIFFICULTY_CURVE.md (difficulty progression)
 5. adhd guidelines.md (design principles)
@@ -134,7 +134,7 @@ Math_App/
 │   ├── MathApp_Diagnostic_with_skills.csv
 │   ├── PIKAS_Analysis.md             # 36/58 cards analyzed
 │   └── iMINT-Kartei_190529.pdf
-├── CLAUDE.md                          # Main project guide
+├── GEMINI.md                          # Main project guide
 ├── IMINT_TO_APP_FRAMEWORK.md         # Core framework
 ├── tasks.md                           # Current roadmap
 ├── adhd guidelines.md                 # Design principles
@@ -208,7 +208,7 @@ When adding skills:
 6. Implement no-fail feedback
 7. Add finale level (easier than hardest card level)
 
-**See [CLAUDE.md](CLAUDE.md) Skill Creation Checklist**
+**See [GEMINI.md](GEMINI.md) Skill Creation Checklist**
 
 ---
 
@@ -218,4 +218,4 @@ When adding skills:
 
 ---
 
-**For questions or guidance, see [CLAUDE.md](CLAUDE.md)**
+**For questions or guidance, see [GEMINI.md](GEMINI.md)**

@@ -3,6 +3,7 @@ import '../models/exercise.dart';
 import '../models/user_profile.dart';
 import '../models/exercise_progress.dart';
 import '../models/milestone.dart';
+import '../models/exercise_config.dart';
 import '../exercises/decompose_10_exercise.dart';
 import '../exercises/count_dots_exercise_v2.dart';
 import '../exercises/count_objects_exercise.dart';
@@ -19,6 +20,13 @@ import '../exercises/count_steps_100field_exercise.dart';
 import '../exercises/count_steps_backwards_100field_exercise.dart';
 import '../exercises/count_100field_exercise.dart';
 import '../exercises/finger_blitz_exercise.dart';
+import '../exercises/finger_calculation_exercise.dart';
+import '../exercises/more_less_exercise.dart';
+import '../exercises/opposite_change_exercise.dart';
+import '../exercises/doubling_mirror_exercise.dart';
+import '../exercises/doubling_fingers_exercise.dart';
+import '../exercises/doubling_fingers_20_exercise.dart';
+import '../exercises/doubling_boat_exercise.dart';
 
 class ExerciseService {
   // Exercise library with both legacy placeholders and new functional exercises
@@ -138,12 +146,122 @@ class ExerciseService {
       skillTags: ['basic_strategy_1'],
       exerciseBuilder: (userProfile) => FingerBlitzExercise(userProfile: userProfile),
     ),
+    // NEW: S1.2 - Finger Folding (Finger Klappen)
+    Exercise(
+      id: 'S1.2',
+      title: 'Finger Klappen',
+      skillTags: ['basic_strategy_2'],
+      exerciseBuilder: (userProfile) => FingerCalculationExercise(
+        exerciseConfig: ExerciseConfig(
+          id: 'S1.2',
+          title: 'Finger Klappen',
+          skillTags: ['basic_strategy_2'],
+          sourceCard: 'iMINT Strategy Card: Finger Patterns',
+          concept: 'Using finger patterns for calculation',
+          observationPoints: ['Simultaneous finger usage vs counting'],
+          internalizationPath: 'Action -> Mental Image -> Symbol',
+          targetNumber: 10,
+        ),
+        userProfile: userProfile,
+      ),
+    ),
+    // NEW: S1.4 - More or Less (Hamstern)
+    Exercise(
+      id: 'S1.4',
+      title: 'More or Less (Hamstern)',
+      skillTags: ['basic_strategy_4'],
+      exerciseBuilder: (userProfile) => MoreLessExercise(
+        exerciseConfig: ExerciseConfig(
+          id: 'S1.4',
+          title: 'More or Less (Hamstern)',
+          skillTags: ['basic_strategy_4'],
+          sourceCard: 'iMINT Strategy Card: Hamstern',
+          concept: 'Comparing quantities and determining differences',
+          observationPoints: [
+            'Instant recognition of more/less',
+            'Calculation of difference (Hamstern)',
+          ],
+          internalizationPath: 'Action (Dice) -> Visual comparison -> Mental calculation',
+          targetNumber: 6,
+        ),
+        userProfile: userProfile,
+      ),
+    ),
+    // NEW: S2.3 - Opposite Change (Gegensinniges Verändern)
+    Exercise(
+      id: 'S2.3',
+      title: 'Opposite Change',
+      skillTags: ['strategy_opposite_change_1'],
+      exerciseBuilder: (userProfile) => OppositeChangeExercise(
+        exerciseConfig: ExerciseConfig(
+          id: 'S2.3',
+          title: 'Opposite Change',
+          skillTags: ['strategy_opposite_change_1'],
+          sourceCard: 'iMINT Card 6: Gegensinniges Verändern',
+          concept: 'Compensation Strategy',
+          observationPoints: [
+            'Simultaneous change (+1 and -1)',
+            'Conservation of total quantity',
+          ],
+          internalizationPath: 'Covered manipulation -> Mental manipulation -> Numerical compensation',
+          targetNumber: 20,
+        ),
+        userProfile: userProfile,
+      ),
+    ),
+    // NEW: S3.1 - Doubling with Mirror (ZR 10)
+    Exercise(
+      id: 'S3.1',
+      title: 'Verdoppeln mit Spiegel (ZR10)',
+      skillTags: ['basic_strategy_7'],
+      exerciseBuilder: (userProfile) => DoublingMirrorExercise(
+        userProfile: userProfile,
+        exerciseId: 'S3.1',
+        title: 'Verdoppeln mit Spiegel (ZR10)',
+        minInputNumber: 1,
+        maxInputNumber: 5, // 1->2, 2->4, 3->6, 4->8, 5->10
+      ),
+    ),
+    // NEW: S3.2 - Doubling with Mirror (ZR 20)
+    Exercise(
+      id: 'S3.2',
+      title: 'Verdoppeln mit Spiegel (ZR20)',
+      skillTags: ['basic_strategy_7'],
+      exerciseBuilder: (userProfile) => DoublingMirrorExercise(
+        userProfile: userProfile,
+        exerciseId: 'S3.2',
+        title: 'Verdoppeln mit Spiegel (ZR20)',
+        minInputNumber: 6,
+        maxInputNumber: 10, // 6->12, 7->14, 8->16, 9->18, 10->20
+      ),
+    ),
+    // NEW: S3.3 - Doubling with Fingers (Verdoppeln mit Fingern)
+    Exercise(
+      id: 'S3.3',
+      title: 'Verdoppeln mit Fingern',
+      skillTags: ['basic_strategy_8'],
+      exerciseBuilder: (userProfile) => DoublingFingersExercise(userProfile: userProfile),
+    ),
+    // NEW: S3.4 - Doubling on Calculation Boat (Verdoppeln am Rechenschiffchen)
+    Exercise(
+      id: 'S3.4',
+      title: 'Verdoppeln am Rechenschiffchen',
+      skillTags: ['basic_strategy_9', 'basic_strategy_10'],
+      exerciseBuilder: (userProfile) => DoublingBoatExercise(userProfile: userProfile),
+    ),
+    // NEW: S3.5 - Doubling with Fingers to 20 (Verdoppeln mit Fingern bis 20)
+    Exercise(
+      id: 'S3.5',
+      title: 'Verdoppeln mit Fingern (ZR20)',
+      skillTags: ['basic_strategy_8', 'counting_20'],
+      exerciseBuilder: (userProfile) => DoublingFingers20Exercise(userProfile: userProfile),
+    ),
     // NEW: Fully functional Z1 implementation based on PIKAS Card 9
     Exercise(
       id: 'Z1',
       title: 'Decompose 10',
       skillTags: ['decomposition_1', 'decomposition_3'],
-      exerciseWidget: const Decompose10Exercise(),
+      exerciseBuilder: (userProfile) => Decompose10Exercise(userProfile: userProfile),
     ),
     Exercise(
       id: 'Z2',

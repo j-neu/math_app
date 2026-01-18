@@ -1,38 +1,38 @@
 import 'package:flutter/material.dart';
 import '../models/exercise_config.dart';
 import '../models/scaffold_level.dart';
+import '../models/user_profile.dart';
+import '../mixins/exercise_progress_mixin.dart';
 import '../widgets/decompose10_level1_widget.dart';
 import '../widgets/decompose10_level2_widget.dart';
 import '../widgets/decompose10_level3_widget.dart';
+import '../widgets/decompose10_level4_widget.dart';
 
-/// Complete implementation of Z1: Decompose 10 exercise with 3-Level Scaffolding.
-///
-/// This exercise follows the framework documented in IMINT_TO_APP_FRAMEWORK.md
-/// to properly answer "Wie kommt die Handlung in den Kopf?" (How does action become mental?)
+/// Complete implementation of Z1: Decompose 10 exercise with 3-Level Scaffolding + Finale.
 ///
 /// **Level 1: Guided Exploration (Handlung)**
 /// - Tap counters to flip them, equation auto-displays
-/// - Pure exploration, no writing required
-/// - Unlocks Level 2 after child explores (suggested at 5+ different ways)
 ///
 /// **Level 2: Supported Practice (Vorstellung begins)**
 /// - Visual counters shown with random decomposition
 /// - Child must WRITE the equation
-/// - Immediate feedback
-/// - Unlocks Level 3 after 10 correct answers (80% accuracy)
 ///
 /// **Level 3: Independent Mastery (Vorstellung → Symbol)**
 /// - Visual HIDDEN by default
 /// - Child writes from memory/mental imagery
 /// - Visual appears ONLY on errors (no-fail safety net)
-/// - Complete by finding all 11 decompositions
 ///
-/// Source: PIKAS Card 9 (Zahlen zerlegen), iMINT decomposition_1, decomposition_3
+/// **Level 4: Finale (Mental Decomposition 5-9)**
+/// - Easier mixed review with variable totals
+/// - Ensures completion on success
 class Decompose10Exercise extends StatefulWidget {
   final ExerciseConfig config;
+  final UserProfile userProfile;
 
-  const Decompose10Exercise({super.key})
-      : config = const ExerciseConfig(
+  const Decompose10Exercise({
+    super.key,
+    required this.userProfile,
+  }) : config = const ExerciseConfig(
           id: 'Z1',
           title: 'Decompose 10',
           skillTags: ['decomposition_1', 'decomposition_3'],
@@ -44,7 +44,7 @@ class Decompose10Exercise extends StatefulWidget {
             'Pattern recognition through 3-level progression',
           ],
           internalizationPath:
-              'Level 1 (Handlung) → Level 2 (Vorstellung begins) → Level 3 (Vorstellung → Symbol)',
+              'Level 1 (Handlung) → Level 2 (Vorstellung begins) → Level 3 (Vorstellung → Symbol) → Finale',
           targetNumber: 10,
           expectedDecompositions: 11,
           hints: [
@@ -57,61 +57,188 @@ class Decompose10Exercise extends StatefulWidget {
   State<Decompose10Exercise> createState() => _Decompose10ExerciseState();
 }
 
-class _Decompose10ExerciseState extends State<Decompose10Exercise> {
-  ScaffoldProgress _progress = const ScaffoldProgress();
+class _Decompose10ExerciseState extends State<Decompose10Exercise>
+    with ExerciseProgressMixin {
+  
+  // COMPLETION CRITERIA:
+  // 1. All levels unlocked (1->2->3->4)
+  // 2. Finale (Level 4):
+  //    - Min 10 problems attempted
+  //    - Zero errors in last 10 problems
+  //    - Time < 15s per problem in last 10 problems
+  
+  @override
+  String get exerciseId => widget.config.id;
 
-  // Level 2 tracking
+  @override
+  UserProfile get userProfile => widget.userProfile;
+
+  @override
+  int get totalLevels => 4;
+
+  @override
+  int get finaleLevelNumber => 4;
+  
+  @override
+  int get problemTimeLimit => 15; // 15 seconds per problem for mastery
+  
+  @override
+  int get finaleMinProblems => 10;
+
+  // Local UI State
+  ScaffoldLevel _currentLevel = ScaffoldLevel.guidedExploration;
+  
+  // Level 2 specific state (Supported Practice)
   int _level2Correct = 0;
   static const int _level2RequiredCorrect = 10;
 
-  // Level 3 tracking
-  int _level3Found = 0;
+  // Level 3 specific state (Independent Mastery)
+  int _level3FoundCount = 0;
+  static const int _level3RequiredFound = 11;
+
+  // Level 4 specific state (Finale)
+  int _level4Correct = 0;
+  static const int _level4RequiredCorrect = 10;
+
+  @override
+  void initState() {
+    super.initState();
+    _init();
+  }
+
+  Future<void> _init() async {
+    await initializeProgress();
+    if (mounted) {
+      _loadStateFromProgress();
+      setState(() {});
+    }
+  }
+
+  void _loadStateFromProgress() {
+    // Level 2: Supported Practice
+    final l2 = getLevelProgress(2);
+    if (l2 != null) {
+      // Count actual correct answers from history to be safe
+      _level2Correct = l2.problemResults.where((p) => p.correct).length;
+    }
+
+    // Level 3: Independent Mastery
+    // We track "found count" locally. If L4 is unlocked, we assume L3 is done.
+    if (isLevelUnlocked(4)) {
+      _level3FoundCount = _level3RequiredFound;
+    } else {
+      final l3 = getLevelProgress(3);
+      if (l3 != null) {
+        _level3FoundCount = l3.problemResults.where((p) => p.correct).length;
+      }
+    }
+
+    // Level 4: Finale
+    final l4 = getLevelProgress(4);
+    if (l4 != null) {
+      // Only count recent correct answers for current session "streak"?
+      // Or cumulative? For finale, usually we want 10 *in a row* or 10 *total*?
+      // The mixin checks "last N problems" for completion.
+      // For UI progress bar, we can show cumulative or session. 
+      // Let's show cumulative to avoid discouraging child on reload.
+      _level4Correct = l4.problemResults.where((p) => p.correct).length;
+    }
+  }
+
+  void _setActiveLevel(ScaffoldLevel level) {
+    setState(() {
+      _currentLevel = level;
+    });
+    // Start timer if we moved to a problem-solving level
+    if (level.levelNumber == 2 || level.levelNumber == 4) {
+      startProblemTimer();
+    }
+  }
 
   void _onLevel1Complete() {
-    setState(() {
-      _progress = _progress.copyWith(
-        level1Complete: true,
-        currentLevel: ScaffoldLevel.supportedPractice,
-      );
-    });
-
+    unlockLevel(2);
     _showLevelUnlockedMessage(ScaffoldLevel.supportedPractice);
+    _setActiveLevel(ScaffoldLevel.supportedPractice);
   }
 
   void _onLevel2Answer(bool correct) {
-    setState(() {
-      if (correct) {
+    if (correct) {
+      setState(() {
         _level2Correct++;
+      });
+      
+      recordProblemResult(
+        levelNumber: 2, 
+        correct: true, 
+      );
+      
+      if (_level2Correct >= _level2RequiredCorrect) {
+        if (!isLevelUnlocked(3)) {
+          unlockLevel(3);
+          _showLevelUnlockedMessage(ScaffoldLevel.independentMastery);
+        }
       }
-
-      // Check if Level 3 should unlock (10+ correct answers)
-      if (_level2Correct >= _level2RequiredCorrect && !_progress.level3Unlocked) {
-        _progress = _progress.copyWith(level3Unlocked: true);
-        _showLevelUnlockedMessage(ScaffoldLevel.independentMastery);
-      }
-    });
+    } else {
+      recordProblemResult(
+        levelNumber: 2, 
+        correct: false, 
+      );
+    }
+    startProblemTimer(); // Start for next problem
   }
 
   void _onLevel3Progress(int foundCount) {
     setState(() {
-      _level3Found = foundCount;
+      _level3FoundCount = foundCount;
     });
+    
+    // For L3, we might want to record 'correct' for every new found pair.
+    // However, the widget callback only gives total count. 
+    // We'll record a "problem" for each new one found?
+    // Or just record once at the end?
+    // Let's rely on the user finding all 11 to unlock L4.
+    
+    if (foundCount >= _level3RequiredFound) {
+      if (!isLevelUnlocked(4)) {
+        unlockLevel(4);
+        _showLevelUnlockedMessage(ScaffoldLevel.finale);
+        
+        // Record a "problem result" to ensure progress is saved/activity tracked
+        recordProblemResult(levelNumber: 3, correct: true);
+      }
+    }
   }
 
-  void _switchLevel(ScaffoldLevel newLevel) {
-    // Check if level is unlocked
-    if (newLevel == ScaffoldLevel.supportedPractice && !_progress.level2Unlocked) {
-      _showLockedMessage(newLevel);
-      return;
-    }
-    if (newLevel == ScaffoldLevel.independentMastery && !_progress.level3Unlocked) {
-      _showLockedMessage(newLevel);
-      return;
-    }
+  void _onLevel4Answer(bool correct) {
+    if (correct) {
+      setState(() {
+        _level4Correct++;
+      });
+      
+      recordProblemResult(
+        levelNumber: 4,
+        correct: true,
+      );
 
-    setState(() {
-      _progress = _progress.copyWith(currentLevel: newLevel);
-    });
+      if (_level4Correct >= _level4RequiredCorrect) {
+        _showCompletionDialog();
+        saveProgress(); 
+      }
+    } else {
+      recordProblemResult(
+        levelNumber: 4,
+        correct: false,
+      );
+    }
+    startProblemTimer();
+  }
+
+  void _trySwitchLevel(ScaffoldLevel newLevel) {
+    if (isLevelUnlocked(newLevel.levelNumber)) {
+      _setActiveLevel(newLevel);
+    } else {
+      _showLockedMessage(newLevel);
+    }
   }
 
   void _showLevelUnlockedMessage(ScaffoldLevel level) {
@@ -137,14 +264,6 @@ class _Decompose10ExerciseState extends State<Decompose10Exercise> {
   }
 
   void _showLockedMessage(ScaffoldLevel level) {
-    String requirement = '';
-    if (level == ScaffoldLevel.supportedPractice) {
-      requirement = 'Complete Level 1 exploration first';
-    } else if (level == ScaffoldLevel.independentMastery) {
-      final remaining = _level2RequiredCorrect - _level2Correct;
-      requirement = 'Get $remaining more correct in Level 2';
-    }
-
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -153,7 +272,7 @@ class _Decompose10ExerciseState extends State<Decompose10Exercise> {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                'Level ${level.levelNumber} is locked. $requirement.',
+                'Level ${level.levelNumber} is locked. Complete previous levels first.',
                 style: const TextStyle(fontSize: 14),
               ),
             ),
@@ -166,26 +285,53 @@ class _Decompose10ExerciseState extends State<Decompose10Exercise> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        Navigator.pop(context);
-        return false;
-      },
-      child: Column(
-        children: [
-          // Level selector
-          _buildLevelSelector(),
-
-          // Divider
-          const Divider(height: 1),
-
-          // Current level content
-          Expanded(
-            child: _buildCurrentLevel(),
+  void _showCompletionDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Skill Mastered! 🏆'),
+        content: const Text(
+          'You have successfully decomposed 10 and other numbers!\nGreat job!',
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close dialog
+              Navigator.of(context).pop(); // Exit exercise
+            },
+            child: const Text('Collect Reward'),
           ),
         ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: WillPopScope(
+          onWillPop: () async {
+            await onExerciseExit();
+            return true;
+          },
+          child: Column(
+            children: [
+              // Level selector
+              _buildLevelSelector(),
+    
+              // Divider
+              const Divider(height: 1),
+    
+              // Current level content
+              Expanded(
+                child: _buildCurrentLevel(),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -197,26 +343,34 @@ class _Decompose10ExerciseState extends State<Decompose10Exercise> {
       child: Row(
         children: [
           _buildLevelTab(
-            level: ScaffoldLevel.guidedExploration,
+            level: ScaffoldLevel.guidedExploration, // L1
             icon: Icons.touch_app,
             color: Colors.blue,
             isUnlocked: true,
           ),
           const SizedBox(width: 8),
           _buildLevelTab(
-            level: ScaffoldLevel.supportedPractice,
+            level: ScaffoldLevel.supportedPractice, // L2
             icon: Icons.edit,
             color: Colors.purple,
-            isUnlocked: _progress.level2Unlocked,
+            isUnlocked: isLevelUnlocked(2),
             progressText: '$_level2Correct/$_level2RequiredCorrect',
           ),
           const SizedBox(width: 8),
           _buildLevelTab(
-            level: ScaffoldLevel.independentMastery,
+            level: ScaffoldLevel.independentMastery, // L3
             icon: Icons.psychology,
             color: Colors.green,
-            isUnlocked: _progress.level3Unlocked,
-            progressText: '$_level3Found/11',
+            isUnlocked: isLevelUnlocked(3),
+            progressText: '$_level3FoundCount/$_level3RequiredFound',
+          ),
+          const SizedBox(width: 8),
+          _buildLevelTab(
+            level: ScaffoldLevel.finale, // L4
+            icon: Icons.star,
+            color: Colors.indigo,
+            isUnlocked: isLevelUnlocked(4),
+            progressText: '$_level4Correct/$_level4RequiredCorrect',
           ),
         ],
       ),
@@ -230,11 +384,11 @@ class _Decompose10ExerciseState extends State<Decompose10Exercise> {
     required bool isUnlocked,
     String? progressText,
   }) {
-    final isActive = _progress.currentLevel == level;
+    final isActive = _currentLevel == level;
 
     return Expanded(
       child: GestureDetector(
-        onTap: () => _switchLevel(level),
+        onTap: () => _trySwitchLevel(level),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
           decoration: BoxDecoration(
@@ -289,7 +443,7 @@ class _Decompose10ExerciseState extends State<Decompose10Exercise> {
   }
 
   Widget _buildCurrentLevel() {
-    switch (_progress.currentLevel) {
+    switch (_currentLevel) {
       case ScaffoldLevel.guidedExploration:
         return Decompose10Level1Widget(
           onExplorationComplete: _onLevel1Complete,
@@ -307,86 +461,15 @@ class _Decompose10ExerciseState extends State<Decompose10Exercise> {
           onProgressUpdate: _onLevel3Progress,
         );
 
-      case ScaffoldLevel.advancedChallenge:
-        // This exercise doesn't use a 4th level
-        return const SizedBox.shrink();
-
       case ScaffoldLevel.finale:
-        // Finale level not yet implemented for this exercise
-        return const Center(
-          child: Text('Finale level coming soon!'),
+        return Decompose10Level4Widget(
+          onAnswerSubmitted: _onLevel4Answer,
+          correctAnswersNeeded: _level4RequiredCorrect,
+          currentCorrectCount: _level4Correct,
         );
+        
+      default:
+        return const Center(child: Text('Level not implemented'));
     }
-  }
-
-  void _showExerciseInfo() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.school, color: Theme.of(context).colorScheme.primary),
-            const SizedBox(width: 12),
-            const Expanded(child: Text('Exercise Information')),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                widget.config.concept,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                '3-Level Scaffolding:',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              _infoLevel('Level 1: Guided Exploration',
-                  'Tap counters to explore. Equation auto-displays.', Colors.blue),
-              const SizedBox(height: 8),
-              _infoLevel('Level 2: Supported Practice',
-                  'See counters, write the equation yourself.', Colors.purple),
-              const SizedBox(height: 8),
-              _infoLevel('Level 3: Independent Mastery',
-                  'Visual hidden. Work from memory!', Colors.green),
-              const SizedBox(height: 16),
-              Text(
-                'Source: ${widget.config.sourceCard}',
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _infoLevel(String title, String description, Color color) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(Icons.circle, color: color, size: 12),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: TextStyle(fontWeight: FontWeight.w600, color: color)),
-              Text(description, style: const TextStyle(fontSize: 13)),
-            ],
-          ),
-        ),
-      ],
-    );
   }
 }

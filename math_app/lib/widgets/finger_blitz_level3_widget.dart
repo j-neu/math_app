@@ -24,7 +24,8 @@ class FingerBlitzLevel3Widget extends StatefulWidget {
 class _FingerBlitzLevel3WidgetState extends State<FingerBlitzLevel3Widget> {
   final Random _random = Random();
   int _targetNumber = 0;
-  Set<int> _activeFingers = {};
+  int _leftCount = 0;
+  int _rightCount = 0;
   String? _feedbackMessage;
   bool _isSuccess = false;
 
@@ -40,10 +41,12 @@ class _FingerBlitzLevel3WidgetState extends State<FingerBlitzLevel3Widget> {
       
       if (widget.mode == FingerConstructionMode.subtractive) {
         // Start with 10 fingers up
-        _activeFingers = {0,1,2,3,4,5,6,7,8,9};
+        _leftCount = 5;
+        _rightCount = 5;
       } else {
         // Start with 0 fingers up
-        _activeFingers = {};
+        _leftCount = 0;
+        _rightCount = 0;
       }
       
       _feedbackMessage = null;
@@ -51,44 +54,22 @@ class _FingerBlitzLevel3WidgetState extends State<FingerBlitzLevel3Widget> {
     });
   }
 
-  void _handleFingerTap(int fingerIndex) {
+  void _handleCountChanged(bool isLeft, int count) {
     if (_isSuccess) return;
 
     setState(() {
-      if (_activeFingers.contains(fingerIndex)) {
-        _activeFingers.remove(fingerIndex);
+      if (isLeft) {
+        _leftCount = count;
       } else {
-        _activeFingers.add(fingerIndex);
-      }
-    });
-  }
-
-  void _handleHandTap(bool isLeft) {
-    if (_isSuccess) return;
-
-    // Convenience: Toggle whole hand
-    // Left: 0-4, Right: 5-9
-    final indices = isLeft ? [0,1,2,3,4] : [5,6,7,8,9];
-    bool allActive = indices.every((i) => _activeFingers.contains(i));
-    
-    setState(() {
-      if (allActive) {
-        _activeFingers.removeAll(indices);
-      } else {
-        _activeFingers.addAll(indices);
+        _rightCount = count;
       }
     });
   }
 
   void _checkAnswer() {
-    int currentCount = _activeFingers.length;
+    int currentCount = _leftCount + _rightCount;
     
     if (currentCount == _targetNumber) {
-      // Check pattern validity?
-      // For MVP, any N fingers is okay, but pedagogical goal is 5+N.
-      // Let's check if it respects "Kraft der 5" (one full hand if > 5).
-      // Not strictly enforced by "count", but we can give hint.
-      
       setState(() {
         _isSuccess = true;
         if (widget.mode == FingerConstructionMode.subtractive) {
@@ -149,15 +130,13 @@ class _FingerBlitzLevel3WidgetState extends State<FingerBlitzLevel3Widget> {
 
         // Finger Display (Interactive)
         FingerDisplayWidget(
-          activeFingers: _activeFingers,
+          leftCount: _leftCount,
+          rightCount: _rightCount,
           height: 220,
-          activeColor: widget.mode == FingerConstructionMode.subtractive 
-              ? const Color(0xFFE0AC69) // Normal skin
-              : const Color(0xFFE0AC69), 
-          // Maybe use different color for subtractive hints? 
-          // For now, standard.
-          onFingerTap: _handleFingerTap, // Individual control
-          onHandTap: _handleHandTap,     // Hand block control
+          onCountChanged: _handleCountChanged,
+          interactionType: widget.mode == FingerConstructionMode.additive
+              ? FingerInteractionType.increment
+              : FingerInteractionType.decrement,
         ),
 
         const SizedBox(height: 40),

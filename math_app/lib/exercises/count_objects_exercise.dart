@@ -333,42 +333,47 @@ class _CountObjectsExerciseState extends State<CountObjectsExercise>
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        await onExerciseExit();
-        return true;
-      },
-      child: Column(
-        children: [
-          // Action buttons row (replacing AppBar actions)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            color: Colors.grey.shade100,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.menu),
-                  tooltip: 'Choose Level',
-                  onPressed: _showLevelSelector,
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: WillPopScope(
+          onWillPop: () async {
+            await onExerciseExit();
+            return true;
+          },
+          child: Column(
+            children: [
+              // Action buttons row (replacing AppBar actions)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                color: Colors.grey.shade100,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.menu),
+                      tooltip: 'Choose Level',
+                      onPressed: _showLevelSelector,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.help_outline),
+                      tooltip: 'Instructions',
+                      onPressed: _showInstructions,
+                    ),
+                  ],
                 ),
-                IconButton(
-                  icon: const Icon(Icons.help_outline),
-                  tooltip: 'Instructions',
-                  onPressed: _showInstructions,
-                ),
-              ],
-            ),
+              ),
+              SegmentedProgressBar(
+                totalSegments: _problemsPerLevel,
+                currentSegment: _currentProblemIndex,
+                results: _problemResults,
+              ),
+              Expanded(
+                child: _buildCurrentLevelWidget(),
+              ),
+            ],
           ),
-          SegmentedProgressBar(
-            totalSegments: _problemsPerLevel,
-            currentSegment: _currentProblemIndex,
-            results: _problemResults,
-          ),
-          Expanded(
-            child: _buildCurrentLevelWidget(),
-          ),
-        ],
+        ),
       ),
     );
   }

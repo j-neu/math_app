@@ -1,6 +1,6 @@
-# CLAUDE.md
+# GEMINI.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to the Gemini CLI agent when working with code in this repository.
 
 ## Project Overview
 
@@ -35,45 +35,16 @@ flutter analyze
 
 ## Terminology
 
-### Key Terms
+**⚠️ CRITICAL:** Read **[TERMINOLOGY.md](TERMINOLOGY.md)** first.
 
-**Skill** (e.g., C1.1, Z1, C4.1)
-- The complete learning module addressing one or more skill tags
-- Contains multiple levels with progressive scaffolding
-- Example: "C1.1: Count the Dots" is a complete skill with 5 levels
-- File location: `exercises/count_dots_exercise_v2.dart` (coordinator)
+It defines the strict hierarchy:
+**Skill** (Module) > **Level** (Scaffolding Stage) > **Problem** (Question).
 
-**Level** (e.g., Level 1, Level 2, Level 3)
-- Individual scaffolding stage within a skill
-- Each level implements specific pedagogical action (drag, tap, no-action, etc.)
-- Example: "Level 2: Tap to Count" within C1.1 skill
-- File location: `widgets/countdots_level2_widget_v2.dart`
+*   **Skill:** The complete unit (e.g., "C1.1 Count the Dots").
+*   **Level:** A stage within that skill (e.g., "Level 2: Tap to Count").
+*   **Problem:** A single question (e.g., "Count these 5 dots").
 
-**Problem**
-- Individual question/task within a level
-- Example: "Count these 7 dots" is one problem
-- Typically 10 problems per level
-
-**Exercise** (AMBIGUOUS - avoid or clarify)
-- Historically used to mean "Skill" - prefer using "Skill" instead
-- In code: `Exercise` model, `ExerciseService`, `exercises/` directory all refer to Skills
-- When discussing: Say "Skill C1.1" not "Exercise C1.1" to avoid confusion
-
-### Example Hierarchy
-
-```
-Skill C1.1: "Count the Dots"
-├── Level 1: Drag dots (10 problems)
-│   ├── Problem 1: Count 5 dots
-│   ├── Problem 2: Count 8 dots
-│   └── ...
-├── Level 2: Tap dots (10 problems)
-├── Level 3: Look-only (10 problems)
-├── Level 4: Flash-hide (10 problems)
-└── Level 5: Finale (10 problems, easier)
-```
-
-**When writing documentation:** Use "Skill" for the complete module, "Level" for scaffolding stages, "Problem" for individual questions.
+**Note:** In code, the class `Exercise` typically refers to a **Skill**.
 
 ---
 
@@ -231,11 +202,10 @@ Every skill MUST:
 
 1. **⚠️ READ THE CARD FIRST** - Find and read the iMINT/PIKAS card's "Wie kommt die Handlung in den Kopf?" section
 2. **Follow the CARD'S scaffolding** (see [IMINT_TO_APP_FRAMEWORK.md](IMINT_TO_APP_FRAMEWORK.md))
-3. **Implement the NUMBER of levels the card prescribes** (may be 2, 3, 4, or more - NOT always 3!)
-4. **ADD A FINALE LEVEL** - After card-prescribed levels, add one final "Summary" level with easier mixed review (ADHD: Easy→Hard→Easy flow)
-   - **⚠️ CRITICAL:** Finale MUST be completable - child must be able to reach "completed" status
-   - Define clear completion criteria (accuracy, time, minimum problems)
-   - Test that criteria are achievable by target age group
+3. **Implement the NUMBER of levels the card prescribes** (may be 2, 3, 4, or more)
+4. **NO FINALE LEVEL** - Do NOT add an artificial "summary" or "finale" level. The skill ends when the card's prescribed levels are done.
+   - **Reason:** We rely on the card's pedagogical design.
+   - **Completion:** Mastery of the final card level constitutes skill completion.
 5. **APPLY STANDARD DIFFICULTY CURVE** - Every level follows Easy→Hard→Easy progression (see [DIFFICULTY_CURVE.md](DIFFICULTY_CURVE.md))
    - **Standard curve (10 problems):** Trivial (P1-2), Easy (P3-4), Medium (P5-6), Hard (P7-8), Medium (P9), Easy (P10)
    - **Purpose:** Build confidence, challenge appropriately, end positively (ADHD-friendly)
@@ -264,25 +234,24 @@ When implementing any skill:
 
 1. **READ the card** - Extract exact scaffolding levels from "Wie kommt die Handlung in den Kopf?"
 2. Create N level widget files in `widgets/` directory (where N = number of levels from card)
-3. Create N+1 level widget file for finale level (easier mixed review)
-4. Create skill coordinator in `exercises/` directory
-5. **Integrate ExerciseProgressMixin:**
+3. Create skill coordinator in `exercises/` directory
+4. **Integrate ExerciseProgressMixin:**
    - Extend coordinator with `ExerciseProgressMixin`
    - Implement `loadProgress()` in `initState()`
    - Implement `saveProgress()` in `dispose()` and every 5 problems
    - Pass `startProblemTimer` and `recordProblemResult` to level widgets
-6. **Define completion criteria** in coordinator comments (accuracy %, time limit, min problems)
-7. Register in `exercise_service.dart`
-8. Run `flutter analyze` to check for errors
-9. **Test state persistence:**
+5. **Define completion criteria** in coordinator comments (accuracy %, time limit, min problems)
+6. Register in `exercise_service.dart`
+7. Run `flutter analyze` to check for errors
+8. **Test state persistence:**
    - Start skill → solve some problems → exit
    - Reopen skill → verify progress restored
-   - Complete finale → verify "completed" status reached
-10. **DO NOT** create individual implementation summary documents (*.md files)
+   - Complete final level → verify "completed" status reached
+9. **DO NOT** create individual implementation summary documents (*.md files)
     - ARCHIVE_IMPLEMENTATIONS.md already documents the first 4 skills as reference
     - New skills should be documented in code comments only
     - Major design decisions can be noted in git commit messages
-11. Update this file (CLAUDE.md) only if status changes significantly
+10. Update this file (GEMINI.md) only if status changes significantly
 
 ### Skill Planning Questions
 
@@ -394,34 +363,53 @@ void _onLevelComplete() async {
 3. Use consistent color-coding from theme
 4. Preserve card-based scaffolding progression
 
-### ⚠️ CRITICAL: Stacked/Doubled App Bar Issue
+## QA & Common Issues
 
-**Problem:** Exercises that use `exerciseBuilder` manage their own Scaffold (via MinimalistExerciseScaffold). If ExerciseScreen wraps them in another Scaffold, you get doubled/stacked app bars.
+### 1. Level Completion Hangups
+**Symptom:** User completes 10/10 problems, but nothing happens. No dialog, no next level.
+**Cause:** Logic error in the problem completion callback or mismatched problem counts.
+**Prevention Rule:**
+- **Explicit Check:** Every `_onProblemComplete` MUST check `if (currentProblemIndex >= totalProblems)`.
+- **Coordinator Logic:** The Coordinator (not the Widget) MUST own the completion logic.
+- **Auto-Advance:** Ensure `_onLevelComplete` triggers the dialog/transition immediately.
 
-**Solution:** ExerciseScreen must NOT wrap exercises with `exerciseBuilder` in a Scaffold:
+### 2. Android Rendering (Black Backgrounds)
+**Symptom:** Deep black background on Android devices, hiding text/elements (e.g., in "Count the Dots").
+**Cause:** Transparent `Scaffold` or `Container` defaulting to the system "canvas" color, which is black in some themes/modes.
+**Prevention Rule:**
+- **Explicit Backgrounds:** NEVER rely on default theme colors for main surfaces.
+- **Rule:** Every `Scaffold` and full-screen `Container` MUST have `backgroundColor: Colors.white` (or a specific theme color) explicitly set.
+- **Test:** Verify on an Android emulator or device, not just web/iOS simulator.
 
+### 3. Stacked/Doubled App Bar
+**Symptom:** Two app bars appear stacked on top of each other with the same title.
+**Cause:** ExerciseScreen wrapping an exercise that already has its own Scaffold (via MinimalistExerciseScaffold).
+**Fix:** Ensure ExerciseScreen does NOT wrap exercises with `exerciseBuilder` in a Scaffold.
+
+### 4. Widget State Not Resetting (Random Problems)
+**Symptom:** UI doesn't update when a new problem is generated if the primary parameters (e.g., finger counts) happen to be the same as the previous problem.
+**Cause:** `didUpdateWidget` only checking subset of parameters.
+**Fix:** Check ALL parameters that affect state in `didUpdateWidget`.
 ```dart
-// In ExerciseScreen.build():
-if (currentExercise.exerciseBuilder != null) {
-  return _buildRepresentationView(currentExercise);  // Direct return, no Scaffold wrapper
+if (oldWidget.a != widget.a || oldWidget.b != widget.b || oldWidget.target != widget.target) {
+  _resetState();
 }
-
-// Only legacy exercises need ExerciseScreen's Scaffold
-return Scaffold(
-  appBar: AppBar(title: Text(currentExercise.title)),
-  body: _buildRepresentationView(currentExercise),
-);
 ```
 
-**When to use exerciseBuilder:**
-- ALL new skills using MinimalistExerciseScaffold
-- Skills with ExerciseProgressMixin (C1.1, C1.2, C2.1, C3.1, C4.1, etc.)
+### 5. Level Completion Not Saving
+**Symptom:** User finishes level, but next time it's locked again.
+**Cause:** Shadowing `ExerciseProgressMixin` state with local `_levelUnlocked` map that resets on init.
+**Fix:** Do NOT maintain local unlock state. Use `isLevelUnlocked(int)` from mixin directly.
+```dart
+// ❌ BAD: Map<int, bool> _levelUnlocked = {1: true...};
+// ✅ GOOD: isLevelUnlocked(levelNumber)
+```
 
-**When NOT to use exerciseBuilder:**
-- Legacy placeholder exercises (use `exerciseWidget` instead)
-- Exercises that don't manage their own Scaffold
+### 6. Layout Errors in ScrollViews
+**Symptom:** "RenderBox was not laid out" inside `SingleChildScrollView`.
+**Cause:** Using `Spacer()` or `Expanded()` inside a scroll view (infinite height constraint).
+**Fix:** Use `SizedBox(height: X)` instead of `Spacer()`.
 
-**Reference:** [exercise_screen.dart:74-78](math_app/lib/screens/exercise_screen.dart#L74-L78)
 
 ### Data Structure
 - Skill tags are strings, not integers (e.g., 'counting_4' not 4)
@@ -444,7 +432,7 @@ return Scaffold(
 - [adhd guidelines.md](adhd%20guidelines.md) - ADHD design principles
 
 **Historical Context:**
-- [COMPLETED_TASKS.md](COMPLETED_TASKS.md) - What's been done (Phases 1 & 1.5)
+- [Archive/COMPLETED_TASKS_PHASE2.md](Archive/COMPLETED_TASKS_PHASE2.md) - What's been done (Phases 1 & 1.5)
 - [Archive/ARCHIVE_IMPLEMENTATIONS.md](Archive/ARCHIVE_IMPLEMENTATIONS.md) - Reference implementation (Z1 only)
 
 **Research Materials:**
@@ -491,9 +479,15 @@ return Scaffold(
 - Predecessor/successor exploration, 3 problem types in L3, pulse animations
 - ~1,900 lines
 
-**Total:** ~10,809 lines across 6 skills (each skill contains 3-5 levels, each level contains ~10 problems)
+**Skill S1.1: Fingerblitz** - Tags: `basic_strategy_1`
+- 4 levels (Guided, Supported, Mastery, Challenge)
+- Flash card mode (2s visibility), interactive finger construction (additive/subtractive)
+- Uses `FingerDisplayWidget` with increment/decrement interaction
+- ~1,200 lines
 
-**See [ARCHIVE_IMPLEMENTATIONS.md](ARCHIVE_IMPLEMENTATIONS.md) for detailed notes on first 4 skills.**
+**Total:** ~12,000 lines across 7 skills
+
+**See [Archive/ARCHIVE_IMPLEMENTATIONS.md](Archive/ARCHIVE_IMPLEMENTATIONS.md) for detailed notes on first 4 skills.**
 
 ---
 
@@ -545,7 +539,14 @@ int get totalLevels => 3;  // Match actual level count
 int get finaleLevelNumber => 3;  // Last level number
 ```
 
+### Recent Issues & Lessons Learned
+
+1.  **Mixin Requirements:** When using `ExerciseProgressMixin`, you **MUST** implement `exerciseId` and `userProfile` getters in the state class. The mixin relies on these to load/save progress.
+2.  **ExerciseConfig Parameters:** `ExerciseConfig` requires all pedagogical metadata fields (`sourceCard`, `concept`, `observationPoints`, `internalizationPath`, `targetNumber`). Do not omit them or use the old `Exercise` model.
+3.  **State Management Restoration:** When updating a file (like adding `problemIndex`), ensure you restore ALL existing state variables and methods. Do not accidentally delete unrelated logic.
+4.  **Syntax Verification:** After using `replace` or `write_file`, ALWAYS run `flutter analyze` to catch syntax errors (like stray characters) immediately.
+
 ---
 
-**Last Updated:** 2025-11-24
-**Current Focus:** SET 1 completion (Foundation Counting)
+**Last Updated:** 2026-01-11
+**Current Focus:** SET 1 completion (Foundation Counting) & Basic Strategies

@@ -135,7 +135,8 @@ class _FingerBlitzLevel1WidgetState extends State<FingerBlitzLevel1Widget> {
           opacity: _isVisible ? 1.0 : 0.0,
           duration: const Duration(milliseconds: 300),
           child: FingerDisplayWidget(
-            activeFingers: _activeFingers,
+            leftCount: _activeFingers.where((i) => i < 5).length,
+            rightCount: _activeFingers.where((i) => i >= 5).length,
             height: 180,
           ),
         ),

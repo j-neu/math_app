@@ -240,13 +240,16 @@ class _FingerBlitzExerciseState extends State<FingerBlitzExercise>
         showModalBottomSheet(
           context: context,
           builder: (context) => LevelSelectionDrawer(
-            levels: ScaffoldLevel.values.take(4).toList(),
+            levels: _levels.map((l) => l.scaffoldLevel).toList(),
             currentLevel: currentConfig.scaffoldLevel,
             onLevelSelected: (scaffoldLevel) {
               final config = _levels.firstWhere((l) => l.scaffoldLevel == scaffoldLevel);
               _switchLevel(config);
             },
-            isLevelUnlocked: (l) => widget.userProfile == null || isLevelUnlocked(l.levelNumber),
+            isLevelUnlocked: (scaffoldLevel) {
+              final config = _levels.firstWhere((l) => l.scaffoldLevel == scaffoldLevel);
+              return widget.userProfile == null || isLevelUnlocked(config.levelNumber);
+            },
           ),
         );
       },
@@ -258,21 +261,25 @@ class _FingerBlitzExerciseState extends State<FingerBlitzExercise>
     switch (_currentLevelNumber) {
       case 1:
         return FingerBlitzLevel1Widget(
+          key: const ValueKey(1),
           onProblemSolved: _onProblemResult,
           isFlashMode: false,
         );
       case 2:
         return FingerBlitzLevel1Widget(
+          key: const ValueKey(2),
           onProblemSolved: _onProblemResult,
           isFlashMode: true,
         );
       case 3:
         return FingerBlitzLevel3Widget(
+          key: const ValueKey(3),
           onProblemSolved: _onProblemResult,
           mode: FingerConstructionMode.additive,
         );
       case 4:
         return FingerBlitzLevel3Widget(
+          key: const ValueKey(4),
           onProblemSolved: _onProblemResult,
           mode: FingerConstructionMode.subtractive,
         );

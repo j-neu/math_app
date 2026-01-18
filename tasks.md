@@ -1,128 +1,145 @@
-# Math App Development Tasks
+# Math App Master Task List
 
-**Last Updated:** 2025-11-19
-
-**For completed work:** [COMPLETED_TASKS.md](COMPLETED_TASKS.md)
-**For full task history:** [Archive/tasks_full.md](Archive/tasks_full.md)
+**Last Updated:** 2026-01-11
+**Goal:** Complete feature parity with research frameworks (iMINT/PIKAS) and prepare for beta release.
 
 ---
 
-## 🎯 CURRENT FOCUS: Phase 2.5 - Completion Tracking & Rewards
+## Phase 2.5: QA & Bug Fixes (Set 1)
 
-**Timeline:** Week 4-6 (In Progress)
-**Priority:** HIGH - Foundation for all future skills
+**Priority:** High
+**Goal:** Ensure the first 6 exercises (Set 1) are flawless, persistent, and track completion correctly.
 
-### Terminology Note
-- **Skill** = Complete learning module (e.g., C1.1, Z1) with multiple levels
-- **Level** = Scaffolding stage within a skill (e.g., Level 1, Level 2)
-- **Problem** = Individual question within a level
-- See [CLAUDE.md](CLAUDE.md) Terminology section for details
+### 1. Z1: Decompose 10 (Completion)
+- [ ] **Integrate `ExerciseProgressMixin`:** Update `exercises/decompose_10_exercise.dart`.
+- [ ] **Verify Persistence:** Ensure state saves/loads correctly.
+- [ ] **UI Polish:** Update UI to match new visual aesthetic (MinimalistExerciseScaffold pattern).
 
-### What's Left
+### 2. Critical Bug Fixes
+- [ ] **Level Completion Logic:** Fix issues where levels hang after 10 problems (no transition/dialog).
+  - Verify `_onProblemComplete` checks `currentProblemIndex >= totalProblems`.
+  - Verify `_onLevelComplete` triggers correctly.
+- [ ] **Android Rendering:** Fix black background issues (e.g., C1.1, C1.2, Z1).
+  - Ensure all Scaffolds/Containers have explicit `backgroundColor: Colors.white` (or theme equivalent).
 
-**Week 4: Update Remaining Skills (COMPLETE)** ✅
-- [x] C2.1 (Order Cards) - ✅ COMPLETE with finale level
-- [x] C1.2 (Count the Objects) - ✅ COMPLETE with finale + ExerciseProgressMixin
-- [x] C3.1 (Count Forward) - ✅ COMPLETE with finale + ExerciseProgressMixin
-- [x] C4.1 (What Comes Next) - ✅ COMPLETE with Level 4 + Level 5 finale + ExerciseProgressMixin
-  - Extended to 5 levels (3 card levels + L4 challenge + L5 finale)
-  - L4: Two-number sequences (17, ___, ___ or ___, ___, 20)
-  - L5: Easier mixed review (range 6-14, 10 problems, 0 errors, <20s)
-  - Full state persistence with ExerciseProgressMixin
-  - ~3,700 lines total (coordinator + 5 level widgets)
-
-**Week 5: Z1 Completion (CRITICAL)**
-- [ ] Z1 (Decompose 10) - Add finale level (easier than L3) + ExerciseProgressMixin
-  - **BLOCKER:** Currently NOT completable - L3 is hardest level
-  - Proposed finale: Decompose 5-8 (easier than 10)
-
-**Week 6: Testing & Wrap-Up**
-- [ ] Test all 6 exercises end-to-end (state persistence, completion tracking)
-- [ ] Test reward system (daily, completed, milestone triggers)
-- [ ] Update documentation (CLAUDE.md, IMINT_TO_APP_FRAMEWORK.md)
-- [ ] Code cleanup (flutter analyze, remove debug prints)
+### 3. Set 1 Quality Assurance
+**Scope:** C1.1, C1.2, C2.1, C3.1, C4.1, Z1
+- [ ] **Audit Level Switching:** Verify auto-advance works for all levels.
+- [ ] **Audit Completion Marking:** Ensure "Completed" status (green check) only triggers when criteria are met (accuracy + time) on the final level.
+- [ ] **Retroactive Difficulty Check:** Review all levels against [DIFFICULTY_CURVE.md](DIFFICULTY_CURVE.md).
 
 ---
 
-## 🔑 CRITICAL REQUIREMENTS
+## Phase 3: Basic Strategies (Set 5)
 
-Every skill MUST have:
-1. **ExerciseProgressMixin** - Load on init, save every 5 problems + on exit
-2. **Finale level** - Easier than hardest card level, MUST be completable
-3. **Completion criteria** - Clear time limits, accuracy requirements
-4. **State persistence** - Exit/resume works, level unlocks persist
+**Priority:** MEDIUM (Next Focus)
+**Goal:** Implement strategy-based skills (Finger patterns, Dice patterns, Doubling).
 
-**See:** [COMPLETION_CRITERIA.md](COMPLETION_CRITERIA.md) | [IMINT_TO_APP_FRAMEWORK.md](IMINT_TO_APP_FRAMEWORK.md)
-
----
-
-## 📋 Integration Checklist (Per Skill)
-
-Before marking skill complete:
-- [ ] ExerciseProgressMixin integrated
-- [ ] Finale level exists and tested
-- [ ] Completion criteria defined (in code comments)
-- [ ] State persistence tested (exit → relaunch → resume)
-- [ ] Can reach "completed" status (zero errors + time limits)
-- [ ] Reward celebration triggers (if enabled)
+**Widgets:** `FingerDisplayWidget`, `DiceWidget`, `MirrorWidget`
+- [x] **S1.1: Fingerblitz** (`basic_strategy_1`) - Recognize finger patterns (0-10) instantly.
+- [x] **S1.2: Finger Folding** (`basic_strategy_2`) - Simple addition/subtraction by folding fingers.
+- [x] **S2.3: Opposite Change** (`strategy_opposite_change_1`) - One marker flips color, total remains same.
+- [ ] **S1.3: Plus/Minus 1 or 2** (`basic_strategy_3`) - Modify finger patterns by ±1/2.
+- [ ] **S2.1: Dice Patterns** (`basic_strategy_5`) - Recognize and modify dice patterns (±1/2).
+- [x] **S3.1: Doubling with Mirror** (`basic_strategy_7`) - Visual doubling using a mirror metaphor (ZR10).
+- [x] **S3.2: Doubling with Mirror** (`basic_strategy_7`) - Visual doubling using a mirror metaphor (ZR20).
+- [x] **S3.3: Doubling with Fingers** (`basic_strategy_8`) - 5+5=10, 3+3=6 using hands.
+- [ ] **S3.4: Halving to 20** (`basic_strategy_12`) - Inverse of doubling.
 
 ---
 
-## 🚀 Next: Phase 2 Skill Sets (ON HOLD)
+## 📊 Phase 4: Diagnostic & Reporting
 
-**Will resume after Phase 2.5 complete**
+**Priority:** Low
+**Goal:** Turn diagnostic results into an actionable learning plan.
 
-### SET 1: Foundation Counting ✅ (5/6 skills done)
-- [x] C1.1: Count the Dots V2 - ✅ COMPLETE (4 levels + finale)
-- [x] C1.2: Count the Objects - ✅ COMPLETE (5 levels + finale)
-- [x] C2.1: Order Cards - ✅ COMPLETE (3 levels + finale)
-- [x] C3.1: Count Forward - ✅ COMPLETE (3 levels + finale)
-- [x] C4.1: What Comes Next - ✅ COMPLETE (3 card levels + L4 challenge + L5 finale)
-- [ ] Z1: Decompose 10 - ⚠️ NEEDS FINALE + ExerciseProgressMixin (CRITICAL)
+### 1. Diagnostic Logic Review
+- [ ] **Review Skippability:** Reduce the number of skippable questions to ensure valid results.
+- [ ] **Time Tracking:** Ensure response time is accurately captured for every question.
 
-### SET 2: Number Decomposition (Future - 0/6)
-Z1.1, Z1.2, Z1.4, Z1.5, Z1.6, Z2.2
-
-### SET 3: Subitizing (Future - 0/6)
-Z3.1-Z3.6
-
-### SET 4: Place Value (Future - 0/10)
-P1.1-P6.2
-
-**Full roadmap:** [Archive/tasks_full.md](Archive/tasks_full.md) - 120+ skills total
+### 2. Report Generation System
+- [ ] **Create `DiagnosticReportGenerator`:**
+  - Logic to analyze `UserProfile.diagnosticResults`.
+  - Classify skills into "Mastered", "Needs Practice", "Not Started".
+  - Prioritize "Needs Practice" skills based on dependencies (e.g., counting before decomposition).
+- [ ] **Create `DiagnosticReportScreen`:**
+  - **Overview Tab:** Visual summary (e.g., "You got 45/59 right!", "Strong in Counting").
+  - **Roadmap Tab:** Detailed list of recommended exercises in order.
+  - **For Parents:** "Show Details" section explaining *why* a skill was recommended (e.g., "Struggled with transitions").
 
 ---
 
-## 📖 Key Documentation
+## ⚙️ Phase 5: Core Systems
 
-**Essential:**
-- [IMINT_TO_APP_FRAMEWORK.md](IMINT_TO_APP_FRAMEWORK.md) - Card-based scaffolding framework
-- [COMPLETION_CRITERIA.md](COMPLETION_CRITERIA.md) - Completion tracking system
-- [REWARDS_SYSTEM_QUICK_REF.md](REWARDS_SYSTEM_QUICK_REF.md) - Reward system overview
-- [CLAUDE.md](CLAUDE.md) - Project guide
+**Priority:** Low
 
-**Research:**
-- `Research/SKILLS_README.md` - 88 skills documentation
-- `Research/REWARDS_SYSTEM.md` - Detailed reward spec
+### 1. Reward System (Implementation)
+- [ ] **Settings UI:** Complete `RewardsSettingsScreen` (parent configuration).
+- [ ] **Logic:** Finalize `RewardService` to trigger:
+  - Daily Streak Reward.
+  - Exercise Completion Reward.
+  - Milestone Completion Reward.
+- [ ] **Visuals:** Add animations/modals for reward triggers.
 
-**Historical:**
-- [COMPLETED_TASKS.md](COMPLETED_TASKS.md) - Phases 1, 1.5, 2 summary
-- [Archive/ARCHIVE_IMPLEMENTATIONS.md](Archive/ARCHIVE_IMPLEMENTATIONS.md) - Z1 reference implementation
-
----
-
-## 📊 Project Status
-
-| Phase | Status | Progress |
-|---|---|---|
-| Phase 1 (Core) | ✅ Complete | 100% |
-| Phase 1.5 (PIKAS) | ✅ Complete | 100% |
-| Phase 2 (Skills) | 🔄 In Progress | 5% (6/120+) |
-| **Phase 2.5 (Tracking)** | **🔄 In Progress** | **95%** |
-| Phase 3 (Polish) | ⏳ Planned | 0% |
-
-**Current Milestone:** Complete Z1 finale → Phase 2.5 DONE → Resume SET 2 skills
+### 2. Analytics & Usage Tracking
+- [ ] **Local Analytics Service:**
+  - Track session duration.
+  - Track frequency of use (daily/weekly).
+  - Track "Struggle Points" (levels where user quits or fails repeatedly).
+- [ ] **Parent Dashboard (Optional):** Simple view of "Time Spent this Week".
 
 ---
 
-**Priority:** Finish Z1 finale + ExerciseProgressMixin (last remaining SET 1 skill)
+## 📚 Phase 6: Content Expansion (The Big Build)
+
+**Priority:** MEDIUM (Parallelizable)
+**Goal:** Implement remaining 110+ exercises.
+
+### Set 2: Number Decomposition Basics (Z1.x)
+**Widgets:** `WendeplättchenWidget` (Two-color counters), `RechenschiffchenWidget` (Boat)
+- [ ] **Z1.1:** Decompose Numbers 2-9
+- [ ] **Z1.2:** Decompose on Boat
+- [ ] **Z1.4:** All Ways to Make 10
+- [ ] **Z1.5:** Decompose 20
+- [ ] **Z1.6:** Flip Card Game
+- [ ] **Z2.2:** Complete to 10
+
+### Set 3: Subitizing & Quick Recognition (Z3.x)
+**Widgets:** `FlashCardWidget`, `PatternDisplayWidget`
+- [ ] **Z3.1:** Flash Recognition to 10
+- [ ] **Z3.2:** Flash Recognition to 20
+- [ ] **Z3.3:** Dice Patterns
+- [ ] **Z3.4:** Five-Frame Patterns
+- [ ] **Z3.5:** Quick See on Boat
+- [ ] **Z3.6:** How Many Without Counting?
+
+### Set 4: Place Value Foundations (P1.x - P6.x)
+**Widgets:** `DienesBlocksWidget` (Base-10 Blocks), `StellentafelWidget` (Place Value Chart), `HundredChartWidget`
+- [ ] **P1.1:** Bundle 10 Ones
+- [ ] **P1.2:** Make Bundles to 100
+- [ ] **P2.1:** Show Number with Blocks
+- [ ] **P2.2:** Read the Blocks
+- [ ] **P3.1:** Stellentafel Practice
+- [ ] **P4.1:** Hear and Write Numbers
+- [ ] **P4.2:** Inversion Challenge
+- [ ] **P5.1:** Tens-Ones Quiz
+- [ ] **P6.1:** 100-Chart Patterns
+- [ ] **P6.2:** Jump on 100-Chart
+
+### Set 5: Strategies (Basic & Advanced)
+
+#### Advanced Strategies (Future)
+- [ ] **Commutativity** (Tauschaufgaben).
+- [ ] **Decade Operations** (Rechnen mit Zehnerzahlen).
+- [ ] **Near-Doubles** (Nachbaraufgaben - e.g., 6+7 is 6+6+1).
+- [ ] **Partial Steps** (Schrittweise Rechnen).
+
+---
+
+## 🛠 Widget Library Needs
+**Critical for Sets 2-4:**
+- [ ] `DienesBlocksWidget` (Place Value)
+- [ ] `RechenschiffchenWidget` (Boat 5+5)
+- [ ] `HundredChartWidget` (10x10 Grid)
+- [ ] `FlashCardWidget` (Subitizing)
+- [ ] `WendeplättchenWidget` (Two-color counters)

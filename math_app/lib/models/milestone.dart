@@ -150,10 +150,18 @@ class Milestone {
       'basic_strategy_8',
       'basic_strategy_9',
       'basic_strategy_10',
+      'strategy_opposite_change_1',
     ],
     exerciseIds: [
       'S1.1',  // Fingerblitz (implemented)
-      'F1.2',  // Finger Subtraction (future)
+      'S1.2',  // Finger Klappen (implemented)
+      'S1.4',  // More or Less (Hamstern)
+      'S2.3',  // Opposite Change
+      'S3.1',  // Doubling with Mirror (implemented)
+      'S3.2',  // Doubling with Mirror ZR20 (implemented)
+      'S3.3',  // Doubling with Fingers (implemented)
+      'S3.4',  // Verdoppeln am Rechenschiffchen (implemented)
+      'S3.5',  // Doubling with Fingers ZR20 (implemented)
       'D1.1',  // Doubles to 20 (future)
       'D2.1',  // Near Doubles (future)
       'P5.1',  // Power of 5 (future)

@@ -153,3 +153,45 @@ return LayoutBuilder(
   }
 );
 ```
+
+## 9. Android Rendering (Black Backgrounds)
+**The Error:**
+On Android devices (especially in dark mode), the app background appears pitch black, making some text or black elements invisible. This happens because `Scaffold` or `Container` defaults to the system canvas color if not specified.
+
+**The Solution:**
+**ALWAYS** explicitly set the `backgroundColor` for your Scaffolds and full-screen Containers.
+
+```dart
+// ❌ WRONG: Relies on default theme (might be black)
+return Scaffold(
+  body: ...
+);
+
+// ✅ CORRECT: Explicitly white (or theme color)
+return Scaffold(
+  backgroundColor: Colors.white, // or Theme.of(context).colorScheme.surface
+  body: ...
+);
+```
+
+## 10. Level Completion Hangs
+**The Error:**
+The user finishes all 10 problems, but the app just sits there. No "Level Complete" dialog, no transition to the next level.
+
+**The Cause:**
+1.  The `_onProblemComplete` logic in the Coordinator doesn't check if `currentProblemIndex >= totalProblems`.
+2.  The `totalProblems` count in the Coordinator doesn't match the actual number of problems generated.
+
+**The Solution:**
+Ensure your completion check is robust and triggers the transition logic.
+
+```dart
+void _onProblemComplete(bool isCorrect) {
+  // ... record result ...
+  
+  // ✅ CRITICAL CHECK
+  if (_currentProblemIndex >= _problemsPerLevel) {
+    _onLevelComplete(); // <--- Must call this!
+  }
+}
+```

@@ -28,7 +28,7 @@ class RewardService {
     if (!_isSameDay(lastSession, today)) return false;
 
     // Count exercises completed today
-    final completedToday = profile.exercisesCompletedToday ?? 0;
+    final completedToday = profile.exercisesCompletedToday;
     return completedToday >= 1;
   }
 

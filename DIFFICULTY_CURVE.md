@@ -277,19 +277,6 @@ From [adhd guidelines.md](adhd%20guidelines.md):
 
 ## Edge Cases & Special Considerations
 
-### Finale Levels
-
-**Difficulty curve for finale levels:** Even flatter than standard
-
-| Problem # | Difficulty | Purpose |
-|-----------|------------|---------|
-| 1-3 | **Trivial** | Maximum confidence |
-| 4-6 | **Easy** | Light practice |
-| 7-8 | **Medium** | Gentle challenge |
-| 9-10 | **Easy** | Positive end |
-
-**No "Hard" problems in finale** - Purpose is completion/mastery, not new challenges.
-
 ### Levels with <10 Problems
 
 If a level has fewer than 10 problems (rare), use proportional scaling:
@@ -391,7 +378,7 @@ case 9: return 6 + Random().nextInt(3); // 6-8 (Easy)
 ---
 
 **See also:**
-- [CLAUDE.md](CLAUDE.md) - Skill creation checklist (includes difficulty curve requirement)
+- [GEMINI.md](GEMINI.md) - Skill creation checklist (includes difficulty curve requirement)
 - [adhd guidelines.md](adhd%20guidelines.md) - ADHD design principles (rationale for Easy→Hard→Easy)
 - [IMINT_TO_APP_FRAMEWORK.md](IMINT_TO_APP_FRAMEWORK.md) - Scaffolding framework
 - [tasks.md](tasks.md) - Retroactive application tracking

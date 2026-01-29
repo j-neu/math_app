@@ -151,6 +151,8 @@ class Milestone {
       'basic_strategy_9',
       'basic_strategy_10',
       'strategy_opposite_change_1',
+      'strategy_doubling_tens_1',
+      'basic_strategy_11',
     ],
     exerciseIds: [
       'S1.1',  // Fingerblitz (implemented)
@@ -162,6 +164,8 @@ class Milestone {
       'S3.3',  // Doubling with Fingers (implemented)
       'S3.4',  // Verdoppeln am Rechenschiffchen (implemented)
       'S3.5',  // Doubling with Fingers ZR20 (implemented)
+      'S3.6',  // Doubling Tens (implemented)
+      'S3.7',  // Tens Calculation (implemented)
       'D1.1',  // Doubles to 20 (future)
       'D2.1',  // Near Doubles (future)
       'P5.1',  // Power of 5 (future)

@@ -4,6 +4,7 @@ import 'package:math_app/widgets/answer_widgets.dart';
 import 'package:math_app/widgets/circle_display_widget.dart';
 import '../models/diagnostic_question.dart';
 import '../models/diagnostic_result.dart';
+import '../models/diagnostic_session.dart';
 import '../models/user_profile.dart';
 import '../services/diagnostic_service.dart';
 import '../services/user_service.dart';
@@ -11,8 +12,13 @@ import '../screens/learning_path_screen.dart';
 
 class DiagnosticScreen extends StatefulWidget {
   final UserProfile userProfile;
+  final bool retryMode;
 
-  const DiagnosticScreen({super.key, required this.userProfile});
+  const DiagnosticScreen({
+    super.key,
+    required this.userProfile,
+    this.retryMode = false,
+  });
 
   @override
   State<DiagnosticScreen> createState() => _DiagnosticScreenState();
@@ -39,8 +45,43 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   @override
   void initState() {
     super.initState();
-    _questionsFuture = DiagnosticService().loadQuestions();
-    _loadDiagnosticProgress();
+    _questionsFuture = _loadQuestions();
+    
+    // Only load saved progress if NOT in retry mode
+    if (!widget.retryMode) {
+      // Wait for questions to be available before loading progress
+      _questionsFuture.then((questions) {
+        _loadDiagnosticProgress(questions);
+      });
+    }
+  }
+
+  Future<List<DiagnosticQuestion>> _loadQuestions() async {
+    final allQuestions = await DiagnosticService().loadQuestions();
+    
+    if (!widget.retryMode) {
+      return allQuestions;
+    }
+
+    // Filter for incorrect questions from last session
+    if (widget.userProfile.diagnosticHistory.isEmpty) {
+      return allQuestions; // Fallback
+    }
+
+    final lastSession = widget.userProfile.diagnosticHistory.last;
+    final incorrectIds = lastSession.results
+        .where((r) => !r.wasCorrect)
+        .map((r) => r.questionId)
+        .toSet();
+        
+    if (incorrectIds.isEmpty) {
+      // Perfect score? Return all just in case or handle empty state
+      return allQuestions;
+    }
+
+    return allQuestions
+        .where((q) => incorrectIds.contains(q.listNumber.toString()))
+        .toList();
   }
 
   @override
@@ -52,6 +93,8 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
 
   /// Start timer for the current question (runs silently in background)
   void _startQuestionTimer(List<DiagnosticQuestion> questions) {
+    if (_currentQuestionIndex >= questions.length) return;
+    
     _questionStartTime = DateTime.now();
     _timeoutTimer?.cancel();
 
@@ -127,16 +170,99 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     _nextQuestion(questions);
   }
 
-  Future<void> _loadDiagnosticProgress() async {
+  void _loadDiagnosticProgress(List<DiagnosticQuestion> questions) {
     // Load saved diagnostic progress if it exists
     if (widget.userProfile.diagnosticProgress != null) {
+      final savedIndex = widget.userProfile.diagnosticProgress!;
+      final savedAnswers = widget.userProfile.diagnosticAnswers;
+
+      if (savedAnswers != null) {
+        _answers.addAll(savedAnswers);
+        // Reconstruct the in-memory state (results, tags, logic) from the saved answers
+        _reconstructStateFromAnswers(questions, savedAnswers, savedIndex);
+      }
+
       setState(() {
-        _currentQuestionIndex = widget.userProfile.diagnosticProgress!;
-        if (widget.userProfile.diagnosticAnswers != null) {
-          _answers.addAll(widget.userProfile.diagnosticAnswers!);
-        }
+        _currentQuestionIndex = savedIndex;
       });
+
+      // If we loaded a state where we are already finished, trigger processing
+      if (_currentQuestionIndex >= questions.length) {
+        _processResults(questions);
+      }
     }
+  }
+
+  /// Reconstructs _diagnosticResults, _skillTagsToPractice, and break-off logic
+  /// by re-evaluating the saved answers up to the current index.
+  void _reconstructStateFromAnswers(
+    List<DiagnosticQuestion> questions,
+    Map<int, String> savedAnswers,
+    int savedIndex,
+  ) {
+    print('=== Reconstructing Diagnostic State ===');
+    _diagnosticResults.clear();
+    _skillTagsToPractice.clear();
+    _categoryFailedZR20.clear();
+    _categoryPassedZR20.clear();
+
+    // Iterate through all questions up to the saved index
+    // Note: We iterate by list index, but we need to handle skipped questions too if logic implies it.
+    // However, savedAnswers only contains answers for questions actually attempted (or saved).
+    // A simpler approach: Re-simulate the test flow up to savedIndex.
+
+    // Using a loop to simulate the flow
+    for (int i = 0; i < savedIndex && i < questions.length; i++) {
+      final question = questions[i];
+      final userAnswer = savedAnswers[i];
+
+      // If we don't have an answer for 'i', it might have been skipped or we are out of sync.
+      // But _nextQuestion logic saves answer (empty string if skipped?). 
+      // Actually _skipCurrentQuestion saves 'userAnswer' as controller text, usually empty.
+      // But _nextQuestion loop for skipped questions (break-off) adds 'skipped' results.
+      
+      // For reconstruction, we primarily care about:
+      // 1. Identifying failed skills (to build learning path)
+      // 2. Break-off logic state (to know if we should skip future questions)
+
+      if (userAnswer != null) {
+        final textCorrect = _checkAnswer(userAnswer, question.correctAnswer, question.answerFormat, question.listNumber);
+        // We don't have response time from saved state, so assume 0.0 or not "too long"
+        // This is a limitation: if they failed due to time previously, we might re-evaluate as pass here.
+        // But persistent "wasCorrect" isn't saved in UserProfile, only answers.
+        // Assuming textCorrect is the main factor for reconstruction.
+        final wasCorrect = textCorrect; 
+
+        if (!wasCorrect) {
+          _skillTagsToPractice.addAll(question.ifWrongPracticeSkills);
+          _checkBreakOffLogic(question, false);
+        } else {
+          _checkBreakOffLogic(question, true);
+        }
+
+        // Re-add to results list (simplified)
+        _diagnosticResults.add(DiagnosticResult(
+          questionId: question.listNumber.toString(),
+          wasCorrect: wasCorrect,
+          responseTimeSeconds: 0, // Lost data
+          status: 'restored',
+          userAnswer: userAnswer,
+        ));
+      } else {
+        // No answer found for this index. 
+        // It might be a question skipped by break-off logic?
+        // If so, we should record it as skipped.
+        if (_shouldSkipQuestion(question)) {
+           _diagnosticResults.add(DiagnosticResult(
+            questionId: question.listNumber.toString(),
+            wasCorrect: false,
+            responseTimeSeconds: 0,
+            status: 'skipped',
+          ));
+        }
+      }
+    }
+    print('=== Reconstruction Complete: ${_skillTagsToPractice.length} tags found ===');
   }
 
   /// Check if question should be skipped due to break-off logic
@@ -227,7 +353,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
 
     // Check if answer is correct and record result
     final currentQuestion = questions[_currentQuestionIndex];
-    final textCorrect = _checkAnswer(userAnswer, currentQuestion.correctAnswer, currentQuestion.answerFormat);
+    final textCorrect = _checkAnswer(userAnswer, currentQuestion.correctAnswer, currentQuestion.answerFormat, currentQuestion.listNumber);
 
     // Determine time threshold based on question type
     final timeThreshold = currentQuestion.answerFormat == AnswerFormat.single
@@ -330,10 +456,40 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     print('  - Unique skill tags: ${uniqueTags.length}');
     print('  - Skill tags: $uniqueTags');
 
+    // Prepare final results
+    List<DiagnosticResult> finalResults = [];
+    
+    if (widget.retryMode && widget.userProfile.diagnosticHistory.isNotEmpty) {
+      // Merge: start with results from last session
+      final lastResults = widget.userProfile.diagnosticHistory.last.results;
+      // Map of questionId -> result
+      final resultMap = {for (var r in lastResults) r.questionId: r};
+      
+      // Overwrite with new results
+      for (var r in _diagnosticResults) {
+        resultMap[r.questionId] = r;
+      }
+      
+      finalResults = resultMap.values.toList();
+      // Sort by question ID numerically to keep order
+      finalResults.sort((a, b) => int.parse(a.questionId).compareTo(int.parse(b.questionId)));
+    } else {
+      finalResults = _diagnosticResults;
+    }
+
+    // Create a new diagnostic session with MERGED results
+    final session = DiagnosticSession(
+      date: DateTime.now(),
+      results: finalResults,
+      generatedSkillTags: uniqueTags,
+    );
+
     // Update the user profile with the skill tags, diagnostic results, and clear diagnostic progress
+    // Also append the new session to the history
     final updatedProfile = widget.userProfile.copyWith(
       skillTags: uniqueTags,
-      diagnosticResults: _diagnosticResults,
+      diagnosticResults: finalResults,
+      diagnosticHistory: [...widget.userProfile.diagnosticHistory, session],
       clearDiagnosticProgress: true, // Clear progress since test is complete
     );
 
@@ -358,8 +514,24 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     });
   }
 
-  bool _checkAnswer(String userAnswer, String correctAnswer, AnswerFormat format) {
+  bool _checkAnswer(String userAnswer, String correctAnswer, AnswerFormat format, int questionNumber) {
     if (userAnswer.isEmpty) return false;
+
+    // Special case for Question 21: Any pair summing to 7
+    if (questionNumber == 21) {
+       // Expecting "val1, val2" from MultipleAnswerWidget
+       final parts = userAnswer.split(',').map((s) => int.tryParse(s.trim()) ?? -1).toList();
+       // Check if we have exactly 2 valid numbers > 0 that sum to 7
+       // (Dice usually show 1-6, so maybe strictly >0 and <=6? But question says "numbers on dice")
+       // Assuming standard dice: 1-6.
+       if (parts.length == 2 && 
+           parts[0] >= 1 && parts[0] <= 6 && 
+           parts[1] >= 1 && parts[1] <= 6 && 
+           (parts[0] + parts[1] == 7)) {
+         return true;
+       }
+       return false;
+    }
 
     switch (format) {
       case AnswerFormat.single:
@@ -433,19 +605,19 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
 
           final questions = snapshot.data!;
           if (_currentQuestionIndex >= questions.length) {
-            // Test is complete
-            return Center(
+            // Test is complete - show processing state
+            return const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('Test Complete!'),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Navigate back or to results screen
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('Go Back'),
+                  CircularProgressIndicator(),
+                  SizedBox(height: 20),
+                  Text(
+                    'Generating Results...',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
+                  SizedBox(height: 10),
+                  Text('Please wait while we create your learning path.'),
                 ],
               ),
             );
@@ -555,10 +727,26 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
             .map((s) => s.trim())
             .where((s) => s.isNotEmpty)
             .length;
+
+        // Try to find a starting number for counting questions
+        String? prefixText;
+        
+        // Check if it's a counting question (contains "Count" in English or "Zähle" in German)
+        final isCounting = question.english.toLowerCase().contains('count') || 
+                           question.german.toLowerCase().contains('zähle');
+                           
+        // Check if the main display text is a number (which is usually the starting number for these questions)
+        final isNumber = int.tryParse(question.questionText.trim()) != null;
+        
+        if (isCounting && isNumber) {
+          prefixText = '${question.questionText.trim()}, ';
+        }
+
         return MultipleAnswerWidget(
           key: ValueKey('multiple_${question.listNumber}'),
           controller: _textController,
           fieldCount: fieldCount,
+          prefixText: prefixText,
         );
       case AnswerFormat.sort:
         // Parse the correct answer to get the items to sort

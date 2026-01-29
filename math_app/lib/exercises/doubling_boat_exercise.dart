@@ -62,10 +62,10 @@ class _DoublingBoatExerciseState extends State<DoublingBoatExercise> with Exerci
   UserProfile get userProfile => widget.userProfile;
   
   @override
-  int get totalLevels => 4; // Guided, Supported, Mastery, Finale
+  int get totalLevels => 3; // Guided, Supported, Mastery (Finale)
   
   @override
-  int get finaleLevelNumber => 5; // ScaffoldLevel.finale.levelNumber
+  int get finaleLevelNumber => 3; // ScaffoldLevel.independentMastery.levelNumber
 
   @override
   int get problemTimeLimit => 20;
@@ -108,8 +108,6 @@ class _DoublingBoatExerciseState extends State<DoublingBoatExercise> with Exerci
       nextLevel = ScaffoldLevel.supportedPractice;
     } else if (_currentLevel == ScaffoldLevel.supportedPractice) {
       nextLevel = ScaffoldLevel.independentMastery;
-    } else if (_currentLevel == ScaffoldLevel.independentMastery) {
-      nextLevel = ScaffoldLevel.finale;
     } else {
       nextLevel = null; // Finished
     }
@@ -198,17 +196,9 @@ class _DoublingBoatExerciseState extends State<DoublingBoatExercise> with Exerci
         );
         break;
       case ScaffoldLevel.independentMastery:
-      case ScaffoldLevel.advancedChallenge: // Map unused level to Mastery or Finale
+      default: // Also covers Finale if erroneously reached
         content = DoublingBoatLevel3Widget(
           key: ValueKey('L3_$_targetNumber'),
-          targetNumber: _targetNumber,
-          onResult: _onProblemComplete,
-        );
-        break;
-      case ScaffoldLevel.finale:
-        // Finale reuses Level 3 (Mental) but maybe faster or just mixed
-        content = DoublingBoatLevel3Widget(
-          key: ValueKey('L4_$_targetNumber'),
           targetNumber: _targetNumber,
           onResult: _onProblemComplete,
         );
@@ -255,7 +245,6 @@ class _DoublingBoatExerciseState extends State<DoublingBoatExercise> with Exerci
           ScaffoldLevel.guidedExploration,
           ScaffoldLevel.supportedPractice,
           ScaffoldLevel.independentMastery,
-          ScaffoldLevel.finale,
         ],
         currentLevel: _currentLevel,
         onLevelSelected: _switchLevel,

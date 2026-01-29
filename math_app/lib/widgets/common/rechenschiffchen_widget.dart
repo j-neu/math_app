@@ -26,6 +26,12 @@ class RechenschiffchenWidget extends StatelessWidget {
   /// Whether to cover only the bottom row.
   final bool coverBottom;
 
+  /// Whether to highlight the left 5+5 block (Tens structure).
+  final bool highlightTensBlock;
+
+  /// Whether to highlight the right block (Ones/Remainder).
+  final bool highlightOnesBlock;
+
   /// Callback when a slot is tapped.
   /// row: 0 (top) or 1 (bottom).
   /// col: 0-9.
@@ -40,6 +46,8 @@ class RechenschiffchenWidget extends StatelessWidget {
     this.bottomColor = Colors.blue,
     this.coverAll = false,
     this.coverBottom = false,
+    this.highlightTensBlock = false,
+    this.highlightOnesBlock = false,
     this.onSlotTap,
   });
 
@@ -61,6 +69,20 @@ class RechenschiffchenWidget extends StatelessWidget {
         
         // Ensure not too big, but allow shrinking to fit
         final effectiveSlotSize = slotSize.clamp(10.0, 50.0);
+
+        // Dimensions for highlights
+        final slotCellWidth = effectiveSlotSize * 1.2; // size + 2*margin
+        final slotCellHeight = effectiveSlotSize * 1.2; 
+        final gapWidth = effectiveSlotSize * 0.8;
+        final rowGapHeight = effectiveSlotSize * 0.2;
+        
+        final leftBlockWidth = 5 * slotCellWidth;
+        final blockHeight = 2 * slotCellHeight + rowGapHeight;
+        final rightBlockStart = leftBlockWidth + gapWidth;
+        final rightBlockWidth = 5 * slotCellWidth;
+
+        // Container padding offset
+        final paddingOffset = 12.0;
         
         return Stack(
           children: [
@@ -82,12 +104,41 @@ class RechenschiffchenWidget extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   _buildRow(0, topCount, topColor, effectiveSlotSize),
-                  SizedBox(height: effectiveSlotSize * 0.2), // Gap between rows
+                  SizedBox(height: rowGapHeight), // Gap between rows
                   _buildRow(1, bottomCount, bottomColor, effectiveSlotSize),
                 ],
               ),
             ),
             
+            // Highlights
+            if (highlightTensBlock)
+              Positioned(
+                left: paddingOffset - 4,
+                top: paddingOffset - 4,
+                width: leftBlockWidth + 8,
+                height: blockHeight + 8,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.red, width: 4),
+                  ),
+                ),
+              ),
+
+            if (highlightOnesBlock)
+              Positioned(
+                left: paddingOffset + rightBlockStart - 4,
+                top: paddingOffset - 4,
+                width: rightBlockWidth + 8,
+                height: blockHeight + 8,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.red, width: 4),
+                  ),
+                ),
+              ),
+
             // Cloth covers
             if (coverAll)
               Positioned.fill(

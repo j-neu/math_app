@@ -135,19 +135,21 @@ From [adhd guidelines.md](adhd%20guidelines.md) - these principles MUST be maint
 
 ---
 
-## Architecture Overview
+### Architecture Overview
 
 ### Data Flow
 ```
 UserSelectionScreen → HomeScreen → DiagnosticScreen (if new user)
                                  → ExerciseScreen (if returning)
 
-DiagnosticService → Updates UserProfile.skillTags
+DiagnosticService → Updates UserProfile.skillTags & DiagnosticHistory
 ExerciseService → Matches exercises to UserProfile.skillTags
+PdfReportService → Generates evaluation PDF from DiagnosticSession
 ```
 
 ### Key Models
-- [UserProfile](math_app/lib/models/user_profile.dart): Stores user data, `skillTags` (88 skill IDs), exercise progress, rewards config
+- [UserProfile](math_app/lib/models/user_profile.dart): Stores user data, `skillTags`, `diagnosticHistory` (list of sessions), exercise progress
+- [DiagnosticSession](math_app/lib/models/diagnostic_session.dart): Snapshot of a completed diagnostic test (date, results, skill gaps)
 - [DiagnosticQuestion](math_app/lib/models/diagnostic_question.dart): 59 diagnostic questions from CSV
 - [Exercise](math_app/lib/models/exercise.dart): Exercise content + `exerciseWidget` field
 - [ScaffoldProgress](math_app/lib/models/scaffold_level.dart): Tracks level progression (ephemeral, in-exercise only)
@@ -157,7 +159,8 @@ ExerciseService → Matches exercises to UserProfile.skillTags
 
 ### Services
 - [DiagnosticService](math_app/lib/services/diagnostic_service.dart): Loads/parses diagnostic CSV, populates `skillTags` on wrong answers
-- [ExerciseService](math_app/lib/services/exercise_service.dart): Generates learning path by matching exercise `skillTags` to user's `skillTags`, filters by completion status, groups by milestones
+- [PdfReportService](math_app/lib/services/pdf_report_service.dart): Generates PDF evaluation reports based on "Evaluation.docx" template logic
+- [ExerciseService](math_app/lib/services/exercise_service.dart): Generates learning path by matching exercise `skillTags` to user's `skillTags`
 - [RewardService](math_app/lib/services/reward_service.dart): Calculates reward eligibility, manages reward celebrations
 
 ### Skill System (88 Skills)
@@ -485,7 +488,13 @@ if (oldWidget.a != widget.a || oldWidget.b != widget.b || oldWidget.target != wi
 - Uses `FingerDisplayWidget` with increment/decrement interaction
 - ~1,200 lines
 
-**Total:** ~12,000 lines across 7 skills
+**Skill S3.4: Doubling Boat** - Tags: `basic_strategy_9`, `basic_strategy_10`
+- 3 levels (Guided, Supported, Mastery)
+- Teaches 5+5=10 structure for doubling numbers > 5
+- Highlights tens/ones blocks, step-by-step validation
+- Uses `RechenschiffchenWidget` with highlights and `NumericInputWidget`
+
+**Total:** ~13,000 lines across 8 skills
 
 **See [Archive/ARCHIVE_IMPLEMENTATIONS.md](Archive/ARCHIVE_IMPLEMENTATIONS.md) for detailed notes on first 4 skills.**
 

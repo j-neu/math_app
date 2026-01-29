@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Sync Flow Chart</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f4f4;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 95%;
+            overflow: auto;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>User Information & Account Flow</h1>
+        <div class="mermaid">
+flowchart TD
+    %% Roles
+    Teacher((Teacher/Admin))
+    Student((Student))
+    
+    %% --- Section 1: Account Creation ---
+    subgraph Creation [1. Class Setup Mode]
+        direction TB
+        T1[Teacher] -->|"1. Request New Class"| App1[App Client]
+        App1 -->|"2. Request Keys"| Cloud1[Backend]
+        Cloud1 -->|"3. Generate Keys (e.g. A7X2)"| Cloud1
+        Cloud1 -->|"4. Create Empty Profiles"| Cloud1
+        Cloud1 -->|"5. Return Keys"| App1
+        App1 -->|"6. Display Keys"| T1
+    end
+
+    %% --- Section 2: Login ---
+    subgraph Login [2. Student Login]
+        direction TB
+        S1[Student] -->|"1. Enter Key (A7X2)"| App2[App Client]
+        App2 -->|"2. Validate Key"| Cloud2[Backend]
+        Cloud2 -->|"3. Lookup User UUID"| Cloud2
+        
+        Cloud2 -- Valid --> App2_Success[App: Cache Profile]
+        Cloud2 -- Invalid --> App2_Fail[App: Show Error]
+        
+        App2_Success -->|"4. Check Updates"| App2_Sync[App: Sync Data]
+        Cloud2 -.->|"5. Download Progress"| App2_Sync
+    end
+
+    %% --- Section 3: Usage ---
+    subgraph Usage [3. Learning & Sync]
+        direction TB
+        S2[Student] -->|"1. Complete Level"| App3[App Client]
+        App3 -->|"2. Save Local"| App3_Store[(Local DB)]
+        
+        App3_Store -->|"3. Try Sync"| Cloud3[Backend]
+        Cloud3 -->|"4. Store Analytics"| Cloud3_DB[(Cloud DB)]
+        
+        Note3[If Offline: Queue for later] -.-> App3_Store
+    end
+
+    %% --- Section 4: Dashboard ---
+    subgraph Dashboard [4. Teacher Dashboard]
+        direction TB
+        T2[Teacher] -->|"1. Select Student"| App4[App Client]
+        App4 -->|"2. Fetch Stats"| Cloud4[Backend]
+        Cloud4 -->|"3. Aggregate Data"| Cloud4
+        Cloud4 -->|"4. Return JSON"| App4
+        App4 -->|"5. Show Charts"| T2
+    end
+
+    %% Links between phases
+    T1 -.-> S1
+    App2_Sync -.-> S2
+    Cloud3_DB -.-> T2
+
+    %% Styling
+    classDef actor fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef system fill:#e1f5fe,stroke:#0277bd,stroke-width:2px;
+    classDef cloud fill:#fff3e0,stroke:#ff6f00,stroke-width:2px;
+    classDef storage fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+
+    class Teacher,Student,T1,T2,S1,S2 actor;
+    class App1,App2,App3,App4,App2_Success,App2_Fail,App2_Sync system;
+    class Cloud1,Cloud2,Cloud3,Cloud4 cloud;
+    class App3_Store,Cloud3_DB storage;
+        </div>
+    </div>
+
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+</body>
+</html>

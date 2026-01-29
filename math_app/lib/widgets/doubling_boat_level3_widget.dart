@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'common/rechenschiffchen_widget.dart';
-import 'common/numpad_widget.dart';
+import 'common/numeric_input_widget.dart';
 
 class DoublingBoatLevel3Widget extends StatefulWidget {
   final int targetNumber; // Number in top row (implied)
@@ -19,7 +19,7 @@ class DoublingBoatLevel3Widget extends StatefulWidget {
 class _DoublingBoatLevel3WidgetState extends State<DoublingBoatLevel3Widget> {
   bool _isComplete = false;
   bool _reveal = false;
-  String _inputText = "";
+  String _resultText = "";
 
   void _checkAnswer(int answer) {
     if (_isComplete) return;
@@ -29,19 +29,20 @@ class _DoublingBoatLevel3WidgetState extends State<DoublingBoatLevel3Widget> {
       setState(() {
         _isComplete = true;
         _reveal = true;
-        _inputText = "$answer";
+        _resultText = "$answer";
       });
       
       Future.delayed(const Duration(milliseconds: 1500), () {
         widget.onResult(true);
       });
     } else {
-      setState(() {
-        _inputText = "$answer"; 
-      });
-      Future.delayed(const Duration(milliseconds: 500), () {
-         setState(() => _inputText = "");
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Not quite! Try doubling again.'), 
+          duration: Duration(milliseconds: 1000),
+          backgroundColor: Colors.orange,
+        ),
+      );
     }
   }
 
@@ -73,18 +74,23 @@ class _DoublingBoatLevel3WidgetState extends State<DoublingBoatLevel3Widget> {
           ),
         ),
         
-        Text(
-          _inputText.isEmpty ? "?" : _inputText,
-          style: TextStyle(
-            fontSize: 40,
-            fontWeight: FontWeight.bold,
-            color: _isComplete ? Colors.green : Colors.black,
-          ),
-        ),
-        
         Expanded(
           flex: 3,
-          child: Numpad(onNumberSelected: _checkAnswer),
+          child: Center(
+            child: _isComplete
+                ? Text(
+                    _resultText,
+                    style: const TextStyle(
+                      fontSize: 60,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
+                  )
+                : NumericInputWidget(
+                    onSubmit: _checkAnswer,
+                    hintText: '?',
+                  ),
+          ),
         ),
       ],
     );

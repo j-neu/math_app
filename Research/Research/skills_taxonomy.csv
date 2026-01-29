@@ -1,0 +1,88 @@
+skill_id,category,category_color,card_number,skill_name_de,skill_name_en,description_de,description_en
+counting_1,Zählen,green,1,Plättchen zählen,Count dots,Gegenstände durch Zählen erfassen,Count objects one by one
+counting_2,Zählen,green,2,Zahlenkarten bis 20 ordnen,Order number cards to 20,Zahlen der Größe nach ordnen bis 20,Order numbers by size up to 20
+counting_3,Zählen,green,3,Zählen am Zahlenband bis 100,Count on number line to 100,Vorwärts und rückwärts zählen bis 100,Count forward and backward to 100
+counting_4,Zählen,green,4,Nachbarzahlen am Zahlenband,Neighboring numbers on number line,Vorgänger und Nachfolger bestimmen,Determine predecessor and successor
+counting_5,Zählen,green,5,Nachbarzahlen finden (Spiel),Find neighboring numbers (game),Nachbarzahlen spielerisch üben,Practice neighboring numbers through play
+counting_6,Zählen,green,6,Zweierschritte am Rechenschiffchen,Skip count by 2s on calculation boat,In Zweierschritten zählen,Count in steps of 2
+counting_7,Zählen,green,7,In Zweierschritten zählen,Count by 2s,Strukturiert in 2er-Schritten zählen,Count in 2-steps with structure
+counting_8,Zählen,green,8,Zahlenfolgen in der Hundertertafel,Number patterns in 100-chart,Muster in der Hundertertafel erkennen,Recognize patterns in 100-chart
+counting_9,Zählen,green,9,Zählen in Schritten (Hundertertafel),Skip counting in 100-chart,In verschiedenen Schritten zählen,Count in various step sizes
+counting_10,Zählen,green,10,Zahlenkarten bis 20 auf Rechenstrich,Number cards to 20 on number line,Zahlen auf Zahlenstrahl positionieren,Position numbers on number line
+counting_11,Zählen,green,11,Zahlenkarten bis 100 auf Rechenstrich,Number cards to 100 on number line,Zahlen bis 100 auf Zahlenstrahl ordnen,Order numbers to 100 on number line
+decomposition_1,Zahlzerlegung / Schnelles Sehen,yellow,1,Zerlegung der Zahlen 2-9,Decompose numbers 2-9,Alle Zerlegungen einer Zahl finden,Find all decompositions of a number
+decomposition_2,Zahlzerlegung / Schnelles Sehen,yellow,2,Zerlegung 2-9 am Rechenschiffchen,Decompose 2-9 on calculation boat,Zerlegungen mit strukturiertem Material,Decompositions with structured material
+decomposition_3,Zahlzerlegung / Schnelles Sehen,yellow,3,Alle Zerlegungen der 10,All decompositions of 10,Kraft der 10 aufbauen,Build power of 10
+decomposition_4,Zahlzerlegung / Schnelles Sehen,yellow,4,Alle Zerlegungen der 20,All decompositions of 20,Kraft der 20 aufbauen,Build power of 20
+decomposition_5,Zahlzerlegung / Schnelles Sehen,yellow,5,Zahlzerlegung (Spiel: Klapp die Karten),Number decomposition game,Spielerisch Zerlegungen üben,Practice decompositions through play
+decomposition_6,Zahlzerlegung / Schnelles Sehen,yellow,6,Bewusstes und schnelles Sehen,Conscious and quick recognition,Mengen simultan erfassen (Subitizing),Recognize quantities simultaneously
+decomposition_7,Zahlzerlegung / Schnelles Sehen,yellow,7,Zahldarstellung bis 10,Number representation to 10,Strukturierte Darstellungen erkennen,Recognize structured representations
+decomposition_8,Zahlzerlegung / Schnelles Sehen,yellow,8,Zahldarstellung bis 20,Number representation to 20,Strukturierte Darstellungen bis 20,Structured representations to 20
+decomposition_9,Zahlzerlegung / Schnelles Sehen,yellow,9,Zahlzerlegung am Rechenschiffchen,Decomposition on calculation boat,Zerlegungen mit 5er und 10er Struktur,Decompositions with 5 and 10 structure
+decomposition_10,Zahlzerlegung / Schnelles Sehen,yellow,10,Rechenschiffchen aus Erinnerung,Draw calculation boat from memory,Innere Vorstellung aufbauen,Build mental imagery
+decomposition_11,Zahlzerlegung / Schnelles Sehen,yellow,11,Schnelles Sehen am Rechenschiffchen,Quick recognition on calculation boat,Automatisierung der Mengenerfassung,Automate quantity recognition
+decomposition_12,Zahlzerlegung / Schnelles Sehen,yellow,12,Würfelburg: Gruppen addieren,Dice tower: Add groups,Teilmengen erkennen und addieren,Recognize and add subsets
+decomposition_13,Zahlzerlegung / Schnelles Sehen,yellow,13,Wie viele im Hunderterpunktefeld?,How many in 100-dot field?,Große Mengen strukturiert erfassen,Recognize large quantities with structure
+decomposition_15,Zahlzerlegung / Schnelles Sehen,yellow,15,Ergänzen bis 10 mit Fingern,Complete to 10 with fingers,Ergänzungsaufgaben zur 10,Completion tasks to 10
+decomposition_16,Zahlzerlegung / Schnelles Sehen,yellow,16,Ergänzen bis 100 - Zerlegung der 100,Complete to 100 - Decompose 100,Kraft der 100 aufbauen,Build power of 100
+place_value_1,Stellenwerte verstehen,blue,1,Bündeln bis 100,Bundling to 100,Zehnerbündelung verstehen,Understand grouping by tens
+place_value_2,Stellenwerte verstehen,blue,2,Zahldarstellung mit Mehrsystemblöcken (1),Number representation with base-10 blocks (1),Zehner und Einer darstellen,Represent tens and ones
+place_value_3,Stellenwerte verstehen,blue,3,Zahldarstellung mit Mehrsystemblöcken (2),Number representation with base-10 blocks (2),Stellenwerte mit Material verstehen,Understand place value with materials
+place_value_4,Stellenwerte verstehen,blue,4,Zahlen hören und schreiben bis 100,Hear and write numbers to 100,Deutsche Zahlwörter verstehen,Understand German number words
+place_value_5,Stellenwerte verstehen,blue,5,Kraft der 10 (Zehner-Einer-Quiz),Power of 10 (Tens-Ones Quiz),Stellenwerte mental zerlegen,Mentally decompose place values
+place_value_6,Stellenwerte verstehen,blue,6,Zahlen in Hundertertafel schreiben,Write numbers in 100-chart,Struktur der Hundertertafel verstehen,Understand 100-chart structure
+basic_strategy_1,Grundstrategien,purple,1,Fingerblitz,Finger flash,Mengen mit Fingern darstellen,Represent quantities with fingers
+basic_strategy_2,Grundstrategien,purple,2,Erstes Rechnen (Finger klappen),First calculating (finger folding),Mit Fingern rechnen,Calculate with fingers
+basic_strategy_3,Grundstrategien,purple,3,1 oder 2 mehr/weniger (Finger),1 or 2 more/less (fingers),Kleine Schritte mit Fingern,Small steps with fingers
+basic_strategy_4,Grundstrategien,purple,4,Mehr/weniger (Spiel: Hamstern),More/less (game),Vergleichen spielerisch üben,Practice comparing through play
+basic_strategy_5,Grundstrategien,purple,5,1 oder 2 mehr/weniger (Würfeln),1 or 2 more/less (dice),Kleine Schritte mit Würfel,Small steps with dice
+basic_strategy_6,Grundstrategien,purple,6,Gegensinniges Verändern,Opposite change,Wenn +1 hier dann -1 dort,If +1 here then -1 there
+basic_strategy_7,Grundstrategien,purple,7,Verdoppeln mit Spiegel,Doubling with mirror,Doppelungen visuell erkennen,Visually recognize doubles
+basic_strategy_8,Grundstrategien,purple,8,Verdoppeln mit Fingern,Doubling with fingers,Verdoppelungsaufgaben üben,Practice doubling tasks
+basic_strategy_9,Grundstrategien,purple,9,Verdoppeln am Rechenschiffchen,Doubling on calculation boat,Doppelungen strukturiert darstellen,Represent doubles with structure
+basic_strategy_10,Grundstrategien,purple,10,Verdoppeln von Zehnerzahlen,Double decade numbers,Zehnerzahlen verdoppeln,Double tens numbers
+basic_strategy_11,Grundstrategien,purple,11,Rechnen mit Zehnerzahlen,Calculate with decade numbers,Reine Zehneraufgaben,Pure tens calculations
+basic_strategy_12,Grundstrategien,purple,12,Halbieren bis 20,Halve to 20,Halbierungsaufgaben,Halving tasks
+basic_strategy_13,Grundstrategien,purple,13,Halbieren am Rechenschiffchen,Halve on calculation boat,Halbieren mit Struktur,Halve with structure
+basic_strategy_14,Grundstrategien,purple,14,Halbieren von Zehnerzahlen,Halve decade numbers,Zehnerzahlen halbieren,Halve tens numbers
+basic_strategy_15,Grundstrategien,purple,15,Gerade und ungerade Zahlen,Even and odd numbers,Gerade/ungerade unterscheiden,Distinguish even/odd
+basic_strategy_16,Grundstrategien,purple,16,Geschicktes Rechnen,Smart calculating,Rechenvorteile nutzen,Use calculation advantages
+basic_strategy_17,Grundstrategien,purple,17,Geschicktes Rechnen (Würfelraten),Smart calculating (dice guessing),Strategien im Spiel anwenden,Apply strategies in game
+basic_strategy_18,Grundstrategien,purple,18,Gleichungen - Was ist gleich?,Equations - What is equal?,Gleichheit verstehen,Understand equality
+basic_strategy_19,Grundstrategien,purple,19,Tauschaufgaben am Rechenschiffchen,Commutative tasks on boat,Kommutativität erkennen,Recognize commutativity
+basic_strategy_20,Grundstrategien,purple,20,Rechnen mit Zehnerzahlen (10+3),Calculate with tens (10+3),Zehner und Einer kombinieren,Combine tens and ones
+basic_strategy_21,Grundstrategien,purple,21,Rechnen mit Zehnerzahlen bis 100,Calculate with tens to 100,Zehner und Einer bis 100,Tens and ones to 100
+basic_strategy_22,Grundstrategien,purple,22,Zehner-Analogien (Spiel),Decade analogies (game),Analogien spielerisch erkennen,Recognize analogies through play
+basic_strategy_23,Grundstrategien,purple,23,Zehner-Analogien,Decade analogies,3+4=7 also 30+40=70,3+4=7 so 30+40=70
+combined_strategy_1,Kombinierte Strategien,gray,1,Verdoppeln und Nachbaraufgaben,Doubling and near-doubles,Fast-Verdoppelungen nutzen,Use near-doubles
+combined_strategy_2,Kombinierte Strategien,gray,2,Strategie: Verdoppeln/Halbieren +/-1,Strategy: Double/halve +/-1,Von Verdoppelungen ableiten,Derive from doubles
+combined_strategy_3,Kombinierte Strategien,gray,3,Kraft der 5 und Ableitungen,Power of 5 and derivations,5er-Struktur als Anker nutzen,Use 5-structure as anchor
+combined_strategy_4,Kombinierte Strategien,gray,4,Strategie: Kraft der 5,Strategy: Power of 5,Ableiten über die 5,Derive via 5
+combined_strategy_5,Kombinierte Strategien,gray,5,Addition/Subtraktion von 10,Add/subtract 10,Zehnerschritte sicher anwenden,Apply decade steps securely
+combined_strategy_6,Kombinierte Strategien,gray,6,Strategie: Kraft der 10,Strategy: Power of 10,Über die 10 hinweg rechnen,Calculate across 10
+combined_strategy_7,Kombinierte Strategien,gray,7,Strategie: Gegensinniges Verändern,Strategy: Opposite change,Aufgaben umformen,Transform tasks
+combined_strategy_8,Kombinierte Strategien,gray,8,Strategie: Teilschrittverfahren,Strategy: Partial steps,In Schritten rechnen,Calculate in steps
+combined_strategy_9,Kombinierte Strategien,gray,9,Zahlenmauern,Number walls,Operative Beziehungen erkennen,Recognize operative relationships
+combined_strategy_10,Kombinierte Strategien,gray,10,Rechendreiecke,Calculation triangles,Beziehungen zwischen drei Zahlen,Relationships between three numbers
+combined_strategy_11,Kombinierte Strategien,gray,11,Additionsaufgaben bis 100 (Zahlenblick),Addition to 100 (number sense),Aufgaben durch Zahlenblick lösen,Solve via number sense
+combined_strategy_12,Kombinierte Strategien,gray,12,Addition mit Übergang (27+8),Addition with crossing (27+8),Über Zehner hinweg addieren,Add across decades
+combined_strategy_13,Kombinierte Strategien,gray,13,Subtraktionsaufgaben bis 100 (Zahlenblick),Subtraction to 100 (number sense),Subtraktionen durch Zahlenblick,Subtractions via number sense
+combined_strategy_14,Kombinierte Strategien,gray,14,Subtraktion mit Übergang (44-9),Subtraction with crossing (44-9),Über Zehner hinweg subtrahieren,Subtract across decades
+combined_strategy_15,Kombinierte Strategien,gray,15,Addition zweistelliger Zahlen mit Übergang,Add 2-digit with crossing,Zweistellige Addition mit Übergang,2-digit addition with crossing
+combined_strategy_16,Kombinierte Strategien,gray,16,Subtraktion zweistelliger Zahlen mit Übergang,Subtract 2-digit with crossing,Zweistellige Subtraktion mit Übergang,2-digit subtraction with crossing
+combined_strategy_17,Kombinierte Strategien,gray,17,Verdoppeln zweistelliger Zahlen,Double 2-digit numbers,Zweistellige Zahlen verdoppeln,Double 2-digit numbers
+combined_strategy_18,Kombinierte Strategien,gray,18,Halbieren zweistelliger Zahlen,Halve 2-digit numbers,Zweistellige Zahlen halbieren,Halve 2-digit numbers
+combined_strategy_19,Kombinierte Strategien,gray,19,Spiel: Genau daneben,Game: Close by,Fast-richtige Aufgaben nutzen,Use near-miss tasks
+combined_strategy_20,Kombinierte Strategien,gray,20,Geschicktes Rechnen am Zahlenfeld,Smart calculating on number field,Flexibles Rechnen im Zahlenfeld,Flexible calculating in number field
+ordinal_1,Ordinal Numbers,orange,1,Ordnungszahlen verwenden,Use ordinal numbers,Positionen mit Ordnungszahlen beschreiben (1. 2. 3.),Describe positions with ordinal numbers (1st 2nd 3rd)
+ordinal_2,Ordinal Numbers,orange,2,Ordinal vs Kardinal,Ordinal vs Cardinal,Unterschied zwischen Ordnungs- und Kardinalzahlen verstehen,Understand distinction between ordinal and cardinal numbers
+representation_1,Representation Networking,teal,1,Handlung ↔ Bild vernetzen,Connect Action ↔ Image,Zwischen Handlung und Bild wechseln,Switch between action and image representations
+representation_2,Representation Networking,teal,2,Bild ↔ Symbol vernetzen,Connect Image ↔ Symbol,Zwischen Bild und Symbol wechseln,Switch between image and symbol representations
+representation_3,Representation Networking,teal,3,Handlung ↔ Symbol vernetzen,Connect Action ↔ Symbol,Zwischen Handlung und Symbol wechseln,Switch between action and symbol representations
+representation_4,Representation Networking,teal,4,Flexibel zwischen allen Darstellungen,Flexible across all representations,Frei zwischen allen drei Darstellungen wechseln,Flexibly move between all three representations
+operation_sense_add,Operational Sense,brown,1,Addition im Kontext verstehen,Understand addition in context,Addition in Alltagssituationen erkennen (zusammentun addieren),Recognize addition in real-life contexts (combining adding to)
+operation_sense_sub,Operational Sense,brown,2,Subtraktion im Kontext verstehen,Understand subtraction in context,Subtraktion in Kontexten verstehen (wegnehmen vergleichen),Understand subtraction contexts (taking away comparing)
+operation_sense_story,Operational Sense,brown,3,Rechengeschichten lösen,Solve story problems,Sachaufgaben in Gleichungen übersetzen,Translate word problems to equations
+number_line_rechenstrich,Advanced Number Line,pink,1,Rechenstrich nutzen,Use empty number line,Leerer Zahlenstrahl zum Rechnen,Empty number line for calculation
+number_line_zahlenstrahl,Advanced Number Line,pink,2,Zahlenstrahl nutzen,Use marked number line,Markierter Zahlenstrahl zur Positionierung,Marked number line for positioning
+number_line_strategies,Advanced Number Line,pink,3,Zahlenstrahl-Strategien,Number line strategies,Flexible Zahlenstrahl-Strategien anwenden,Apply number line strategies flexibly

@@ -1,6 +1,7 @@
 import 'diagnostic_result.dart';
 import 'exercise_progress.dart';
 import 'reward_config.dart';
+import 'diagnostic_session.dart';
 
 class UserProfile {
   final String id;
@@ -10,7 +11,8 @@ class UserProfile {
   final int? diagnosticProgress; // Current question index in diagnostic test
   final Map<int, String>? diagnosticAnswers; // Saved answers during diagnostic
   final List<DiagnosticResult>? diagnosticResults; // Full diagnostic session data
-  final bool useBreakOffLogic; // If true, skip harder questions when easier ones fail (default: true)
+  final List<DiagnosticSession> diagnosticHistory; // History of all diagnostic sessions
+  final bool useBreakOffLogic; // If true, skip harder questions when easier ones fail (default: false)
   final bool lockExercisesInOrder; // If true, exercises must be completed sequentially (default: true)
 
   // Phase 2.5: Exercise completion tracking
@@ -28,7 +30,8 @@ class UserProfile {
     this.diagnosticProgress,
     this.diagnosticAnswers,
     this.diagnosticResults,
-    this.useBreakOffLogic = true, // Default to shortened test
+    this.diagnosticHistory = const [],
+    this.useBreakOffLogic = false, // Default to complete test
     this.lockExercisesInOrder = true, // Default to locked/sequential
     this.exerciseProgress,
     this.rewardConfig,
@@ -55,6 +58,7 @@ class UserProfile {
         (key, value) => MapEntry(key.toString(), value),
       ),
       'diagnosticResults': diagnosticResults?.map((result) => result.toJson()).toList(),
+      'diagnosticHistory': diagnosticHistory.map((session) => session.toJson()).toList(),
       'useBreakOffLogic': useBreakOffLogic,
       'lockExercisesInOrder': lockExercisesInOrder,
       'exerciseProgress': exerciseProgressJson,
@@ -79,6 +83,13 @@ class UserProfile {
     if (json['diagnosticResults'] != null) {
       diagnosticResults = (json['diagnosticResults'] as List<dynamic>)
           .map((result) => DiagnosticResult.fromJson(result as Map<String, dynamic>))
+          .toList();
+    }
+
+    List<DiagnosticSession> diagnosticHistory = [];
+    if (json['diagnosticHistory'] != null) {
+      diagnosticHistory = (json['diagnosticHistory'] as List<dynamic>)
+          .map((session) => DiagnosticSession.fromJson(session as Map<String, dynamic>))
           .toList();
     }
 
@@ -112,8 +123,9 @@ class UserProfile {
       diagnosticProgress: json['diagnosticProgress'] as int?,
       diagnosticAnswers: diagnosticAnswers,
       diagnosticResults: diagnosticResults,
-      useBreakOffLogic: json['useBreakOffLogic'] as bool? ?? true, // Default to true for backward compatibility
-      lockExercisesInOrder: json['lockExercisesInOrder'] as bool? ?? true, // Default to true for backward compatibility
+      diagnosticHistory: diagnosticHistory,
+      useBreakOffLogic: json['useBreakOffLogic'] as bool? ?? false, // Default to false
+      lockExercisesInOrder: json['lockExercisesInOrder'] as bool? ?? true, // Default to true
       exerciseProgress: parsedExerciseProgress,
       rewardConfig: parsedRewardConfig,
       lastSessionDate: parsedLastSessionDate,
@@ -131,6 +143,7 @@ class UserProfile {
     int? diagnosticProgress,
     Map<int, String>? diagnosticAnswers,
     List<DiagnosticResult>? diagnosticResults,
+    List<DiagnosticSession>? diagnosticHistory,
     bool? useBreakOffLogic,
     bool? lockExercisesInOrder,
     bool clearDiagnosticProgress = false,
@@ -148,6 +161,7 @@ class UserProfile {
       diagnosticProgress: clearDiagnosticProgress ? null : (diagnosticProgress ?? this.diagnosticProgress),
       diagnosticAnswers: clearDiagnosticProgress ? null : (diagnosticAnswers ?? this.diagnosticAnswers),
       diagnosticResults: clearDiagnosticProgress ? null : (diagnosticResults ?? this.diagnosticResults),
+      diagnosticHistory: diagnosticHistory ?? this.diagnosticHistory,
       useBreakOffLogic: useBreakOffLogic ?? this.useBreakOffLogic,
       lockExercisesInOrder: lockExercisesInOrder ?? this.lockExercisesInOrder,
       exerciseProgress: exerciseProgress ?? this.exerciseProgress,

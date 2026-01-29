@@ -27,6 +27,8 @@ import '../exercises/doubling_mirror_exercise.dart';
 import '../exercises/doubling_fingers_exercise.dart';
 import '../exercises/doubling_fingers_20_exercise.dart';
 import '../exercises/doubling_boat_exercise.dart';
+import '../exercises/doubling_tens_exercise.dart';
+import '../exercises/tens_calculation_exercise.dart';
 
 class ExerciseService {
   // Exercise library with both legacy placeholders and new functional exercises
@@ -255,6 +257,23 @@ class ExerciseService {
       title: 'Verdoppeln mit Fingern (ZR20)',
       skillTags: ['basic_strategy_8', 'counting_20'],
       exerciseBuilder: (userProfile) => DoublingFingers20Exercise(userProfile: userProfile),
+    ),
+    // NEW: S3.6 - Doubling Tens
+    Exercise(
+      id: 'S3.6',
+      title: 'Zehner verdoppeln',
+      skillTags: ['strategy_doubling_tens_1'],
+      exerciseBuilder: (userProfile) => DoublingTensExercise(
+        userProfile: userProfile,
+        exerciseId: 'S3.6',
+      ),
+    ),
+    // NEW: S3.7 - Tens Calculation (Rechnen mit Zehnerzahlen)
+    Exercise(
+      id: 'S3.7',
+      title: 'Rechnen mit Zehnern',
+      skillTags: ['basic_strategy_11'],
+      exerciseBuilder: (userProfile) => TensCalculationExercise(userProfile: userProfile),
     ),
     // NEW: Fully functional Z1 implementation based on PIKAS Card 9
     Exercise(

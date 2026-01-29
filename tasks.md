@@ -4,6 +4,13 @@
 **Goal:** Complete feature parity with research frameworks (iMINT/PIKAS) and prepare for beta release.
 
 ---
+## 🛠 Widget Library Needs
+**Critical for Sets 2-4:**
+- [ ] `DienesBlocksWidget` (Place Value)
+- [ ] `RechenschiffchenWidget` (Boat 5+5)
+- [ ] `HundredChartWidget` (10x10 Grid)
+- [ ] `FlashCardWidget` (Subitizing)
+- [ ] `WendeplättchenWidget` (Two-color counters)
 
 ## Phase 2.5: QA & Bug Fixes (Set 1)
 
@@ -44,7 +51,7 @@
 - [x] **S3.1: Doubling with Mirror** (`basic_strategy_7`) - Visual doubling using a mirror metaphor (ZR10).
 - [x] **S3.2: Doubling with Mirror** (`basic_strategy_7`) - Visual doubling using a mirror metaphor (ZR20).
 - [x] **S3.3: Doubling with Fingers** (`basic_strategy_8`) - 5+5=10, 3+3=6 using hands.
-- [ ] **S3.4: Halving to 20** (`basic_strategy_12`) - Inverse of doubling.
+- [x] **S3.4: Doubling Boat** (`basic_strategy_9`, `basic_strategy_10`) - Doubling with Rechenschiffchen (5+5 structure).
 
 ---
 
@@ -54,18 +61,18 @@
 **Goal:** Turn diagnostic results into an actionable learning plan.
 
 ### 1. Diagnostic Logic Review
-- [ ] **Review Skippability:** Reduce the number of skippable questions to ensure valid results.
+- [x] **Review Skippability:** Reduce the number of skippable questions to ensure valid results (Default: Complete Test).
 - [ ] **Time Tracking:** Ensure response time is accurately captured for every question.
 
 ### 2. Report Generation System
-- [ ] **Create `DiagnosticReportGenerator`:**
+- [x] **Create `DiagnosticReportGenerator`:**
   - Logic to analyze `UserProfile.diagnosticResults`.
   - Classify skills into "Mastered", "Needs Practice", "Not Started".
   - Prioritize "Needs Practice" skills based on dependencies (e.g., counting before decomposition).
-- [ ] **Create `DiagnosticReportScreen`:**
-  - **Overview Tab:** Visual summary (e.g., "You got 45/59 right!", "Strong in Counting").
-  - **Roadmap Tab:** Detailed list of recommended exercises in order.
-  - **For Parents:** "Show Details" section explaining *why* a skill was recommended (e.g., "Struggled with transitions").
+- [x] **Create `DiagnosticReportScreen`:**
+  - **Overview Tab:** PDF Report generation.
+  - **Roadmap Tab:** Detailed list of recommended exercises in order (Learning Path).
+  - **For Parents:** "Show Details" section explaining *why* a skill was recommended (via PDF).
 
 ---
 
@@ -136,10 +143,4 @@
 
 ---
 
-## 🛠 Widget Library Needs
-**Critical for Sets 2-4:**
-- [ ] `DienesBlocksWidget` (Place Value)
-- [ ] `RechenschiffchenWidget` (Boat 5+5)
-- [ ] `HundredChartWidget` (10x10 Grid)
-- [ ] `FlashCardWidget` (Subitizing)
-- [ ] `WendeplättchenWidget` (Two-color counters)
+

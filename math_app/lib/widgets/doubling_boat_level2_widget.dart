@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'common/rechenschiffchen_widget.dart';
-import 'common/numpad_widget.dart';
+import 'common/numeric_input_widget.dart';
+
+enum LevelStep { checkTens, checkOnes, checkTotal, finished }
 
 class DoublingBoatLevel2Widget extends StatefulWidget {
   final int targetNumber; // Number in top row
@@ -17,34 +19,82 @@ class DoublingBoatLevel2Widget extends StatefulWidget {
 }
 
 class _DoublingBoatLevel2WidgetState extends State<DoublingBoatLevel2Widget> {
-  bool _isComplete = false;
-  bool _reveal = false; // Reveal answer after correct input
-  String _inputText = "";
+  LevelStep _step = LevelStep.checkTotal;
+  bool _reveal = false;
 
-  void _checkAnswer(int answer) {
-    if (_isComplete) return;
+  @override
+  void initState() {
+    super.initState();
+    _initStep();
+  }
 
-    final expected = widget.targetNumber * 2;
-    if (answer == expected) {
-      setState(() {
-        _isComplete = true;
-        _reveal = true;
-        _inputText = "$answer";
-      });
-      
-      // Delay to show the revealed boat
-      Future.delayed(const Duration(milliseconds: 1500), () {
-        widget.onResult(true);
-      });
-    } else {
-      // Shake or feedback?
-      setState(() {
-        _inputText = "$answer"; 
-        // Maybe clearer to clear it after a moment or show incorrect
-      });
-      Future.delayed(const Duration(milliseconds: 500), () {
-         setState(() => _inputText = "");
-      });
+  @override
+  void didUpdateWidget(DoublingBoatLevel2Widget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.targetNumber != widget.targetNumber) {
+      _initStep();
+    }
+  }
+
+  void _initStep() {
+    setState(() {
+      _reveal = false;
+      if (widget.targetNumber > 5) {
+        _step = LevelStep.checkTens;
+      } else {
+        _step = LevelStep.checkTotal;
+      }
+    });
+  }
+
+  void _checkInput(int input) {
+    final target = widget.targetNumber;
+    
+    if (_step == LevelStep.checkTens) {
+      if (input == 10) {
+        setState(() => _step = LevelStep.checkOnes);
+      } else {
+         _showFeedback('Double the 5s. 5 + 5 = ?');
+      }
+    } else if (_step == LevelStep.checkOnes) {
+      final remainder = (target - 5) * 2;
+      if (input == remainder) {
+        setState(() => _step = LevelStep.checkTotal);
+      } else {
+        _showFeedback('Double the rest. ${target-5} + ${target-5} = ?');
+      }
+    } else if (_step == LevelStep.checkTotal) {
+      final total = target * 2;
+      if (input == total) {
+        setState(() {
+          _step = LevelStep.finished;
+          _reveal = true;
+        });
+        Future.delayed(const Duration(milliseconds: 1500), () {
+          widget.onResult(true);
+        });
+      } else {
+        _showFeedback('Try again!');
+      }
+    }
+  }
+
+  void _showFeedback(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), duration: const Duration(seconds: 1), backgroundColor: Colors.orange),
+    );
+  }
+
+  String _getInstruction() {
+    switch (_step) {
+      case LevelStep.checkTens:
+        return 'Stell dir die blauen Plättchen vor. Wie viele im roten Rahmen?';
+      case LevelStep.checkOnes:
+        return 'Und wie viele hier im roten Rahmen?';
+      case LevelStep.checkTotal:
+        return 'Wie viele sind es zusammen?';
+      case LevelStep.finished:
+        return 'Richtig!';
     }
   }
 
@@ -52,12 +102,11 @@ class _DoublingBoatLevel2WidgetState extends State<DoublingBoatLevel2Widget> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Instruction
-        const Padding(
-          padding: EdgeInsets.all(16.0),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Text(
-            'Stell dir die blauen Plättchen vor. Wie viele sind es zusammen?',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            _getInstruction(),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
         ),
@@ -69,28 +118,37 @@ class _DoublingBoatLevel2WidgetState extends State<DoublingBoatLevel2Widget> {
               padding: const EdgeInsets.all(16.0),
               child: RechenschiffchenWidget(
                 topCount: widget.targetNumber,
-                bottomCount: _reveal ? widget.targetNumber : 0, // Show if revealed
-                coverBottom: !_reveal, // Cover if not revealed
+                bottomCount: _reveal ? widget.targetNumber : 0,
+                coverBottom: !_reveal,
                 coverAll: false,
+                highlightTensBlock: _step == LevelStep.checkTens,
+                highlightOnesBlock: _step == LevelStep.checkOnes,
               ),
             ),
           ),
         ),
         
-        // Input Display
-        Text(
-          _inputText.isEmpty ? "?" : _inputText,
-          style: TextStyle(
-            fontSize: 40,
-            fontWeight: FontWeight.bold,
-            color: _isComplete ? Colors.green : Colors.black,
+        // Input Area
+        if (_step != LevelStep.finished)
+          Expanded(
+            flex: 2,
+            child: Center(
+              child: NumericInputWidget(
+                onSubmit: _checkInput,
+                hintText: '?',
+              ),
+            ),
+          )
+        else
+          Expanded(
+            flex: 2,
+            child: Center(
+              child: Text(
+                '${widget.targetNumber * 2}',
+                style: const TextStyle(fontSize: 60, fontWeight: FontWeight.bold, color: Colors.green),
+              ),
+            ),
           ),
-        ),
-        
-        Expanded(
-          flex: 3,
-          child: Numpad(onNumberSelected: _checkAnswer),
-        ),
       ],
     );
   }

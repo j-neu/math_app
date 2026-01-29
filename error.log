@@ -1,7 +1,8 @@
+Performing hot restart...
+Syncing files to device sdk gphone64 x86 64...
+lib/services/exercise_service.dart:275:41: Error: Method not found: 'TensCalculationExercise'.
+      exerciseBuilder: (userProfile) => TensCalculationExercise(userProfile: userProfile),
+                                        ^^^^^^^^^^^^^^^^^^^^^^^
+Restarted application in 319ms.
 
-======== Exception caught by rendering library =====================================================
-The following assertion was thrown during layout:
-A RenderFlex overflowed by 241 pixels on the right.
 
-The relevant error-causing widget was: 
-  Row Row:file:///C:/Users/jakob/StudioProjects/Math_App/math_app/lib/widgets/doubling_fingers_20_level2_widget.dart:40:20

@@ -86,8 +86,8 @@ class _HomeScreenState extends State<HomeScreen> {
     // Check if diagnostic was actually completed (not just partially done)
     // A completed diagnostic should have diagnosticResults, not just skillTags
     final bool hasActuallyCompletedDiagnostic =
-        _currentProfile.diagnosticResults != null &&
-        _currentProfile.diagnosticResults!.isNotEmpty;
+        (_currentProfile.diagnosticResults != null && _currentProfile.diagnosticResults!.isNotEmpty) ||
+        (_currentProfile.diagnosticHistory.isNotEmpty && _currentProfile.diagnosticHistory.last.results.isNotEmpty);
 
     // Check if user bypassed diagnostic (created via "Start Without Diagnostic")
     // These users have many skillTags (typically 87+) but no diagnosticProgress or diagnosticResults

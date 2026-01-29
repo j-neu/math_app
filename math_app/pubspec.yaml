@@ -40,6 +40,9 @@ dependencies:
   intl: ^0.20.2 # Added for localization
   csv: ^6.0.0 # Added for CSV parsing
   shared_preferences: ^2.3.3 # Added for local data persistence
+  pdf: ^3.10.4
+  printing: ^5.11.0
+
 
 dev_dependencies:
   flutter_test:
@@ -66,8 +69,8 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - Research/MathApp - Diagnostic.csv
     - Research/MathApp_Diagnostic_with_skills.csv
+    - Research/skills_taxonomy.csv
     - Research/DiagnosticPictures/
     - assets/images/fingers/
   #   - images/a_dot_burr.jpeg

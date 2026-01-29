@@ -26,11 +26,13 @@ class SingleAnswerWidget extends StatelessWidget {
 class MultipleAnswerWidget extends StatefulWidget {
   final TextEditingController controller;
   final int fieldCount;
+  final String? prefixText;
 
   const MultipleAnswerWidget({
     super.key,
     required this.controller,
     this.fieldCount = 7, // Default to 7 for backward compatibility
+    this.prefixText,
   });
 
   @override
@@ -72,23 +74,31 @@ class _MultipleAnswerWidgetState extends State<MultipleAnswerWidget> {
       child: Wrap(
         spacing: 8,
         runSpacing: 8,
+        crossAxisAlignment: WrapCrossAlignment.center,
         alignment: WrapAlignment.center,
-        children: List.generate(widget.fieldCount, (index) {
-          return SizedBox(
-            width: 60,
-            child: TextField(
-              controller: _controllers[index],
-              keyboardType: TextInputType.number,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleMedium,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.symmetric(vertical: 8),
-              ),
-              onChanged: (_) => _updateMainController(),
+        children: [
+          if (widget.prefixText != null)
+            Text(
+              widget.prefixText!,
+              style: Theme.of(context).textTheme.headlineSmall,
             ),
-          );
-        }),
+          ...List.generate(widget.fieldCount, (index) {
+            return SizedBox(
+              width: 60,
+              child: TextField(
+                controller: _controllers[index],
+                keyboardType: TextInputType.number,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleMedium,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  contentPadding: EdgeInsets.symmetric(vertical: 8),
+                ),
+                onChanged: (_) => _updateMainController(),
+              ),
+            );
+          }),
+        ],
       ),
     );
   }
@@ -127,6 +137,7 @@ class _SortAnswerWidgetState extends State<SortAnswerWidget> {
       padding: const EdgeInsets.all(16),
       child: ReorderableListView(
         shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
         onReorder: (oldIndex, newIndex) {
           setState(() {
             if (newIndex > oldIndex) {

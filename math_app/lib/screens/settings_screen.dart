@@ -3,6 +3,8 @@ import 'package:math_app/models/user_profile.dart';
 import 'package:math_app/screens/diagnostic_screen.dart';
 import 'package:math_app/screens/rewards_settings_screen.dart';
 import 'package:math_app/services/user_service.dart';
+import 'package:math_app/screens/diagnostic_report_screen.dart';
+import 'package:intl/intl.dart';
 
 class SettingsScreen extends StatefulWidget {
   final UserProfile userProfile;
@@ -189,6 +191,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _showRetakeDiagnosticDialog(context);
             },
           ),
+          ListTile(
+            leading: const Icon(Icons.replay),
+            title: const Text('Retake Incorrect Questions'),
+            subtitle: const Text('Practice only what you missed.'),
+            enabled: widget.userProfile.diagnosticHistory.isNotEmpty,
+            onTap: () {
+              _showRetakeIncorrectDialog(context);
+            },
+          ),
           SwitchListTile(
             secondary: const Icon(Icons.quiz),
             title: const Text('Diagnostic Test Mode'),
@@ -229,6 +240,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const Divider(),
 
+          // Reports Section
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'Reports',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.picture_as_pdf),
+            title: const Text('View Evaluation Report'),
+            subtitle: widget.userProfile.diagnosticHistory.isEmpty
+                ? const Text('No diagnostic reports available')
+                : Text('Latest: ${DateFormat('MMM d, yyyy').format(widget.userProfile.diagnosticHistory.last.date)}'),
+            enabled: widget.userProfile.diagnosticHistory.isNotEmpty,
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            onTap: () {
+              if (widget.userProfile.diagnosticHistory.isNotEmpty) {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => DiagnosticReportScreen(
+                      userProfile: widget.userProfile,
+                      session: widget.userProfile.diagnosticHistory.last,
+                    ),
+                  ),
+                );
+              }
+            },
+          ),
+          const Divider(),
+
           // Data Management Section
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -246,13 +291,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               color: Theme.of(context).colorScheme.error,
             ),
             title: Text(
-              'Clear User Data',
+              'Delete User Profile',
               style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
-            subtitle: const Text('Permanently delete all user progress and data'),
+            subtitle: const Text('Permanently delete this user and all data'),
             onTap: () {
-              // Placeholder: Show confirmation dialog before clearing data
-              _showClearDataDialog(context);
+              _showDeleteUserDialog(context);
             },
           ),
           const Divider(),
@@ -329,6 +373,66 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  /// Show retake incorrect confirmation dialog
+  void _showRetakeIncorrectDialog(BuildContext context) {
+    // Check if there are actually any incorrect questions
+    if (widget.userProfile.diagnosticHistory.isEmpty) return;
+    
+    final lastSession = widget.userProfile.diagnosticHistory.last;
+    final incorrectCount = lastSession.results.where((r) => !r.wasCorrect).length;
+    
+    if (incorrectCount == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Great job! You answered all questions correctly in the last test.')),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Retake Incorrect Questions?'),
+          content: Text(
+            'You will retake the $incorrectCount questions you missed in the last diagnostic test.\n\n'
+            'This will create a new updated learning path based on your new answers.\n\n'
+            'Are you sure you want to continue?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                // Close the dialog
+                if (context.mounted) Navigator.of(context).pop();
+                // Close the settings screen
+                if (context.mounted) Navigator.of(context).pop();
+                
+                // Navigate to diagnostic test in retry mode
+                if (context.mounted) {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => DiagnosticScreen(
+                        userProfile: widget.userProfile,
+                        retryMode: true,
+                      ),
+                    ),
+                  );
+                }
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.primary,
+              ),
+              child: const Text('Retake Incorrect'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   /// Show retake diagnostic confirmation dialog
   void _showRetakeDiagnosticDialog(BuildContext context) {
     showDialog(
@@ -383,15 +487,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  /// Show clear data confirmation dialog (placeholder)
-  void _showClearDataDialog(BuildContext context) {
+  /// Show delete user confirmation dialog
+  void _showDeleteUserDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Clear All Data?'),
-          content: const Text(
-            'This will permanently delete all user profiles and progress. '
+          title: const Text('Delete User Profile?'),
+          content: Text(
+            'This will permanently delete the profile for "${widget.userProfile.name}" and all associated progress/data.\n\n'
             'This action cannot be undone.\n\n'
             'Are you sure you want to continue?',
           ),
@@ -401,20 +505,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
-                // Placeholder: In a real app, this would clear all user data
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Feature coming soon: Clear user data'),
-                    duration: Duration(seconds: 2),
-                  ),
-                );
+              onPressed: () async {
+                // Delete the user
+                final userService = UserService();
+                await userService.deleteUser(widget.userProfile.id);
+                
+                if (context.mounted) {
+                  Navigator.of(context).pop(); // Close dialog
+                  // Navigate back to the user selection screen (root)
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                  
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('User "${widget.userProfile.name}" deleted'),
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                }
               },
               style: TextButton.styleFrom(
                 foregroundColor: Theme.of(context).colorScheme.error,
               ),
-              child: const Text('Clear Data'),
+              child: const Text('Delete User'),
             ),
           ],
         );

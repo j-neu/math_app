@@ -2,6 +2,25 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
+const SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+
+async function generateFoerderplan(sessionId: string): Promise<void> {
+  const resp = await fetch(`${SB_URL}/functions/v1/foerderplan-generate`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${SERVICE_KEY}`,
+      apikey: SERVICE_KEY,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ session_id: sessionId }),
+    cache: "no-store",
+  });
+  if (!resp.ok) {
+    console.error("foerderplan-generate failed", resp.status, await resp.text());
+  }
+}
+
 const CATEGORY_COLORS: Record<string, string> = {
   "Zählen": "bg-green-500",
   "Zahlzerlegung / Schnelles Sehen": "bg-yellow-400",
@@ -27,11 +46,29 @@ export default async function FoerderplanPage({ params }: Props) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: plan } = await supabase
+  let { data: plan } = await supabase
     .from("foerderplaene")
     .select("*")
     .eq("session_id", params.sessionId)
-    .single();
+    .maybeSingle();
+
+  if (!plan) {
+    const { data: sessionStatus } = await supabase
+      .from("diagnostic_sessions")
+      .select("status")
+      .eq("id", params.sessionId)
+      .single();
+
+    if (sessionStatus?.status === "completed") {
+      await generateFoerderplan(params.sessionId);
+      const retry = await supabase
+        .from("foerderplaene")
+        .select("*")
+        .eq("session_id", params.sessionId)
+        .maybeSingle();
+      plan = retry.data;
+    }
+  }
 
   if (!plan) {
     return (

@@ -253,6 +253,27 @@ Authentication: invite-flow deferred to Phase D (pilot polish); direct account c
 - [ ] Move `zahlen_diktat.mp3` to Supabase Storage bucket; update `DiagnosticScreen` to load from URL on web.
 - [ ] One-page teacher onboarding doc in German.
 
+### Phase D.5 — Pilot blockers (found 2026-05-20)
+
+First end-to-end test of the deployed flow (`prozedia-portal` + `prozedia-app`) surfaced these. All block pilot.
+
+**Diagnostic flow bugs**
+- [ ] **Resume broken** — child closes browser mid-diagnostic, re-scans QR, restarts from Q1. Server stores `diagnostic_sessions.status = 'in_progress'` already; Flutter web client isn't picking up existing answers. Verify `ApiService` checks for an in-progress session before creating a new one, and that `DiagnosticScreen` hydrates from `diagnostic_results` rows. Spec (Phase C step 5 + Phase D verification step 7) requires resume on same ticket within lifetime.
+- [ ] **Q38 audio silent** — `zahlen_diktat.mp3` doesn't play on web build. Likely asset path resolution on Flutter Web. Finishes the Phase D task of moving audio to Supabase Storage anyway — do both: move + verify playback.
+- [ ] **Förderplan not generated on completion** — kid finishes diagnostic, portal shows "abgeschlossen", but "Förderplan ansehen" → "Kein Förderplan gefunden". `foerderplan-generate` edge function isn't being called (or fails silently) on session completion. Decide: Flutter client invokes it, or Postgres trigger on `diagnostic_sessions.status` change. Prefer the trigger — dashboard should never see an empty Förderplan for a completed session.
+
+**Diagnostic content**
+- [ ] **Web build missing new questions** — deployed Flutter web only has the original 58–59 questions, not the newer Dienes additions. Confirm bundled CSV matches `math_app/Research/MathApp_Diagnostic_with_skills.csv`, rebuild, redeploy via `vercel --prod --yes` from `math_app/build/web`.
+- [ ] **New questions in wrong order** — Dienes-material questions are appended at the end; should be grouped with other place-value/material questions. Reorder rows in `MathApp_Diagnostic_with_skills.csv` AND update `question_number` in Supabase `diagnostic_questions`. Re-seed via backend migration.
+
+**Teacher portal features (new — not in original Phase B scope)**
+- [ ] **Bulk QR PDF for a class** — "Alle QR-Codes drucken" action on class detail page generates one printable PDF with all students' QR codes + names (grid or one-per-page). Server-side PDF, consistent with `foerderplan-pdf`.
+- [ ] **Short-URL school login (no QR needed)** — for classrooms without QR-scanning devices. URL like `prozedia-app.vercel.app/s/Pilotschule` → kid enters 4-char alphanumeric code → starts diagnostic. Requires:
+  - `schools.slug` column (unique, kebab-case)
+  - `session_tickets.short_code` (4 chars, unique per school)
+  - Flutter route `/s/:schoolSlug` → code-input screen → resolves to existing ticket flow
+  - **Decision needed:** per-student code (secure, harder to print) vs. per-class code with kid picking their name (classroom-friendly).
+
 ### Phase E — Pilot (3 months, in parallel with E+)
 
 Real classroom use at one or two schools. Watch what breaks. Do not add features in this period unless a pilot teacher asks twice.

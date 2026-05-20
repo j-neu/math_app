@@ -1,16 +1,18 @@
 # Math App Master Task List
 
-**Last Updated:** 2026-05-15
+**Last Updated:** 2026-05-20
 **Goal:** Complete feature parity with research frameworks (iMINT/PIKAS) and prepare for beta release.
+
+> Pilot platform issues (deployed `prozedia-portal` + `prozedia-app`) live in [phase1_school_platform.md](phase1_school_platform.md), not here.
 
 ---
 ## 🛠 Widget Library Needs
 **Critical for Sets 2-4:**
-- [ ] `DienesBlocksWidget` (Place Value)
-- [ ] `RechenschiffchenWidget` (Boat 5+5)
-- [ ] `HundredChartWidget` (10x10 Grid)
-- [ ] `FlashCardWidget` (Subitizing)
-- [ ] `WendeplättchenWidget` (Two-color counters)
+- [x] `DienesBlocksWidget` (Place Value)
+- [x] `RechenschiffchenWidget` (Boat 5+5)
+- [x] `HundredChartWidget` (10x10 Grid)
+- [x] `FlashCardWidget` (Subitizing)
+- [x] `WendeplättchenWidget` (Two-color counters)
 
 ## Phase 2.5: QA & Bug Fixes (Set 1)
 

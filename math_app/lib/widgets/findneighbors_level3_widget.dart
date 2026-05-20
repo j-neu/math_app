@@ -358,7 +358,7 @@ class _FindNeighborsLevel3WidgetState extends State<FindNeighborsLevel3Widget>
 
   String _getPositiveFeedback() {
     final List<String> messages = [
-      'Excellent!',
+      'Super!',
       'Perfect!',
       'Great placement!',
       'You\'re a master!',
@@ -384,7 +384,7 @@ class _FindNeighborsLevel3WidgetState extends State<FindNeighborsLevel3Widget>
           child: Column(
             children: [
               Text(
-                'Master the Game!',
+                'Beherrsche das Spiel!',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Colors.green.shade800,
@@ -392,7 +392,7 @@ class _FindNeighborsLevel3WidgetState extends State<FindNeighborsLevel3Widget>
               ),
               const SizedBox(height: 8),
               Text(
-                'Place 20 cards in order across the full range (30-90)',
+                'Ordne 20 Karten über den ganzen Bereich (30-90)',
                 style: Theme.of(context).textTheme.bodyMedium,
                 textAlign: TextAlign.center,
               ),
@@ -421,7 +421,7 @@ class _FindNeighborsLevel3WidgetState extends State<FindNeighborsLevel3Widget>
               // Skip counter
               const SizedBox(height: 8),
               Text(
-                'Cards skipped: $_totalSkips',
+                'Karten übersprungen: $_totalSkips',
                 style: TextStyle(
                   fontSize: 12,
                   color: Colors.grey.shade600,

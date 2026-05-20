@@ -1,11 +1,11 @@
 {
-    "name": "math_app",
-    "short_name": "math_app",
+    "name": "Numeris – Mathe-Diagnose",
+    "short_name": "Numeris",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Diagnose und Förderplan für Grundschul-Mathematik",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

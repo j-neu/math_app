@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'dart:io' show File;
+import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:math_app/widgets/answer_widgets.dart';
 import 'package:math_app/widgets/circle_display_widget.dart';
 import '../models/diagnostic_question.dart';
@@ -7,17 +10,31 @@ import '../models/diagnostic_result.dart';
 import '../models/diagnostic_session.dart';
 import '../models/user_profile.dart';
 import '../services/diagnostic_service.dart';
+import '../services/diagnostic_report_generator.dart';
+import '../services/api_service.dart';
 import '../services/user_service.dart';
-import '../screens/learning_path_screen.dart';
+import '../screens/diagnostic_complete_screen.dart';
+import '../screens/diagnostic_report_screen.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:path_provider/path_provider.dart';
+import '../widgets/diagnostic/dice_widget.dart';
+import '../widgets/common/hundred_field_widget.dart';
+import '../widgets/common/dienes_block_widget.dart';
+import '../widgets/common/rechenschiffchen_widget.dart';
+import '../widgets/common/pattern_dots_widget.dart';
 
 class DiagnosticScreen extends StatefulWidget {
   final UserProfile userProfile;
   final bool retryMode;
+  // When set, answers are posted to the Supabase API instead of (or in addition to)
+  // SharedPreferences. Used by the web student client.
+  final String? sessionId;
 
   const DiagnosticScreen({
     super.key,
     required this.userProfile,
     this.retryMode = false,
+    this.sessionId,
   });
 
   @override
@@ -25,6 +42,9 @@ class DiagnosticScreen extends StatefulWidget {
 }
 
 class _DiagnosticScreenState extends State<DiagnosticScreen> {
+  // Convenience getter — non-null means web/API mode.
+  String? get _sessionId => widget.sessionId;
+
   late Future<List<DiagnosticQuestion>> _questionsFuture;
   int _currentQuestionIndex = 0;
   final Map<int, String> _answers = {}; // To store user's answers
@@ -37,6 +57,8 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   static const int timeoutSecondsMultiple = 60; // Multiple/Sort questions
   DateTime? _questionStartTime;
   Timer? _timeoutTimer;
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  String? _q38TempFilePath;
 
   // Break-off logic tracking
   final Map<String, bool> _categoryFailedZR20 = {}; // Track which categories failed in ZR 20
@@ -88,6 +110,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   void dispose() {
     _timeoutTimer?.cancel();
     _textController.dispose();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
@@ -100,6 +123,11 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
 
     // Determine timeout based on question type
     final question = questions[_currentQuestionIndex];
+
+    if (question.listNumber == 38) {
+      _playQ38Audio();
+    }
+
     final timeoutDuration = question.answerFormat == AnswerFormat.single
         ? timeoutSecondsSingle
         : timeoutSecondsMultiple;
@@ -121,8 +149,8 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
       barrierDismissible: false, // Must choose an option
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('Need more time?'),
-          content: const Text('Should we skip this question and move to the next one?'),
+          title: const Text('Noch mehr Zeit?'),
+          content: const Text('Soll diese Aufgabe übersprungen werden?'),
           actions: [
             TextButton(
               onPressed: () {
@@ -130,7 +158,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
                 // Give them more time - restart the timer
                 _startQuestionTimer(questions);
               },
-              child: const Text('Keep Working'),
+              child: const Text('Weiter versuchen'),
             ),
             TextButton(
               onPressed: () {
@@ -138,7 +166,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
                 // Skip this question
                 _skipCurrentQuestion(questions);
               },
-              child: const Text('Skip Question'),
+              child: const Text('Überspringen'),
             ),
           ],
         );
@@ -273,11 +301,9 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
       return false;
     }
 
-    // Determine category from skill tags (first skill tag's category)
-    if (question.ifWrongPracticeSkills.isEmpty) return false;
-
-    final firstSkill = question.ifWrongPracticeSkills.first;
-    final category = firstSkill.split('_').first; // e.g., "counting" from "counting_4"
+    // Prefer card-oriented skipGroup; fall back to first-skill-prefix for legacy rows
+    final category = _categoryKey(question);
+    if (category == null) return false;
 
     // Determine if this is a ZR 100 question (questions with numbers typically > 20)
     final isZR100 = _isZR100Question(question);
@@ -295,8 +321,30 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     return false;
   }
 
+  /// Card-oriented break-off group key. Prefers the explicit `skipGroup`
+  /// CSV column (e.g. "verdoppeln", "halbieren") so a failure on Card 18
+  /// (Verdoppeln bis 20) only suppresses Card 19 (Verdoppeln bis 100),
+  /// not every other ZR100 question in the same coarse skill family.
+  ///
+  /// Falls back to the first-skill-prefix (e.g. "basic" from
+  /// `basic_strategy_8`) for legacy rows without a skipGroup, preserving
+  /// the original Phase-0 behaviour for the existing 59 questions.
+  String? _categoryKey(DiagnosticQuestion question) {
+    final group = question.ifWrongSkip?.trim();
+    if (group != null && group.isNotEmpty) return group;
+    if (question.ifWrongPracticeSkills.isEmpty) return null;
+    return question.ifWrongPracticeSkills.first.split('_').first;
+  }
+
   /// Determine if a question is in ZR 100 range (vs ZR 20)
   bool _isZR100Question(DiagnosticQuestion question) {
+    // Explicit CSV override wins — used by Q60+ where the magnitude heuristic
+    // misclassifies (e.g. "Doppelte von 19" is diagnostically ZR100).
+    final zr = question.zahlenraum;
+    if (zr != null && zr.isNotEmpty) {
+      return zr.toUpperCase() == 'ZR100' || zr.toUpperCase() == 'ZR1000';
+    }
+
     // Don't check image filenames - they contain large numbers like "img2113.jpg"
     // Only check actual question text for Text/Cards questions
     if (question.sourceType == QuestionType.image) {
@@ -321,10 +369,10 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     // Determine if this is a ZR 20 question (not ZR 100)
     final isZR20 = !_isZR100Question(question);
 
-    if (isZR20 && question.ifWrongPracticeSkills.isNotEmpty) {
-      // Extract category from first skill tag
-      final firstSkill = question.ifWrongPracticeSkills.first;
-      final category = firstSkill.split('_').first;
+    if (isZR20) {
+      // Card-oriented skipGroup if set, else first-skill-prefix
+      final category = _categoryKey(question);
+      if (category == null) return;
 
       if (wasCorrect) {
         // Mark this category as passed in ZR 20
@@ -376,6 +424,22 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
 
     _diagnosticResults.add(result);
 
+    // Post to Supabase (web/API mode)
+    if (_sessionId != null) {
+      try {
+        await ApiService().postResult(
+          sessionId: _sessionId!,
+          questionNumber: currentQuestion.listNumber,
+          wasCorrect: wasCorrect,
+          responseTimeSeconds: responseTime,
+          status: 'attempted',
+          userAnswer: userAnswer.isEmpty ? null : userAnswer,
+        );
+      } catch (e) {
+        debugPrint('ApiService.postResult failed: $e');
+      }
+    }
+
     // If incorrect OR took too long, add skill tags
     if (!wasCorrect) {
       print('=== Question ${currentQuestion.listNumber} FAILED ===');
@@ -403,6 +467,22 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
           status: 'skipped',
         );
         _diagnosticResults.add(skippedResult);
+
+        // Post skipped question to API
+        if (_sessionId != null) {
+          try {
+            await ApiService().postResult(
+              sessionId: _sessionId!,
+              questionNumber: questions[nextIndex].listNumber,
+              wasCorrect: false,
+              responseTimeSeconds: 0,
+              status: 'skipped',
+            );
+          } catch (e) {
+            debugPrint('ApiService.postResult (skipped) failed: $e');
+          }
+        }
+
         nextIndex++;
       }
 
@@ -416,8 +496,10 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
         _startQuestionTimer(questions);
       }
 
-      // Save progress after each question
-      await _saveDiagnosticProgress();
+      // Save progress locally (native only)
+      if (_sessionId == null) {
+        await _saveDiagnosticProgress();
+      }
 
       // If we've reached the end, process results
       if (_currentQuestionIndex >= questions.length) {
@@ -448,6 +530,21 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   }
 
   Future<void> _processResults(List<DiagnosticQuestion> questions) async {
+    // Web / API mode: server already has all results; just show the completion screen.
+    if (_sessionId != null) {
+      setState(() {
+        _currentQuestionIndex++;
+      });
+      await Future.delayed(const Duration(seconds: 2));
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const DiagnosticCompleteScreen()),
+      );
+      return;
+    }
+
+    // Native mode — existing local-storage flow below.
+
     // De-duplicate skill tags
     final uniqueTags = _skillTagsToPractice.toSet().toList();
 
@@ -497,21 +594,29 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     final userService = UserService();
     await userService.saveUser(updatedProfile);
 
-    // Update state to show completion screen
+    // Update state to show completion screen while the report generates.
     setState(() {
-       _currentQuestionIndex++;
+      _currentQuestionIndex++;
     });
 
-    // Navigate to learning path after a short delay to show completion message
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => LearningPathScreen(userProfile: updatedProfile),
-          ),
-        );
-      }
-    });
+    // Build the Förderplan concurrently with the 2-second completion pause so
+    // navigation is ready as soon as the minimum display time has elapsed.
+    final foerderplanFuture =
+        DiagnosticReportGenerator().generate(updatedProfile, session);
+    await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
+    final foerderplan = await foerderplanFuture;
+    if (!mounted) return;
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => DiagnosticReportScreen(
+          userProfile: updatedProfile,
+          session: session,
+          foerderplan: foerderplan,
+        ),
+      ),
+    );
   }
 
   bool _checkAnswer(String userAnswer, String correctAnswer, AnswerFormat format, int questionNumber) {
@@ -564,20 +669,20 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: const Text('Exit Diagnostic?'),
+              title: const Text('Diagnose beenden?'),
               content: Text(
                 _currentQuestionIndex == 0
-                    ? 'Are you sure you want to exit the diagnostic test?'
-                    : 'Your progress has been saved. You can continue later from question ${_currentQuestionIndex + 1}.\n\nAre you sure you want to exit?',
+                    ? 'Möchtest du die Diagnose wirklich beenden?'
+                    : 'Dein Fortschritt wurde gespeichert. Du kannst später ab Aufgabe ${_currentQuestionIndex + 1} weitermachen.\n\nMöchtest du wirklich beenden?',
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text('Stay'),
+                  child: const Text('Bleiben'),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(true),
-                  child: const Text('Exit'),
+                  child: const Text('Beenden'),
                 ),
               ],
             );
@@ -590,7 +695,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Diagnostic Test'),
+          title: const Text('Diagnose'),
         ),
       body: FutureBuilder<List<DiagnosticQuestion>>(
         future: _questionsFuture,
@@ -598,9 +703,9 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(child: Text('Fehler: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No questions found.'));
+            return const Center(child: Text('Keine Aufgaben gefunden.'));
           }
 
           final questions = snapshot.data!;
@@ -613,11 +718,11 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
                   CircularProgressIndicator(),
                   SizedBox(height: 20),
                   Text(
-                    'Generating Results...',
+                    'Ergebnisse werden ausgewertet …',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 10),
-                  Text('Please wait while we create your learning path.'),
+                  Text('Bitte warten.'),
                 ],
               ),
             );
@@ -638,10 +743,20 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Question ${_currentQuestionIndex + 1}/${questions.length}',
+                    'Aufgabe ${_currentQuestionIndex + 1}/${questions.length}',
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: 20),
+                  // Q21: generated dice illustration (6 + 1 = 7 example)
+                  if (question.listNumber == 21) ...[
+                    _buildQ21Display(),
+                    const SizedBox(height: 8),
+                  ],
+                  // Q46: generated dice comparison (red = child, blue = teacher)
+                  if (question.listNumber == 46) ...[
+                    _buildQ46Display(),
+                    const SizedBox(height: 8),
+                  ],
                   // Display image if available
                   if (question.imagePath != null)
                     Padding(
@@ -685,23 +800,26 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
                       ),
                     ),
                   const SizedBox(height: 20),
-                  // Displaying the English question text for now.
-                  // Localization will be handled later.
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: Text(
-                      question.english,
+                      question.german,
                       style: Theme.of(context).textTheme.titleLarge,
                       textAlign: TextAlign.center,
                     ),
                   ),
                   const SizedBox(height: 20),
+                  // Q38: audio replay button
+                  if (question.listNumber == 38) ...[
+                    _buildQ38AudioButton(),
+                    const SizedBox(height: 12),
+                  ],
                   // Dynamically build the answer widget based on format
-                  _buildAnswerWidget(question),
+                  _buildAnswerWidget(question, questions),
                   const SizedBox(height: 40),
                   ElevatedButton(
                     onPressed: () => _nextQuestion(questions),
-                    child: const Text('Next'),
+                    child: const Text('Weiter'),
                   ),
                 ],
               ),
@@ -713,12 +831,22 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     );
   }
 
-  Widget _buildAnswerWidget(DiagnosticQuestion question) {
+  Widget _buildAnswerWidget(
+      DiagnosticQuestion question, List<DiagnosticQuestion> questions) {
+    void onSubmit() => _nextQuestion(questions);
+    if (question.listNumber == 21) {
+      return Q21AnswerWidget(
+        key: ValueKey('q21_${question.listNumber}'),
+        controller: _textController,
+        onSubmit: onSubmit,
+      );
+    }
     switch (question.answerFormat) {
       case AnswerFormat.single:
         return SingleAnswerWidget(
           key: ValueKey('single_${question.listNumber}'),
           controller: _textController,
+          onSubmit: onSubmit,
         );
       case AnswerFormat.multiple:
         // Calculate the number of fields based on the correct answer
@@ -747,6 +875,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
           controller: _textController,
           fieldCount: fieldCount,
           prefixText: prefixText,
+          onSubmit: onSubmit,
         );
       case AnswerFormat.sort:
         // Parse the correct answer to get the items to sort
@@ -763,15 +892,134 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     }
   }
 
+  // Q21: two white dice showing 6 and 1 as an example illustration.
+  Widget _buildQ21Display() {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Column(
+              children: [
+                const Text('Würfel 1',
+                    style: TextStyle(fontSize: 13, color: Colors.black54)),
+                const SizedBox(height: 6),
+                DiceWidget(value: 6, size: 90),
+              ],
+            ),
+            const Padding(
+              padding: EdgeInsets.only(bottom: 8, left: 12, right: 12),
+              child: Text('+',
+                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+            ),
+            Column(
+              children: [
+                const Text('Würfel 2',
+                    style: TextStyle(fontSize: 13, color: Colors.black54)),
+                const SizedBox(height: 6),
+                DiceWidget(value: 1, size: 90),
+              ],
+            ),
+            const Padding(
+              padding: EdgeInsets.only(bottom: 8, left: 12),
+              child: Text('= 7',
+                  style: TextStyle(
+                      fontSize: 28, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        const Text(
+          'Beispiel',
+          style: TextStyle(fontSize: 12, color: Colors.black38),
+        ),
+      ],
+    );
+  }
+
+  // Q46: red die (child = 5) and blue die (teacher = 3).
+  Widget _buildQ46Display() {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Column(
+              children: [
+                const Text('Dein Würfel',
+                    style: TextStyle(
+                        fontSize: 13, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 6),
+                DiceWidget(
+                  value: 5,
+                  size: 90,
+                  faceColor: Colors.red.shade100,
+                  borderColor: Colors.red.shade400,
+                ),
+              ],
+            ),
+            const SizedBox(width: 32),
+            Column(
+              children: [
+                const Text('Mein Würfel',
+                    style: TextStyle(
+                        fontSize: 13, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 6),
+                DiceWidget(
+                  value: 3,
+                  size: 90,
+                  faceColor: Colors.blue.shade100,
+                  borderColor: Colors.blue.shade400,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // Q38: button to replay the audio dictation.
+  Widget _buildQ38AudioButton() {
+    return OutlinedButton.icon(
+      icon: const Icon(Icons.replay),
+      label: const Text('Nochmal anhören'),
+      onPressed: _playQ38Audio,
+    );
+  }
+
+  Future<void> _playQ38Audio() async {
+    await _audioPlayer.stop();
+    Source source;
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+      // audioplayers_windows doesn't resolve AssetSource paths reliably;
+      // extract to a temp file once and reuse.
+      if (_q38TempFilePath == null) {
+        final data = await rootBundle.load('Research/zahlen_diktat.mp3');
+        final dir = await getTemporaryDirectory();
+        final file = File('${dir.path}/zahlen_diktat.mp3');
+        await file.writeAsBytes(data.buffer.asUint8List());
+        _q38TempFilePath = file.path;
+      }
+      source = DeviceFileSource(_q38TempFilePath!);
+    } else {
+      source = AssetSource('Research/zahlen_diktat.mp3');
+    }
+    await _audioPlayer.play(source);
+  }
+
   Widget _buildImageWidget(DiagnosticQuestion question) {
     if (question.imagePath == null) {
       return const SizedBox.shrink();
     }
 
-    // Check if it's a PDF or image file
+    final name = question.imagePath!.split('/').last;
+    final override = _widgetForImage(name);
+    if (override != null) return override;
+
+    // PDF placeholder
     if (question.imagePath!.toLowerCase().endsWith('.pdf')) {
-      // For PDFs, we'll need to use a PDF viewer package or display a message
-      // For now, show a placeholder with the PDF name
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -789,19 +1037,301 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              question.imagePath!.split('/').last,
+              name,
               style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ],
         ),
       );
-    } else {
-      // For image files
-      return Image.asset(
-        question.imagePath!,
-        height: 200,
-        fit: BoxFit.contain,
-      );
     }
+
+    // Remaining image assets
+    const double inlineHeight = 320;
+    return GestureDetector(
+      onTap: () => _showZoomedImage(question.imagePath!),
+      child: Image.asset(
+        question.imagePath!,
+        height: inlineHeight,
+        fit: BoxFit.contain,
+      ),
+    );
+  }
+
+  Widget _buildScatteredDienesDisplay(
+    List<(DienesType type, double left, double top, double angleDeg)> pieces, {
+    double canvasW = 340,
+    double canvasH = 300,
+  }) {
+    return SizedBox(
+      width: canvasW,
+      height: canvasH,
+      child: Stack(
+        clipBehavior: Clip.hardEdge,
+        children: pieces.map((p) {
+          return Positioned(
+            left: p.$2,
+            top: p.$3,
+            child: Transform.rotate(
+              angle: p.$4 * (3.14159265 / 180),
+              child: DienesBlockWidget(type: p.$1, cellSize: 10),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget? _widgetForImage(String name) {
+    switch (name) {
+      // Hundred field (Q39–Q42)
+      case 'img1809.jpg':
+        return const HundredFieldWidget(visibleCount: 100);
+      case 'img1810.jpg':
+        return const HundredFieldWidget(visibleCount: 12);
+      case 'img1811.jpg':
+        return const HundredFieldWidget(visibleCount: 85);
+      case 'img1812.jpg':
+        return const HundredFieldWidget(visibleCount: 99);
+
+      // Rechenschiffchen (Q32–Q35)
+      case 'img1888.jpg':
+        return const RechenschiffchenWidget(
+            topCount: 9, bottomCount: 0, topColor: Colors.red, bottomColor: Colors.red);
+      case 'img1890.jpg':
+        return const RechenschiffchenWidget(
+            topCount: 9, bottomCount: 5, topColor: Colors.red, bottomColor: Colors.red);
+      case 'img1889.jpg':
+        return const RechenschiffchenWidget(
+            topCount: 9, bottomCount: 10, topColor: Colors.red, bottomColor: Colors.red);
+      case 'img1891.jpg':
+        return const RechenschiffchenWidget(
+            topCount: 8, bottomCount: 8, topColor: Colors.red, bottomColor: Colors.red);
+
+      // Dienes blocks (Q36–Q37) — scattered, mixed, slightly rotated
+      case 'img1858.jpg': // 5 rods + 7 units = 57
+        return _buildScatteredDienesDisplay([
+          (DienesType.rod,  5,   10,  -8),
+          (DienesType.rod,  0,   108,  12),
+          (DienesType.rod,  142, 22,  -5),
+          (DienesType.rod,  130, 132,  18),
+          (DienesType.rod,  52,  210, -12),
+          (DienesType.unit, 110, 8,   20),
+          (DienesType.unit, 248, 12, -15),
+          (DienesType.unit, 278, 68,  30),
+          (DienesType.unit, 252, 148, -20),
+          (DienesType.unit, 288, 202,  25),
+          (DienesType.unit, 158, 245, -30),
+          (DienesType.unit, 225, 258,  15),
+        ]);
+      case 'img1859.jpg': // 2 rods + 15 units = 35
+        return _buildScatteredDienesDisplay([
+          (DienesType.rod,  5,   12,   -6),
+          (DienesType.rod,  10,  148,   10),
+          (DienesType.unit, 112, 2,    20),
+          (DienesType.unit, 145, 12,  -15),
+          (DienesType.unit, 185, 6,    30),
+          (DienesType.unit, 218, 2,   -25),
+          (DienesType.unit, 258, 12,   15),
+          (DienesType.unit, 300, 5,   -20),
+          (DienesType.unit, 122, 82,   25),
+          (DienesType.unit, 168, 72,  -15),
+          (DienesType.unit, 212, 88,   20),
+          (DienesType.unit, 258, 76,  -30),
+          (DienesType.unit, 305, 82,   15),
+          (DienesType.unit, 118, 178, -20),
+          (DienesType.unit, 165, 170,  25),
+          (DienesType.unit, 210, 182, -10),
+          (DienesType.unit, 262, 175,  20),
+        ]);
+
+      // Dienes blocks (Q60–Q61) — Card 10 completion
+      case 'img1860.jpg': // 26 units only, unstructured (no rods)
+        return _buildScatteredDienesDisplay(
+          [
+            (DienesType.unit, 15,  12,   15),
+            (DienesType.unit, 65,  25,  -22),
+            (DienesType.unit, 130, 8,    30),
+            (DienesType.unit, 190, 18,  -15),
+            (DienesType.unit, 250, 5,    25),
+            (DienesType.unit, 290, 35,   -8),
+            (DienesType.unit, 10,  78,  -25),
+            (DienesType.unit, 55,  90,   18),
+            (DienesType.unit, 105, 72,  -12),
+            (DienesType.unit, 160, 85,   22),
+            (DienesType.unit, 215, 75,  -18),
+            (DienesType.unit, 275, 95,   12),
+            (DienesType.unit, 25,  138,  20),
+            (DienesType.unit, 80,  152, -28),
+            (DienesType.unit, 135, 142,  10),
+            (DienesType.unit, 195, 158, -20),
+            (DienesType.unit, 245, 145,  28),
+            (DienesType.unit, 290, 162, -10),
+            (DienesType.unit, 15,  208,  15),
+            (DienesType.unit, 70,  215, -25),
+            (DienesType.unit, 125, 222,  18),
+            (DienesType.unit, 180, 212, -12),
+            (DienesType.unit, 235, 228,  22),
+            (DienesType.unit, 285, 218, -18),
+            (DienesType.unit, 100, 275,  25),
+            (DienesType.unit, 195, 282, -15),
+          ],
+          canvasW: 320,
+          canvasH: 320,
+        );
+      case 'img1861.jpg': // 8 rods + 20 units = 100 (fortgesetzte Bündelung)
+        return _buildScatteredDienesDisplay(
+          [
+            (DienesType.rod,  5,   8,   -10),
+            (DienesType.rod,  155, 15,   12),
+            (DienesType.rod,  10,  110,  8),
+            (DienesType.rod,  158, 105, -15),
+            (DienesType.rod,  0,   210,  15),
+            (DienesType.rod,  148, 215, -8),
+            (DienesType.rod,  12,  310, -12),
+            (DienesType.rod,  155, 308,  18),
+            (DienesType.unit, 270, 5,    20),
+            (DienesType.unit, 305, 35,  -15),
+            (DienesType.unit, 335, 12,   25),
+            (DienesType.unit, 290, 75,  -22),
+            (DienesType.unit, 322, 105,  18),
+            (DienesType.unit, 275, 145, -10),
+            (DienesType.unit, 315, 165,  28),
+            (DienesType.unit, 348, 195, -18),
+            (DienesType.unit, 285, 220,  15),
+            (DienesType.unit, 320, 250, -25),
+            (DienesType.unit, 358, 270,  12),
+            (DienesType.unit, 295, 295,  -8),
+            (DienesType.unit, 332, 325,  22),
+            (DienesType.unit, 275, 355, -15),
+            (DienesType.unit, 318, 365,  18),
+            (DienesType.unit, 110, 60,  -28),
+            (DienesType.unit, 95,  165,  25),
+            (DienesType.unit, 125, 265, -12),
+            (DienesType.unit, 75,  360,  15),
+            (DienesType.unit, 140, 372, -20),
+          ],
+          canvasW: 380,
+          canvasH: 380,
+        );
+
+      // Subitizing patterns — Plättchen (Q28–Q31)
+      case 'img1936.jpg': // 7 dots: 3 top, 3 middle, 1 centre bottom
+        return const PatternDotsWidget(
+          count: 7,
+          positions: [
+            Offset(0.25, 0.20), Offset(0.50, 0.20), Offset(0.75, 0.20),
+            Offset(0.25, 0.50), Offset(0.50, 0.50), Offset(0.75, 0.50),
+            Offset(0.50, 0.80),
+          ],
+        );
+      case 'img1937.jpg': // 8 dots: 3×3 grid minus centre
+        return const PatternDotsWidget(
+          count: 8,
+          positions: [
+            Offset(0.25, 0.20), Offset(0.50, 0.20), Offset(0.75, 0.20),
+            Offset(0.25, 0.50),                      Offset(0.75, 0.50),
+            Offset(0.25, 0.80), Offset(0.50, 0.80), Offset(0.75, 0.80),
+          ],
+        );
+      case 'img1938.jpg': // 6 dots: 3 top, 2 middle, 1 bottom-centre
+        return const PatternDotsWidget(
+          count: 6,
+          positions: [
+            Offset(0.25, 0.20), Offset(0.50, 0.20), Offset(0.75, 0.20),
+            Offset(0.35, 0.50), Offset(0.65, 0.50),
+            Offset(0.50, 0.80),
+          ],
+        );
+      case 'img1939.jpg': // 10 dots: 3×3 grid + 1 right of middle row
+        return const PatternDotsWidget(
+          count: 10,
+          positions: [
+            Offset(0.15, 0.20), Offset(0.40, 0.20), Offset(0.65, 0.20),
+            Offset(0.15, 0.50), Offset(0.40, 0.50), Offset(0.65, 0.50),
+            Offset(0.15, 0.80), Offset(0.40, 0.80), Offset(0.65, 0.80),
+            Offset(0.88, 0.50),
+          ],
+        );
+
+      // Scattered dots (Q1–Q2)
+      case 'img2113.jpg': // 8 green scattered dots
+        return const PatternDotsWidget(
+          count: 8,
+          dotColor: Colors.green,
+          positions: [
+            Offset(0.15, 0.20), Offset(0.45, 0.12), Offset(0.75, 0.25),
+            Offset(0.25, 0.55), Offset(0.62, 0.45), Offset(0.85, 0.68),
+            Offset(0.35, 0.82), Offset(0.60, 0.85),
+          ],
+        );
+      case 'img2114.jpg': // 17 green scattered dots
+        return const PatternDotsWidget(
+          count: 17,
+          dotColor: Colors.green,
+          positions: [
+            Offset(0.10, 0.12), Offset(0.30, 0.08), Offset(0.55, 0.15),
+            Offset(0.78, 0.20), Offset(0.92, 0.10),
+            Offset(0.18, 0.35), Offset(0.45, 0.32), Offset(0.68, 0.38),
+            Offset(0.88, 0.45),
+            Offset(0.08, 0.58), Offset(0.32, 0.55), Offset(0.58, 0.52),
+            Offset(0.80, 0.62),
+            Offset(0.20, 0.78), Offset(0.48, 0.82), Offset(0.70, 0.75),
+            Offset(0.90, 0.85),
+          ],
+        );
+
+      default:
+        return null;
+    }
+  }
+
+  void _showZoomedImage(String imagePath) {
+    showDialog<void>(
+      context: context,
+      barrierColor: Colors.black54,
+      barrierDismissible: true,
+      builder: (ctx) {
+        return GestureDetector(
+          onTap: () => Navigator.of(ctx).pop(),
+          behavior: HitTestBehavior.opaque,
+          child: Stack(
+            children: [
+              Center(
+                child: GestureDetector(
+                  onTap: () {}, // absorb taps on the image itself
+                  child: Padding(
+                    padding: const EdgeInsets.all(40),
+                    child: Image.asset(
+                      imagePath,
+                      height: 480,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 24,
+                right: 24,
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => Navigator.of(ctx).pop(),
+                    customBorder: const CircleBorder(),
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.close, size: 28),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

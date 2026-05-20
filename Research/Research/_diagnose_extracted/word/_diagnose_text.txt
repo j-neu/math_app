@@ -1,0 +1,1047 @@
+3 Diagnose im Mathematikunterricht
+Aussagekräftige, pädagogische Diagnose
+Lernprozesse können dann besonders gut unterstützt werden, wenn Lehrerinnen und Leh-rer wissen, wo und wie sie mit ihrer Unterstützung möglichst zielführend ansetzen können. Wo meint in diesem Zusammenhang bei welchen mathematischen Inhalten und wie meint mit welchen Anschauungsmitteln und Impulsen. Um dieses Wo und Wie möglichst genau bestimmen zu können, sollten Lehrkräfte im Rahmen einer zielführenden mathematikdi-daktischen Diagnose die Lernstände ihrer Schülerinnen und Schüler ermitteln. Die Erkennt-nisse aus der Diagnose können und sollten dann genutzt werden, um einen (Förder-) Unterricht zu gestalten, in dem zielgerichtet von einem passenden Inhalt ausgegangen und mit geeigneten Anschauungsmitteln und Impulsen gearbeitet wird (Selter 2017).
+Die Diagnose im Umfeld Schule ist immer eine pädagogische Diagnose. Sie ist gekenn-zeichnet durch folgende Merkmale (Ingenkamp und Lissmann 2008, S. 13):
+Sie bezieht sich auf einzelne Lernende oder auf Gruppen von Lernenden.
+Sie ermittelt Voraussetzungen und Bedingungen von Lehr- und Lernprozessen.
+Sie analysiert Lernprozesse und Ergebnisse dieser Prozesse.
+Sie hat das Ziel individuelles Lernen zu optimieren.
+Im Folgenden werden grundlegende Elemente einer zielführenden mathematikdidakti-schen Diagnose dargestellt (Prozessorientierung, Kompetenzorientierung, Grundlage zur Unterstützung von Lernprozessen) und es werden verschiedene (organisatorische) Mög-lichkeiten der Diagnose im schulischen Umfeld dargestellt.
+Prozessorientiertes Vorgehen und ergiebige Aufgaben
+Am Beispiel der folgenden Aufgaben soll dafür sensibilisiert werden, warum der Blick auf Prozesse hilfreich sein kann, um Schülerlösungen und -bearbeitungen angemessen und förderorientiert einzuordnen (Wartha und Schulz in Vorb.).
+Aufgabe: 78 + 7
+Kind
+Lösung
+Bearbeitung
+Hypothesen
+Förderung
+Mögliche weitere Diagnose
+Murat
+85
+78 + 2 + 5
+Rechenweg
+„schrittweise über den Zehner“ kann sicher genutzt werden
+Nicht in diesem Bereich
+z. B. Kenntnis und Nutzung anderer Rechenwege
+Caro
+85
+Zählen
+79, 80, 81, 82,
+83, 84, 85
+Noch kein Kopf-rechnen, sondern zählendes Rech-nen; Zählprozess (auch der Zehner-übergang)
+gelingt sicher
+Erarbeitung und Nutzung automa-tisierter Grund-aufgaben, Rechen-wege für den Zehnerübergang
+Diagnose der ein-zelnen mentalen Werkzeuge als Grundlage der Weiterarbeit
+Bernd
+85
+87 [?] 88, 89,
+80, 81, 82, 84,
+85
+Probleme mit der Bildung der Stel-lenwerte, Zahlen-dreher; noch kein Kopfrechnen, sondern zählendes Rechnen; Zählen im ZR bis 100
+gelingt nicht sicher
+Zahlverständnis und Orientierung im ZR bis 100, Stellenwertver-ständnis, Erarbei-tung und Nutzung automatisierter Grundaufgaben,
+Rechenwege
+Diagnose der ein-zelnen mentalen Werkzeuge als Grundlage der Weiterarbeit (ggf. zunächst im ZR bis 20)
+Axel
+58
+78 + 2 + 5 = 58
+Rechenweg
+„schrittweise über den Zehner“ kann sicher genutzt werden; Zahlen-dreher beim Aufschreiben
+Klärung der inver-sen Sprechweise im Deutschen
+z. B. Kenntnis und Nutzung anderer Rechenwege
+Ute
+71
+78 – 7 = 71
+Minus statt Plus: ggf. um den ZÜ zu vermeiden, viel-leicht aber fehlen-des Operations-verständnis
+Erarbeitung des Operationsver-ständnisses (Addition und Subtraktion)
+Stellen einer Aufgabe ohne Zehnerübergang, um die „Vermei-dungsstrategie“ auszuschließen.
+Tabelle 8: Verschiedene Lösungen, Lösungswege und daraus folgende didaktische Überlegungen
+Diese Beispiele machen deutlich, dass die ausschließliche Konzentration auf Ergebnisse von Aufgaben nicht zielführend ist, wenn es darum geht, zu erfassen, welche Kompeten-zen beim Lösen einer Aufgabe genutzt werden und welche Schwierigkeiten ggf. noch be-stehen. Im Rahmen der Diagnostik helfen prozessorientierte Impulse, das Vorgehen und
+Denken der Schülerinnen und Schüler erfassbar zu machen. Einige solcher Impulse sind die folgenden (z. B. Wartha und Schulz in Vorb.):
+„Woher weißt du, dass ...?“
+„Erkläre bitte laut, wie du ...?“
+„Beschreibe, was du ...?“
+„Was müsstest du machen, damit ...?“
+„Ein anderes Kind hat mir das so erklärt: ... Was sagst du dazu?“
+„Ich habe deine Erklärung gut verstanden. Danke!“
+Ergiebige Diagnoseaufgaben lassen nicht nur einen Beobachtungsschwerpunkt zu, son-dern sie ermöglichen aufgrund der vielen notwendigen Kompetenzen, die für ihre Lösun-gen notwendig sind, die Beobachtung all dieser Kompetenzen oder entsprechend auftre-tender Schwierigkeiten (Tab. 8, S. 43). Das ist auch gut so, denn für eine schnelle und dennoch aussagekräftige Diagnose sollten zunächst wenige Aufgaben reichen, anhand derer bereits „viel zu sehen“ ist (Sundermann und Selter 2006).
+Kompetenzen ermitteln und Förderziele bestimmen
+Ziel der Diagnose:
+Förderung
+Diagnose im schulischen Kontext hat immer das Ziel, Schülerinnen und Schüler bestmög-lich beim Weiterlernen zu unterstützen. Deshalb sind vor allem solche Inhalte diagnos-tisch zu überprüfen, die für das erfolgreiche (Weiter-)Lernen besonders relevant sind. Mit anderen Worten: Inhalte, die für das erfolgreiche Rechnenlernen eher fakultativ sind, müssen auch nicht zwingend überprüft werden. Für die Durchführung der Diagnose be-deutet dies:
+Nicht zum Selbstzweck durchführen.
+Auf relevante Inhalte fokussieren, die für das Weiterlernen grundlegend sind (siehe Kapitel 1).
+Bereits beim Diagnostizieren mögliche Förderinhalte bedenken.
+Aufgaben stellen, deren Bearbeitung für die inhaltliche Gestaltung einer Förderung bedeutsam ist.
+Außerdem ist es notwendig, die Durchführung und Auswertung der Diagnose kompetenz-orientiert zu gestalten.
+Die Lehrkraft sollte sich darauf konzentrieren, herauszufinden, was das Kind kann – auch wenn dieses Wissen und Können Inhalte von vorangehenden Jahrgängen ist (Schipper und Schulz 2008). Einige Anregungen zur Durchführung einer kompetenzorientierten Diagnose und deren Auswertung sind die folgenden:
+Durchführung:
+keine Orientierung an aktuellen Inhalten
+mit der Abfrage grundlegender Kompetenzen beginnen
+bei Schwierigkeiten offen sein für große inhaltliche Schritte rückwärts
+erreichbare Aufgaben formulieren und stellen
+adaptives Vorgehen
+Kompetenzen positiv verstärken
+Auswertung:
+Konzentration auf Vorwissen und Kompetenzen trotz fehlerhafter Ergebnisse
+Konzentration auf die für den Lernprozess relevanten Kompetenzen
+Bei der Auswertung der Diagnose ist der aktuelle Inhalt der Klassenstufe nur sekundär relevant
+Folgerung:
+erreichbare Förderziele identifizieren, die an vorhandenen Kompetenzen anknüpfen
+Konzentration auf wenige, aber relevante Förderziele
+Unterscheidung zwischen kurz- und langfristigen Förderzielen
+Herr Meyer stellt Stefanie die Rechenaufgabe 6 + 8 und bittet sie, dabei laut zu erklären, wie sie vorgeht
+M
+6 + 8
+S
+6 + 8? … Ich zähl das an den Fingern.
+M
+Ja, mach ruhig. Wichtig ist für mich, dass ich rauskrieg, wie du das machst.
+S
+Ich zähle: 8 + 6 nehme ich erst mal, weil die 6 kleiner ist als die 8 und mit 8 geht’s schneller.
+Dann zähle ich: 9, 10, 11, 12, 13, 14.
+Zählt 9, 10, 11 an Zeige-, Mittel-,
+Ringfinger links, 12, 13, 14 an Zeige-, Mittel-, Ringfinger rechts
+M
+Und woher weißt du, dass du aufhören musst mit dem Zählen?
+S
+Weil es 6 Finger sind. Weil es die 6 sind, die ich zu der 8 zähle.
+M
+O.K. Kannst du mir noch mal zeigen:
+Die 6 – wie du die siehst an den Fingern?
+S
+Also hier sind drei...
+Zeigt Zeige-, Mittel- und Ringfinger links
+... und da sind drei Finger.
+Zeigt Zeige-, Mittel- und Ringfinger rechts
+Und ich zähle dann: 9, 10, 11, 12, 13, 14. Weil ich nicht durcheinander kommen möchte.
+Tippt zu jedem Zahlwort an einen Finger
+Herr Meyer stellt Stefanie die Rechenaufgabe 6 + 8 und bittet sie, dabei laut zu erklären, wie sie vorgeht
+M
+6 + 8
+S
+6 + 8? … Ich zähl das an den Fingern.
+M
+Ja, mach ruhig. Wichtig ist für mich, dass ich rauskrieg, wie du das machst.
+S
+Ich zähle: 8 + 6 nehme ich erst mal, weil die 6 kleiner ist als die 8 und mit 8 geht’s schneller.
+Dann zähle ich: 9, 10, 11, 12, 13, 14.
+Zählt 9, 10, 11 an Zeige-, Mittel-,
+Ringfinger links, 12, 13, 14 an Zeige-, Mittel-, Ringfinger rechts
+M
+Und woher weißt du, dass du aufhören musst mit dem Zählen?
+S
+Weil es 6 Finger sind. Weil es die 6 sind, die ich zu der 8 zähle.
+M
+O.K. Kannst du mir noch mal zeigen:
+Die 6 – wie du die siehst an den Fingern?
+S
+Also hier sind drei...
+Zeigt Zeige-, Mittel- und Ringfinger links
+... und da sind drei Finger.
+Zeigt Zeige-, Mittel- und Ringfinger rechts
+Und ich zähle dann: 9, 10, 11, 12, 13, 14. Weil ich nicht durcheinander kommen möchte.
+Tippt zu jedem Zahlwort an einen Finger
+Tabelle 9: Beispiel für eine zielführende mathematikdidaktische Diagnose (aus Wartha und Schulz 2012, S. 9)
+Sicherlich haben auch Sie schon ähnliche Bearbeitungswege beobachten können, denn Stefanies Lösungsweg ist typisch für das sogenannte zählende Rechnen: Stefanie weiß die Lösung der Aufgabe noch nicht auswendig, und sie kann noch nicht auf eine angemessene Kopfrechenstrategie zurückgreifen – daher löst sie die Aufgabe zählend. Eine produktori-entierte Diagnose würde sich ausschließlich auf das richtige Ergebnis konzentrieren.
+Beispiel für eine zielführende mathema-tikdidaktische Diagnose
+Die prozessorientierte Diagnose hingegen liefert den wichtigen Hinweis, dass Stefanie die Lösung noch nicht rechnend, sondern erst zählend ermittelt. Die kompetenzorientierte Sichtweise ermöglicht neben dieser eher defizitären Betrachtung („Stefanie kann noch nicht im Kopf rechnen.“) die Identifikation vieler Kompetenzen, die Stefanie schon nutzt:
+Stefanie ...
+erkennt, dass 8 größer ist als 6.
+weiß, dass sie die Tauschaufgabe bei der Addition nutzen darf.
+erkennt den Nutzen der Tauschaufgabe.
+ist sich sicher beim Weiterzählen.
+ist sich sicher beim Nennen des Ergebnisses.
+kann die 6 simultan mit den Fingern darstellen (als „drei und drei“).
+kennt wahrscheinlich den Zahlensatz 3 + 3 = 6.
+kann ihr Vorgehen sehr gut und nachvollziehbar beschreiben.
+An diese kurze Sequenz könnten sich nun weitere Diagnoseaufgaben anschließen, um zum Beispiel herauszufinden, ob Stefanie ...
+die Größenbeziehungen von Zahlen auch in anderen Zahlenräumen vergleichen kann.
+weiß, dass sie die Tauschaufgaben bei Subtraktionsaufgaben nicht nutzen darf.
+die Aufgabe vielleicht nur im ersten Zugriff zählend löst, auf Rückfrage aber vielleicht auch rechnend bearbeitet.
+auch in höheren Zahlenräumen weiterzählen kann.
+auch andere Zahlen als 6 schnell und sicher darstellen und auffassen kann (auch an anderen Materialien).
+schon andere Zahlensätze als 3 + 3 = 6 automatisiert hat.
+Auf diese Weise kann man sich an den Übergang zwischen den bereits vorhandenen Kompetenzen und den nächsten inhaltlichen Lerninhalten heranarbeiten. Inhalte einer möglichen Förderung könnten zum Beispiel folgende sein:
+Aufgaben des kleinen Einspluseins verständnisbasiert automatisieren,
+Aufgaben des kleinen Einspluseins bei Ableitungsstrategien nutzen,
+operative Zusammenhänge zwischen gewussten Aufgaben und benachbarten Aufgaben erarbeiten und
+schnelle Zahlauffassung und -darstellung von Zahlen größer als 6 üben.
+Möglichkeiten der Diagnose und Aufgaben der Lehrkraft
+Möglichkeiten der Diagnose kennen und kriteriengeleitet
+auswählen
+Die Möglichkeiten der Diagnose im schulischen Umfeld sind zum Beispiel die (Unter-richts-)Beobachtung, das Einzel- oder Klassengespräch, der schriftliche Test (z. B. Klassen-arbeit, Vergleichsarbeit) (Ingenkamp und Lissmann 2008, S. 74–129) und die Analyse von Schülerdokumenten (Selter 1995). Darüber hinaus gibt es Diagnoseinstrumentarien und Screenings, die speziell für den Einsatz im schulischen Kontext entwickelt wurden. Zu nennen sind hier zum Beispiel das ElementarMathematische BasisInterview (EMBI) (Peter-Koop et al. 2007), der Bielefelder Rechentest BIRTE 2 (Schipper et al. 2011), die Materialien des Programms „Mathe sicher können“ (Selter et al. 2014) und die compu-tergestützte Diagnose ILeA plus des Landes Brandenburg (LISUM 2019). Der Vorteil der letztgenannten ist, dass sie ohne Adaption genutzt werden kann, und es entsprechende
+didaktische Handreichungen zum diagnostischen Vorgehen gibt. Bis auf das EMBI bieten diese Materialien darüber hinaus explizite Hinweise zu möglichen Förderinhalten. Eine wesentliche Aufgabe der Lehrkraft ist es in diesem Zusammenhang, die jeweiligen diag-nostischen Möglichkeiten zu kennen und kriteriengeleitet auszuwählen:
+Wann und warum reicht ein kurzes Einzelgespräch?
+Wann und warum reichen mir Hausaufgaben oder Klassenarbeiten?
+Wann und warum nutze ich ein standardisiertes Instrument?
+Wie und warum dokumentiere ich die Ergebnisse am besten?
+Mögliche Orientierungspunkte bei der Auswahl diagnostischer Aktivitäten sind (Deutsches Zentrum für Lehrerbildung Mathematik 2019 (4)):
+Grad der Standardisierung und Normierung:
+Besteht eine feste Vorgabe von Aufgaben, Fragen und möglichen Antworten? Sind Adaptionen an die jeweiligen Lernvoraussetzungen möglich? Welche Vergleichsgruppe wird herangezogen?
+Themenbereiche:
+Welche (arithmetischen) Inhalte sind Gegenstand der Diagnose? Werden auch andere Bereiche angesprochen, zum Beispiel geometrische Inhalte oder prozess-bezogene Kompetenzen?
+Altersstufe:
+Für welche Altersstufe ist das Diagnoseinstrument vorgesehen? Bestehen hierfür feste Vorgaben? Existieren Erweiterungen für andere Altersstufen? Sind auch hier Adaptionen möglich?
+Dauer:
+Wie viel Zeit wird für die Durchführung benötigt? Ist eine durchgehende Bearbei-tung vorgesehen oder dürfen Pausen und Unterbrechungen in Anpassung an die individuelle Konzentrationsspanne erfolgen? Lassen sich ggf. nur Ausschnitte verwenden?
+Durchführung:
+Ist das Testverfahren für die Einzelsituation und/oder eine Gruppe vorgesehen? Wie sieht die Durchführung aus (Interview, Papier-Bleistift-Verfahren, Computer-unterstützung)? Stimmen dabei Aufwand und Nutzen überein?
+Auswertung:
+Wie erfolgt die Auswertung? Welche konkreten Aussagen erhält die Lehrkraft?
+Materialeinsatz:
+Welche Materialien werden benötigt? Kann auf Vorhandenes zurückgegriffen werden oder liegen sie gegebenenfalls dem Testinstrument bei?
+Sprachliche Anforderungen:
+Benötigt das Kind ein bestimmtes Fachvokabular, das geklärt sein muss? Kommt das Diagnoseinstrument eventuell ohne Sprache aus?
+All diese Orientierungspunkte können sich einerseits auf (halb-)standardisierte diagnosti-sche Verfahren beziehen, sie können aber auch handlungsleitend für die Entwicklung und Durchführung eigener diagnostischer Aktivitäten sein, zum Beispiel für ein kurzes (Einzel-) Gespräch. So müssen nicht immer formalisierte Standortbestimmungen durchgeführt werden, um Einsichten in den Lernprozess von Schülerinnen und Schülern zu bekommen. Häufig reichen kurze Gesprächsimpulse oder einfach das „über die Schulter gucken“ wäh-
+Unterrichtsbegleitende Beobachtungen
+rend des regulären Unterrichts („Rechne doch mal 72 – 35 und erkläre mir laut, wie du das machst“, „Stelle mir mal am Material die Zahl 23 ein und erkläre mir, warum das die-se Zahl sein muss“). Obwohl in Förder- und Unterrichtssituationen die diagnostische Brille aufgesetzt werden kann, (und umgekehrt auch informelle diagnostische Situationen zu Fördermomenten führen können), so gibt es doch grundsätzlich unterschiedliche Inten-tionen und Herangehensweisen bei Diagnose und Förderung (Selter 2017, S. 391):
+Diagnosegespräch
+Fördergespräch
+Ziel
+Denkwege verstehen
+Lernfortschritte ermöglichen
+Aufgabenstellung
+... soll bearbeitet werden
+... soll richtig gelöst werden
+Erklärungen
+... weitestgehend vermei-den, nur Aufgabenver-ständnis sichern
+... im Bedarfsfall notwen-dig, bedürfen aber der aktiven Einordnung ins bestehende Wissensnetz
+Fragen und Impulse
+... dienen der Auslotung des Verständnisses
+... dienen der aktiven Ent-wicklung des Verständ-nisses
+Hilfen
+... als Unterstützung zum Darstellen der eigenen Denkwege
+... als Unterstützung zum Selbstfinden von Erkenntnissen
+Fehler
+... werden nicht bearbeitet, aber dienen der Erkenntnis
+... sollen analysiert und überwunden werden
+Hauptaktivität Lehrpersonen
+... innehalten, beobachten und zuhören
+... aktiv zu Lernfortschritten anregen
+Hauptaktivität Lernende
+... Denkwege erklären
+... neue Denkwege ein-schlagen
+Rückmeldung
+... lernstandsorientiert
+... lernprozess- und sach-orientiert
+Tabelle 10: Merkmale von Diagnose- und von Fördergesprächen (Selter 2017, S. 391)
+Förderziele benennen, vereinbaren und
+überprüfen
+Kinder und Erwachsene profitieren sehr davon, wenn sie wissen, mit welchem Ziel sie eine Aufgabe bearbeiten, sich einem Projekt zuwenden oder etwas üben. Zudem ist es sehr hilfreich, wenn sie wissen, auf welchem Weg dieses Ziel erreicht werden kann. Diese Ziel- und Methodentransparenz sollte fester Bestandteil von Unterrichtsprozessen sein, damit Schülerinnen und Schüler sich kompetent und erfolgreich fühlen können (Wember 2017, S. 58; Sundermann und Selter 2006). Es ist die Aufgabe der Lehrkraft (egal, ob im regulären Unterricht oder in Fördersituationen), gemeinsam mit den Lernenden festzule-gen, welches die nächsten Schritte auf dem individuellen Lernweg sind und wie diese erreicht werden können.
+„Gemeinsam“ bedeutet in diesem Fall, dass die Lehrkraft zunächst Lerninhalte, -metho-den, -ziele und -voraussetzungen analysieren muss und auf Grundlage dieser Analysen Entscheidungen für die inhaltliche und methodische Gestaltung von Unterricht und För-dersituationen trifft. Die Lernvoraussetzungen des Kindes, die diesen Entscheidungen zugrunde liegen, können durch die oben beschriebene Diagnose ermittelt werden.
+Für das Benennen, Vereinbaren und Überprüfen von Förderzielen gilt dabei allgemein Folgendes (siehe auch Voß, Sikora und Hartke 2017, S. 341):
+Die Lernausgangslage muss mithilfe einer Lernstandsanalyse ermittelt und dokumentiert worden sein.
+Erreichbare Förderziele müssen transparent dokumentiert sein.
+Es können kurz- und langfristige Förderziele benannt werden.
+Alle Beteiligten (zum Beispiel Lehrkraft und Kind, aber auch Eltern und Erzieher im offenen Ganztagsbetrieb) haben immer die Möglichkeit, sich inhaltlich zu den För-derzielen und deren Erreichen zu äußern.
+Das Erreichen der Förderziele wird in einer vorgegebenen Zeitspanne transparent überprüft und dokumentiert.
+Diagnose und Förderung sind somit keine ausschließliche Angelegenheit der Lehrkraft, sondern der Einbezug der Schülerinnen und Schüler ist ein wichtiges Element der Lernver-laufsdiagnostik.
+Es gibt verschiedene Möglichkeiten, den individuellen Lernweg zu illustrieren und zu do-kumentieren. Diese Möglichkeiten sind abhängig vom Setting und der Dauer des geplan-ten (Förder-)Unterrichtsvorhabens. Sie reichen vom Arbeitsblatt mit der Möglichkeit zur Selbsteinschätzung bis hin zu einem verbindlichen Halbjahres-Förderplan, auf dem Lern-ziele schriftlich festgehalten sind und deren Erreichen ausführlich dokumentiert werden (für weitere Möglichkeiten siehe z. B. Sundermann und Selter 2006). Bei besonderen Schwierigkeiten beim Rechnenlernen wird das Erstellen eines langfristigen und inhaltlich ausführlichen Förderplans nach den SMART-Kriterien dringend empfohlen, in dem fol-gende Fragen beantwortet werden:
+Auf welche diagnostischen Erkenntnisse stützen sich die getroffenen didaktischen Entscheidungen?
+Welche Inhalte sollen in welchem Zeitraum erarbeitet werden?
+Mit welchen Anschauungsmitteln sollen diese Inhalte erarbeitet werden?
+4
+4
+In diesem Kapitel finden Sie konkrete Hinweise für die Durchführung und Auswertung einer prozessorientierten Diagnose. Zudem werden konkrete Förderempfehlungen vorge-stellt, die sich aus den Ergebnissen der Diagnose herleiten lassen.
+Hierzu finden Sie …
+einen Diagnosebogen zur Orientierung und Kurzdokumentation von Beobachtun-gen und Folgerungen (ab S. 53).
+ausführliche Diagnose- und Auswertungshinweise (ab S. 59): Hier finden Sie einer-seits erneut die diagnostischen Impulse an einzelnen Stellen ergänzt durch weiter-führende Fragestellungen. Andererseits finden Sie zu jeder Diagnoseaufgabe Hin-weise zur Deutung der Beobachtungen und Verweise zu entsprechenden Förder-hinweisen.
+konkrete Förderhinweise zu den verschiedenen Inhaltsbereichen (ab S. 77).
+Diagnose (Aufgaben, Intention, Intervention)
+Auf den folgenden Seiten finden Sie konkrete Vorschläge für Diagnoseaufgaben in den Inhaltsbereichen:
+Zahlvorstellung: Zählen und Orientierung im Zahlenraum
+Zahlvorstellung: Zahldarstellung und -auffassung
+Operationsvorstellungen und Rechnen: Addition und Subtraktion
+Automatisierte Grundaufgaben: Einspluseins und Zahlzerlegung
+Stellenwerte: Bündeln und Entbündeln
+Stellenwerte: Lesen, Schreiben und Sprechen von Zahlen
+Zahl-, Aufgabenzusammenhänge und Rechenregeln
+Zahlen- und Aufgabenblick sowie Rechenstrategien
+Einsatz des Diagnosebogens
+Zu allen konkreten Diagnoseaufgaben werden in den Auswertungshinweisen mögliche Beobachtungen mit entsprechenden inhaltlichen Folgerungen für die Förderung aufgeführt.
+Für diesen Diagnoseleitfaden gelten einige Grundüberlegungen:
+Zum Zeitpunkt: Spätestens wenn Schülerinnen und Schüler Rechenstrategien sicher anwenden sollen, meist gegen Ende des ersten Schuljahres, müssen sie über das be-schriebene mentale Werkzeug verfügen. Ist dies nicht der Fall, kann dies zu gravie-renden Problemen beim Weiterlernen führen. Ein sinnvoller Zeitpunkt zur Überprü-fung ob und welche mentalen Werkzeuge bereits sicher genutzt werden können und welche noch nicht, ist also spätestens der Beginn des zweiten Schuljahres.
+Doch auch zu einem späteren Zeitpunkt kann die vorliegende Diagnose genutzt werden, um zum Beispiel zu überprüfen, ob das mentale Werkzeug auch in größe-ren Zahlenräumen genutzt werden kann oder wenn man Probleme beim Rechnen-lernen erst später wahrnimmt (z. B. weil man eine neue Klasse übernimmt). Für eine vertiefende Diagnose nach einem auffälligen Ergebnis bei ILeA plus ist der Einsatz des Diagnosebogens geeignet.
+Zum Zahlenmaterial und den Aufgaben: Bei allen Aufgaben werden konkrete Zah-len und Rechenaufgaben vorgeschlagen. Diese können gut genutzt, jedoch auch inhaltlich begründet ergänzt oder weggelassen werden.
+Im Einzelfall kann es (vor allem zur Entlastung des Gedächtnisses) sinnvoll sein, ein-zelne Aufgaben schriftlich vorzulegen und nicht nur mündlich zu stellen.
+Zum Zahlenraum: Das vorgeschlagene Zahlenmaterial ist so gewählt, dass zunächst Aufgaben in kleinen Zahlenräumen genutzt werden. Wenn die Schülerinnen und Schüler sicher sind, kann der Zahlenraum bis 20/bis 100 erweitert werden. Hierbei kann und sollte die Lehrkraft begründet selbst entscheiden, wie schnell sie bei die-ser Zahlenraumerweiterung vorgeht.
+Zur Reihenfolge: Die Aufgaben sind nach Inhalten zusammengefasst (8 Aufgaben-blöcke). Die Reihenfolge dieser Aufgabenblöcke kann beliebig verändert werden, obwohl es sicherlich sinnvoll ist, mit den Aufgaben zur Zahlvorstellung zu beginnen. Da es sich um einen umfangreichen Leitfaden handelt, kann er in mehrere Sequen-zen aufgeteilt werden. Sinnvoll erscheint zudem ein Vorgehen vom Leichten zum Schweren, um den Einstieg zu erleichtern und Demotivation vorzubeugen.
+Zur Vollständigkeit: Um sich ein möglichst umfassendes Bild über die Kompetenzen des Kindes in Bezug auf das mentale Werkzeug machen zu können, sollten mög-lichst alle Aufgaben bearbeitet werden. Zeigt das Kind jedoch bei einzelnen Aufga-ben, dass es auch andere Inhaltsbereiche bereits gut beherrscht, müssen diese nicht mehr zwingend erhoben werden.
+Zur Auswertung: Bei jeder Aufgabe werden mögliche Antworten bzw. Lösungspro-zesse in Kapitel 4.1.2 Auswertungshinweise vorgestellt. Außerdem werden mögliche Folgerungen und entsprechende Förderhinweise gegeben (siehe S. 59 f.). An diesen kann sich die Lehrkraft gut orientieren. Zu beachten ist dabei, dass in dieser Handrei-chung nicht alle denkbaren Antworten und Lösungsprozesse abgebildet werden kön-nen, die im Rahmen einer Diagnose beobachtbar wären.
+Daher kann es im Einzelfall vorkommen, dass die Beobachtungen nicht eins zu eins zu Förderempfehlungen führen. Hier sind dann Folgefragen in angrenzenden Inhaltsbereichen sinnvoll oder die Ableitung eigener begründeter Schlussfolgerun-gen.
+Zur Gesprächsatmosphäre: Schaffen Sie eine angenehme, angstfreie Gesprächsat-mosphäre. Verdeutlichen Sie dem Kind, dass Fehler in diesem geschützten Rahmen natürlich und nicht schlimm sind. Verdeutlichen Sie zudem, dass es Ihnen nicht auf richtige oder falsche Ergebnisse ankommt, sondern auf Denk- und Lösungswege. Bereiten Sie das Kind auf Rückfragen der folgenden Art vor: Woher weißt du das? Wie hast du das gemacht?
+Zur Nutzung von Darstellungsmitteln: Einige vorgeschlagene Aufgabenstellungen erfordern den Einsatz von Anschauungsmaterial. Auch bei Aufgabenstellungen ohne expliziten Hinweis auf deren Nutzung kann der zusätzliche Einsatz von An-schauungsmaterial zu erkenntnisreichen Beobachtungen führen. Die Lehrkraft kann also begründet bei einigen Aufgaben zusätzlich Material hinzuziehen.
+Zudem kann bei allen Aufgaben, bei denen Anschauungsmaterial genutzt wird, überprüft werden, ob das Kind schon in der Lage wäre, seine Antworten ohne Blick auf das Material zu formulieren (Wie viele Zehnerstangen bräuchtest du? Woher weißt du das?).
+Hier kann die Lehrkraft sich gut am Modell der phasenweisen Ablösung vom Material orientieren (Kapitel 2.1, S. 28).
+Bei der Nutzung des Materials für die Diagnose sollte zunächst geklärt werden, ob das Material und seine Strukturen prinzipiell bekannt sind.
+Folgende Materialien werden für den Leitfaden genutzt:
+Wendeplättchen
+Steckwürfelstangen
+Zehnersystem-Blöcke (Einerwürfel, Zehnerstangen, Hunderterplatten, Tausenderwürfel)
+Rechenrahmen (20er und 100er)
+Zahlenstrahl (skaliert und unskaliert)
+Zahlenkarten
+Aufgabenkarten
+Stift
+Papier.
+Diagnosebogen
+Aufgabenstellung
+Beobachtungen und Folgerungen
+ Zahlvorstellung: Zählen und Orientierung im Zahlenraum (Auswertungshinweise S. 59–60)
+1a) Zähle vorwärts ab 5 (17, 32).
+1b) Zähle rückwärts ab 7 (18, 72).
+1c) Welche Zahl kommt vor der 4 (23, 31)?
+1d) Welche Zahl kommt nach der 6 (43, 59)?
+1e) Zähle in 2er-Schritten vorwärts/rückwärts ab 6 (7, 22, 57).
+1f) Zähle in 10er-Schritten vorwärts/rückwärts ab 20 (70, 57).
+1g) Welche Zahl ist größer: 74 oder 56?
+Erkläre.
+1h) Welche Zahl ist größer? (63 und 47 notiert vorlegen) Erkläre.
+ Zahlvorstellung: Zahldarstellung und -auffassung (Auswertungshinweise S. 61–63)
+2a) Stelle am Rechenrahmen die 7 (13, 34, 67) ein.
+Beschreibe, was du machst.
+Zahlen entweder mündlich oder notiert vorgeben.
+2b) Welche Zahl habe ich dir am Rechenrahmen eingestellt? (6, 14, 43, 76) Erkläre.
+(Zahlen mündlich nennen und notieren lassen)
+2c) Ich zeige dir die Zahl am Rechenrahmen nur kurz. (7, 9, 16, 23)
+Welche Zahl siehst du? Beschreibe, was du gesehen hast. Erkläre, warum das die ... ist?
+2d) Lege mit den Zehnersystem-Blöcken die 12 (34, 40). Beschreibe, was du machst.
+(Zahlen entweder mündlich oder notiert vorgeben)
+2e) Welche Zahl habe ich mit den Zehnersystem-Blöcken gelegt? (11, 23, 30, 76) Erkläre. (Zahlen mündlich nennen und notieren lassen)
+2f) Ich zeige dir die Zahl mit den Zehnersystem-Blöcken nur kurz (4, 20, 23). Welche Zahl siehst du? Beschreibe, was du gesehen hast.
+2g) Ich sage dir eine Zahl und du zeigst mir, wo sie am Zahlenstrahl zu finden ist. (7, 13, 34, 67) Wie gehst du vor? Beschreibe.
+2h) Ich zeige dir Positionen am Zahlenstrahl und du sagst mir, welche Zahlen dort stehen müssen. (6, 14, 43, 78) Wie gehst du vor? Beschreibe.
+2i) Ich diktiere dir Zahlen. (14, 28, 76, 55, 80) Schreibe sie auf.
+2j) Hier siehst du Zahlen. (16, 45, 67, 88, 70) Lies sie vor.
+ Operationsvorstellungen und Rechnen: Addition und Subtraktion (Auswertungshinweise S. 63–65)
+3a) Ich erzähle dir eine Geschichte.
+Peter und Tom haben Sammelkarten dabei: Peter hat fünf und Tom hat drei. Wie viele haben die beiden zusammen?
+Wie könnte eine passende Rechenaufgabe heißen? Erkläre.
+3b) Ich erzähle dir eine Geschichte.
+Paula hat acht Karten. Sie gibt drei Karten ab. Wie viele Karten hat sie dann noch?
+Wie könnte eine passende Rechenaufgabe heißen? Erkläre.
+3c) Ich erzähle dir eine Geschichte.
+Kevin hat drei Karten. Evelyn hat sieben Karten. Wie viele Karten müsste ich Kevin geben, damit Kevin genauso viele Karten hat wie Evelyn?
+Wie könnte eine passende Rechenaufgabe heißen? Erkläre.
+3d) Erfinde zu der Aufgabe 8 – 6 (3 + 5) eine Geschichte.
+3e) Löse die Aufgabe 8 – 2 (5 + 3) mit Plättchen.
+3f) Ich lege Plättchen. Welche Aufgabe könnte es sein? 3 + 4 (6 – 3)
+(3 Plättchen hinlegen, 4 Plättchen dazu legen, sichtbare Lücke lassen, Aufgabe erfragen;
+6 Plättchen hinlegen, 3 Plättchen wegschieben Aufgabe erfragen)
+3g) Welche Aufgabe musst du rechnen, um den Unterschied zwischen 8 und 5 zu finden? Zeige mir das mit Plättchen.
+3h) Löse die Aufgabe 4 + 5 (7 – 4, 43 + 6, 38 – 6) am Rechenrahmen. Erkläre, wie du vorgehst.
+3i) Ich schiebe dir am Rechenrahmen eine Aufgabe.
+Welche Aufgabe könnte das gewesen sein? (2 + 5, 8 – 4, 23 + 5, 37 – 5, …)
+Woher weißt du, welche Aufgabe ich geschoben habe?
+3j) Löse die Aufgabe 7 + 8 (14 – 9, 28 + 6, 43-7) am Rechenrahmen.
+Erkläre, wie du vorgehst.
+3k) Ich schiebe dir am Rechenrahmen eine Aufgabe.
+Welche Aufgabe könnte das gewesen sein? (6 + 5, 12 – 6, 38 + 5, 42 – 6, ...)
+Woher weißt du, welche Aufgabe ich geschoben habe?
+3l) Löse die Aufgabe 52 – 20 (23 + 30) mit den Zehnersystem-Blöcken.
+Erkläre, wie du vorgehst.
+3m)Ich lege dir mit den Zehnersystem-Blöcken eine Aufgabe.
+Welche Aufgabe könnte das gewesen sein? (45 – 10, 24 + 30)
+Woher weißt du, welche Aufgabe ich gelegt habe?
+3n) Löse die Aufgabe 47 + 6 (32 – 6, ...) mit den Zehnersystem-Blöcken.
+Erkläre, wie du vorgehst.
+ Automatisierte Grundaufgaben: Einspluseins und Zahlzerlegungen (Auswertungshinweise S. 66)
+4a) Löse die Rechenaufgabe 5 + 5 (1 + 9, 3 + 7, 4 + 3,
+2 + 6).
+4b) Löse die Rechenaufgabe 10 – 5 (10 – 9, 10 – 7,
+7 – 4, 8 – 6).
+4c) Nenne das Doppelte von 4 (von 5, von 7, von 9,
+von 10).
+4d) Nenne die Hälfte von 6 (von 8, von 10, von 14,
+von 18, von 20).
+4e) Wie viel fehlt von 5 bis zur 10? (von 9, von 7, von 4, von 2, von 3, von 8, von 6, von 1)
+4f)  Wie viel fehlt von 3 bis zur 8? (von 7, von 4, von 6,
+von 5, von 2, von 1)
+ Stellenwerte: Bündeln und Entbündeln (Auswertungshinweise S. 67)
+5a) Hier liegen Würfel. (23) Wie viele sind das? Erkläre.
+Wie viele Zehner hat die Zahl? Erkläre. Lege die Würfel so, dass man sehen kann, wie viele Zehner es sind.
+5b) Hier sind drei Zehner (drei Steckwürfelstangen).
+Wie viele Würfel sind das?
+Wenn ich jetzt einen Würfel wegnehme (Würfel abbrechen), wie viele Zehner sind es dann?
+Und wenn ich noch einen Würfel wegnehme, wie viele Zehner sind es nun?
+ Stellenwerte: Lesen, Schreiben und Sprechen von Zahlen (Auswertungshinweise S. 68–70)
+6a) Hier liegt eine Zahl mit den Zehnersystem-Blöcken. (5Z3E, 3Z)
+Schreibe die Zahl auf. Erkläre, woran du erkennst, wie die Zahl geschrieben wird.
+6a*) Hier liegt eine Zahl mit den Zehnersystem-Blöcken. (3Z12E)
+(Sortierung: Zehner oben, Einer darunter) Schreibe die Zahl auf. Erkläre, woran du erkennst, wie die Zahl geschrieben wird.
+6b) Ich schreibe dir eine Zahl auf. (54, 37, 40, 22, ...) Lege sie mit den Zehnersystem-Blöcken.
+Erkläre, woran du erkennst, was du legen musst.
+6c) Hier liegt eine Zahl mit Zehnersystem-Blöcken. (4Z3E, 5Z, ...)
+(Sortierung: Zehner oben, Einer darunter)
+Wie heißt die Zahl?
+6c*) Hier liegt eine Zahl mit Zehnersystem-Blöcken. (4Z12E)
+Sortierung: Zehner oben, Einer darunter
+Wie heißt die Zahl?
+6d) Ich nenne dir eine Zahl. (56, 34, 40, zwanzig und fünf, ...)
+Lege sie mit den Zehnersystem-Blöcken. Erkläre, was du legen musst.
+ Zahl-, Aufgabenzusammenhänge und Rechenregeln (Auswertungshinweise S. 70–73)
+Umkehraufgabe
+7a) Rechne 5 + 4, 9 – 4.
+Hat dir die erste Aufgabe beim Lösen der zweiten geholfen? Warum?
+Tauschaufgabe
+7b) Rechne 9 + 3, 3 + 9.
+Hat dir die erste Aufgabe beim Lösen der zweiten geholfen? Warum?
+Nachbaraufgabe
+7c) Rechne 7 + 5, 7 + 6 (14 – 7, 14 – 8).
+Hat dir die erste Aufgabe beim Lösen der zweiten geholfen? Warum?
+Analogieaufgabe
+7d) Rechne 3 + 5, 30 + 50, 23 + 5.
+Hat dir die erste Aufgabe beim Lösen der zweiten/dritten geholfen? Warum?
+Analogieaufgabe
+7e) Rechne 7 – 4, 70 – 40, 27 – 4.
+Hat dir die erste Aufgabe beim Lösen der zweiten/dritten geholfen? Warum?
+Teil-Ganzes-Konzept
+7f) Unter einem Tuch sind zwei Plättchen, unter einem anderen sind fünf Plättchen.
+Wenn ich jetzt ein Plättchen verschiebe, bleiben es insgesamt gleich viele oder ändert sich etwas an der Gesamtanzahl? Woher weißt du das?
+Konstanz der Summe
+7g) (Aufgaben vorlegen: 7 + 5 = 12, 8 + 4 = 12, 9 + 3 =
+12, 10 + 2 = 12)
+Erkläre, warum das Ergebnis bei allen Aufgaben gleich bleibt.
+Konstanz der Differenz
+7h) (Aufgaben vorlegen: 7 – 5 = 2, 8 – 6 = 2, 9 – 7 = 2,
+10 – 8 = 2)
+Erkläre, warum das Ergebnis bei allen Aufgaben gleich bleibt.
+ Zahlen-, Aufgabenblick und Rechenstrategien (Auswertungshinweise S. 73–76)
+8a) Schreibe möglichst viele Aufgaben mit dem Ergebnis 10 (4, 35, 24) auf.
+Ggf: Kennst du auch Minusaufgaben?
+Fallen dir auch Mal- oder Geteiltaufgaben ein?
+8b) Ich zeige dir eine Aufgabe. Bei der Aufgabe sollst du nicht genau rechnen, sondern schnell sagen, ob das Ergebnis größer oder kleiner als 10 (20) ist. (5 + 7, 2 + 6, 4 + 8, 12 + 5, 8 + 9, 13 + 9, ...)
+8c) Löse die Rechenaufgabe 7 + 8 (9 + 4, 5 + 6) Beschreibe, wie du vorgehst.
+8c*) Löse die Rechenaufgabe 37 + 9 (25 + 27, 34 + 49).
+Beschreibe, wie du vorgehst.
+8d) Löse die Rechenaufgabe 15 – 7 (14 – 9, 11 – 8).
+Beschreibe, wie du vorgehst.
+8d*) Löse die Rechenaufgabe 43 – 8 (72 – 35, 34 – 19,
+62 – 59).
+Beschreibe, wie du vorgehst.
+8e) Nenne das Doppelte von 19 (von 25, von 60).
+Erkläre.
+Nenne die Hälfte von 50 (von 32, von 70, von 140). Erkläre.
+Tabelle 11: Diagnosebogen
+Auswertungshinweise
+ Zahlvorstellung: Zählen und Orientierung im Zahlenraum
+Aufgabenstellungen
+1a)Vorwärtszählen: Zähle vorwärts ab 5 (17, 32, ...).
+1b)  Rückwärtszählen: Zähle rückwärts ab 7 (18, 72, ...).
+1c)Vorgänger: Welche Zahl kommt vor der 4 (23, 31 …)?
+1d)  Nachfolger: Welche Zahl kommt nach der 6 (43, 59, …)?
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Zügiges, fehlerloses (Rückwärts-) Zählen in verschiedenen Zahlenräumen
+Systematischer Aufbau der Zahlwortreihe wird sicher angewendet.
+Einstieg in den Zählprozess unsicher
+Unsicherheiten oder Fehler beim Zählen
+Zahlwortreihe/System der Zahlwortreihe noch nicht geläufig
+[?] Förderung: Vorwärtszählen, Abzählen, Zahlen sortieren
+Zehnerübergänge unsicher
+Zahlwortreihe/System der Zahlwortreihe noch nicht sicher; insbesondere: Rolle der Zehn ggf. noch unklar
+[?] Förderung: Vorwärtszählen, Abzählen, Zahlen sortieren, Bündeln und Entbündeln, Zahlen richtig aussprechen
+Zählen bei Zahlen aus gleichen Ziffern
+(z. B. 32, 33, 34 oder 78, 77, 76) unsicher
+Zahlwortreihe/System der Zahlwortreihe noch nicht automa-tisiert; insbesondere: Unterschied zwischen Zehnern und Einern im Zahlwort ggf. noch unklar
+[?] Diagnose: Stellenwertverständnis (Diagnosebogen, S. 56)
+[?] Förderung: Vorwärtszählen, Abzählen, Zahlen sortieren
+Zahlendreher
+Unterschied zwischen Zehnern und Einern im Zahlwort ggf. noch unklar
+[?] Diagnose: Stellenwertverständnis (Diagnosebogen, S. 56)
+Verwechseln oder Unsicherheiten beim Vorwärts-/Rückwärtszählen bzw.
+Vorgänger/Nachfolger
+Begriffe noch unklar
+[?] Förderung: Vorwärtszählen, Rückwärtszählen, Abzählen, Zahlen sortieren
+Aufgabenstellungen
+1e) Vorwärtszählen und Rückwärtszählen in Schritten: Zähle in 2er-Schritten vorwärts/rückwärts ab 6 (7, 22, 57).
+1f) Vorwärtszählen und Rückwärtszählen in Schritten: Zähle in 10er-Schritten vorwärts/rückwärts ab 20 (70, 57).
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Zügiges, fehlerloses (Rückwärts-) Zählen in Schritten in verschiedenen Zahle räumen
+Systematischer Aufbau der Zahlwortreihe wird sicher angewen-det, Zahlbeziehungen und -eigenschaften werden für Zählpro-zesse genutzt.
+2er Schritte: Zahleigenschaften gerade/ungerade können ggf. genutzt werden.
+10er Schritte: Zehnerstelle im Zahlwort kann identifiziert und verändert werden.
+Zehner-, Hunderterübergänge unsicher
+Zahlwortreihe/System der Zahlwortreihe noch nicht sicher; insbesondere: Rolle der Zehn (Hundert) ggf. noch unklar
+[?] Diagnose: Stellenwertverständnis (Diagnosebogen, S. 56)
+Zählen bei Zahlen aus gleichen Ziffern („Paschzahlen“) unsicher
+Zahlwortreihe und System der Zahlwortreihe noch nicht auto-matisiert; insbesondere: Unterschied zwischen Zehnern und Einern im Zahlwort noch unklar
+[?] Ggf. weitere Diagnose: Stellenwertverständnis (Diagnose-bogen, S. 56)
+[?] Förderung: Vorwärtszählen, Rückwärtszählen, Abzählen, Zahlen sortieren
+Schrittgröße wird nicht eingehalten
+Unsicherheiten bei Zahlbeziehungen und Zahleigenschaften: insbesondere Stellenwertsystem und / oder gerade bzw. unge-rade Zahlen
+[?] Ggf. Aufgabenstellung unklar (überprüfen mit: Rechne 57 + 10 und 57 + 2)
+[?] Förderung: Zahlen sortieren, Darstellen von Anzahlen, Struk-turieren von Anzahlen, Bündeln und Entbündeln, Aufgabenfol-
+gen (immer plus zwei, plus 10, plus x)
+Zwischenzahlen werden (leise) mitgezählt
+Zahlbeziehungen und -eigenschaften werden nicht sicher genutzt
+[?] Förderung: Vorwärtszählen, Abzählen, Zahlen sortieren
+Zahlendreher
+Unterschied zwischen Zehnern und Einern im Zahlwort ggf. noch unklar
+[?] Diagnose: Stellenwertverständnis (Diagnosebogen, S. 56)
+Aufgabenstellungen
+1g)Zahlenvergleich (mündlich): Welche Zahl ist größer: 74 oder 56? Erkläre.
+1h)  Zahlenvergleich (notiert): Welche Zahl ist größer? (63 und 47 notiert vorlegen) Erkläre.
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Begründung unter Nutzung der Stellen-werte, z. B.: Die 74 hat 7 Zehner und die 56 nur 5 Zehner.
+Begründung unter Nutzung der Anord-nung der Zahlen, z. B.: Die 56 kommt vor der 74, dazwischen kommen noch die ganzen Sechziger.
+Zahleigenschaften und -beziehungen können zur Orientierung im Zahlenraum sicher genutzt werden.
+Begründung unter Nutzung der Ziffern (nicht der Stellenwerte)
+Ziffernweises Vorgehen ohne Bezug zu den Stellenwerten kann darauf hindeuten, dass der Unterschied zwischen Zehnern und Einern im Zahlwort/Zahlzeichen noch unklar ist.
+[?] Diagnose: Stellenwertverständnis (Diagnosebogen, S. 56)
+Zahlendreher
+Unterschied zwischen Zehnern und Einern im Zahlwort/Zahl-zeichen noch unklar
+[?] Diagnose: fehlendes Stellenwertverständnis (Diagnosebogen, S. 56)
+ Zahlvorstellung: Zahldarstellung und -auffassung
+Aufgabenstellungen am Rechenrahmen
+2a) Zahlen darstellen: Stelle am Rechenrahmen die 7 (13, 34, 67, ...) ein. Beschreibe, was du machst.
+(Zahlen entweder mündlich oder notiert vorgeben)
+2b) Zahlen ablesen: Welche Zahl habe ich dir am Rechenrahmen eingestellt? (6, 14, 43, 76, ...) Erkläre. (Zahlen mündlich nennen und notieren lassen)
+2c) Zahlen nach kurzer Präsentation ablesen (Schnelles Sehen): Ich zeige dir die Zahl am Rechen-rahmen nur kurz.
+(7, 9, 16, 23, ...) Welche Zahl siehst du? Beschreibe, was du gesehen hast.
+Erkläre, warum das die … ist.
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Sicheres Einstellen bzw. Bestimmen der Zahlen unter Berücksichtigung der Strukturierungsmerkmale des Rechen-rahmens
+Struktur des Materials wird erkannt und genutzt. Sichere Übersetzung zwischen Zahlwort und Menge
+Fünfer-/Fünfzigerstruktur wird nicht oder falsch genutzt (z. B. Fünfer wird als Zehner gedeutet)
+Struktur des Materials wird nicht erkannt oder genutzt.
+[?] Förderung: Anzahlen (schnell) erkennen, Darstellen von Anzahlen
+Einzelnes Abzählen von Kugeln und/oder Reihen
+Das Kind kann zwischen Zahlwort und Menge übersetzen, wenn auch nicht mit einem Blick: Struktur des Materials wird nicht sicher erkannt und/oder genutzt.
+[?] Förderung: Anzahlen (schnell) erkennen, Darstellen von Anzahlen
+Zahlendreher
+Unterschied zwischen Zehnern und Einern im Zahlwort ggf. noch unklar
+[?] Diagnose: Stellenwertverständnis (Diagnosebogen, S. 56)
+Aufgabenstellungen mit Zehnersystem-Blöcken
+2d) Zahlen darstellen: Lege mit den Zehnersystem-Blöcken die 12 (34, 40, …). Beschreibe, was du machst. (Zahlen entweder mündlich oder notiert vorgeben)
+2e) Zahlen ablesen: Welche Zahlen habe ich mit den Zehnersystem-Blöcken gelegt? (11, 23, 30, 76, ...) Erkläre. (Zahlen mündlich nennen und notieren lassen)
+2f) Zahlen nach kurzer Präsentation ablesen (Schnelles Sehen): Ich zeige dir die Zahl mit den Zehner-system-Blöcken nur kurz. (4, 20, 23, ...) Welche Zahl siehst du? Beschreibe, was du gesehen hast.
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Sicheres Legen bzw. Bestimmen der Zahlen unter Berücksichtigung der Bedeutung der Einerwürfel und Zehner-stangen
+Struktur des Materials wird erkannt und genutzt. Sichere Übersetzung zwischen Zahlwort und Menge
+Einzelnes Abzählen von Würfeln ohne Nutzung der Zehnerstangen
+Die Schülerin/Der Schüler kann zwischen Zahlwort und Menge übersetzen, wenn auch nicht mit einem Blick: Struktur des Materials wird nicht sicher erkannt und/oder genutzt.
+[?] Förderung: Anzahlen (schnell) erkennen, Darstellen von Anzahlen
+Rolle der Zehn und der fortgesetzten Bündelung ggf. noch unklar
+[?] Diagnose: Fehlendes Stellenwertverständnis (Diagnosebogen, S. 56)
+Zahlendreher
+Unterschied zwischen Zehnern und Einern im Zahlwort oder Zahlzeichen ggf. noch unklar
+[?] Diagnose: Fehlendes Stellenwertverständnis (Diagnosebogen, S. 56)
+Große Unsicherheiten bei der Nutzung des Materials
+Struktur des Materials wird nicht sicher erkannt und genutzt.
+[?] Förderung: Bündeln und Entbündeln, Anzahlen (schnell) erkennen, Darstellen von Anzahlen
+Aufgabenstellungen am Zahlenstrahl
+2g) Zahlen darstellen: Ich sage dir eine Zahl und du zeigst mir, wo sie am Zahlenstrahl zu finden ist. (7, 13, 34, 67, ...) Wie gehst du vor? Beschreibe.
+2h) Zahlen ablesen: Ich zeige dir Positionen am Zahlenstrahl und du sagst mir, welche Zahlen dort stehen müssen.
+(6, 14, 43, 78, ...) Wie gehst du vor? Beschreibe.
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Sicheres Benennen und Bestimmen von Positionen am Zahlenstrahl
+Struktur des Materials wird erkannt und genutzt.
+Sichere Übersetzung zwischen Zahlwort und ordinaler Zahldar-stellung
+Im falschen Zehner
+Struktur des Materials wird nicht sicher erkannt und/oder genutzt.
+[?] Förderung: Verorten und Finden von Zahlen auf dem Zahlen-strahl, Zahlen sortieren
+Zählendes Vorgehen
+Zehnermarkierungen und Fünfermarkie-rungen verwechselt
+Zahlendreher
+Unterschied zwischen Zehnern und Einern im Zahlwort ggf. noch unklar
+[?] Diagnose: Stellenwertverständnis (Diagnosebogen, S. 56)
+Aufgabenstellungen zum Schreiben und Lesen von Zahlen
+2i) Zahlen schreiben: Ich diktiere dir Zahlen. (14, 28, 76, 55, 80, ...) Schreibe sie auf.
+2j) Zahlen lesen: Hier siehst du Zahlen. (16, 45, 67, 88, 70) Lies sie vor.
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Zahlen werden korrekt von links nach rechts notiert. Zahlen können korrekt vorgelesen werden.
+Sichere Übersetzung zwischen Zahlwort und Zahlzeichen
+Der Zusammenhang zwischen Stellenwerten und Zahlwort-bildung scheint verstanden zu sein.
+Zahlen werden invers notiert (zuerst die Einerstelle, dann die Zehnerstelle links davor).
+Schreibfluss von links nach rechts wird nicht eingehalten. Das muss nicht problematisch sein, sollte aber mit einem sogenann-ten Taschenrechnerdiktat überprüft werden: Werden die Zahlen hier ebenfalls invers eingetippt (also in der Reihenfolge, in der die Wortbestandteile genannt werden), entstehen automatisch Zahlendreher. In jedem Fall empfiehlt sich die Vermeidung der inversen Schreibweise.
+[?] Förderung: Stellengerechtes Schreiben von Zahlen
+Zahlendreher beim Schreiben oder Lesen der Zahlen
+Unterschied zwischen Zehnern und Einern im Zahlwort oder Zahlzeichen ggf. noch unklar
+[?] Diagnose: Fehlendes Stellenwertverständnis (Diagnosebogen, S. 56)
+Zahlen mit Nullen werden falsch geschrieben oder vorgelesen
+Die Rolle der Null als Platzhalter für einen unbesetzten Stellen-wert ist noch unklar
+[?] Diagnose: Fehlendes Stellenwertverständnis (Diagnosebogen, S. 56)
+Bei diktierten Zahlen werden überflüssi-ge Nullen notiert (z. B. zweiundfünfzig
+[?] 502)
+Erklärung mit Rückgriff auf die Stellen-werte (z. B. das sind fünfzig, weil das die Zehnerstelle ist)
+Sichere Übersetzung zwischen Zahlwort und Zahlzeichen. Der Zusammenhang zwischen Stellenwerten und Zahlwortbildung scheint verstanden zu sein.
+Erklärungen ohne expliziten Bezug zu den Stellenwerten (z. B.weil wir das
+so gelernt haben)
+Möglicherweise noch kein sicheres Verständnis über den Zusammenhang zwischen Stellenwerten und Zahlwortbildung
+[?] Diagnose: Fehlendes Stellenwertverständnis (Diagnosebogen, S. 56)
+ Operationsvorstellungen und Rechnen: Addition und Subtraktion
+Aufgabenstellungen zu Rechengeschichten
+3a) Statisch:Ich erzähle dir eine Geschichte.
+zusammenfassenPeter und Tom haben Sammelkarten dabei: Peter hat fünf und Tom hat drei.
+Wie viele haben beide zusammen?
+Wie könnte eine passende Rechenaufgabe heißen? Erkläre.
+3b) Dynamisch:Ich erzähle dir eine Geschichte.
+wegnehmenPaula hat acht Karten. Sie gibt drei Karten ab. Wie viele Karten hat sie dann noch?
+Wie könnte eine passende Rechenaufgabe heißen? Erkläre.
+3c) Dynamisch:Ich erzähle dir eine Geschichte.
+Unterschied ermittelnKevin hat drei Karten. Evelyn hat sieben Karten. Wie viele Karten müsste ich Kevin geben, damit Kevin genauso viele Karten hat wie Evelyn?
+Wie könnte eine passende Rechenaufgabe heißen? Erkläre.
+3d) GeschichtenErfinde zu der Aufgabe 8 – 6 (3 + 5) eine Geschichte.
+erfinden
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Aufgabe passt zur Geschichte und um-gekehrt
+Tragfähige Grundvorstellung zur Addition/Subtraktion kann angenommen werden.
+Nur eine Übersetzungsrichtung gelingt
+Ggf. ist die Aufgabenstellung unklar. Möglicherweise kann aber auch eine einseitige Operationsvorstellung vorliegen.
+[?] Förderung: Operationsverständnis und Rechnen
+Die selbst erzählte Geschichte bleibt auf der symbolischen Ebene („eine Drei trifft eine Fünf und dann waren sie zu-sammen eine Acht“) ohne Bezug zu ent-sprechenden Anzahlen
+Die Formulierung der Geschichte hat Einfluss auf das korrekte Nennen einer Rechnung.
+Eine oder mehrere der Grundvorstellungen können nicht sicher aktiviert werden.
+[?] Förderung: Operationsverständnis und Rechnen
+Aufgabenstellungen mit Material (Plättchen) (im Zahlenraum bis 10) 3e) Löse die Aufgabe 8 – 2 (5 + 3) mit Plättchen.
+3f) Ich lege Plättchen. Welche Aufgabe könnte es sein? (3 Plättchen hinlegen, 4 Plättchen dazu legen, sichtbare Lücke lassen, Aufgabe erfragen (3 + 4); 6 Plättchen hinlegen, 3 Plättchen wegschieben, Aufgabe erfragen, (6 – 3))
+3g) Welche Aufgabe musst du rechnen, um den Unterschied zwischen 8 und 5 zu finden?
+Zeige mir das mit Plättchen.
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Die Aufgaben können mit den Plättchen dargestellt und gelöst werden.
+Tragfähige Grundvorstellung zur Addition/Subtraktion kann angenommen werden.
+Auch Mengen kleiner 4 werden abge-zählt
+Ggf. noch keine sichere simultane Mengenauffassung
+[?] Förderung: Anzahlen (schnell) erkennen, Darstellen von Anzahlen
+Eine (oder beide) Operation(en) kann (können) nicht sicher ausgeführt werden.
+Eine tragfähige Grundvorstellung zu Addition und/oder Subtrak-tion ist noch nicht entwickelt.
+[?] Förderung: Operationsverständnis und Rechnen
+Verzählen beim Legen oder Ermitteln von Anzahlen
+Zählkompetenz noch nicht sicher
+[?] Förderung: Abzählen
+Zur Differenz: Platzhalteraufgabe wird genannt (5 +   =8)
+Der Unterschied kann mit einem entsprechenden Term ermittelt werden.
+Zur Differenz: Subtraktionsaufgabe wird genannt 8 – 5=  
+Grundvorstellung zur Subtraktion als Ermittlung des Unterschieds kann angenommen werden.
+Zur Differenz: Es wird keine (passende) Aufgabe formuliert.
+Ggf. ist der Begriff „Unterschied“ unklar, ggf. noch keine Grund-vorstellung zur Subtraktion als Differenzbildung
+[?] Förderung: Operationsverständnis und Rechnen
+Bei der Plättchen-Darstellung werden fünf Plättchen zu acht Plättchen ergänzt.
+Der Unterschied kann handelnd ermittelt werden.
+Eine Menge von fünf Plättchen wird mit einer Menge von acht Plättchen vergli-chen oder angeglichen.
+Aufgabenstellungen mit Material (Rechenrahmen)
+Aufgaben ohne Zehnerübergang:
+3h) Löse die Aufgabe 4 + 5 (7 – 4, 43 + 6, 38 – 6, ...) am Rechenrahmen. Erkläre, wie du vorgehst.
+3i) Ich schiebe dir am Rechenrahmen eine Aufgabe. Welche Aufgabe könnte das gewesen sein? (2 + 5, 8 – 4, 23 + 5, 37 – 5, ...) Woher weißt du, welche Aufgabe ich geschoben habe?
+Aufgaben mit Zehnerübergang:
+3j) Löse die Aufgabe 7 + 8 (14 – 9, 28 + 6, 43 – 7, ...) am Rechenrahmen. Erkläre, wie du vorgehst.
+3k) Ich schiebe dir am Rechenrahmen eine Aufgabe. Welche Aufgabe könnte das gewesen sein? (6 + 5, 12 – 6, 38 + 5, 42 – 6, ...) Woher weißt du, welche Aufgabe ich geschoben habe?
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Die Aufgaben werden angemessen dar-gestellt und gelöst.
+Tragfähige Grundvorstellung zur Addition und Subtraktion kann angenommen werden.
+Zählendes Vorgehen am Material
+Struktur des Materials wird noch nicht sicher erkannt und/oder genutzt.
+[?] Förderung: Anzahlen (schnell) erkennen, Darstellen von Anzahlen
+Zehner-/Fünfer-/Fünfziger-Struktur bleibt unberücksichtigt.
+Eine (oder beide) Operation(en) kann (können) nicht sicher ausgeführt oder erkannt werden.
+Eine tragfähige Grundvorstellung zu Addition und/oder Subtrak-tion ist noch nicht entwickelt
+[?] Förderung: Operationsverständnis und Rechnen
+Zahlendreher
+Unterschied zwischen Zehnern und Einern im Zahlwort bzw. am Material ggf. noch unklar
+[?] Diagnose: Stellenwertverständnis (Diagnosebogen, S. 56)
+Aufgabenstellungen mit Material (Zehnersystem-Blöcke)
+Aufgaben ohne Zehnerübergang:
+3l) Löse die Aufgabe 52 – 20 (23 + 30, ...) mit den Zehnersystem-Blöcken. Erkläre, wie du vorgehst.
+3m)Ich lege dir mit den Zehnersystem-Blöcken eine Aufgabe. Welche Aufgabe könnte das gewesen sein? (45 – 10, 24 + 30, ...) Woher weißt du, welche Aufgabe ich gelegt habe?
+Aufgaben mit Zehnerübergang:
+3n) Löse die Aufgabe 47 + 6 (32 – 6, ...) mit den Zehnersystem-Blöcken. Erkläre, wie du vorgehst.
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Die Aufgaben werden angemessen dar-gestellt und gelöst.
+Tragfähige Grundvorstellung zur Addition und Subtraktion kann angenommen werden.
+Zählendes Vorgehen am Material, ohne Nutzung der Zehner
+Struktur des Materials wird noch nicht sicher erkannt und/oder genutzt.
+[?] Förderung: Anzahlen (schnell) erkennen, Darstellen von Anzahlen Prinzip der fortgesetzten Bündelung ggf. noch unklar
+[?] Diagnose: Stellenwertverständnis (Diagnosebogen, S. 56)
+Eine (oder beide) Operation(en) kann (können) nicht sicher ausgeführt oder erkannt werden.
+Eine tragfähige Grundvorstellung zur Addition und/oder Sub-traktion ist noch nicht entwickelt.
+[?] Förderung: Operationsverständnis und Rechnen
+Bündeln und Entbündeln beim Über-gang gelingt nicht sicher.
+Struktur des Materials wird möglicherweise noch nicht sicher erkannt und/oder genutzt.
+[?] Förderung: Bündeln und Entbündeln
+Prinzip der fortgesetzten Bündelung ist ggf. noch unklar.
+[?] Diagnose: Stellenwertverständnis (Diagnosebogen, S. 56)
+Zahlendreher oder Vertauschung von Zehnern und Einern am Material
+Unterschied zwischen Zehnern und Einern im Zahlwort ist ggf. noch unklar.
+[?] Diagnose: Stellenwertverständnis (Diagnosebogen, S. 56)
+ Automatisierte Grundaufgaben: Einspluseins und Zahlzerlegungen
+Aufgabenstellungen Einspluseins (Addition und Subtraktion)
+4a) Löse die Rechenaufgabe 5 + 5. (1 + 9, 3 + 7, 4 + 3, 2 + 6 ...)
+4b) Löse die Rechenaufgabe 10 – 5. (10 – 9, 10 – 7, 7 – 4, 8 – 6, ...)
+4c) Nenne das Doppelte von 4. (von 5, von 7, von 9, von 10, ...)
+4d) Nenne die Hälfte von 6. (von 8, von 10, von 14, von 18, von 20, ...)
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Alle Lösungen schnell und sicher
+Es kann von einem guten Vorrat an automatisierten Grundauf-gaben ausgegangen werden.
+Einige Aufgabensätze können nicht schnell abgerufen werden.
+Nicht alle Grundaufgaben sind automatisiert.
+[?] Förderung: Automatisierte Grundaufgaben
+Besondere Schwierigkeiten bei der Addi-tion und/oder Subtraktion
+Zählendes Vorgehen
+Verwandte Aufgaben werden unter-schiedlich gelöst (z. B. 3 + 7 wird ge-wusst, 10 – 7 aber nicht, 10 – 7 wird abgezählt)
+Zahl- und Aufgabenzusammenhänge werden nicht sicher genutzt.
+[?] Förderung: Automatisierte Grundaufgaben, Tausch- und Umkehraufgaben, Verwandte Aufgaben finden, Hilfsaufgaben
+nutzen
+Aufgabenstellungen Zahlzerlegung
+4e) Zahlzerlegung der 10: Wie viel fehlt von 5 bis 10? (von 9, von 7, von 4, von 2, von 3, von 8, von 6, von 1)
+4f) Zahlzerlegung der 8: Wie viel fehlt von 3 bis 8? (von 7, von 4, von 6, von 5, von 2, von 1)
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Schnelles und sicheres Benennen der zu ergänzenden Zahl.
+Es kann von einem guten Vorrat an automatisierten Grundauf-gaben ausgegangen werden.
+Schnelles, aber fehlerhaftes Benennen der zu ergänzenden Zahl
+Zahlensätze sind ggf. falsch oder nicht automatisiert.
+[?] Förderung: Automatisierte Grundaufgaben
+Langsames, aber korrektes Benennen der zu ergänzenden Zahl
+Zählendes Vorgehen
+Unterschiedliche Bearbeitungszeiten bei den jeweiligen Tauschaufgaben
+(7/  , 3/  )
+Zahl- und Aufgabenzusammenhänge werden nicht sicher genutzt.
+[?] Förderung: Automatisierte Grundaufgaben, Tausch- und Umkehraufgaben, verwandte Aufgaben finden
+Verwandte Aufgaben werden unter-schiedlich gelöst (z. B. 3 + 7 wird aus-wendig genannt, die Ergänzung von 3 bis zur 10 aber abgezählt)
+ Stellenwerte: Bündeln und Entbündeln
+Aufgabenstellungen Bündeln
+5a)Hier liegen Würfel. (23) Wie viele sind das? Erkläre.
+Wie viele Zehner hat die Zahl? Erkläre.
+Lege die Würfel so, dass man sehen kann, wie viele Zehner es sind.
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Die Anzahl der Würfel kann bestimmt werden.
+Übersetzung zwischen einer Menge und dem entsprechenden Zahlwort gelingt.
+Die Anzahl der Zehner kann genannt werden.
+Der Wortbestandteil 20 kann als zwei Zehner identifiziert werden.
+Es werden zwei Zehnerbündel herge-stellt.
+Prinzip der Bündelung und Bedeutung der 10 scheinen verstan-den zu sein.
+Das Kind verzählt sich, die Aufgaben zu den Zehnern und zum Bündeln gelingen jedoch.
+Prinzip der Bündelung und Bedeutung der 10 scheinen verstan-den zu sein.
+[?] Diagnose: Zahldarstellung und -auffassung (Diagnosebogen, S. 49)
+[?] Ggf. Förderung: Abzählen, Zahlen (schnell) Auffassen, Dar-stellen von Anzahlen
+Die Anzahl der Würfel kann nicht bestimmt werden.
+Verzählen: Abzählprozess ggf. nicht sicher
+[?] Diagnose: Zählen (Diagnosebogen, S. 53)
+[?] Ggf. Förderung: Abzählen
+Die Anzahl der Zehner kann nicht ge-nannt werden.
+Der Wortbestandteil 20 kann nicht als zwei Zehner identifiziert werden.
+[?] Förderung: Richtiges Sprechen mehrstelliger Zahlen
+Prinzip der Bündelung ist noch nicht verstanden und kann nicht angewandt werden.
+[?] Förderung: Bündeln und Entbündeln
+Aufgabenstellungen Entbündeln
+5b) Hier sind drei Zehner (drei Steckwürfelstangen). Wie viele Würfel sind das?
+Wenn ich jetzt einen Würfel wegnehme (Würfel abbrechen), wie viele Zehner sind es dann? Und wenn ich noch einen Würfel wegnehme, wie viele Zehner sind es nun?
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Die Anzahl der Würfel (dreißig) kann richtig benannt werden.
+Zusammenhang zwischen Zehnern und Einern ist verstanden.
+Die Anzahl der Würfel wird zählend er-mittelt.
+Zusammenhang zwischen Zehnern und Einern ist noch nicht verstanden.
+[?] Förderung: Bündeln und Entbündeln, Richtiges Sprechen mehrstelliger Zahlen
+Die Anzahl der verbleibenden Zehner kann richtig benannt werden (zwei Zehner).
+Prinzip des Entbündelns ist verstanden.
+Die Anzahl der verbleibenden Zehner wird zwanzig genannt.
+Prinzip des Entbündelns ist verstanden, aber wahrscheinlich Unklarheit bei der Verwendung des Zahlwortes zwanzig zur Beschreibung von zwei Zehnern.
+[?] Förderung: Richtiges Sprechen zweistelliger Zahlen
+Die Anzahl der verbleibenden Zehner wird nicht oder falsch genannt.
+Zusammenhang zwischen Zehnern und Einern ist noch nicht verstanden.
+[?] Förderung: Bündeln und Entbündeln
+ Stellenwerte: Lesen, Schreiben und Sprechen von Zahlen
+Aufgabenstellungen zum Notieren von dargestellten Anzahlen (siehe auch Aufgaben zur Zahlvorstellung: Zahldarstellung und -auffassung S. 56-58)
+6a)Zahl mit Zehnersystem-Blöcken legen und aufschreiben lassen
+(Zehnerstangen nach „oben“, Einerwürfel „darunter“)
+Hier liegt eine Zahl mit den Zehnersystem-Blöcken. (5Z3E, 3Z)
+Schreibe die Zahl auf. Erkläre, woran du erkennst, wie die Zahl geschrieben wird.
+6a*) Zahl mit Zehnersystem-Blöcken nicht vollständig gebündelt legen
+(Zehnerstangen nach „oben“, Einerwürfel „darunter“)
+Hier liegt eine Zahl mit den Zehnersystem-Blöcken. (3Z12E)
+Schreibe die Zahl auf. Erkläre, woran du erkennst, wie die Zahl geschrieben wird.
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Die Zahlen können korrekt aufgeschrie-ben werden.
+Die Übersetzung zwischen strukturiertem Material und notierter Zahl gelingt.
+Die einzelnen Ziffern an den jeweiligen Stellen können entsprechend ihrem Stellenwert gedeutet und angemessen erklärt werden.
+Die Rolle des Stellenwertsystems und die Mächtigkeit der ein-zelnen Stellen sind verstanden.
+Zahlendreher beim Notieren
+Die Unterscheidung von Zehnern und Einern ist noch unklar.
+[?] Förderung: Bündeln und Entbündeln, Stellengerechtes Schreiben von Zahlen
+Die Anzahl des Materials wird notiert (z. B. bei 5 Zehnerstangen und 3 Einer-würfeln: „8“).
+Die Unterscheidung von Zehnern und Einern ist noch unklar;
+die Struktur des vorliegenden Materials kann noch nicht genutzt werden.
+[?] Förderung: Bündeln und Entbündeln, Stellengerechtes Schreiben von Zahlen
+Die ungebündelten Anzahlen werden ungebündelt notiert (3 Zehner, 12 Einer
+als 312).
+Prinzip der Bündelung und die Bedeutung der Stellenwerte ist noch nicht verstanden und kann nicht genutzt werden.
+[?] Förderung: Bündeln und Entbündeln, Stellengerechtes Schreiben von Zahlen
+Probleme beim Schreiben und Lesen von Nullen: z. B. 503 statt 53
+Die Rolle der Null als Platzhalter für einen unbesetzten Stellen-wert ist ggf. noch unklar.
+[?] Förderung: Stellengerechtes Schreiben von Zahlen
+Die einzelnen Ziffern an den jeweiligen Stellen werden nicht entsprechend ihrem Stellenwert gedeutet und/oder können nicht angemessen erklärt werden.
+Die Bedeutung der stellenweisen Notation von Zahlen ist ggf. noch unklar.
+[?] Förderung: Stellengerechtes Schreiben von Zahlen
+Aufgabenstellungen zum Deuten von notierten Zahlen (siehe auch Aufgaben zur Zahlvorstellung: Zahldarstellung und -auffassung S. 61–63)
+6b) Zahlen vorgeben und mit Zehnersystem-Blöcken legen lassen Ich schreibe dir eine Zahl auf. (54, 37, 40, 22)
+Lege sie mit den Zehnersystem-Blöcken.
+Erkläre, woran du erkennst, was du legen musst.
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Die Zahlen können mit dem Material korrekt gelegt werden.
+Die Übersetzung zwischen strukturiertem Material und notierter Zahl gelingt.
+Die einzelnen Ziffern an den jeweiligen Stellen können entsprechend ihrem Stellenwert gedeutet und angemessen erklärt werden.
+Die Rolle des Stellenwertsystems und die Mächtigkeit der ein-zelnen Stellen sind verstanden.
+Nullen können nicht oder nur fehlerhaft gedeutet werden.
+Die Rolle der Null als Platzhalter für einen unbesetzten Stellen-wert ist ggf. noch unklar.
+[?] Förderung: Stellengerechtes Schreiben von Zahlen
+Die einzelnen Ziffern an den jeweiligen Stellen werden nicht entsprechend ihrem Stellenwert gedeutet und/oder können nicht angemessen erklärt werden.
+Die Bedeutung der stellenweisen Notation von Zahlen ist ggf. noch unklar.
+[?] Förderung: Stellengerechtes Schreiben von Zahlen
+Aufgabenstellungen zum Sprechen von dargestellten Anzahlen (siehe auch Aufgaben zur „Zahlvorstellung: Zahldarstellung und -auffassung“ S. 61-63)
+6c)  Zahl mit Zehnersystem-Blöcken legen und dann nennen lassen
+(Zehnerstangen nach „oben“, Einerwürfel „darunter“)
+Hier liegt eine Zahl mit Zehnersystem-Blöcken. (4Z3E, 5Z). Wie heißt die Zahl?
+6c*) Zahl mit Zehnersystem-Blöcken nicht vollständig gebündelt legen und dann nennen lassen
+(Zehnerstangen nach „oben“, Einerwürfel „darunter“)
+Hier liegt eine Zahl mit Zehnersystem-Blöcken. (4Z12E). Wie heißt die Zahl?
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Die Zahl wird korrekt benannt.
+Die Übersetzung zwischen strukturiertem Material und gespro-chener Zahl gelingt.
+Die nicht vollständig gebündelte Anzahl kann ohne Weiterzählen korrekt be-nannt werden.
+Das Prinzip der fortgesetzten Bündelung und die Regeln der Zahlwortbildung können genutzt werden.
+Die Zahl wird korrekt benannt, der Zu-sammenhang zwischen Material und den Wortbestandteilen kann jedoch nicht erklärt werden („Woher weißt du das?“).
+Die Regeln der Zahlwortbildung und die Zusammenhänge mit dem vorliegenden Material können noch nicht sicher beschrie-ben werden.
+[?] Förderung: Richtiges Sprechen mehrstelliger Zahlen
+Es entstehen Zahlendreher beim Spre-chen der dargestellten Anzahlen.
+Die Regeln der Zahlwortbildung sind noch nicht verstanden.
+[?] Förderung: Richtiges Sprechen mehrstelliger Zahlen
+Die Unterscheidung von Zehnern und Einern ist noch unklar.
+[?] Förderung: Bündeln und Entbündeln
+Die ungebündelten Anzahlen werden ungebündelt ausgesprochen (4 Zehner, 12 Einer als „vierzigzwölf“).
+Prinzip der Bündelung ist noch nicht verstanden und kann nicht angewandt werden.
+[?] Förderung: Bündeln und Entbündeln, Richtiges Sprechen mehrstelliger Zahlen
+Die Anzahl der Objekte wird genannt (z. B. bei 5 Zehnerstangen und 3 Einer-würfeln: acht).
+Die Unterscheidung von Zehnern und Einern ist noch unklar; die Struktur des vorliegenden Materials kann noch nicht genutzt werden.
+[?] Förderung: Bündeln und Entbündeln
+Aufgabenstellungen zur Deutung des Zahlwortes (siehe auch Aufgaben zur Zahlvorstellung: Zahldarstellung und -auffassung S. 61-63)
+6d) Zahlen nennen und mit Zehnersystem-Blöcken legen lassen
+Ich nenne dir eine Zahl. (56, 34, 40, zwanzig und fünf, …)
+Lege sie mit den Zehnersystem-Blöcken. Erkläre, was du legen musst.
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Sicheres Legen der gesprochenen Zahlen.
+Die Übersetzung zwischen strukturiertem Material und gespro-chener Zahl gelingt.
+Die Anzahl kann mit Material gelegt werden, der Zusammenhang zwischen Material und den Wortbestandteilen kann jedoch nicht erklärt werden („Woher weißt du, dass du...?“).
+Die Regeln der Zahlwortbildung und die Zusammenhänge mit dem vorliegenden Material können noch nicht sicher beschrie-ben werden.
+[?] Förderung: Richtiges Sprechen mehrstelliger Zahlen
+Es entstehen Zahlendreher beim Spre-chen der dargestellten Anzahlen.
+Die Regeln der Zahlwortbildung sind noch nicht verstanden.
+[?] Förderung: Richtiges Sprechen mehrstelliger Zahlen
+Die Unterscheidung von Zehnern und Einern ist noch unklar.
+[?] Förderung: Bündeln und Entbündeln
+Mit den Zehnersystem-Blöcken wird das Zahlzeichen gelegt (also nicht die Anzahl).
+Die Struktur des vorliegenden Materials kann noch nicht genutzt werden.
+[?] Förderung: Darstellen von Anzahlen, Stellengerechtes Schrei-ben von Zahlen, Bündeln und Entbündeln
+Die Anzahl der einzelnen Stellenwerte wird gelegt ohne Rücksicht auf ihre Mächtigkeit (z. B. dreiundfünfzig: drei Zehnerstangen und fünf Zehnerstangen).
+Die Struktur des vorliegenden Materials kann noch nicht genutzt werden.
+[?] Förderung: Bündeln und Entbündeln
+[?] Förderung: Richtiges Sprechen mehrstelliger Zahlen
+Die Unterscheidung von Zehnern und Einern ist noch unklar.
+ Zahl-, Aufgabenzusammenhänge und Rechenregeln
+Aufgabenstellungen zum Zusammenhang zwischen Addition und Subtraktion (Umkehraufgabe) 7a) Rechne 5 + 4 (9 – 4).
+Hat dir die erste Aufgabe beim Lösen der zweiten Aufgabe geholfen? Warum?
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Erfolgreiche Bearbeitung der Aufgaben unter Nutzung des Zusammenhangs der Addition und Subtraktion
+Zusammenhang zwischen Addition und Subtraktion wird er-kannt und genutzt.
+Zusammenhang wird erkannt (Dann sind es so viele wie vorher.) Die Ausgangs-zahl wurde aber vergessen (Wie viele waren das denn?) oder falsch bzw. zäh-lend ermittelt.
+Der Zusammenhang zwischen der Additions- und entsprechen-den Subtraktionsaufgabe kann selbstständig hergestellt werden. Zahlensätze sind noch nicht automatisiert
+[?] Förderung: Automatisierte Grundaufgaben
+Erneutes Ermitteln der Ausgangszahl, ohne Nutzung der vorigen Aufgabe
+Der Zusammenhang zwischen der Additions- und entsprechen-den Subtraktionsaufgabe wird nicht selbstständig hergestellt.
+[?] Förderung: Umkehraufgaben
+Nur mit Material/nur auf der symboli-schen Ebene
+Die Übersetzung zwischen Material und symbolischer Ebene gelingt nicht sicher, Hinweis auf ein fehlendes Operationsver-ständnis.
+[?] Diagnose: Operationsvorstellungen und Rechnen (Diagnose-bogen, S. 54 f.)
+Aufgabenstellungen zu Tauschaufgaben 7b) Rechne 9 + 3 (3 + 9).
+Hat dir die erste Aufgabe beim Lösen der zweiten Aufgabe geholfen? Warum?
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Lösung der zweiten Aufgabe mit Rück-griff auf die Tauschaufgabe
+Tauschaufgaben werden sicher genutzt.
+Die erste Aufgabe wird nicht korrekt oder abzählend gelöst, das Ergebnis wird dann aber zur Lösung der zweiten Aufgabe genutzt.
+Tauschaufgaben werden sicher genutzt. Zahlensätze sind noch nicht automatisiert.
+[?] Förderung: Automatisierte Grundaufgaben
+Lösen der zweiten Aufgabe ohne Nut-zung der ersten
+Tauschaufgaben werden nicht selbstständig erkannt und genutzt
+[?] Förderung: Tauschaufgaben
+Aufgabenstellungen zu Nachbaraufgaben 7c) Rechne 7 + 5 (7 + 6).
+Rechne 14 – 7 (14 – 8).
+Hat dir die erste Aufgabe beim Lösen der zweiten Aufgabe geholfen? Warum?
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Die Ergebnisse der ersten Aufgabe wer-den korrekt zur Lösung der zweiten Auf-gabe genutzt.
+Nachbaraufgaben werden sicher genutzt.
+Erste Aufgabe wird nicht korrekt oder abzählend gelöst, das Ergebnis wird dann aber zur Lösung der zweiten Auf-gabe genutzt.
+Nachbaraufgaben werden sicher genutzt. Zahlensätze sind noch nicht automatisiert.
+[?] Förderung: Automatisierte Grundaufgaben
+Die Ergebnisse der ersten Aufgabe wer-den zur Lösung der zweiten Aufgabe genutzt – allerdings wird dabei falsch ausgeglichen (bei der Subtraktion z. B.
+„Wenn die Sieben eins größer wird, muss das Ergebnis auch eins größer
+werden).
+Das Konzept der Nachbaraufgaben ist bekannt und sie können selbstständig genutzt werden.
+Die operativen Veränderungen (siehe S. 63-65, S. 73) können noch nicht sicher angewendet werden.
+[?] Förderung: Gegensinniges Verändern, Aufgaben sortieren, Strukturierte Päckchen
+Die zweite Aufgabe wird ohne Rückgriff auf die erste gelöst.
+Nachbaraufgaben werden nicht selbstständig erkannt und genutzt.
+[?] Förderung: Hilfsaufgaben nutzen, Gegensinniges Verändern
+Aufgabenstellungen zu Analogieaufgaben 7d) Rechne 3 + 5 (30 + 50, 23 + 5).
+Hat dir die erste Aufgabe beim Lösen der zweiten/dritten Aufgabe geholfen? Warum?
+7e) Rechne 7 – 4 (70 – 40, 27 – 4).
+Hat dir die erste Aufgabe beim Lösen der zweiten/dritten Aufgabe geholfen? Warum?
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Die Ergebnisse der ersten Aufgabe wer-den korrekt zur Lösung der zweiten Auf-gabe genutzt.
+Analogien werden erkannt und selbstständig genutzt.
+Die erste Aufgabe wird nicht korrekt oder abzählend gelöst, das Ergebnis wird dann aber zur Lösung der zweiten Aufgabe genutzt.
+Analogien werden erkannt und selbstständig genutzt. Zahlensätze sind noch nicht automatisiert.
+[?] Förderung: Automatisierung von Grundaufgaben
+Die erste Aufgabe wird nicht zur Lösung der zweiten Aufgabe genutzt.
+Analogien werden nicht erkannt und/oder nicht selbstständig genutzt.
+[?] Förderung: (Zehner-) Analogien herstellen und nutzen, Ver-wandte Aufgaben finden, Strukturierte Päckchen
+Aufgabenstellung zum Teil-Ganzes-Konzept
+7f) Unter einem Tuch sind zwei Plättchen, unter einem anderen sind fünf Plättchen. Wenn ich jetzt ein Plättchen verschiebe, bleiben es insgesamt gleich viele oder ändert sich etwas an der Gesamtan-
+zahl? Woher weißt du das?
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Die Begründung, dass sich die Gesamt-anzahl nicht ändert, wird korrekt ange-geben.
+Die Konstanz der Summe von Anzahlen als Grundlage des Teil-Ganzes-Konzepts ist verstanden.
+Dass sich die Anzahl nicht ändert wird angegeben, aber Begründung fehlt (z.B. werden die jeweiligen Summen errech-net).
+Zahlbeziehungen können noch nicht sicher beschrieben werden.
+[?] Förderung: Gegensinniges Verändern
+Es wird angegeben, dass sich die Anzahl ändert.
+Die Grundlage für das Verständnis des Teil-Ganzes-Konzepts ist noch nicht gesichert.
+[?] Förderung: Gegensinniges Verändern, Mengen vergleichen
+Aufgabenstellungen zur Konstanz der Summe
+7g) Aufgaben vorlegen: 7 + 5 = 12, 8 + 4 = 12, 9 + 3 = 12, 10 + 2 = 12
+Erkläre, warum das Ergebnis bei allen Aufgaben gleich bleibt.
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Das gegensinnige Verändern der Sum-manden wird erkannt und für die Begründung genutzt (z. B. „die erste Zahl wird eins größer und dafür wird die andere eins kleiner, deshalb bleibt das Ergebnis gleich“).
+Die Zusammenhänge zwischen den Aufgaben werden erkannt und für eine Begründung genutzt. Das Konzept der Konstanz der Summe kann angewandt werden.
+Die Begründung bezieht sich auf die jeweils einzelnen Aufgaben (z. B. „wenn man die Aufgaben ausrechnet, kommt da immer zwölf raus“).
+Die Zusammenhänge zwischen den Aufgaben werden noch nicht erkannt und für die Begründung genutzt.
+[?] Förderung: Gegensinniges Verändern
+Aufgabenstellungen zur Konstanz der Differenz
+7h) Aufgaben vorlegen: 7 – 5 = 2, 8 – 6 = 2, 9 – 7 = 2, 10 – 8 = 2
+Erkläre, warum das Ergebnis bei allen Aufgaben gleich bleibt.
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Das gleichsinnige Verändern der beteili-gen Zahlen wird erkannt und für die Begründung genutzt (z. B. „die erste Zahl wird eins größer und die zweite auch, deshalb bleibt der Unterschied gleich“).
+Die Zusammenhänge zwischen den Aufgaben werden erkannt und für eine Begründung genutzt. Das Konzept der Konstanz der Differenz kann angewandt werden.
+Die Begründung bezieht sich auf die jeweils einzelnen Aufgaben (z. B. „wenn man die Aufgaben ausrechnet, kommt da immer zwei raus“).
+Die Zusammenhänge zwischen den Aufgaben werden noch nicht erkannt und für die Begründung genutzt.
+[?] Förderung: Konstanz der Differenz
+ Zahlen-, Aufgabenblick und Rechenstrategien
+Aufgabenstellungen zum Deuten von Zahlen
+8a) Schreibe möglichst viele Aufgaben mit dem Ergebnis 10 (4, 35, 24, ...) auf.
+Ggf.: Kennst du auch Minusaufgaben? Fallen dir auch Mal- oder Geteiltaufgaben ein?
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Es werden verschiedene Aufgaben ge-funden, auch verschiedene Rechenope-rationen können genutzt werden.
+Je mehr Aufgaben mit unterschiedlichen Rechenoperationen gefunden werden, desto besser ist der Zahlenblick. Zahlen kön-nen in unterschiedlichen operativen Zusammenhängen gedeutet und verändert werden.
+Es werden verschiedene Aufgaben gefunden, aber nur zu einer Rechen-operation (z. B. Addition).
+Andere Rechenoperationen (z. B. Subtraktion) sind noch nicht so gefestigt, dass sie für diese Aufgabenstellung sicher genutzt wer-den.
+[?] Förderung: Operationsvorstellungen und Rechnen, Aufgaben finden, Aufgaben sortieren, Verwandte Aufgaben finden
+Es werden keine oder nur sehr wenige Aufgaben gefunden.
+Zahlen werden nicht in ihrem Zusammenhang zu anderen Zahlen und Termen gedeutet. Wenn keine Plusaufgaben gefunden wer-den, deutet dies insbesondere darauf hin, dass Zahlen nicht als Zusammensetzungen aus anderen Zahlen gedeutet werden kön-nen (Teil-Ganzes-Verständnis).
+[?] Förderung: Operationsvorstellungen und Rechnen, Tausch-und Umkehraufgaben, Gegensinniges Verändern, Automatisierte
+Grundaufgaben
+Aufgabenstellungen zum Überschlagen
+8b) Ich zeige dir eine Aufgabe. Bei der Aufgabe sollst du nicht genau rechnen, sondern schnell sagen, ob das Ergebnis größer oder kleiner als 10 (20) ist. (5 + 7, 2 + 6, 4 + 8, 12 + 5, 8 + 9, 13 + 9, ...).
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Das Überschlagen gelingt, die Begrün-dungen beziehen sich auf die Zahlbezie-hungen.
+Die Zahlen und ihre Summe können in ihrer Größenordnung angemessen eingeschätzt werden.
+Es wird nicht überschlagen, sondern gerechnet.
+Oder das Überschlagen ist falsch.
+Das Überschlagen ist noch kein sicheres Mittel zur Einschätzung von Ergebnissen, Größenordnungen können noch nicht sicher eingeschätzt werden.
+[?] Förderung: Aufgaben finden, Aufgaben sortieren, Verwandte Aufgaben finden
+Beim Ermitteln des Ergebnisses wird abgezählt.
+Es werden noch keine tragfähigen Rechenstrategien genutzt.
+[?] Förderung: Automatisierte Grundaufgaben, Zahlen- und Auf-gabenblick
+Aufgabenstellungen zu Rechenstrategien Zahlenraum bis 20
+8c) Addition: Löse die Rechenaufgabe 7 + 8 (9 + 4, 5 + 6, ...). Beschreibe, wie du vorgehst.
+8d) Subtraktion: Löse die Rechenaufgabe 15 – 7 (14 – 9, 11 – 8, ...) Beschreibe, wie du vorgehst.
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Die Aufgaben werden mit Rechenstrate-gien unter Verwendung von Zahlbezie-hungen und automatisierten Grundauf-gaben gelöst.
+Zahl- und Aufgabenbeziehungen können im Zahlenraum bis 20 unter Rückgriff auf automatisierte Grundaufgaben genutzt wer-den.
+Es werden Rechenstrategien genutzt, Teilaufgaben werden aber falsch gelöst.
+Rechenstrategien sind bekannt, aber die Aufgaben des kleine &quot;1 + 1&quot; sind noch nicht automatisiert.
+[?] Förderung: Automatisierte Grundaufgaben
+Aufgaben werden durch Zählstrategien gelöst (richtig oder falsch).
+Ab dem zweiten Schulbesuchsjahr: Hinweis auf verfestigtes zählendes Rechnen
+Zahl- und Aufgabenbeziehungen können im Zahlenraum bis 20 nicht genutzt werden.
+[?] Förderung: Zahlen- und Aufgabenblick
+Grundaufgaben sind entweder noch nicht automatisiert oder können nicht genutzt werden.
+[?] Förderung: Automatisierte Grundaufgaben
+Aufgabenstellungen zu Rechenstrategien Zahlenraum bis 100
+8c*) Addition: Löse die Rechenaufgabe 37 + 9 (25 + 27, 34 + 49, ...). Beschreibe, wie du vorgehst.
+8d*) Subtraktion: Löse die Rechenaufgabe 43 – 8 (72 – 35, 34 – 19, 62 – 59, ...). Beschreibe, wie du vorgehst.
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Die Aufgaben werden mit Rechenstrate-gien unter Verwendung von Zahlbezie-hungen und automatisierten Grundauf-gaben gelöst.
+Zahl- und Aufgabenbeziehungen können im Zahlenraum bis 100 unter Rückgriff auf automatisierte Grundaufgaben genutzt werden.
+Es werden Rechenstrategien genutzt, Teilaufgaben werden aber falsch gelöst.
+Rechenstrategien sind bekannt, aber Zahlensätze sind noch nicht automatisiert.
+[?] Förderung: Automatisierte Grundaufgaben
+Es werden Rechenstrategien genutzt, aber dabei werden Rechengesetze falsch angewandt.
+Rechenstrategien sind bekannt, aber Rechengesetze sind noch nicht gefestigt oder können nicht angemessen angewandt werden.
+[?] Förderung: Zahlen- und Aufgabenblick
+Ziffernweises vorgehen ggf. ohne Rück-sicht auf die Stellenwerte.
+Stellenwertverständnis noch nicht gefestigt
+[?] Förderung: Stellenwertverständnis
+Zahlendreher
+Zehnerübergänge werden vergessen oder vermieden.
+Bündelungs- und Entbündelungsprozesse sind noch unklar.
+[?] Förderung: Bündeln und Entbündeln
+Bei Subtraktionsaufgaben: Die Einer von Minuend und Subtrahend werden ver-tauscht, um einen Zehnerübergang zu vermeiden.
+Operationsverständnis zur Subtraktion noch nicht vollständig gefestigt
+[?] Förderung: Operationsvorstellungen und Rechnen, Subtrak-tion, Übergeneralisierung von Tauschaufgaben bei der Addition
+[?] Förderung: Tausch- und Umkehraufgaben
+(Teil-) Ergebnisse werden zählend ermittelt.
+Ab dem zweiten Schulbesuchsjahr: Hinweis auf verfestigtes zählendes Rechnen
+Zahl- und Aufgabenbeziehungen können im Zahlenraum bis 100 nicht sicher genutzt werden.
+[?] Förderung: Tausch- und Umkehraufgaben, Analogien erken-nen und nutzen, Gegensinniges Verändern
+Grundaufgaben sind entweder noch nicht automatisiert oder können nicht genutzt werden.
+[?] Förderung: Automatisierte Grundaufgaben, Zahlen- und Aufgabenblick
+Aufgabenstellungen zu das Doppelte / die Hälfte
+8e) Nenne das Doppelte von 19 (von 25, von 60, ...). Erkläre.
+Nenne die Hälfte von 50 (von 32, von 70, von 140, ...) Erkläre.
+Mögliche Beobachtungen
+Mögliche Folgerungen
+Die Aufgaben werden mit Rechenstrate-gien unter Verwendung von Zahlbezie-hungen und automatisierten Grundauf-gaben gelöst.
+Zahl- und Aufgabenbeziehungen können im Zahlenraum bis (über) 100 unter Rückgriff auf automatisierte Grundaufgaben genutzt werden.
+Dabei können Analogien genutzt werden.
+Ziffernweises vorgehen ggf. ohne Rück-sicht auf die Stellenwerte
+Stellenwertverständnis noch nicht gefestigt
+[?] Förderung: Stellenwertverständnis
+Zahlendreher
+Die Hälfte von 70 kann nicht ermittelt werden.
+Bündelungs- und Entbündelungsprozesse sind noch unklar.
+[?] Förderung: Bündeln und Entbündeln
+(Teil-) Ergebnisse werden zählend ermit-telt.
+Ab dem zweiten Schulbesuchsjahr: Hinweis auf verfestigtes zählendes Rechnen
+Zahl- und Aufgabenbeziehungen können im Zahlenraum bis 100 nicht sicher genutzt werden.
+[?] Förderung: Tausch- und Umkehraufgaben, Analogien erken-nen und nutzen, Gegensinniges Verändern
+Grundaufgaben sind entweder noch nicht automatisiert oder können nicht genutzt werden.
+[?] Förderung: Automatisierte Grundaufgaben, Zahlen- und Auf-gabenblick
+Tabelle 12: Auswertungshinweise

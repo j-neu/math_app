@@ -1,6 +1,6 @@
 # Math App Master Task List
 
-**Last Updated:** 2026-01-11
+**Last Updated:** 2026-05-15
 **Goal:** Complete feature parity with research frameworks (iMINT/PIKAS) and prepare for beta release.
 
 ---
@@ -57,22 +57,23 @@
 
 ## 📊 Phase 4: Diagnostic & Reporting
 
+**Status:** ✅ Complete (shipped 2026-05-15). Manually verified end-to-end. Possible future polish: PDF wording/structure tweaks.
 **Priority:** Low
 **Goal:** Turn diagnostic results into an actionable learning plan.
 
 ### 1. Diagnostic Logic Review
 - [x] **Review Skippability:** Reduce the number of skippable questions to ensure valid results (Default: Complete Test).
-- [ ] **Time Tracking:** Ensure response time is accurately captured for every question.
+- [x] **Time Tracking:** Response time is captured per question; feeds slow-response flag in Förderplan generator.
 
 ### 2. Report Generation System
-- [x] **Create `DiagnosticReportGenerator`:**
-  - Logic to analyze `UserProfile.diagnosticResults`.
-  - Classify skills into "Mastered", "Needs Practice", "Not Started".
-  - Prioritize "Needs Practice" skills based on dependencies (e.g., counting before decomposition).
-- [x] **Create `DiagnosticReportScreen`:**
-  - **Overview Tab:** PDF Report generation.
-  - **Roadmap Tab:** Detailed list of recommended exercises in order (Learning Path).
-  - **For Parents:** "Show Details" section explaining *why* a skill was recommended (via PDF).
+- [x] **Create `SkillCatalog`** — shared singleton that loads `skills_taxonomy.csv` once; replaces per-service CSV loaders.
+- [x] **Create `SkillRecommendation` + `Foerderplan` models** — typed output of the report generator.
+- [x] **Create `DiagnosticReportGenerator`** — `generate(UserProfile, DiagnosticSession) → Foerderplan`. Collects failed/timeout question skill IDs, dedupes, sorts pedagogically (Zählen → Zahlzerlegung → Stellenwerte → Grundstrategien → Kombinierte Strategien), computes category stats and slow-response flag.
+- [x] **Create `DiagnosticReportScreen`** — native Flutter screen (German). Kurzer Förderplan (3 skills), Kategorie-Übersicht, collapsible Vollständiger Förderplan, collapsible Detail-Tabelle, PDF export, "Weiter zum Üben" → LearningPathScreen.
+- [x] **Rewrite `PdfReportService`** — new signature `generatePdf(Foerderplan, DiagnosticSession)`; German throughout; mirrors screen layout.
+- [x] **Wire navigation** — diagnostic completion now builds `Foerderplan` and pushes `DiagnosticReportScreen` instead of going directly to LearningPathScreen.
+- [x] **Fix diagnostic CSV** — corrected typos, green/red colour mismatches, truncated English text, over-broad skill mappings (Q15–18, Q36–37, Q47), documented all valid Q21 dice decompositions.
+- [x] **Diagnostic UX polish** — Q21 generated dice + structured input, Q33/Q34 correct answers swapped, Q38 audio dictation (web/Android/Windows), Q46 generated dice with red/blue comparison, image zoom-on-tap (1.5× popup), full German UI, autofocus + Enter-to-next-field + digit-only input, drag-anywhere reorder cards, detail-table wrapping.
 
 ---
 

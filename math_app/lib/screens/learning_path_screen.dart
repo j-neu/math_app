@@ -57,14 +57,14 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.userProfile.name}\'s Learning Path'),
+        title: Text('Lernpfad von ${widget.userProfile.name}'),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
         actions: [
           // Development mode toggle - shows ALL exercises
           IconButton(
             icon: Icon(_showAllExercises ? Icons.visibility : Icons.visibility_off),
-            tooltip: _showAllExercises ? 'Showing all exercises' : 'Showing matched exercises only',
+            tooltip: _showAllExercises ? 'Alle Übungen werden angezeigt' : 'Nur passende Übungen werden angezeigt',
             onPressed: () {
               setState(() {
                 _showAllExercises = !_showAllExercises;
@@ -122,7 +122,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Your Progress',
+              'Dein Fortschritt',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -144,7 +144,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '$completed / $total exercises completed',
+                  '$completed / $total Übungen abgeschlossen',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Colors.grey[700],
                       ),
@@ -162,7 +162,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          'Reward!',
+                          'Belohnung!',
                           style: TextStyle(
                             color: Colors.amber[700],
                             fontWeight: FontWeight.bold,
@@ -262,7 +262,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
         ),
         const SizedBox(height: 4),
         Text(
-          '${(progress * 100).toInt()}% complete',
+          '${(progress * 100).toInt()}% geschafft',
           style: TextStyle(fontSize: 12, color: Colors.grey[600]),
         ),
         const SizedBox(height: 16),
@@ -299,21 +299,21 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
         backgroundColor = Colors.green.withOpacity(0.1);
         borderColor = Colors.green;
         iconData = Icons.check_circle;
-        statusLabel = 'Mastered!';
+        statusLabel = 'Gemeistert!';
         opacity = 1.0;
         break;
       case ExerciseCompletionStatus.finished:
         backgroundColor = Colors.blue.withOpacity(0.1);
         borderColor = Colors.blue;
         iconData = Icons.check;
-        statusLabel = 'Practice Again';
+        statusLabel = 'Nochmal üben';
         opacity = 0.9;
         break;
       case ExerciseCompletionStatus.inProgress:
         backgroundColor = Colors.cyan.withOpacity(0.1);
         borderColor = Colors.cyan;
         iconData = Icons.arrow_forward;
-        statusLabel = 'Continue';
+        statusLabel = 'Weiter';
         opacity = 1.0;
         break;
       case ExerciseCompletionStatus.notStarted:
@@ -402,7 +402,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'No exercises available',
+            'Keine Übungen verfügbar',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   color: Colors.grey[600],
                 ),
@@ -410,8 +410,8 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
           const SizedBox(height: 8),
           Text(
             widget.userProfile.skillTags.isEmpty
-                ? 'Complete the diagnostic test to start'
-                : 'Great job! You\'ve completed all current exercises',
+                ? 'Schließe die Diagnose ab, um zu starten'
+                : 'Toll gemacht! Du hast alle aktuellen Übungen abgeschlossen.',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Colors.grey[500],
                 ),
@@ -506,7 +506,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
             Icon(Icons.emoji_events, size: 80, color: Colors.amber[700]),
             const SizedBox(height: 16),
             const Text(
-              '🎉 You practiced today! 🎉',
+              '🎉 Heute hast du geübt! 🎉',
               style: TextStyle(fontSize: 24, color: Colors.white),
               textAlign: TextAlign.center,
             ),
@@ -522,7 +522,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Reward:',
+                'Belohnung:',
                 style: TextStyle(fontSize: 16, color: Colors.grey[700]),
               ),
               const SizedBox(height: 8),
@@ -548,7 +548,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                     const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
               ),
               child: const Text(
-                'Celebrate! 🎊',
+                'Feiern! 🎊',
                 style: TextStyle(fontSize: 18, color: Colors.white),
               ),
             ),
@@ -584,7 +584,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
             ),
             const SizedBox(height: 16),
             const Text(
-              '🌟 Exercise Mastered! 🌟',
+              '🌟 Übung gemeistert! 🌟',
               style: TextStyle(fontSize: 26, color: Colors.white),
               textAlign: TextAlign.center,
             ),
@@ -600,7 +600,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'You completed: ${exercise?.title ?? 'Exercise'}',
+                'Geschafft: ${exercise?.title ?? 'Übung'}',
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -609,7 +609,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
               ),
               const SizedBox(height: 8),
               const Text(
-                'Zero errors! Great job!',
+                'Keine Fehler! Tolle Arbeit!',
                 style: TextStyle(fontSize: 16),
                 textAlign: TextAlign.center,
               ),
@@ -617,7 +617,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
               const Divider(),
               const SizedBox(height: 16),
               Text(
-                'Reward:',
+                'Belohnung:',
                 style: TextStyle(fontSize: 16, color: Colors.grey[700]),
               ),
               const SizedBox(height: 8),
@@ -643,7 +643,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                     const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
               ),
               child: const Text(
-                'Amazing! 🎉',
+                'Super! 🎉',
                 style: TextStyle(fontSize: 20, color: Colors.white),
               ),
             ),
@@ -669,7 +669,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
             Icon(Icons.emoji_events, size: 120, color: Colors.amber[700]),
             const SizedBox(height: 20),
             Text(
-              '🏆 ${milestone.title} Complete! 🏆',
+              '🏆 ${milestone.title} geschafft! 🏆',
               style: const TextStyle(fontSize: 28, color: Colors.white),
               textAlign: TextAlign.center,
             ),
@@ -685,7 +685,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'You mastered all ${milestone.exerciseIds.length} exercises!',
+                'Du hast alle ${milestone.exerciseIds.length} Übungen gemeistert!',
                 style: const TextStyle(fontSize: 18),
                 textAlign: TextAlign.center,
               ),
@@ -693,7 +693,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
               const Divider(thickness: 2),
               const SizedBox(height: 20),
               Text(
-                'Special Reward:',
+                'Besondere Belohnung:',
                 style: TextStyle(fontSize: 18, color: Colors.grey[700]),
               ),
               const SizedBox(height: 12),
@@ -719,7 +719,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                     const EdgeInsets.symmetric(horizontal: 48, vertical: 18),
               ),
               child: const Text(
-                'Incredible! 🎊',
+                'Unglaublich! 🎊',
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,

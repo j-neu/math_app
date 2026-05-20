@@ -127,17 +127,17 @@ class _CountObjectsLevel5WidgetState extends State<CountObjectsLevel5Widget> {
   String _getObjectTypeName() {
     switch (_currentObjectType) {
       case ObjectType.star:
-        return 'stars';
+        return 'Sterne';
       case ObjectType.heart:
-        return 'hearts';
+        return 'Herzen';
       case ObjectType.circle:
-        return 'circles';
+        return 'Kreise';
       case ObjectType.square:
-        return 'squares';
+        return 'Quadrate';
       case ObjectType.triangle:
-        return 'triangles';
+        return 'Dreiecke';
       case ObjectType.diamond:
-        return 'diamonds';
+        return 'Rauten';
     }
   }
 
@@ -228,7 +228,7 @@ class _CountObjectsLevel5WidgetState extends State<CountObjectsLevel5Widget> {
       final parsedAnswer = int.tryParse(userInput);
       if (parsedAnswer == null) {
         setState(() {
-          _feedback = 'Please enter a number!';
+          _feedback = 'Bitte eine Zahl eingeben!';
           _feedbackColor = Colors.orange;
           _showFeedback = true;
         });
@@ -248,11 +248,11 @@ class _CountObjectsLevel5WidgetState extends State<CountObjectsLevel5Widget> {
       _totalAttempts++;
       if (isCorrect) {
         _correctAnswers++;
-        _feedback = 'Correct!';
+        _feedback = 'Richtig!';
         _feedbackColor = Colors.green;
       } else {
         _feedback =
-            'Oops! The answer was $_currentObjectCount ${_getObjectTypeName()}. Let\'s try another!';
+            'Oops! Die Antwort war $_currentObjectCount ${_getObjectTypeName()}. Versuchen wir eine andere!';
         _feedbackColor = Colors.red;
       }
       _showFeedback = true;
@@ -299,7 +299,7 @@ class _CountObjectsLevel5WidgetState extends State<CountObjectsLevel5Widget> {
       setState(() {
         _isComplete = true;
         _feedback =
-            'Level Complete! You\'ve mastered counting objects!\n\nGo back to see your progress!';
+            'Level geschafft! Du hast das Zählen von Objekten gemeistert!\n\nGeh zurück, um deinen Fortschritt zu sehen!';
         _feedbackColor = Colors.green;
         _showFeedback = true;
       });
@@ -312,11 +312,11 @@ class _CountObjectsLevel5WidgetState extends State<CountObjectsLevel5Widget> {
   String _getInstructionText() {
     switch (_currentInteractionType) {
       case InteractionType.drag:
-        return 'Drag each ${_currentObjectType.name} to the "Counted" area below';
+        return 'Verschiebe jedes ${_currentObjectType.name} in den Bereich „Gezählt" unten';
       case InteractionType.tap:
-        return 'Tap each ${_currentObjectType.name} as you count it';
+        return 'Tippe jedes ${_currentObjectType.name} an, während du es zählst';
       case InteractionType.count:
-        return 'Count the ${_getObjectTypeName()} and enter the total';
+        return 'Zähle die ${_getObjectTypeName()} und gib die Gesamtzahl ein';
     }
   }
 
@@ -346,7 +346,7 @@ class _CountObjectsLevel5WidgetState extends State<CountObjectsLevel5Widget> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Level 5: Finale - Mixed Review',
+                            'Level 5: Finale — Gemischte Übung',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -379,14 +379,14 @@ class _CountObjectsLevel5WidgetState extends State<CountObjectsLevel5Widget> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Correct: $_correctAnswers',
+                        'Richtig: $_correctAnswers',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       Text(
-                        'Total: $_totalAttempts',
+                        'Gesamt: $_totalAttempts',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -394,7 +394,7 @@ class _CountObjectsLevel5WidgetState extends State<CountObjectsLevel5Widget> {
                       ),
                       if (_totalAttempts > 0)
                         Text(
-                          'Accuracy: ${(_correctAnswers / _totalAttempts * 100).toStringAsFixed(0)}%',
+                          'Genauigkeit: ${(_correctAnswers / _totalAttempts * 100).toStringAsFixed(0)}%',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,

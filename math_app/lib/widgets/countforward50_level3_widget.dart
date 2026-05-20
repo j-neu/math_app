@@ -386,7 +386,7 @@ class _CountForwardLevel3WidgetState extends State<CountForwardLevel3Widget> {
             ElevatedButton.icon(
               onPressed: _checkAnswer,
               icon: const Icon(Icons.check),
-              label: const Text('Check Answers'),
+              label: const Text('Antworten prüfen'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.purple,
                 foregroundColor: Colors.white,

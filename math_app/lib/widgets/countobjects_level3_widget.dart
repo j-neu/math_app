@@ -515,7 +515,7 @@ class _CountObjectsLevel3WidgetState extends State<CountObjectsLevel3Widget> {
                     onPressed:
                         (_flashingInitialObjects || _objectsVisible) ? null : _requestPeek,
                     icon: const Icon(Icons.visibility, size: 18),
-                    label: const Text('Peek'),
+                    label: const Text('Kurz zeigen'),
                     style: ElevatedButton.styleFrom(
                       padding:
                           const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
@@ -567,7 +567,7 @@ class _CountObjectsLevel3WidgetState extends State<CountObjectsLevel3Widget> {
           TextButton.icon(
             onPressed: _showNextHint,
             icon: const Icon(Icons.lightbulb_outline),
-            label: const Text('Need a hint?'),
+            label: const Text('Brauchst du einen Tipp?'),
           ),
 
         // Hint display

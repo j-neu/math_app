@@ -135,17 +135,17 @@ class _CountObjectsLevel1WidgetV2State
   String _getObjectTypeName() {
     switch (_currentObjectType) {
       case ObjectType.star:
-        return 'stars';
+        return 'Sterne';
       case ObjectType.heart:
-        return 'hearts';
+        return 'Herzen';
       case ObjectType.circle:
-        return 'circles';
+        return 'Kreise';
       case ObjectType.square:
-        return 'squares';
+        return 'Quadrate';
       case ObjectType.triangle:
-        return 'triangles';
+        return 'Dreiecke';
       case ObjectType.diamond:
-        return 'diamonds';
+        return 'Rauten';
     }
   }
 
@@ -178,7 +178,7 @@ class _CountObjectsLevel1WidgetV2State
 
       if (_isCorrect) {
         _feedbackMessage =
-            'Perfect! You counted $_targetCount ${_getObjectTypeName()} correctly!';
+            'Perfekt! Du hast $_targetCount ${_getObjectTypeName()} richtig gezählt!';
         _problemsSolved++;
         widget.onProgressUpdate(_problemsSolved);
 
@@ -191,10 +191,10 @@ class _CountObjectsLevel1WidgetV2State
       } else {
         if (answer == _countedObjects.length) {
           _feedbackMessage =
-              'You counted the ${_getObjectTypeName()} you moved: ${_countedObjects.length}. Count ALL the ${_getObjectTypeName()}!';
+              'Du hast die ${_getObjectTypeName()} gezählt, die du verschoben hast: ${_countedObjects.length}. Zähle ALLE ${_getObjectTypeName()}!';
         } else {
           _feedbackMessage =
-              'Not quite. Count again carefully - drag each ${_currentObjectType.name} and count as you go.';
+              'Nicht ganz. Zähle nochmal genau — verschiebe jedes ${_currentObjectType.name} und zähle dabei.';
         }
       }
 
@@ -247,7 +247,7 @@ class _CountObjectsLevel1WidgetV2State
                     child: Column(
                       children: [
                         Text(
-                          'How many ${_getObjectTypeName()} did you count?',
+                          'Wie viele ${_getObjectTypeName()} hast du gezählt?',
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -258,7 +258,7 @@ class _CountObjectsLevel1WidgetV2State
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const Text(
-                              'I counted',
+                              'Ich habe',
                               style: TextStyle(fontSize: 18),
                             ),
                             const SizedBox(width: 12),
@@ -317,7 +317,7 @@ class _CountObjectsLevel1WidgetV2State
                             ),
                           ),
                           child: const Text(
-                            'Check Answer',
+                            'Prüfen',
                             style: TextStyle(fontSize: 16),
                           ),
                         ),
@@ -390,7 +390,7 @@ class _CountObjectsLevel1WidgetV2State
                     Icon(Icons.inventory_2, size: 20, color: Colors.grey.shade700),
                     const SizedBox(width: 8),
                     Text(
-                      'To Count',
+                      'Zu zählen',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.grey.shade700,
@@ -470,7 +470,7 @@ class _CountObjectsLevel1WidgetV2State
                     Icon(Icons.done_all, size: 20, color: Colors.green.shade700),
                     const SizedBox(width: 8),
                     Text(
-                      'Counted',
+                      'Gezählt',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.green.shade700,
@@ -483,7 +483,7 @@ class _CountObjectsLevel1WidgetV2State
                 child: _countedObjects.isEmpty
                     ? Center(
                         child: Text(
-                          'Drag here →',
+                          'Hierher ziehen →',
                           style: TextStyle(
                             fontSize: 18,
                             color: Colors.grey.shade400,

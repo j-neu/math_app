@@ -127,7 +127,7 @@ class RewardConfig {
   /// Get next reward text (cycles through list)
   String getNextRewardText() {
     if (!hasRewardTexts) {
-      return "Great job!"; // Default fallback
+      return "Toll gemacht!"; // Default fallback
     }
 
     final rewardCount = rewardsEarned.length;

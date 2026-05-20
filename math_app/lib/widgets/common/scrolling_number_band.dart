@@ -149,7 +149,7 @@ class _ScrollingNumberBandState extends State<ScrollingNumberBand> {
         height: widget.cellHeight,
         alignment: Alignment.center,
         child: Text(
-          'Count in your head...',
+          'Im Kopf zählen…',
           style: theme.textTheme.titleMedium?.copyWith(
             color: Colors.grey,
             fontStyle: FontStyle.italic,
@@ -273,7 +273,7 @@ class NumberBandPositionIndicator extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          'Step ${(progress * totalSteps).round()} of $totalSteps',
+          'Schritt ${(progress * totalSteps).round()} von $totalSteps',
           style: theme.textTheme.titleMedium,
         ),
         const SizedBox(height: 8),

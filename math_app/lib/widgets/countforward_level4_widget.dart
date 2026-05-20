@@ -258,14 +258,14 @@ class _CountForwardLevel4WidgetState extends State<CountForwardLevel4Widget> {
           if (_isComplete && _problemsCompleted < minProblems)
             ElevatedButton(
               onPressed: _generateNewProblem,
-              child: const Text('Next Problem'),
+              child: const Text('Nächste Aufgabe'),
             ),
 
           if (_problemsCompleted >= minProblems)
             ElevatedButton.icon(
               onPressed: () => widget.onLevelComplete?.call(),
               icon: const Icon(Icons.celebration),
-              label: const Text('Exercise Complete!'),
+              label: const Text('Übung geschafft!'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 foregroundColor: Colors.white,

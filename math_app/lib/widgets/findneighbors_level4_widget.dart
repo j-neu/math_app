@@ -336,7 +336,7 @@ class _FindNeighborsLevel4WidgetState extends State<FindNeighborsLevel4Widget>
   String _getPositiveFeedback() {
     final List<String> messages = [
       'Perfect!',
-      'Excellent!',
+      'Super!',
       'You\'re amazing!',
       'Fantastic!',
       'Wonderful!',
@@ -377,7 +377,7 @@ class _FindNeighborsLevel4WidgetState extends State<FindNeighborsLevel4Widget>
               ),
               const SizedBox(height: 8),
               Text(
-                'Place 10 cards to complete the exercise!',
+                'Ordne 10 Karten, um die Übung zu beenden!',
                 style: Theme.of(context).textTheme.bodyMedium,
                 textAlign: TextAlign.center,
               ),

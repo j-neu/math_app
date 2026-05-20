@@ -332,7 +332,7 @@ class _WhatComesNextLevel3WidgetState extends State<WhatComesNextLevel3Widget> {
                           IconButton(
                             icon: const Icon(Icons.visibility_off),
                             onPressed: _hideNumberLine,
-                            tooltip: 'Hide number line',
+                            tooltip: 'Zahlenstrahl ausblenden',
                           ),
                       ],
                     ),
@@ -422,7 +422,7 @@ class _WhatComesNextLevel3WidgetState extends State<WhatComesNextLevel3Widget> {
               ElevatedButton.icon(
                 onPressed: _checkAnswer,
                 icon: const Icon(Icons.check),
-                label: const Text('Check'),
+                label: const Text('Prüfen'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 24,

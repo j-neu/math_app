@@ -132,17 +132,17 @@ class _CountObjectsLevel3WidgetState extends State<CountObjectsLevel3Widget>
   String _getObjectTypeName() {
     switch (_currentObjectType) {
       case ObjectType.star:
-        return 'stars';
+        return 'Sterne';
       case ObjectType.heart:
-        return 'hearts';
+        return 'Herzen';
       case ObjectType.circle:
-        return 'circles';
+        return 'Kreise';
       case ObjectType.square:
-        return 'squares';
+        return 'Quadrate';
       case ObjectType.triangle:
-        return 'triangles';
+        return 'Dreiecke';
       case ObjectType.diamond:
-        return 'diamonds';
+        return 'Rauten';
     }
   }
 
@@ -225,7 +225,7 @@ class _CountObjectsLevel3WidgetState extends State<CountObjectsLevel3Widget>
       if (_isCorrect) {
         _correctCount++;
         _feedbackMessage =
-            'Perfect! You counted $_targetCount ${_getObjectTypeName()} just by looking!';
+            'Perfekt! Du hast $_targetCount ${_getObjectTypeName()} nur durch Hinschauen gezählt!';
         widget.onProgressUpdate(_correctCount, _totalAttempts);
 
         // Move to next problem
@@ -239,13 +239,13 @@ class _CountObjectsLevel3WidgetState extends State<CountObjectsLevel3Widget>
         final difference = (answer - _targetCount).abs();
         if (difference == 1) {
           _feedbackMessage =
-              'Very close! Off by just 1. Try counting again carefully.';
+              'Sehr nah dran! Nur um 1 daneben. Versuche nochmal genau zu zählen.';
         } else if (difference <= 3) {
           _feedbackMessage =
-              'Not quite. Count each ${_currentObjectType.name} slowly with your eyes.';
+              'Nicht ganz. Zähle jedes ${_currentObjectType.name} langsam mit den Augen.';
         } else {
           _feedbackMessage =
-              'Try again. Look at each ${_currentObjectType.name} and count in your head.';
+              'Versuche es nochmal. Schau jedes ${_currentObjectType.name} an und zähle im Kopf.';
         }
       }
 
@@ -280,8 +280,8 @@ class _CountObjectsLevel3WidgetState extends State<CountObjectsLevel3Widget>
                   ),
                   label: Text(
                     _useStructuredArrangement
-                        ? 'Switch to Random'
-                        : 'Switch to Structured',
+                        ? 'Zu Zufallsanordnung'
+                        : 'Zu Ordnung',
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _useStructuredArrangement
@@ -306,7 +306,7 @@ class _CountObjectsLevel3WidgetState extends State<CountObjectsLevel3Widget>
                   child: Column(
                     children: [
                       Text(
-                        'Count these ${_getObjectTypeName()}:',
+                        'Zähle diese ${_getObjectTypeName()}:',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -351,7 +351,7 @@ class _CountObjectsLevel3WidgetState extends State<CountObjectsLevel3Widget>
                   child: Column(
                     children: [
                       Text(
-                        'How many ${_getObjectTypeName()} are there?',
+                        'Wie viele ${_getObjectTypeName()} sind da?',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -366,7 +366,7 @@ class _CountObjectsLevel3WidgetState extends State<CountObjectsLevel3Widget>
                               focusNode: _answerFocus,
                               keyboardType: TextInputType.number,
                               decoration: InputDecoration(
-                                hintText: 'Count in your head...',
+                                hintText: 'Im Kopf zählen…',
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),

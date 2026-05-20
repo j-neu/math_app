@@ -1,32 +1,67 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:math_app/models/user_profile.dart';
 import 'package:math_app/screens/diagnostic_screen.dart';
 import 'package:math_app/screens/learning_path_screen.dart';
 import 'package:math_app/screens/settings_screen.dart';
 import 'package:math_app/screens/user_selection_screen.dart';
+import 'package:math_app/screens/web_diagnostic_entry_screen.dart';
 import 'package:math_app/services/user_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  if (kIsWeb) {
+    usePathUrlStrategy(); // Clean URLs: /s/<ticket> instead of /#/s/<ticket>
+  }
+  await initializeDateFormatting('de_DE', null);
   runApp(const MyApp());
 }
+
+final _router = GoRouter(
+  routes: [
+    GoRoute(
+      path: '/',
+      builder: (context, state) =>
+          kIsWeb ? const NoTicketScreen() : const UserSelectionScreen(),
+    ),
+    GoRoute(
+      path: '/s/:ticket',
+      builder: (context, state) {
+        final ticket = state.pathParameters['ticket']!;
+        return WebDiagnosticEntryScreen(ticketId: ticket);
+      },
+    ),
+  ],
+);
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Numeris Math App',
+    return MaterialApp.router(
+      routerConfig: _router,
+      title: 'Numeris – Mathe-Diagnose',
+      locale: const Locale('de', 'DE'),
+      supportedLocales: const [Locale('de', 'DE')],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF154761), // Primary brand color
+          seedColor: const Color(0xFF154761),
           primary: const Color(0xFF154761),
           secondary: const Color(0xFF77CDD5),
           error: const Color(0xFFEC4748),
         ),
         useMaterial3: true,
       ),
-      home: const UserSelectionScreen(),
     );
   }
 }
@@ -52,7 +87,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadUserProfile() async {
     print('=== HomeScreen._loadUserProfile() - Loading user ${widget.userProfile.id} ===');
-    // Always load fresh data from database when HomeScreen is shown
     final userService = UserService();
     final freshProfile = await userService.getUserById(widget.userProfile.id);
 
@@ -79,54 +113,45 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    // Determine user state: in-progress diagnostic, new user, or returning user
     final bool hasInProgressDiagnostic = _currentProfile.diagnosticProgress != null;
     final bool hasCompletedDiagnostic = _currentProfile.skillTags.isNotEmpty;
 
-    // Check if diagnostic was actually completed (not just partially done)
-    // A completed diagnostic should have diagnosticResults, not just skillTags
     final bool hasActuallyCompletedDiagnostic =
         (_currentProfile.diagnosticResults != null && _currentProfile.diagnosticResults!.isNotEmpty) ||
         (_currentProfile.diagnosticHistory.isNotEmpty && _currentProfile.diagnosticHistory.last.results.isNotEmpty);
 
-    // Check if user bypassed diagnostic (created via "Start Without Diagnostic")
-    // These users have many skillTags (typically 87+) but no diagnosticProgress or diagnosticResults
     final bool bypassedDiagnostic =
         _currentProfile.diagnosticProgress == null &&
         _currentProfile.diagnosticResults == null &&
-        _currentProfile.skillTags.length > 50; // Threshold: more than 50 skills = bypassed
+        _currentProfile.skillTags.length > 50;
 
     String buttonText;
     Widget destinationScreen;
     String message;
 
     if (hasInProgressDiagnostic) {
-      // User has partially completed diagnostic
-      buttonText = 'Continue Diagnostic Test';
+      buttonText = 'Diagnose fortsetzen';
       destinationScreen = DiagnosticScreen(userProfile: _currentProfile);
-      message = 'You\'re ${_currentProfile.diagnosticProgress! + 1} questions into the diagnostic test!';
+      message = 'Du hast schon ${_currentProfile.diagnosticProgress! + 1} Fragen geschafft!';
     } else if (hasActuallyCompletedDiagnostic || bypassedDiagnostic) {
-      // User has completed diagnostic OR bypassed it and has a learning path
-      buttonText = 'View Learning Path';
+      buttonText = 'Zum Lernpfad';
       destinationScreen = LearningPathScreen(userProfile: _currentProfile);
       message = bypassedDiagnostic
-          ? 'Ready to start practicing? ${_currentProfile.skillTags.length} skills available!'
-          : 'Ready for your next challenge?';
+          ? 'Bereit zum Üben? Es warten ${_currentProfile.skillTags.length} Bereiche auf dich!'
+          : 'Bereit für die nächste Aufgabe?';
     } else if (hasCompletedDiagnostic) {
-      // User has some skill tags but diagnostic progress was lost - let them resume
-      buttonText = 'Resume Diagnostic Test';
+      buttonText = 'Diagnose fortsetzen';
       destinationScreen = DiagnosticScreen(userProfile: _currentProfile);
-      message = 'Let\'s continue where you left off!';
+      message = 'Lass uns da weitermachen, wo du aufgehört hast!';
     } else {
-      // New user who hasn't started diagnostic yet
-      buttonText = 'Start Diagnostic Test';
+      buttonText = 'Diagnose starten';
       destinationScreen = DiagnosticScreen(userProfile: _currentProfile);
-      message = 'Let\'s find out what you already know!';
+      message = 'Lass uns herausfinden, was du schon kannst!';
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Welcome, ${_currentProfile.name}!'),
+        title: Text('Hallo, ${_currentProfile.name}!'),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
         actions: [
@@ -161,7 +186,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       builder: (context) => destinationScreen,
                     ),
                   );
-                  // Reload user data when returning from diagnostic or learning path
                   _loadUserProfile();
                 },
                 style: ElevatedButton.styleFrom(

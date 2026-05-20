@@ -128,7 +128,7 @@ class _TensCalculationExerciseState extends State<TensCalculationExercise>
        // Retry level logic or just stay
        ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Try again to get at least $_requiredCorrect correct!'),
+          content: Text('Versuche es nochmal — du brauchst mindestens $_requiredCorrect richtige!'),
           backgroundColor: Colors.orange,
         ),
       );
@@ -187,7 +187,7 @@ class _TensCalculationExerciseState extends State<TensCalculationExercise>
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Complete previous levels first!'),
+          content: Text('Schließe zuerst die vorherigen Level ab!'),
           backgroundColor: Colors.orange,
         ),
       );
@@ -244,12 +244,12 @@ class _TensCalculationExerciseState extends State<TensCalculationExercise>
                       children: [
                         IconButton(
                           icon: const Icon(Icons.menu),
-                          tooltip: 'Choose Level',
+                          tooltip: 'Level wählen',
                           onPressed: _showLevelSelector,
                         ),
                         IconButton(
                           icon: const Icon(Icons.help_outline),
-                          tooltip: 'Instructions',
+                          tooltip: 'Anleitung',
                           onPressed: _showInstructions,
                         ),
                       ],
@@ -328,7 +328,7 @@ class _TensCalculationExerciseState extends State<TensCalculationExercise>
       case ScaffoldLevel.advancedChallenge:
         return TensCalculationLevel4Widget(onComplete: _onProblemComplete);
       default:
-        return const Center(child: Text('Level not implemented'));
+        return const Center(child: Text('Level noch nicht verfügbar'));
     }
   }
 }

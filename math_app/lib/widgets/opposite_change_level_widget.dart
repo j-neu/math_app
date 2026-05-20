@@ -224,9 +224,9 @@ class _OppositeChangeLevelWidgetState extends State<OppositeChangeLevelWidget> w
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Text(
-            _showInput 
-                ? "How many now?" 
-                : (_isCovered ? "Watch closely..." : "Remember the counts!"),
+            _showInput
+                ? "Wie viele jetzt?"
+                : (_isCovered ? "Schau genau..." : "Merke dir die Zahlen!"),
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
         ),
@@ -246,7 +246,7 @@ class _OppositeChangeLevelWidgetState extends State<OppositeChangeLevelWidget> w
                     border: Border.all(color: Colors.blue.shade200),
                   ),
                   child: Text(
-                    "Total: $_totalItems",
+                    "Gesamt: $_totalItems",
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -289,7 +289,7 @@ class _OppositeChangeLevelWidgetState extends State<OppositeChangeLevelWidget> w
             padding: const EdgeInsets.all(32.0),
             child: ElevatedButton(
               onPressed: _startSequence,
-              child: Text("Cover & Change", style: TextStyle(fontSize: 20)),
+              child: Text("Verdecke & verändere", style: TextStyle(fontSize: 20)),
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(horizontal: 40, vertical: 16),
               ),
@@ -416,15 +416,15 @@ class _OppositeChangeLevelWidgetState extends State<OppositeChangeLevelWidget> w
       child: Column(
         children: [
           Text(
-            _isCorrect ? "Correct! One changed color." : "Not quite. Look again!",
+            _isCorrect ? "Richtig! Eine hat die Farbe gewechselt." : "Fast! Schau nochmal!",
             style: TextStyle(
-              fontSize: 18, 
+              fontSize: 18,
               fontWeight: FontWeight.bold,
               color: _isCorrect ? Colors.green.shade800 : Colors.orange.shade800
             ),
           ),
           if (!_isCorrect)
-            Text("Total is still ${_totalItems}."),
+            Text("Gesamt ist immer noch ${_totalItems}."),
         ],
       ),
     );

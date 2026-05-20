@@ -68,7 +68,7 @@ class CountObjectsExercise extends StatefulWidget {
     required this.userProfile,
   }) : config = const ExerciseConfig(
           id: 'C1.2',
-          title: 'Count the Objects',
+          title: 'Gegenstände zählen',
           skillTags: ['counting_1'],
           sourceCard: 'iMINT Green Card 1: Gegenstände zählen (4-level version + finale)',
           concept:
@@ -81,13 +81,13 @@ class CountObjectsExercise extends StatefulWidget {
           ],
           internalizationPath:
               'L1 (Drag) → L2 (Tap) → L3 (Look-Structured) → L4 (Look-Random) → L5 (Finale)',
-          targetNumber: 20, // Max objects across all levels
+          targetNumber: 20,
           hints: [
-            'Move each object once as you count.',
-            'Tap each object once - no double counting!',
-            'Count the objects you see, then enter the number.',
-            'Track each object with your eyes - don\'t miss any!',
-            'Show your mastery!',
+            'Schiebe jeden Gegenstand einmal zur Seite, während du zählst.',
+            'Tippe jeden Gegenstand einmal an — nicht doppelt zählen!',
+            'Zähle die Gegenstände und gib dann die Zahl ein.',
+            'Verfolge jeden Gegenstand mit den Augen — verpasse keinen!',
+            'Zeig, was du kannst!',
           ],
         );
 
@@ -177,8 +177,8 @@ class _CountObjectsExerciseState extends State<CountObjectsExercise>
       if (_level1ProblemsCompleted >= _level1RequiredProblems &&
           !isLevelUnlocked(2)) {
         unlockLevel(2);
-        _showLevelUnlockedMessage('Level 2: Tap Objects',
-            'Tap objects instead of dragging them!');
+        _showLevelUnlockedMessage('Level 2: Gegenstände antippen',
+            'Tippe die Gegenstände an, statt sie zu schieben!');
         _autoAdvanceToNextLevel();
       }
     });
@@ -197,8 +197,8 @@ class _CountObjectsExerciseState extends State<CountObjectsExercise>
 
       if (correct >= _level2RequiredCorrect && !isLevelUnlocked(3)) {
         unlockLevel(3);
-        _showLevelUnlockedMessage('Level 3: No-Action Count',
-            'Count without touching - just look and think!');
+        _showLevelUnlockedMessage('Level 3: Nur zählen',
+            'Zähle ohne zu berühren — nur schauen und denken!');
         _autoAdvanceToNextLevel();
       }
     });
@@ -217,8 +217,8 @@ class _CountObjectsExerciseState extends State<CountObjectsExercise>
 
       if (correct >= _level3RequiredCorrect && !isLevelUnlocked(4)) {
         unlockLevel(4);
-        _showLevelUnlockedMessage('Level 4: Eye-Tracking Count',
-            'Track the objects with your eyes!');
+        _showLevelUnlockedMessage('Level 4: Kurz zeigen',
+            'Verfolge die Gegenstände mit den Augen!');
         _autoAdvanceToNextLevel();
       }
     });
@@ -242,7 +242,7 @@ class _CountObjectsExerciseState extends State<CountObjectsExercise>
   void _showLevelUnlockedMessage(String levelName, String description) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('🎉 $levelName Unlocked!\n$description'),
+        content: Text('🎉 $levelName freigeschaltet!\n$description'),
         backgroundColor: Colors.green,
         duration: const Duration(seconds: 3),
       ),
@@ -321,13 +321,13 @@ class _CountObjectsExerciseState extends State<CountObjectsExercise>
       case ScaffoldLevel.guidedExploration:
         return '';
       case ScaffoldLevel.supportedPractice:
-        return 'Complete $_level1RequiredProblems problems in Level 1 first!';
+        return 'Schließe zuerst $_level1RequiredProblems Aufgaben in Level 1 ab!';
       case ScaffoldLevel.independentMastery:
-        return 'Get $_level2RequiredCorrect correct in Level 2 first!';
+        return 'Du brauchst mindestens $_level2RequiredCorrect richtige in Level 2!';
       case ScaffoldLevel.advancedChallenge:
-        return 'Get $_level3RequiredCorrect correct in Level 3 first!';
+        return 'Du brauchst mindestens $_level3RequiredCorrect richtige in Level 3!';
       case ScaffoldLevel.finale:
-        return 'Get $_level4RequiredCorrect correct in Level 4 first!';
+        return 'Du brauchst mindestens $_level4RequiredCorrect richtige in Level 4!';
     }
   }
 
@@ -352,12 +352,12 @@ class _CountObjectsExerciseState extends State<CountObjectsExercise>
                   children: [
                     IconButton(
                       icon: const Icon(Icons.menu),
-                      tooltip: 'Choose Level',
+                      tooltip: 'Level wählen',
                       onPressed: _showLevelSelector,
                     ),
                     IconButton(
                       icon: const Icon(Icons.help_outline),
-                      tooltip: 'Instructions',
+                      tooltip: 'Anleitung',
                       onPressed: _showInstructions,
                     ),
                   ],
@@ -408,30 +408,30 @@ class _CountObjectsExerciseState extends State<CountObjectsExercise>
   String _getLevelTitle(ScaffoldLevel level) {
     switch (level) {
       case ScaffoldLevel.guidedExploration:
-        return 'Drag Objects';
+        return 'Gegenstände schieben';
       case ScaffoldLevel.supportedPractice:
-        return 'Tap Objects';
+        return 'Gegenstände antippen';
       case ScaffoldLevel.independentMastery:
-        return 'Look-Structured';
+        return 'Nur schauen';
       case ScaffoldLevel.advancedChallenge:
-        return 'Look-Random';
+        return 'Kurz zeigen';
       case ScaffoldLevel.finale:
-        return 'Not used in C1.2';
+        return 'Nicht verwendet';
     }
   }
 
   String _getLevelInstructions(ScaffoldLevel level) {
     switch (level) {
       case ScaffoldLevel.guidedExploration:
-        return 'Drag each object to the "counted" area as you count them out loud. This helps you match each object with a number word.';
+        return 'Schiebe jeden Gegenstand in den „gezählt"-Bereich, während du laut zählst. So ordnest du jeden Gegenstand einem Zahlwort zu.';
       case ScaffoldLevel.supportedPractice:
-        return 'Tap each object once as you count. The objects will mark themselves as counted. No double counting!';
+        return 'Tippe jeden Gegenstand einmal an, während du zählst. Die Gegenstände werden als gezählt markiert. Nicht doppelt zählen!';
       case ScaffoldLevel.independentMastery:
-        return 'Look at the objects (structured layout) and count them silently. When you know how many there are, enter the number.';
+        return 'Schau dir die Gegenstände an (ordentlich angeordnet) und zähle leise. Wenn du weißt, wie viele es sind, gib die Zahl ein.';
       case ScaffoldLevel.advancedChallenge:
-        return 'Look at the randomly scattered objects and count by tracking with your eyes. Test your eye-scanning skills!';
+        return 'Schau dir die wild verteilten Gegenstände an und zähle, indem du mit den Augen verfolgst. Teste dein Augen-Scanning!';
       case ScaffoldLevel.finale:
-        return 'Not used in C1.2 - this skill has 4 levels only.';
+        return 'Nicht verwendet — diese Übung hat 4 Level.';
     }
   }
 
@@ -475,7 +475,7 @@ class _CountObjectsExerciseState extends State<CountObjectsExercise>
       case ScaffoldLevel.finale:
         // C1.2 has no finale level - only 4 card-prescribed levels (matching C1.1)
         return const Center(
-          child: Text('Level 5 removed - C1.2 has 4 levels only'),
+          child: Text('Level 5 entfernt — C1.2 hat nur 4 Level'),
         );
     }
   }

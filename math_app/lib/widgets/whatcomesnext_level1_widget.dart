@@ -116,7 +116,7 @@ class _WhatComesNextLevel1WidgetState extends State<WhatComesNextLevel1Widget>
     }
 
     if (_selectedNumber == 20) {
-      _showMessage('We stop at 20 in this exercise!', Colors.orange);
+      _showMessage('Wir stoppen bei 20 in dieser Übung!', Colors.orange);
       return;
     }
 
@@ -149,7 +149,7 @@ class _WhatComesNextLevel1WidgetState extends State<WhatComesNextLevel1Widget>
   void _showSelectNumberMessage() {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('First, tap a number on the line!'),
+        content: Text('Tippe zuerst eine Zahl auf der Linie an!'),
         backgroundColor: Colors.blue,
         duration: Duration(seconds: 2),
       ),

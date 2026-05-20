@@ -50,7 +50,7 @@ class CountSteps100FieldExercise extends StatefulWidget {
     required this.userProfile,
   }) : config = const ExerciseConfig(
           id: 'C6.2',
-          title: 'Count in Steps on 100-Field',
+          title: 'Schritte im Hunderterfeld',
           skillTags: ['counting_8', 'counting_6', 'counting_7'],
           sourceCard: 'iMINT Arbeitskarte 8 (Adapted for steps)',
           concept:
@@ -102,8 +102,8 @@ class _CountSteps100FieldExerciseState extends State<CountSteps100FieldExercise>
   final List<_LevelConfig> _levelConfigs = [
     const _LevelConfig(
       levelNumber: 1,
-      title: 'Steps of 2 (Grid)',
-      description: 'Count by 2s with the 100-field',
+      title: '2er-Schritte (Feld)',
+      description: 'In 2er-Schritten mit dem Hunderterfeld zählen',
       icon: Icons.grid_on,
       color: Colors.blue,
       pedagogicalAction: 'Handlung: Visual skip counting',
@@ -111,8 +111,8 @@ class _CountSteps100FieldExerciseState extends State<CountSteps100FieldExercise>
     ),
     const _LevelConfig(
       levelNumber: 2,
-      title: 'Steps of 5 (Grid)',
-      description: 'Count by 5s with the 100-field',
+      title: '5er-Schritte (Feld)',
+      description: 'In 5er-Schritten mit dem Hunderterfeld zählen',
       icon: Icons.grid_on,
       color: Colors.green,
       pedagogicalAction: 'Handlung: Visual skip counting',
@@ -120,8 +120,8 @@ class _CountSteps100FieldExerciseState extends State<CountSteps100FieldExercise>
     ),
     const _LevelConfig(
       levelNumber: 3,
-      title: 'Steps of 10 (Grid)',
-      description: 'Count by 10s with the 100-field',
+      title: '10er-Schritte (Feld)',
+      description: 'In 10er-Schritten mit dem Hunderterfeld zählen',
       icon: Icons.grid_on,
       color: Colors.orange,
       pedagogicalAction: 'Handlung: Visual skip counting',
@@ -129,8 +129,8 @@ class _CountSteps100FieldExerciseState extends State<CountSteps100FieldExercise>
     ),
     const _LevelConfig(
       levelNumber: 4,
-      title: 'Steps of 2 (Mental)',
-      description: 'Count by 2s without the grid',
+      title: '2er-Schritte (im Kopf)',
+      description: 'In 2er-Schritten ohne das Feld zählen',
       icon: Icons.psychology,
       color: Colors.purple,
       pedagogicalAction: 'Bild/Symbol: Mental skip counting',
@@ -138,8 +138,8 @@ class _CountSteps100FieldExerciseState extends State<CountSteps100FieldExercise>
     ),
     const _LevelConfig(
       levelNumber: 5,
-      title: 'Steps of 5 (Mental)',
-      description: 'Count by 5s without the grid',
+      title: '5er-Schritte (im Kopf)',
+      description: 'In 5er-Schritten ohne das Feld zählen',
       icon: Icons.psychology,
       color: Colors.teal,
       pedagogicalAction: 'Bild/Symbol: Mental skip counting',
@@ -147,8 +147,8 @@ class _CountSteps100FieldExerciseState extends State<CountSteps100FieldExercise>
     ),
     const _LevelConfig(
       levelNumber: 6,
-      title: 'Steps of 10 (Mental)',
-      description: 'Count by 10s without the grid',
+      title: '10er-Schritte (im Kopf)',
+      description: 'In 10er-Schritten ohne das Feld zählen',
       icon: Icons.emoji_events,
       color: Colors.amber,
       pedagogicalAction: 'Finale: Mastery of patterns',
@@ -193,7 +193,7 @@ class _CountSteps100FieldExerciseState extends State<CountSteps100FieldExercise>
   void _switchLevel(int levelNum) {
     if (!isLevelUnlocked(levelNum)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Complete Level ${levelNum - 1} first!')), 
+        SnackBar(content: Text('Schließe zuerst Level ${levelNum - 1} ab!')), 
       );
       return;
     }
@@ -217,7 +217,7 @@ class _CountSteps100FieldExerciseState extends State<CountSteps100FieldExercise>
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
-              'Select Level',
+              'Level wählen',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
@@ -267,12 +267,12 @@ class _CountSteps100FieldExerciseState extends State<CountSteps100FieldExercise>
 
   String _getInstructionsForLevel(int level) {
     switch (level) {
-      case 1: return 'Count forward in steps of 2! \nLook at the 100-field. \nTap the blocked square and type the number.';
-      case 2: return 'Count forward in steps of 5! \nNotice the pattern: numbers end in 5 or 0.';
-      case 3: return 'Count forward in steps of 10! \nNotice: you just move down one row!';
-      case 4: return 'Count forward in steps of 2! \nThe grid is hidden now. \nUse the "Help" button if you need to peek.';
-      case 5: return 'Count forward in steps of 5! \nGrid hidden. Remember: 5, 10, 15, 20...';
-      case 6: return 'Finale: Steps of 10! \nThis should be easy: just add 10 each time.';
+      case 1: return 'Zähle in 2er-Schritten vorwärts! \nSchau auf das Hunderterfeld. \nTippe auf das verdeckte Feld und gib die Zahl ein.';
+      case 2: return 'Zähle in 5er-Schritten vorwärts! \nDas Muster: Die Zahlen enden auf 5 oder 0.';
+      case 3: return 'Zähle in 10er-Schritten vorwärts! \nBeachte: Du gehst einfach eine Zeile nach unten.';
+      case 4: return 'Zähle in 2er-Schritten vorwärts! \nDas Feld ist jetzt verdeckt. \nNutze die „Hilfe"-Schaltfläche, falls du nachschauen musst.';
+      case 5: return 'Zähle in 5er-Schritten vorwärts! \nFeld verdeckt. Merke dir: 5, 10, 15, 20…';
+      case 6: return 'Finale: 10er-Schritte! \nDas ist einfach: jedes Mal 10 dazu.';
       default: return '';
     }
   }
@@ -291,17 +291,17 @@ class _CountSteps100FieldExerciseState extends State<CountSteps100FieldExercise>
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: Text('Level $levelNumber Complete! 🎉'),
-        content: Text(levelNumber == totalLevels 
-            ? 'Congratulations! You finished the entire exercise!' 
-            : 'Great job! Level ${levelNumber + 1} is now unlocked.'),
+        title: Text('Level $levelNumber geschafft! 🎉'),
+        content: Text(levelNumber == totalLevels
+            ? 'Herzlichen Glückwunsch! Du hast die ganze Übung geschafft!'
+            : 'Toll gemacht! Level ${levelNumber + 1} ist jetzt freigeschaltet.'),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context); // Close dialog
               Navigator.pop(context); // Exit exercise
             },
-            child: const Text('Stop for Today'),
+            child: const Text('Für heute beenden'),
           ),
           if (levelNumber < totalLevels)
             ElevatedButton(
@@ -312,7 +312,7 @@ class _CountSteps100FieldExerciseState extends State<CountSteps100FieldExercise>
                   _currentLevelResults = [];
                 });
               },
-              child: Text('Start Level ${levelNumber + 1}'),
+              child: Text('Level ${levelNumber + 1} starten'),
             ),
         ],
       ),
@@ -342,12 +342,12 @@ class _CountSteps100FieldExerciseState extends State<CountSteps100FieldExercise>
             IconButton(
               icon: const Icon(Icons.menu), // Level selector
               onPressed: _showLevelSelector,
-              tooltip: 'Select Level',
+              tooltip: 'Level wählen',
             ),
             IconButton(
               icon: const Icon(Icons.help_outline),
               onPressed: _showInstructions,
-              tooltip: 'Instructions',
+              tooltip: 'Anleitung',
             ),
           ],
         ),

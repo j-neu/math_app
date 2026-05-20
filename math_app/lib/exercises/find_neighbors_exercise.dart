@@ -436,7 +436,7 @@ class _FindNeighborsExerciseState extends State<FindNeighborsExercise>
       default:
         return Center(
           child: Text(
-            'Level not implemented',
+            'Level noch nicht verfügbar',
             style: Theme.of(context).textTheme.titleLarge,
           ),
         );

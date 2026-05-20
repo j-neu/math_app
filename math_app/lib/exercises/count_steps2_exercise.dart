@@ -229,7 +229,7 @@ class _CountSteps2ExerciseState extends State<CountSteps2Exercise>
             children: [
               const Icon(Icons.lock, color: Colors.white),
               const SizedBox(width: 12),
-              Text('Complete Level ${level - 1} first!'),
+              Text('Schließe zuerst Level ${level - 1} ab!'),
             ],
           ),
           backgroundColor: Colors.orange,

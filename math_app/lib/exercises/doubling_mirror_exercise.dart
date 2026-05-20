@@ -245,7 +245,7 @@ class _DoublingMirrorExerciseState extends State<DoublingMirrorExercise>
           onComplete: _onProblemComplete,
         );
       default:
-        return const Center(child: Text('Level not implemented'));
+        return const Center(child: Text('Level noch nicht verfügbar'));
     }
   }
 

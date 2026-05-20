@@ -100,12 +100,12 @@ class _Decompose10Level1WidgetState extends State<Decompose10Level1Widget> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Tap counters to flip them blue. Watch what happens to the equation!',
+                    'Tippe auf die Zähler, um sie blau zu färben. Schau, was mit der Gleichung passiert!',
                     style: TextStyle(fontSize: 16, color: Colors.blue.shade900),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Explored: ${_exploredDecompositions.length} different ways',
+                    'Entdeckt: ${_exploredDecompositions.length} verschiedene Wege',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -203,7 +203,7 @@ class _Decompose10Level1WidgetState extends State<Decompose10Level1Widget> {
             OutlinedButton.icon(
               onPressed: _resetCounters,
               icon: const Icon(Icons.refresh),
-              label: const Text('Reset Counters'),
+              label: const Text('Zurücksetzen'),
             ),
 
             const SizedBox(height: 16),
@@ -222,7 +222,7 @@ class _Decompose10Level1WidgetState extends State<Decompose10Level1Widget> {
                     Icon(Icons.check_circle_outline, color: Colors.green.shade700, size: 32),
                     const SizedBox(height: 8),
                     Text(
-                      'Great exploring! You\'ve tried ${_exploredDecompositions.length} different ways.',
+                      'Toll erkundet! Du hast ${_exploredDecompositions.length} verschiedene Wege ausprobiert.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 16,
@@ -233,7 +233,7 @@ class _Decompose10Level1WidgetState extends State<Decompose10Level1Widget> {
                     ElevatedButton.icon(
                       onPressed: _completeExploration,
                       icon: const Icon(Icons.arrow_forward),
-                      label: const Text('Ready for Next Level'),
+                      label: const Text('Nächstes Level'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         foregroundColor: Colors.white,
@@ -241,7 +241,7 @@ class _Decompose10Level1WidgetState extends State<Decompose10Level1Widget> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '(You can keep exploring or move on)',
+                      '(Du kannst mehr erkunden oder weitermachen)',
                       style: TextStyle(fontSize: 12, color: Colors.green.shade700),
                     ),
                   ],

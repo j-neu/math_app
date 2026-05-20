@@ -52,7 +52,7 @@ class _MoreLessLevel1WidgetState extends State<MoreLessLevel1Widget> with Single
       _childRoll = Random().nextInt(6) + 1;
       _computerRoll = Random().nextInt(6) + 1;
       _phase = GamePhase.evaluating;
-      _feedbackMessage = 'Who has more?';
+      _feedbackMessage = 'Wer hat mehr?';
     });
     _animController.forward(from: 0.0);
   }
@@ -79,12 +79,12 @@ class _MoreLessLevel1WidgetState extends State<MoreLessLevel1Widget> with Single
     if (correctSelection) {
       setState(() {
         _phase = GamePhase.calculating;
-        _feedbackMessage = 'How many more?';
+        _feedbackMessage = 'Wie viel mehr?';
       });
     } else {
       // Visual feedback for wrong answer?
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Look carefully! Count the dots.')),
+        SnackBar(content: Text('Schau genau! Zähle die Punkte.')),
       );
     }
   }
@@ -94,7 +94,7 @@ class _MoreLessLevel1WidgetState extends State<MoreLessLevel1Widget> with Single
       setState(() {
          // Draw means no points, next round immediately or re-roll?
          // Card says: "Der Spieler, der mehr Plättchen hat..." -> imply nothing happens on draw.
-         _feedbackMessage = "It's a tie! No points.";
+         _feedbackMessage = "Gleich! Keine Punkte.";
       });
       Future.delayed(Duration(seconds: 2), () {
         if (mounted) {
@@ -104,7 +104,7 @@ class _MoreLessLevel1WidgetState extends State<MoreLessLevel1Widget> with Single
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Not equal! Someone has more.')),
+        SnackBar(content: Text('Nicht gleich. Einer hat mehr.')),
       );
     }
   }
@@ -120,10 +120,10 @@ class _MoreLessLevel1WidgetState extends State<MoreLessLevel1Widget> with Single
         _phase = GamePhase.rewarding;
         if (_childRoll! > _computerRoll!) {
           _childScore += actualDifference;
-          _feedbackMessage = 'You get $actualDifference points!';
+          _feedbackMessage = 'Du bekommst $actualDifference Punkte!';
         } else {
           _computerScore += actualDifference;
-          _feedbackMessage = 'Computer gets $actualDifference points!';
+          _feedbackMessage = 'Der Computer bekommt $actualDifference Punkte!';
         }
       });
       
@@ -135,7 +135,7 @@ class _MoreLessLevel1WidgetState extends State<MoreLessLevel1Widget> with Single
       });
     } else {
        ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Try again! Count the extra dots.')),
+        SnackBar(content: Text('Versuche es nochmal! Zähle die extra Punkte.')),
       );
     }
   }
@@ -145,7 +145,7 @@ class _MoreLessLevel1WidgetState extends State<MoreLessLevel1Widget> with Single
       _childRoll = null;
       _computerRoll = null;
       _phase = GamePhase.rolling;
-      _feedbackMessage = 'Roll the dice!';
+      _feedbackMessage = 'Würfel!';
     });
   }
 
@@ -160,7 +160,7 @@ class _MoreLessLevel1WidgetState extends State<MoreLessLevel1Widget> with Single
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildScoreCard('You', _childScore, Colors.blue),
+                _buildScoreCard('Du', _childScore, Colors.blue),
                 _buildScoreCard('Computer', _computerScore, Colors.red),
               ],
             ),
@@ -180,7 +180,7 @@ class _MoreLessLevel1WidgetState extends State<MoreLessLevel1Widget> with Single
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildPlayerArea('You', _childRoll, Colors.blue),
+              _buildPlayerArea('Du', _childRoll, Colors.blue),
               _buildPlayerArea('Computer', _computerRoll, Colors.red),
             ],
           ),
@@ -281,7 +281,7 @@ class _MoreLessLevel1WidgetState extends State<MoreLessLevel1Widget> with Single
       return ElevatedButton.icon(
         onPressed: _rollDice,
         icon: Icon(Icons.casino),
-        label: Text('Roll Dice', style: TextStyle(fontSize: 20)),
+        label: Text('Würfel', style: TextStyle(fontSize: 20)),
         style: ElevatedButton.styleFrom(
           padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
         ),
@@ -292,19 +292,19 @@ class _MoreLessLevel1WidgetState extends State<MoreLessLevel1Widget> with Single
         children: [
           ElevatedButton(
             onPressed: () => _evaluateWinner(true),
-            child: Text('I have more'),
+            child: Text('Ich habe mehr'),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
           ),
           SizedBox(width: 16),
           ElevatedButton(
             onPressed: _evaluateDraw,
-            child: Text('Equal'),
+            child: Text('Gleich'),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
           ),
            SizedBox(width: 16),
           ElevatedButton(
             onPressed: () => _evaluateWinner(false),
-            child: Text('Computer has more'),
+            child: Text('Computer hat mehr'),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
           ),
         ],

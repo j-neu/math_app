@@ -31,8 +31,8 @@ class _TensCalculationLevel2WidgetState extends State<TensCalculationLevel2Widge
   void _generateProblem() {
     final random = Random();
     _totalTens = 2 + random.nextInt(8); // 2-9
-    _subtractTens = 1 + random.nextInt(_totalTens); 
-    
+    _subtractTens = 1 + random.nextInt(_totalTens);
+
     _markedStrips = List.filled(_totalTens, false);
     _controller.clear();
     setState(() {

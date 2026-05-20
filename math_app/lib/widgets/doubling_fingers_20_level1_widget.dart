@@ -77,18 +77,18 @@ class _DoublingFingers20Level1WidgetState extends State<DoublingFingers20Level1W
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          'Double ${widget.targetNumber}!',
+          'Verdopple ${widget.targetNumber}!',
           style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 10),
         Text(
-          'Copy the teacher\'s hands.',
+          'Kopiere die Hände der Lehrerin.',
           style: TextStyle(fontSize: 18, color: Colors.grey.shade700),
         ),
         SizedBox(height: 20),
         
         // Teacher's Hands (Static)
-        Text('Teacher', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+        Text('Lehrerin', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
         FingerDisplayWidget(
           leftCount: teacherLeft,
           rightCount: teacherRight,
@@ -100,7 +100,7 @@ class _DoublingFingers20Level1WidgetState extends State<DoublingFingers20Level1W
         SizedBox(height: 30),
         
         // Student's Hands (Interactive)
-        Text('You', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+        Text('Du', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
         FingerDisplayWidget(
           leftCount: _userLeftCount,
           rightCount: _userRightCount,
@@ -134,7 +134,7 @@ class _DoublingFingers20Level1WidgetState extends State<DoublingFingers20Level1W
               padding: EdgeInsets.symmetric(horizontal: 40, vertical: 16),
               textStyle: TextStyle(fontSize: 24),
             ),
-            child: Text('Check'),
+            child: Text('Prüfen'),
           ),
       ],
     );

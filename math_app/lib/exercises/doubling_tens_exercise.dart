@@ -243,7 +243,7 @@ class _DoublingTensExerciseState extends State<DoublingTensExercise>
           onComplete: _onProblemComplete,
         );
       default:
-        return const Center(child: Text('Level coming soon'));
+        return const Center(child: Text('Level kommt bald'));
     }
   }
 

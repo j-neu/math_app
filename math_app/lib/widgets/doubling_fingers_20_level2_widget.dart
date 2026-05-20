@@ -26,12 +26,12 @@ class DoublingFingers20Level2Widget extends StatelessWidget {
       children: [
         SizedBox(height: 20),
         Text(
-          'Double ${targetNumber}!',
+          'Verdopple ${targetNumber}!',
           style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 10),
         Text(
-          'Imagine your hands show the same.',
+          'Stell dir vor, deine Hände zeigen dasselbe.',
           style: TextStyle(fontSize: 18, color: Colors.grey.shade700),
         ),
         
@@ -44,7 +44,7 @@ class DoublingFingers20Level2Widget extends StatelessWidget {
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('Teacher', style: TextStyle(color: Colors.grey)),
+                    Text('Lehrerin', style: TextStyle(color: Colors.grey)),
                     FingerDisplayWidget(
                       leftCount: leftCount,
                       rightCount: rightCount,
@@ -62,7 +62,7 @@ class DoublingFingers20Level2Widget extends StatelessWidget {
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('You', style: TextStyle(color: Colors.grey)),
+                    Text('Du', style: TextStyle(color: Colors.grey)),
                     Container(
                       height: 120,
                       width: 300, // Match width of FingerDisplayWidget (120 * 2.5)

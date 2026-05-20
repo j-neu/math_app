@@ -277,7 +277,7 @@ class _FindNeighborsLevel1WidgetState extends State<FindNeighborsLevel1Widget>
       'You got it!',
       'Awesome!',
       'Nice work!',
-      'Excellent!',
+      'Super!',
     ];
     return messages[_random.nextInt(messages.length)];
   }
@@ -298,7 +298,7 @@ class _FindNeighborsLevel1WidgetState extends State<FindNeighborsLevel1Widget>
           child: Column(
             children: [
               Text(
-                'Place cards in order!',
+                'Ordne Karten an!',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Colors.green.shade800,
@@ -306,7 +306,7 @@ class _FindNeighborsLevel1WidgetState extends State<FindNeighborsLevel1Widget>
               ),
               const SizedBox(height: 8),
               Text(
-                'Drag the card to a spot next to other cards',
+                'Zieh die Karte zu einem Platz neben anderen Karten',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 12),
@@ -422,7 +422,7 @@ class _FindNeighborsLevel1WidgetState extends State<FindNeighborsLevel1Widget>
                         foregroundColor: Colors.white,
                         minimumSize: const Size(double.infinity, 32),
                       ),
-                      child: const Text('Next Card'),
+                      child: const Text('Nächste Karte'),
                     ),
                     const SizedBox(height: 8),
                     OutlinedButton(
@@ -431,7 +431,7 @@ class _FindNeighborsLevel1WidgetState extends State<FindNeighborsLevel1Widget>
                         foregroundColor: Colors.orange,
                         minimumSize: const Size(double.infinity, 32),
                       ),
-                      child: const Text('Skip'),
+                      child: const Text('Überspringen'),
                     ),
                   ],
                 ),

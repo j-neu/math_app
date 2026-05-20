@@ -37,7 +37,7 @@ class _DoublingTensLevel3WidgetState extends State<DoublingTensLevel3Widget> {
       widget.onComplete(true);
     } else {
       setState(() {
-        _feedbackMessage = 'Nicht ganz. Verdopple ${widget.targetTens} Zehner.';
+        _feedbackMessage = 'Fast! Verdopple ${widget.targetTens} Zehner.';
       });
     }
   }

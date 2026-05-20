@@ -73,7 +73,7 @@ class _PlaceNumbersLevel1WidgetState extends State<PlaceNumbersLevel1Widget> {
 
   void _checkAnswer() {
     if (_placedCards.length < _targetNumbers.length) {
-      setState(() => _feedbackMessage = 'Please place all cards first!');
+      setState(() => _feedbackMessage = 'Bitte stelle alle Karten zuerst auf!');
       return;
     }
 
@@ -90,7 +90,7 @@ class _PlaceNumbersLevel1WidgetState extends State<PlaceNumbersLevel1Widget> {
     }
 
     if (!orderCorrect) {
-      setState(() => _feedbackMessage = 'Check the order! Smaller numbers go to the left.');
+      setState(() => _feedbackMessage = 'Schau auf die Reihenfolge! Kleinere Zahlen gehen nach links.');
       return;
     }
 
@@ -106,13 +106,13 @@ class _PlaceNumbersLevel1WidgetState extends State<PlaceNumbersLevel1Widget> {
     }
 
     if (!positionCorrect) {
-      setState(() => _feedbackMessage = 'Good order, but check positions! Some numbers are too far off.');
+      setState(() => _feedbackMessage = 'Gute Reihenfolge, aber schau auf die Positionen! Einige Zahlen sind zu weit weg.');
       return;
     }
 
     setState(() {
       _isSuccess = true;
-      _feedbackMessage = 'Correct! Great estimation!';
+      _feedbackMessage = 'Richtig! Tolle Schätzung!';
     });
     
     widget.onProblemSolved(true);
@@ -135,7 +135,7 @@ class _PlaceNumbersLevel1WidgetState extends State<PlaceNumbersLevel1Widget> {
               height: 80,
               alignment: Alignment.center,
               child: Text(
-                _feedbackMessage ?? 'Drag the cards to the correct spot on the line.',
+                _feedbackMessage ?? 'Ziehe die Karten an die richtige Stelle auf der Linie.',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -237,7 +237,7 @@ class _PlaceNumbersLevel1WidgetState extends State<PlaceNumbersLevel1Widget> {
                   padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
                   textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-                child: const Text('Check'),
+                child: const Text('Prüfen'),
               ),
             ),
           ],

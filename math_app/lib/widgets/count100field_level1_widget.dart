@@ -124,7 +124,7 @@ class _Count100FieldLevel1WidgetState extends State<Count100FieldLevel1Widget> {
                   ElevatedButton.icon(
                     onPressed: _handleComplete,
                     icon: const Icon(Icons.arrow_forward),
-                    label: const Text('Start Level 2'),
+                    label: const Text('Level 2 starten'),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                       textStyle: const TextStyle(

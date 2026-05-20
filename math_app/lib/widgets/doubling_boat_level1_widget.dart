@@ -67,14 +67,14 @@ class _DoublingBoatLevel1WidgetState extends State<DoublingBoatLevel1Widget> {
       if (input == 10) {
         setState(() => _step = LevelStep.checkOnes);
       } else {
-         _showFeedback('Look at the red box. 5 top + 5 bottom = ?');
+         _showFeedback('Schau auf den roten Rahmen. 5 oben + 5 unten = ?');
       }
     } else if (_step == LevelStep.checkOnes) {
       final remainder = (target - 5) * 2;
       if (input == remainder) {
         setState(() => _step = LevelStep.checkTotal);
       } else {
-        _showFeedback('Look at the red box. $remainder counters.');
+        _showFeedback('Schau auf den roten Rahmen. $remainder Plättchen.');
       }
     } else if (_step == LevelStep.checkTotal) {
       final total = target * 2;
@@ -84,7 +84,7 @@ class _DoublingBoatLevel1WidgetState extends State<DoublingBoatLevel1Widget> {
           widget.onResult(true);
         });
       } else {
-        _showFeedback('Try again!');
+        _showFeedback('Versuche es nochmal!');
       }
     }
   }

@@ -103,15 +103,15 @@ class _MoreLessExerciseState extends State<MoreLessExercise>
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: Text('Game Over!'),
-        content: Text(mastered ? 'Great job! You are a master at comparing!' : 'Good game! Keep practicing!'),
+        title: Text('Versuch zu Ende'),
+        content: Text(mastered ? 'Toll gemacht! Du bist Profi im Vergleichen!' : 'Gutes Spiel! Üb fleißig weiter.'),
         actions: [
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context); // Close dialog
               Navigator.pop(context); // Return to menu
             },
-            child: Text('Finish'),
+            child: Text('Fertig'),
           ),
         ],
       ),

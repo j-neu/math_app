@@ -30,7 +30,7 @@ class LevelSelectionDrawer extends StatelessWidget {
                   Icon(Icons.layers, color: Theme.of(context).primaryColor),
                   const SizedBox(width: 12),
                   Text(
-                    'Choose Level',
+                    'Level wählen',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -148,7 +148,7 @@ class LevelSelectionDrawer extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                  'Complete previous levels to unlock Level ${level.levelNumber}!'),
+                  'Schließe zuerst die vorherigen Level ab, um Level ${level.levelNumber} freizuschalten.'),
             ),
           ],
         ),

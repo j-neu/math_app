@@ -49,7 +49,7 @@ class _DoublingMirrorLevel3WidgetState extends State<DoublingMirrorLevel3Widget>
        });
     } else {
       setState(() {
-        _feedbackMessage = 'Nicht ganz. Stell dir die Punkte vor...';
+        _feedbackMessage = 'Fast! Stell dir die Punkte vor...';
         _feedbackColor = Colors.orange;
         _controller.clear();
       });

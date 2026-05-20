@@ -81,7 +81,7 @@ class _CountForwardLevel1WidgetState extends State<CountForwardLevel1Widget> {
       _targetNumber = _startNumber + sequenceLength;
       _currentPosition = _startNumber;
 
-      _feedbackMessage = 'Tap the numbers in order and say them out loud!';
+      _feedbackMessage = 'Tippe die Zahlen der Reihe nach an und zähle laut!';
       _showSuccess = false;
       _isComplete = false;
     });
@@ -100,7 +100,7 @@ class _CountForwardLevel1WidgetState extends State<CountForwardLevel1Widget> {
           // Problem complete!
           _isComplete = true;
           _problemsCompleted++;
-          _feedbackMessage = 'Perfect! You counted from $_startNumber to $_targetNumber!';
+          _feedbackMessage = 'Perfekt! Du hast von $_startNumber bis $_targetNumber gezählt!';
           _showSuccess = true;
 
           widget.onProblemComplete?.call(true);
@@ -119,18 +119,18 @@ class _CountForwardLevel1WidgetState extends State<CountForwardLevel1Widget> {
             });
           }
         } else {
-          _feedbackMessage = 'Keep going!';
+          _feedbackMessage = 'Mach weiter!';
         }
       });
     } else if (number > _currentPosition) {
       // Tapped a number ahead - hint to go in order
       setState(() {
-        _feedbackMessage = 'Not so fast! Tap $_currentPosition first';
+        _feedbackMessage = 'Nicht so schnell! Tippe zuerst $_currentPosition an';
       });
     } else {
       // Tapped a number behind - already counted
       setState(() {
-        _feedbackMessage = 'You already counted $number. Tap $_currentPosition next';
+        _feedbackMessage = 'Du hast $number schon gezählt. Tippe jetzt $_currentPosition an';
       });
     }
   }
@@ -146,7 +146,7 @@ class _CountForwardLevel1WidgetState extends State<CountForwardLevel1Widget> {
           // Current task display
           if (!_isComplete)
             Text(
-              'Count from $_startNumber to $_targetNumber',
+              'Zähle von $_startNumber bis $_targetNumber',
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -201,14 +201,14 @@ class _CountForwardLevel1WidgetState extends State<CountForwardLevel1Widget> {
           if (_isComplete && _problemsCompleted < requiredProblems)
             ElevatedButton(
               onPressed: _generateNewProblem,
-              child: const Text('Next Problem'),
+              child: const Text('Nächste Aufgabe'),
             ),
 
           if (_problemsCompleted >= requiredProblems)
             ElevatedButton.icon(
               onPressed: () => widget.onLevelComplete?.call(),
               icon: const Icon(Icons.arrow_forward),
-              label: const Text('Continue to Level 2'),
+              label: const Text('Zu Level 2'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 foregroundColor: Colors.white,

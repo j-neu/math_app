@@ -59,12 +59,12 @@ class _DoublingFingersLevel1WidgetState extends State<DoublingFingersLevel1Widge
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          'Double ${widget.targetNumber}!',
+          'Verdopple ${widget.targetNumber}!',
           style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 16),
         Text(
-          'Make the right hand match the left hand.',
+          'Die rechte Hand soll die linke Hand kopieren.',
           style: TextStyle(fontSize: 18, color: Colors.grey.shade700),
         ),
         SizedBox(height: 40),
@@ -100,7 +100,7 @@ class _DoublingFingersLevel1WidgetState extends State<DoublingFingersLevel1Widge
               padding: EdgeInsets.symmetric(horizontal: 40, vertical: 16),
               textStyle: TextStyle(fontSize: 24),
             ),
-            child: Text('Check'),
+            child: Text('Prüfen'),
           ),
       ],
     );

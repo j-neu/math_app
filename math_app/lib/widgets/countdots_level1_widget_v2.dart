@@ -153,7 +153,7 @@ class _CountDotsLevel1WidgetState extends State<CountDotsLevel1Widget>
       _isCorrect = (answer == _targetCount);
 
       if (_isCorrect) {
-        _feedbackMessage = 'Perfect! You counted $_targetCount dots correctly!';
+        _feedbackMessage = 'Perfekt! Du hast $_targetCount Punkte richtig gezählt!';
         _problemsSolved++;
         widget.onProgressUpdate(_problemsSolved);
 
@@ -165,9 +165,9 @@ class _CountDotsLevel1WidgetState extends State<CountDotsLevel1Widget>
         });
       } else {
         if (answer == _countedDotsIds.length) {
-          _feedbackMessage = 'You counted the dots you moved: ${_countedDotsIds.length}. But count ALL the dots you moved!';
+          _feedbackMessage = 'Du hast die Punkte gezählt, die du verschoben hast: ${_countedDotsIds.length}. Zähle aber ALLE Punkte!';
         } else {
-          _feedbackMessage = 'Not quite. Count again carefully - move each dot and count as you go.';
+          _feedbackMessage = 'Nicht ganz. Zähle nochmal genau — verschiebe jeden Punkt und zähle dabei.';
         }
       }
 
@@ -220,7 +220,7 @@ class _CountDotsLevel1WidgetState extends State<CountDotsLevel1Widget>
                     child: Column(
                       children: [
                         const Text(
-                          'How many dots did you count?',
+                          'Wie viele Punkte hast du gezählt?',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -235,7 +235,7 @@ class _CountDotsLevel1WidgetState extends State<CountDotsLevel1Widget>
                                 focusNode: _answerFocus,
                                 keyboardType: TextInputType.number,
                                 decoration: InputDecoration(
-                                  hintText: 'Enter number...',
+                                  hintText: 'Zahl eingeben…',
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -327,7 +327,7 @@ class _CountDotsLevel1WidgetState extends State<CountDotsLevel1Widget>
       child: Column(
         children: [
           const Text(
-            'Dots to Count',
+            'Punkte zum Zählen',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -338,7 +338,7 @@ class _CountDotsLevel1WidgetState extends State<CountDotsLevel1Widget>
             child: _sourceDotsIds.isEmpty
                 ? Center(
                     child: Text(
-                      'All dots moved!',
+                      'Alle Punkte verschoben!',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey.shade600,
@@ -384,7 +384,7 @@ class _CountDotsLevel1WidgetState extends State<CountDotsLevel1Widget>
           child: Column(
             children: [
               const Text(
-                'Counted Dots',
+                'Gezählte Punkte',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -393,7 +393,7 @@ class _CountDotsLevel1WidgetState extends State<CountDotsLevel1Widget>
               ),
               const SizedBox(height: 8),
               Text(
-                'Count: ${_countedDotsIds.length}',
+                'Gezählt: ${_countedDotsIds.length}',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,

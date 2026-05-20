@@ -63,7 +63,7 @@ class _RewardsSettingsScreenState extends State<RewardsSettingsScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Reward settings saved!'),
+          content: Text('Belohnungs-Einstellungen gespeichert.'),
           duration: Duration(seconds: 2),
         ),
       );
@@ -76,7 +76,7 @@ class _RewardsSettingsScreenState extends State<RewardsSettingsScreen> {
     if (text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please enter a reward'),
+          content: Text('Bitte eine Belohnung eingeben'),
           duration: Duration(seconds: 2),
         ),
       );
@@ -86,7 +86,7 @@ class _RewardsSettingsScreenState extends State<RewardsSettingsScreen> {
     if (text.length > 50) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Reward text must be 50 characters or less'),
+          content: Text('Belohnungstext darf höchstens 50 Zeichen haben'),
           duration: Duration(seconds: 2),
         ),
       );
@@ -96,7 +96,7 @@ class _RewardsSettingsScreenState extends State<RewardsSettingsScreen> {
     if (_rewardTexts.length >= 10) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Maximum 10 rewards allowed'),
+          content: Text('Maximal 10 Belohnungen möglich'),
           duration: Duration(seconds: 2),
         ),
       );
@@ -122,7 +122,7 @@ class _RewardsSettingsScreenState extends State<RewardsSettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Reward Settings'),
+        title: const Text('Belohnungen'),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
       ),
@@ -131,7 +131,7 @@ class _RewardsSettingsScreenState extends State<RewardsSettingsScreen> {
         children: [
           // Section 1: Reward Triggers
           Text(
-            'Reward Triggers',
+            'Belohnungs-Auslöser',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).colorScheme.primary,
@@ -139,7 +139,7 @@ class _RewardsSettingsScreenState extends State<RewardsSettingsScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Choose when to show rewards to your child:',
+            'Wann sollen Belohnungen erscheinen?',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Colors.grey[600],
                 ),
@@ -147,8 +147,8 @@ class _RewardsSettingsScreenState extends State<RewardsSettingsScreen> {
           const SizedBox(height: 16),
           SwitchListTile(
             secondary: const Icon(Icons.calendar_today),
-            title: const Text('Daily Exercise Reward'),
-            subtitle: const Text('Reward for practicing at least once per day'),
+            title: const Text('Belohnung für tägliches Üben'),
+            subtitle: const Text('Belohnung, wenn mindestens einmal am Tag geübt wird'),
             value: _dailyExerciseReward,
             onChanged: (value) {
               setState(() {
@@ -159,8 +159,8 @@ class _RewardsSettingsScreenState extends State<RewardsSettingsScreen> {
           ),
           SwitchListTile(
             secondary: const Icon(Icons.star),
-            title: const Text('Completed Exercise Reward'),
-            subtitle: const Text('Reward for mastering an exercise with zero errors'),
+            title: const Text('Belohnung für abgeschlossene Übungen'),
+            subtitle: const Text('Belohnung, wenn eine Übung fehlerfrei gemeistert wird'),
             value: _completedExerciseReward,
             onChanged: (value) {
               setState(() {
@@ -171,8 +171,8 @@ class _RewardsSettingsScreenState extends State<RewardsSettingsScreen> {
           ),
           SwitchListTile(
             secondary: const Icon(Icons.emoji_events),
-            title: const Text('Milestone Reward'),
-            subtitle: const Text('Reward for completing a skill category (e.g., Counting)'),
+            title: const Text('Meilenstein-Belohnung'),
+            subtitle: const Text('Belohnung für eine ganze Kategorie (z. B. Zählen)'),
             value: _milestoneReward,
             onChanged: (value) {
               setState(() {
@@ -187,7 +187,7 @@ class _RewardsSettingsScreenState extends State<RewardsSettingsScreen> {
           Row(
             children: [
               Text(
-                'Your Rewards',
+                'Deine Belohnungen',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context).colorScheme.primary,
@@ -203,7 +203,7 @@ class _RewardsSettingsScreenState extends State<RewardsSettingsScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Add rewards that motivate your child:',
+            'Belohnungen hinzufügen, die dein Kind motivieren:',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Colors.grey[600],
                 ),
@@ -217,10 +217,10 @@ class _RewardsSettingsScreenState extends State<RewardsSettingsScreen> {
                 child: TextField(
                   controller: _rewardController,
                   maxLength: 50,
-                  decoration: InputDecoration(
-                    labelText: 'Add a reward...',
-                    hintText: 'e.g., "20 minutes of screen time"',
-                    border: const OutlineInputBorder(),
+                  decoration: const InputDecoration(
+                    labelText: 'Belohnung hinzufügen…',
+                    hintText: 'z. B. „20 Minuten Bildschirmzeit"',
+                    border: OutlineInputBorder(),
                     counterText: '',
                   ),
                   onSubmitted: (_) => _addRewardText(),
@@ -237,7 +237,7 @@ class _RewardsSettingsScreenState extends State<RewardsSettingsScreen> {
                     vertical: 16,
                   ),
                 ),
-                child: const Text('Add'),
+                child: const Text('Hinzufügen'),
               ),
             ],
           ),
@@ -256,7 +256,7 @@ class _RewardsSettingsScreenState extends State<RewardsSettingsScreen> {
                   Icon(Icons.card_giftcard, size: 48, color: Colors.grey[400]),
                   const SizedBox(height: 8),
                   Text(
-                    'No rewards added yet',
+                    'Noch keine Belohnungen',
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 16,
@@ -264,7 +264,7 @@ class _RewardsSettingsScreenState extends State<RewardsSettingsScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Add rewards to motivate your child!',
+                    'Füge Belohnungen hinzu, um dein Kind zu motivieren.',
                     style: TextStyle(
                       color: Colors.grey[500],
                       fontSize: 12,
@@ -300,14 +300,14 @@ class _RewardsSettingsScreenState extends State<RewardsSettingsScreen> {
                   ),
                 ),
               );
-            }).toList(),
+            }),
 
           // Reward count indicator
           if (_rewardTexts.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(
-                '${_rewardTexts.length} / 10 rewards',
+                '${_rewardTexts.length} / 10 Belohnungen',
                 style: TextStyle(
                   fontSize: 12,
                   color: Colors.grey[600],
@@ -331,25 +331,25 @@ class _RewardsSettingsScreenState extends State<RewardsSettingsScreen> {
         const Divider(),
         const SizedBox(height: 16),
         Text(
-          'Example Rewards:',
+          'Beispiel-Belohnungen:',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
         ),
         const SizedBox(height: 8),
         Text(
-          'Here are some ideas to get you started:',
+          'Ein paar Ideen zum Loslegen:',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Colors.grey[600],
               ),
         ),
         const SizedBox(height: 12),
-        _buildExampleChip('20 minutes of screen time'),
-        _buildExampleChip('Ice cream cone'),
-        _buildExampleChip('Trip to the playground'),
-        _buildExampleChip('Extra story at bedtime'),
-        _buildExampleChip('Sticker for sticker chart'),
-        _buildExampleChip('Choose tonight\'s dinner'),
+        _buildExampleChip('20 Minuten Bildschirmzeit'),
+        _buildExampleChip('Eine Kugel Eis'),
+        _buildExampleChip('Ausflug zum Spielplatz'),
+        _buildExampleChip('Extra Gute-Nacht-Geschichte'),
+        _buildExampleChip('Sticker für das Stickerheft'),
+        _buildExampleChip('Heute Abend Essen aussuchen'),
       ],
     );
   }
@@ -369,51 +369,51 @@ class _RewardsSettingsScreenState extends State<RewardsSettingsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('About Rewards'),
+        title: const Text('Über Belohnungen'),
         content: const SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'How Rewards Work:',
+                'So funktionieren Belohnungen:',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 8),
               Text(
-                '1. Add rewards that motivate your child (screen time, treats, activities, etc.)',
+                '1. Belohnungen hinzufügen, die dein Kind motivieren (Bildschirmzeit, Naschereien, Aktivitäten usw.).',
               ),
               SizedBox(height: 8),
               Text(
-                '2. Enable reward triggers (daily practice, exercise completion, milestones)',
+                '2. Belohnungs-Auslöser aktivieren (tägliches Üben, abgeschlossene Übungen, Meilensteine).',
               ),
               SizedBox(height: 8),
               Text(
-                '3. When your child earns a reward, the app will cycle through your list of rewards',
+                '3. Wenn dein Kind eine Belohnung verdient, zeigt die App eine aus deiner Liste.',
               ),
               SizedBox(height: 8),
               Text(
-                '4. You decide when to actually give the reward - the app just celebrates the achievement!',
+                '4. Wann du die Belohnung tatsächlich gibst, entscheidest du — die App feiert nur den Erfolg.',
               ),
               SizedBox(height: 16),
               Text(
-                'Examples:',
+                'Beispiele:',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 8),
-              Text('• Screen time (20 minutes of cartoons)'),
-              Text('• Treats (ice cream, special snack)'),
-              Text('• Activities (playground, park visit)'),
-              Text('• Privileges (stay up 15 min late)'),
-              Text('• Stickers or tokens'),
-              Text('• Special time with parent'),
+              Text('• Bildschirmzeit (20 Minuten Trickfilm)'),
+              Text('• Naschereien (Eis, besonderer Snack)'),
+              Text('• Aktivitäten (Spielplatz, Parkbesuch)'),
+              Text('• Sonderrechte (15 Minuten länger aufbleiben)'),
+              Text('• Sticker oder Münzen'),
+              Text('• Besondere Zeit mit Mama oder Papa'),
             ],
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Got it!'),
+            child: const Text('Verstanden'),
           ),
         ],
       ),

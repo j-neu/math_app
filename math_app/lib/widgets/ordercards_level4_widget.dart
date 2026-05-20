@@ -303,7 +303,7 @@ class _OrderCardsLevel4WidgetState extends State<OrderCardsLevel4Widget> {
                   ElevatedButton.icon(
                     onPressed: _checkAnswer,
                     icon: const Icon(Icons.check_circle),
-                    label: const Text('Check Answer'),
+                    label: const Text('Antwort prüfen'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green.shade600,
                       foregroundColor: Colors.white,
@@ -315,7 +315,7 @@ class _OrderCardsLevel4WidgetState extends State<OrderCardsLevel4Widget> {
                   OutlinedButton.icon(
                     onPressed: _showHint,
                     icon: const Icon(Icons.lightbulb_outline),
-                    label: const Text('Need a hint?'),
+                    label: const Text('Brauchst du einen Tipp?'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.purple,
                     ),

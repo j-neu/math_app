@@ -75,7 +75,7 @@ class _DoublingTensLevel2WidgetState extends State<DoublingTensLevel2Widget> {
       _currentRightTens++;
       if (_currentRightTens == widget.targetTens) {
         _readyForInput = true;
-        _feedbackMessage = 'Super! Fülle jetzt die Lücken aus.';
+        _feedbackMessage = 'Super! Jetzt füll die Lücken aus.';
         _feedbackColor = Colors.green;
       }
     });

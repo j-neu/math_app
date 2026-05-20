@@ -32,7 +32,7 @@ class DecompositionTableWidget extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              'All Ways to Make $targetNumber',
+              'Alle Wege, um $targetNumber zu machen',
               style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -193,12 +193,12 @@ class DecompositionTableWidget extends StatelessWidget {
       child: Column(
         children: [
           const Text(
-            'Every row shows the same total!',
+            'Jede Reihe zeigt die gleiche Summe!',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
-            'There are ${targetNumber + 1} different ways to make $targetNumber.',
+            'Es gibt ${targetNumber + 1} verschiedene Wege, um $targetNumber zu machen.',
             style: const TextStyle(fontSize: 14),
           ),
         ],

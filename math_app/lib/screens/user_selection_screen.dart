@@ -40,7 +40,7 @@ class _UserSelectionScreenState extends State<UserSelectionScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Create New User'),
+          title: const Text('Neues Profil anlegen'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -49,7 +49,7 @@ class _UserSelectionScreenState extends State<UserSelectionScreen> {
                 autofocus: true,
                 decoration: const InputDecoration(
                   labelText: 'Name',
-                  hintText: 'Enter child\'s name',
+                  hintText: 'Name des Kindes',
                   border: OutlineInputBorder(),
                 ),
                 textCapitalization: TextCapitalization.words,
@@ -58,8 +58,8 @@ class _UserSelectionScreenState extends State<UserSelectionScreen> {
               TextField(
                 controller: ageController,
                 decoration: const InputDecoration(
-                  labelText: 'Age',
-                  hintText: 'Enter age',
+                  labelText: 'Alter',
+                  hintText: 'Alter eingeben',
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
@@ -69,7 +69,7 @@ class _UserSelectionScreenState extends State<UserSelectionScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              child: const Text('Abbrechen'),
             ),
             ElevatedButton(
               onPressed: () {
@@ -78,7 +78,7 @@ class _UserSelectionScreenState extends State<UserSelectionScreen> {
 
                 if (name.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please enter a name')),
+                    const SnackBar(content: Text('Bitte einen Namen eingeben')),
                   );
                   return;
                 }
@@ -88,7 +88,7 @@ class _UserSelectionScreenState extends State<UserSelectionScreen> {
                   'age': age,
                 });
               },
-              child: const Text('Create'),
+              child: const Text('Anlegen'),
             ),
           ],
         );
@@ -136,7 +136,7 @@ class _UserSelectionScreenState extends State<UserSelectionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Select User'),
+        title: const Text('Profil wählen'),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
       ),
@@ -148,7 +148,7 @@ class _UserSelectionScreenState extends State<UserSelectionScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'Who is learning today?',
+                    'Wer lernt heute?',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -170,14 +170,14 @@ class _UserSelectionScreenState extends State<UserSelectionScreen> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'No users yet',
+                              'Noch keine Profile',
                               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                     color: Colors.grey[600],
                                   ),
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Create your first user to get started!',
+                              'Lege ein erstes Profil an, um loszulegen.',
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                     color: Colors.grey[500],
                                   ),
@@ -214,10 +214,12 @@ class _UserSelectionScreenState extends State<UserSelectionScreen> {
                               ),
                               subtitle: Text(
                                 user.diagnosticProgress != null
-                                    ? 'Diagnostic in progress (Question ${user.diagnosticProgress! + 1})'
+                                    ? 'Diagnose läuft (Frage ${user.diagnosticProgress! + 1})'
                                     : user.skillTags.isEmpty
-                                        ? 'New user - Start diagnostic test'
-                                        : '${user.skillTags.length} skills to practice',
+                                        ? 'Neues Profil — Diagnose starten'
+                                        : user.skillTags.length == 1
+                                            ? '1 Bereich zum Üben'
+                                            : '${user.skillTags.length} Bereiche zum Üben',
                               ),
                               trailing: const Icon(Icons.arrow_forward_ios),
                               onTap: () => _selectUser(user),
@@ -233,7 +235,7 @@ class _UserSelectionScreenState extends State<UserSelectionScreen> {
                   ElevatedButton.icon(
                     onPressed: _showCreateUserDialog,
                     icon: const Icon(Icons.person_add),
-                    label: const Text('Add New User'),
+                    label: const Text('Neues Profil anlegen'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.secondary,
                       foregroundColor: Colors.white,
@@ -251,7 +253,7 @@ class _UserSelectionScreenState extends State<UserSelectionScreen> {
                   OutlinedButton.icon(
                     onPressed: _showSkipDiagnosticDialog,
                     icon: const Icon(Icons.warning_amber_rounded),
-                    label: const Text('Start Without Diagnostic (Not Recommended)'),
+                    label: const Text('Ohne Diagnose starten (nicht empfohlen)'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.orange[700],
                       side: BorderSide(color: Colors.orange[700]!, width: 2),
@@ -280,7 +282,7 @@ class _UserSelectionScreenState extends State<UserSelectionScreen> {
             children: [
               Icon(Icons.warning_amber_rounded, color: Colors.orange[700]),
               const SizedBox(width: 8),
-              const Expanded(child: Text('Skip Diagnostic Test')),
+              const Expanded(child: Text('Diagnose überspringen')),
             ],
           ),
           content: Column(
@@ -295,7 +297,7 @@ class _UserSelectionScreenState extends State<UserSelectionScreen> {
                   border: Border.all(color: Colors.orange[200]!),
                 ),
                 child: Text(
-                  'This will create a user with ALL 88 skills to practice. This is intended for testing exercises, not for actual learning.',
+                  'Dies legt ein Profil mit ALLEN 88 Bereichen zum Üben an. Gedacht zum Testen der Übungen, nicht für echtes Lernen.',
                   style: TextStyle(
                     color: Colors.orange[900],
                     fontSize: 13,
@@ -308,7 +310,7 @@ class _UserSelectionScreenState extends State<UserSelectionScreen> {
                 autofocus: true,
                 decoration: const InputDecoration(
                   labelText: 'Name',
-                  hintText: 'Enter child\'s name',
+                  hintText: 'Name des Kindes',
                   border: OutlineInputBorder(),
                 ),
                 textCapitalization: TextCapitalization.words,
@@ -317,8 +319,8 @@ class _UserSelectionScreenState extends State<UserSelectionScreen> {
               TextField(
                 controller: ageController,
                 decoration: const InputDecoration(
-                  labelText: 'Age',
-                  hintText: 'Enter age',
+                  labelText: 'Alter',
+                  hintText: 'Alter eingeben',
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
@@ -328,7 +330,7 @@ class _UserSelectionScreenState extends State<UserSelectionScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              child: const Text('Abbrechen'),
             ),
             ElevatedButton(
               onPressed: () {
@@ -337,7 +339,7 @@ class _UserSelectionScreenState extends State<UserSelectionScreen> {
 
                 if (name.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please enter a name')),
+                    const SnackBar(content: Text('Bitte einen Namen eingeben')),
                   );
                   return;
                 }
@@ -351,7 +353,7 @@ class _UserSelectionScreenState extends State<UserSelectionScreen> {
                 backgroundColor: Colors.orange[700],
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Create (Skip Diagnostic)'),
+              child: const Text('Anlegen (ohne Diagnose)'),
             ),
           ],
         );

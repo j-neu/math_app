@@ -1,0 +1,32 @@
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+
+const SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+
+export async function GET(request: NextRequest) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
+
+  const sessionId = request.nextUrl.searchParams.get("session_id");
+  if (!sessionId) return NextResponse.json({ error: "session_id fehlt" }, { status: 400 });
+
+  const resp = await fetch(
+    `${SB_URL}/functions/v1/foerderplan-pdf?session_id=${sessionId}`,
+    { headers: { Authorization: `Bearer ${SERVICE_KEY}` } },
+  );
+
+  if (!resp.ok) {
+    const text = await resp.text();
+    return NextResponse.json({ error: text }, { status: resp.status });
+  }
+
+  const pdfBytes = await resp.arrayBuffer();
+  return new NextResponse(pdfBytes, {
+    headers: {
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `attachment; filename="foerderplan.pdf"`,
+    },
+  });
+}

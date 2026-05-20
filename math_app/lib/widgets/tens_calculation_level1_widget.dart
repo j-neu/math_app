@@ -55,7 +55,7 @@ class _TensCalculationLevel1WidgetState extends State<TensCalculationLevel1Widge
       });
     } else {
       setState(() {
-        _feedbackMessage = 'Versuch es noch einmal. Zähle die Streifen.';
+        _feedbackMessage = 'Versuche es nochmal. Zähle die Streifen.';
         _feedbackColor = Colors.orange;
       });
     }

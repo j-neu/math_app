@@ -161,7 +161,7 @@ class _CountForwardLevel1WidgetState extends State<CountForwardLevel1Widget> {
             ElevatedButton.icon(
               onPressed: () => widget.onLevelComplete?.call(),
               icon: const Icon(Icons.arrow_forward),
-              label: const Text('Continue to Level 2'),
+              label: const Text('Zu Level 2'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 foregroundColor: Colors.white,

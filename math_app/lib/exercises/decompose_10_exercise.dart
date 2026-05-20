@@ -290,17 +290,17 @@ class _Decompose10ExerciseState extends State<Decompose10Exercise>
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text('Skill Mastered! 🏆'),
+        title: const Text('Übung geschafft! 🏆'),
         content: const Text(
-          'You have successfully decomposed 10 and other numbers!\nGreat job!',
+          'Du hast die Zahlen erfolgreich zerlegt!\nToll gemacht!',
         ),
         actions: [
           ElevatedButton(
             onPressed: () {
-              Navigator.of(context).pop(); // Close dialog
-              Navigator.of(context).pop(); // Exit exercise
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
             },
-            child: const Text('Collect Reward'),
+            child: const Text('Belohnung abholen'),
           ),
         ],
       ),
@@ -469,7 +469,7 @@ class _Decompose10ExerciseState extends State<Decompose10Exercise>
         );
         
       default:
-        return const Center(child: Text('Level not implemented'));
+        return const Center(child: Text('Level noch nicht verfügbar'));
     }
   }
 }

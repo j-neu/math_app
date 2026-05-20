@@ -79,7 +79,7 @@ class _FingerBlitzLevel1WidgetState extends State<FingerBlitzLevel1Widget> {
       setState(() {
         _isSuccess = true;
         _isVisible = true; // Reveal if hidden
-        _feedbackMessage = 'Correct!';
+        _feedbackMessage = 'Richtig!';
       });
       widget.onProblemSolved(true);
       
@@ -90,7 +90,7 @@ class _FingerBlitzLevel1WidgetState extends State<FingerBlitzLevel1Widget> {
       setState(() {
         _isError = true;
         _isVisible = true; // Show for learning
-        _feedbackMessage = 'Look again!';
+        _feedbackMessage = 'Schau nochmal!';
       });
       
       widget.onProblemSolved(false); // Record error but let them retry or move on? 
@@ -119,7 +119,7 @@ class _FingerBlitzLevel1WidgetState extends State<FingerBlitzLevel1Widget> {
           height: 60,
           alignment: Alignment.center,
           child: Text(
-            _feedbackMessage ?? (widget.isFlashMode ? 'Watch closely...' : 'How many fingers?'),
+            _feedbackMessage ?? (widget.isFlashMode ? 'Schau genau...' : 'Wie viele Finger?'),
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -149,7 +149,7 @@ class _FingerBlitzLevel1WidgetState extends State<FingerBlitzLevel1Widget> {
                // Don't show pad while flashing? Or allow immediate answer?
                // Card says "Blitz". Usually hide first?
                // But fast kids might type immediately.
-               const SizedBox(height: 200, child: Center(child: Text('Wait...', style: TextStyle(fontSize: 20, color: Colors.grey))))
+               const SizedBox(height: 200, child: Center(child: Text('Warten...', style: TextStyle(fontSize: 20, color: Colors.grey))))
              else
                _buildNumberPad()
         ] else ...[

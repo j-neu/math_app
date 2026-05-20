@@ -328,7 +328,7 @@ class _FindNeighborsLevel2WidgetState extends State<FindNeighborsLevel2Widget>
       'Perfect placement!',
       'Great thinking!',
       'You got it!',
-      'Excellent!',
+      'Super!',
       'Nice work!',
       'Spot on!',
     ];
@@ -351,7 +351,7 @@ class _FindNeighborsLevel2WidgetState extends State<FindNeighborsLevel2Widget>
           child: Column(
             children: [
               Text(
-                'Think strategically!',
+                'Denke strategisch!',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Colors.green.shade800,
@@ -359,7 +359,7 @@ class _FindNeighborsLevel2WidgetState extends State<FindNeighborsLevel2Widget>
               ),
               const SizedBox(height: 8),
               Text(
-                'Some cards won\'t fit yet. Skip them and come back later!',
+                'Einige Karten passen noch nicht. Überspring sie und komm später zurück!',
                 style: Theme.of(context).textTheme.bodyMedium,
                 textAlign: TextAlign.center,
               ),

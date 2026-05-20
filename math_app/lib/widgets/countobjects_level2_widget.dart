@@ -272,7 +272,7 @@ class _CountObjectsLevel2WidgetState extends State<CountObjectsLevel2Widget> {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Count the ${_getObjectName(plural: true)} and write the number!\nHow many do you see?',
+                  'Zähle die ${_getObjectName(plural: true)} und schreib die Zahl!\nWie viele siehst du?',
                   style: const TextStyle(fontSize: 16),
                 ),
               ),
@@ -292,11 +292,11 @@ class _CountObjectsLevel2WidgetState extends State<CountObjectsLevel2Widget> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Progress: $_correctCount/${widget.correctAnswersRequired}',
+                'Fortschritt: $_correctCount/${widget.correctAnswersRequired}',
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               Text(
-                'Accuracy: ${(_accuracy * 100).toStringAsFixed(0)}%',
+                'Genauigkeit: ${(_accuracy * 100).toStringAsFixed(0)}%',
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey.shade700,
@@ -352,7 +352,7 @@ class _CountObjectsLevel2WidgetState extends State<CountObjectsLevel2Widget> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    'I count',
+                    'Ich zähle',
                     style: TextStyle(fontSize: 24),
                   ),
                   const SizedBox(width: 12),
@@ -403,7 +403,7 @@ class _CountObjectsLevel2WidgetState extends State<CountObjectsLevel2Widget> {
                   foregroundColor: Colors.white,
                 ),
                 child: const Text(
-                  'Check Answer',
+                  'Prüfen',
                   style: TextStyle(fontSize: 18),
                 ),
               ),

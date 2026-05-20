@@ -30,12 +30,12 @@ class MinimalistExerciseScaffold extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.menu),
-            tooltip: 'Choose Level',
+            tooltip: 'Level wählen',
             onPressed: onShowLevelSelector,
           ),
           IconButton(
             icon: const Icon(Icons.help_outline),
-            tooltip: 'Instructions',
+            tooltip: 'Anleitung',
             onPressed: onShowInstructions,
           ),
         ],

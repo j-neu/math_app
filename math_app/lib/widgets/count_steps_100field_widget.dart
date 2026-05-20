@@ -166,9 +166,9 @@ class _CountSteps100FieldWidgetState extends State<CountSteps100FieldWidget> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Problem: ${_problemsCompleted + 1}/$totalProblems', 
+              Text('Aufgabe: ${_problemsCompleted + 1}/$totalProblems',
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              Text('Step Size: ${widget.stepSize}',
+              Text('Schrittgröße: ${widget.stepSize}',
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue)),
             ],
           ),
@@ -245,7 +245,7 @@ class _CountSteps100FieldWidgetState extends State<CountSteps100FieldWidget> {
                           focusNode: _focusNode,
                           keyboardType: TextInputType.number,
                           decoration: const InputDecoration(
-                            hintText: 'Enter number',
+                            hintText: 'Zahl eingeben',
                             border: OutlineInputBorder(),
                           ),
                           onSubmitted: _checkAnswer,
@@ -254,7 +254,7 @@ class _CountSteps100FieldWidgetState extends State<CountSteps100FieldWidget> {
                       const SizedBox(width: 16),
                       ElevatedButton(
                         onPressed: () => _checkAnswer(_inputController.text),
-                        child: const Text('Check'),
+                        child: const Text('Prüfen'),
                       ),
                     ],
                   ),
@@ -327,7 +327,7 @@ class _CountSteps100FieldWidgetState extends State<CountSteps100FieldWidget> {
             padding: const EdgeInsets.symmetric(horizontal: 40),
             child: Column(
               children: [
-                const Text('Next number:', style: TextStyle(fontSize: 18)),
+                const Text('Nächste Zahl:', style: TextStyle(fontSize: 18)),
                 const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -350,7 +350,7 @@ class _CountSteps100FieldWidgetState extends State<CountSteps100FieldWidget> {
                     ElevatedButton(
                       onPressed: () => _checkAnswer(_inputController.text),
                       style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16)),
-                      child: const Text('Check', style: TextStyle(fontSize: 18)),
+                      child: const Text('Prüfen', style: TextStyle(fontSize: 18)),
                     ),
                   ],
                 ),

@@ -221,7 +221,7 @@ class _Count100FieldLevel2WidgetState extends State<Count100FieldLevel2Widget> {
                 padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
                 textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              child: const Text('Check'),
+              child: const Text('Prüfen'),
             ),
 
           // Feedback

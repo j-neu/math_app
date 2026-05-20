@@ -147,17 +147,17 @@ class _CountObjectsLevel4WidgetState extends State<CountObjectsLevel4Widget>
   String _getObjectTypeName() {
     switch (_currentObjectType) {
       case ObjectType.star:
-        return 'stars';
+        return 'Sterne';
       case ObjectType.heart:
-        return 'hearts';
+        return 'Herzen';
       case ObjectType.circle:
-        return 'circles';
+        return 'Kreise';
       case ObjectType.square:
-        return 'squares';
+        return 'Quadrate';
       case ObjectType.triangle:
-        return 'triangles';
+        return 'Dreiecke';
       case ObjectType.diamond:
-        return 'diamonds';
+        return 'Rauten';
     }
   }
 
@@ -244,7 +244,7 @@ class _CountObjectsLevel4WidgetState extends State<CountObjectsLevel4Widget>
         _correctCount++;
         _consecutiveCorrect++;
         _feedbackMessage =
-            'Excellent! You counted $_targetCount ${_getObjectTypeName()} from memory!';
+            'Ausgezeichnet! Du hast $_targetCount ${_getObjectTypeName()} aus dem Gedächtnis gezählt!';
         widget.onProgressUpdate(_correctCount, _totalAttempts);
 
         // Move to next problem
@@ -259,10 +259,10 @@ class _CountObjectsLevel4WidgetState extends State<CountObjectsLevel4Widget>
         final difference = (answer - _targetCount).abs();
         if (difference == 1) {
           _feedbackMessage =
-              'So close! Off by just 1. Try to remember each ${_currentObjectType.name} carefully.';
+              'So nah dran! Um 1 daneben. Versuche dich an jedes ${_currentObjectType.name} zu erinnern.';
         } else {
           _feedbackMessage =
-              'Not quite. Try tracking each ${_currentObjectType.name} with your eyes before they disappear!';
+              'Nicht ganz. Versuche jedes ${_currentObjectType.name} mit den Augen zu verfolgen, bevor sie verschwinden!';
         }
       }
 
@@ -306,8 +306,8 @@ class _CountObjectsLevel4WidgetState extends State<CountObjectsLevel4Widget>
                   ),
                   label: Text(
                     _useStructuredArrangement
-                        ? 'Switch to Random'
-                        : 'Switch to Structured',
+                        ? 'Zu Zufallsanordnung'
+                        : 'Zu Ordnung',
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _useStructuredArrangement
@@ -355,7 +355,7 @@ class _CountObjectsLevel4WidgetState extends State<CountObjectsLevel4Widget>
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                'How many ${_getObjectTypeName()} did you see?',
+                                'Wie viele ${_getObjectTypeName()} hast du gesehen?',
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w500,
@@ -379,7 +379,7 @@ class _CountObjectsLevel4WidgetState extends State<CountObjectsLevel4Widget>
                   child: Column(
                     children: [
                       Text(
-                        'How many ${_getObjectTypeName()} did you count?',
+                        'Wie viele ${_getObjectTypeName()} hast du gezählt?',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -394,7 +394,7 @@ class _CountObjectsLevel4WidgetState extends State<CountObjectsLevel4Widget>
                               focusNode: _answerFocus,
                               keyboardType: TextInputType.number,
                               decoration: InputDecoration(
-                                hintText: 'From memory...',
+                                hintText: 'Aus dem Gedächtnis…',
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),

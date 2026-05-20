@@ -48,13 +48,13 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     switch (_currentRepresentation) {
       case 0:
         // If actionContent is a Widget, display it. Otherwise, show placeholder.
-        return exercise.actionContent as Widget? ?? const Center(child: Text('No Action Content'));
+        return exercise.actionContent as Widget? ?? const Center(child: Text('Inhalt fehlt'));
       case 1:
-        return exercise.imageContent as Widget? ?? const Center(child: Text('No Image Content'));
+        return exercise.imageContent as Widget? ?? const Center(child: Text('Inhalt fehlt'));
       case 2:
-        return exercise.symbolContent as Widget? ?? const Center(child: Text('No Symbol Content'));
+        return exercise.symbolContent as Widget? ?? const Center(child: Text('Inhalt fehlt'));
       default:
-        return const Center(child: Text('Unknown View'));
+        return const Center(child: Text('Unbekannte Ansicht'));
     }
   }
 
@@ -62,9 +62,9 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   Widget build(BuildContext context) {
     if (_learningPath.isEmpty) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Learning Path')),
+        appBar: AppBar(title: const Text('Lernpfad')),
         body: const Center(
-          child: Text('Congratulations! You have mastered all skills.'),
+          child: Text('Herzlichen Glückwunsch! Du hast alle Bereiche gemeistert.'),
         ),
       );
     }
@@ -95,11 +95,11 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
               items: const [
                 BottomNavigationBarItem(
                   icon: Icon(Icons.touch_app),
-                  label: 'Action',
+                  label: 'Handlung',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.image),
-                  label: 'Image',
+                  label: 'Bild',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.functions),

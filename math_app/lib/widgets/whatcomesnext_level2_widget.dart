@@ -177,7 +177,7 @@ class _WhatComesNextLevel2WidgetState extends State<WhatComesNextLevel2Widget> {
           children: [
             Icon(Icons.lightbulb_outline, color: Colors.amber),
             SizedBox(width: 12),
-            Text('Hint'),
+            Text('Tipp'),
           ],
         ),
         content: Column(
@@ -390,7 +390,7 @@ class _WhatComesNextLevel2WidgetState extends State<WhatComesNextLevel2Widget> {
               OutlinedButton.icon(
                 onPressed: _showHint,
                 icon: const Icon(Icons.lightbulb_outline),
-                label: const Text('Hint'),
+                label: const Text('Tipp'),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 24,
@@ -402,7 +402,7 @@ class _WhatComesNextLevel2WidgetState extends State<WhatComesNextLevel2Widget> {
               ElevatedButton.icon(
                 onPressed: _checkAnswer,
                 icon: const Icon(Icons.check),
-                label: const Text('Check'),
+                label: const Text('Prüfen'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 32,

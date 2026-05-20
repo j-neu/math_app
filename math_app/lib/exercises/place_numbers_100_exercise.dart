@@ -160,15 +160,15 @@ class _PlaceNumbers100ExerciseState extends State<PlaceNumbers100Exercise>
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: Text('Level $_currentLevelNumber Complete! 🎉'),
-        content: const Text('Great work!'),
+        title: Text('Level $_currentLevelNumber geschafft! 🎉'),
+        content: const Text('Super gemacht!'),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            child: const Text('Stop'),
+            child: const Text('Stopp'),
           ),
           if (_currentLevelNumber < totalLevels)
             ElevatedButton(
@@ -176,7 +176,7 @@ class _PlaceNumbers100ExerciseState extends State<PlaceNumbers100Exercise>
                 Navigator.pop(context);
                 _switchLevel(_levels[_currentLevelNumber]); 
               },
-              child: const Text('Next Level'),
+              child: const Text('Nächstes Level'),
             ),
         ],
       ),
@@ -186,7 +186,7 @@ class _PlaceNumbers100ExerciseState extends State<PlaceNumbers100Exercise>
   void _switchLevel(_LevelConfig level) {
     if (widget.userProfile != null && !isLevelUnlocked(level.levelNumber)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Level locked!')),
+        const SnackBar(content: Text('Level gesperrt!')),
       );
       return;
     }
@@ -248,7 +248,7 @@ class _PlaceNumbers100ExerciseState extends State<PlaceNumbers100Exercise>
           tolerance: 10,
         );
       default:
-        return const Center(child: Text('Error'));
+        return const Center(child: Text('Fehler'));
     }
   }
 }

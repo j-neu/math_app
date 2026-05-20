@@ -130,7 +130,7 @@ class _NumberGridWidgetState extends State<NumberGridWidget> {
               padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
               textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            child: const Text('Check'),
+            child: const Text('Prüfen'),
           ),
         ],
       ],

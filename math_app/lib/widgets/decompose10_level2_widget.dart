@@ -124,7 +124,7 @@ class _Decompose10Level2WidgetState extends State<Decompose10Level2Widget> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Level 2: Write the Equation',
+                          'Level 2: Schreib die Gleichung',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -136,7 +136,7 @@ class _Decompose10Level2WidgetState extends State<Decompose10Level2Widget> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Look at the counters. How many blue? How many red? Write the equation!',
+                    'Schau die Zähler an. Wie viele blau? Wie viele rot? Schreib die Gleichung!',
                     style: TextStyle(fontSize: 16, color: Colors.purple.shade900),
                   ),
                 ],
@@ -158,7 +158,7 @@ class _Decompose10Level2WidgetState extends State<Decompose10Level2Widget> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Progress to Level 3:',
+                        'Fortschritt zu Level 3:',
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           color: Colors.grey.shade700,
@@ -183,7 +183,7 @@ class _Decompose10Level2WidgetState extends State<Decompose10Level2Widget> {
                     Padding(
                       padding: const EdgeInsets.only(top: 8),
                       child: Text(
-                        'Almost there! Level 3 will unlock soon!',
+                        'Fast geschafft! Level 3 wird bald freigeschaltet!',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -335,7 +335,7 @@ class _Decompose10Level2WidgetState extends State<Decompose10Level2Widget> {
                 backgroundColor: Colors.purple,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Check Answer', style: TextStyle(fontSize: 18)),
+              child: const Text('Antwort prüfen', style: TextStyle(fontSize: 18)),
             ),
 
             const SizedBox(height: 16),
@@ -380,7 +380,7 @@ class _Decompose10Level2WidgetState extends State<Decompose10Level2Widget> {
             // Skip button (for testing or if child gets frustrated)
             TextButton(
               onPressed: _generateNewDecomposition,
-              child: const Text('Skip to Next Problem'),
+              child: const Text('Überspringen'),
             ),
           ],
         ),

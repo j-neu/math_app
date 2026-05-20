@@ -122,15 +122,15 @@ class _DoublingBoatExerciseState extends State<DoublingBoatExercise> with Exerci
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: Text('Level ${_currentLevel.levelNumber} Complete! 🎉'),
-        content: const Text('Great job! Ready for the next level?'),
+        title: Text('Level ${_currentLevel.levelNumber} geschafft! 🎉'),
+        content: const Text('Toll gemacht! Bereit für das nächste Level?'),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            child: const Text('Stop for Today'),
+            child: const Text('Für heute beenden'),
           ),
           if (nextLevel != null)
             ElevatedButton(
@@ -138,7 +138,7 @@ class _DoublingBoatExerciseState extends State<DoublingBoatExercise> with Exerci
                 Navigator.pop(context);
                 _switchLevel(nextLevel!);
               },
-              child: const Text('Next Level'),
+              child: const Text('Nächstes Level'),
             ),
         ],
       ),

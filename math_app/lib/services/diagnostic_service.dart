@@ -26,6 +26,8 @@ class DiagnosticService {
         final skillsString = row[7].toString().trim();
         final skillsList = _parseSkillIds(skillsString);
 
+        final skipGroupRaw = row.length > 10 ? row[10].toString().trim() : '';
+        final zahlenraumRaw = row.length > 11 ? row[11].toString().trim() : '';
         questions.add(
           DiagnosticQuestion(
             listNumber: listNumber,
@@ -37,6 +39,8 @@ class DiagnosticService {
             english: row[6].toString(),
             ifWrongPracticeSkills: skillsList,
             ifWrongSkip: row.length > 8 ? row[8].toString() : null,
+            skipGroup: skipGroupRaw.isEmpty ? null : skipGroupRaw,
+            zahlenraum: zahlenraumRaw.isEmpty ? null : zahlenraumRaw,
             imagePath: _getImagePath(questionText, sourceType),
           ),
         );

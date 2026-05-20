@@ -87,9 +87,9 @@ class _OrderCardsLevel1WidgetState extends State<OrderCardsLevel1Widget>
       setState(() {
         _shakingCard = number;
         if (number < _nextExpected) {
-          _feedbackMessage = 'You already read that one! Look for $_nextExpected.';
+          _feedbackMessage = 'Die hast du schon gelesen! Suche $_nextExpected.';
         } else {
-          _feedbackMessage = 'Not yet! First find $_nextExpected.';
+          _feedbackMessage = 'Noch nicht! Suche zuerst $_nextExpected.';
         }
       });
 
@@ -115,29 +115,29 @@ class _OrderCardsLevel1WidgetState extends State<OrderCardsLevel1Widget>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Look at the pattern:',
+              'Schau auf das Muster:',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            const Text('• The first row has numbers 1-10'),
-            const Text('• The second row has numbers 11-20'),
+            const Text('• Die erste Reihe hat die Zahlen 1-10'),
+            const Text('• Die zweite Reihe hat die Zahlen 11-20'),
             const SizedBox(height: 12),
             const Text(
-              'Notice:',
+              'Bemerke:',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            const Text('• 11 is below 1'),
-            const Text('• 12 is below 2'),
-            const Text('• 13 is below 3'),
+            const Text('• 11 ist unter 1'),
+            const Text('• 12 ist unter 2'),
+            const Text('• 13 ist unter 3'),
             const SizedBox(height: 8),
-            const Text('Each number in the second row is 10 more than the number above it!'),
+            const Text('Jede Zahl in der zweiten Reihe ist 10 mehr als die Zahl darüber!'),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Got it!'),
+            child: const Text('Verstanden!'),
           ),
         ],
       ),
@@ -195,7 +195,7 @@ class _OrderCardsLevel1WidgetState extends State<OrderCardsLevel1Widget>
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Text(
-                '✨ Excellent! You understand the 2-row structure! Ready for Level 2?',
+                '✨ Toll! Du verstehst die 2-Reihen-Struktur! Bereit für Level 2?',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,

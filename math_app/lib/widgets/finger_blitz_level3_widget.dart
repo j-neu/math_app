@@ -74,9 +74,9 @@ class _FingerBlitzLevel3WidgetState extends State<FingerBlitzLevel3Widget> {
         _isSuccess = true;
         if (widget.mode == FingerConstructionMode.subtractive) {
            int diff = 10 - _targetNumber;
-           _feedbackMessage = 'Correct! 10 - $diff = $_targetNumber';
+           _feedbackMessage = 'Richtig! 10 - $diff = $_targetNumber';
         } else {
-           _feedbackMessage = 'Correct!';
+           _feedbackMessage = 'Richtig!';
         }
       });
       
@@ -87,7 +87,7 @@ class _FingerBlitzLevel3WidgetState extends State<FingerBlitzLevel3Widget> {
       });
     } else {
       setState(() {
-        _feedbackMessage = 'You have $currentCount fingers. Need $_targetNumber.';
+        _feedbackMessage = 'Du hast $currentCount Finger. Du brauchst $_targetNumber.';
       });
       // No penalty, just feedback
     }
@@ -105,8 +105,8 @@ class _FingerBlitzLevel3WidgetState extends State<FingerBlitzLevel3Widget> {
             children: [
               Text(
                 widget.mode == FingerConstructionMode.subtractive
-                    ? 'Start with 10. Make $_targetNumber by hiding fingers.'
-                    : 'Show me $_targetNumber fingers.',
+                    ? 'Beginne mit 10. Mache $_targetNumber, indem du Finger versteckst.'
+                    : 'Zeig mir $_targetNumber Finger.',
                 style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
@@ -148,7 +148,7 @@ class _FingerBlitzLevel3WidgetState extends State<FingerBlitzLevel3Widget> {
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
             ),
-            child: const Text('Check', style: TextStyle(fontSize: 20)),
+            child: const Text('Prüfen', style: TextStyle(fontSize: 20)),
           ),
       ],
     );

@@ -199,7 +199,7 @@ class _Decompose10Level3WidgetState extends State<Decompose10Level3Widget> {
               });
               widget.onProgressUpdate(0);
             },
-            child: const Text('Try Again'),
+            child: const Text('Nochmal versuchen'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -210,7 +210,7 @@ class _Decompose10Level3WidgetState extends State<Decompose10Level3Widget> {
               backgroundColor: Colors.green,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Complete Exercise'),
+            child: const Text('Übung beenden'),
           ),
         ],
       ),
@@ -244,7 +244,7 @@ class _Decompose10Level3WidgetState extends State<Decompose10Level3Widget> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Level 3: Find All Ways',
+                          'Level 3: Finde alle Wege',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -256,12 +256,12 @@ class _Decompose10Level3WidgetState extends State<Decompose10Level3Widget> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'You know 10 can be broken into parts. How many ways can you find?',
+                    'Du weißt, dass 10 in Teile zerlegt werden kann. Wie viele Wege kannst du finden?',
                     style: TextStyle(fontSize: 16, color: Colors.green.shade900),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Found: ${_foundDecompositions.length} of $_totalDecompositions ways',
+                    'Gefunden: ${_foundDecompositions.length} von $_totalDecompositions Wegen',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -293,7 +293,7 @@ class _Decompose10Level3WidgetState extends State<Decompose10Level3Widget> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '${(_foundDecompositions.length / _totalDecompositions * 100).toStringAsFixed(0)}% Complete',
+                    '${(_foundDecompositions.length / _totalDecompositions * 100).toStringAsFixed(0)}% Fertig',
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ],
@@ -463,7 +463,7 @@ class _Decompose10Level3WidgetState extends State<Decompose10Level3Widget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Found Decompositions:',
+                      'Gefundene Zerlegungen:',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,

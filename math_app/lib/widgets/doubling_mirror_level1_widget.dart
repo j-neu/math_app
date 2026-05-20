@@ -58,7 +58,7 @@ class _DoublingMirrorLevel1WidgetState extends State<DoublingMirrorLevel1Widget>
         });
       } else {
         setState(() {
-          _feedbackMessage = 'Nicht ganz. Zähl nochmal!';
+          _feedbackMessage = 'Fast! Zähl nochmal!';
           _feedbackColor = Colors.orange;
           _controller.clear();
         });

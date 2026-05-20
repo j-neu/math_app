@@ -50,7 +50,7 @@ class CountStepsBackwards100FieldExercise extends StatefulWidget {
     required this.userProfile,
   }) : config = const ExerciseConfig(
           id: 'C6.3',
-          title: 'Count Backwards Steps on 100-Field',
+          title: 'Rückwärtsschritte im Hunderterfeld',
           skillTags: ['counting_8', 'counting_6', 'counting_7', 'counting_backward'],
           sourceCard: 'iMINT Arbeitskarte 8 (Adapted for backwards steps)',
           concept:
@@ -102,8 +102,8 @@ class _CountStepsBackwards100FieldExerciseState extends State<CountStepsBackward
   final List<_LevelConfig> _levelConfigs = [
     const _LevelConfig(
       levelNumber: 1,
-      title: 'Backwards -2 (Grid)',
-      description: 'Count backwards by 2s with the 100-field',
+      title: 'Rückwärts −2 (Feld)',
+      description: 'In 2er-Schritten rückwärts mit dem Hunderterfeld zählen',
       icon: Icons.grid_on,
       color: Colors.blue,
       pedagogicalAction: 'Handlung: Visual backwards counting',
@@ -111,8 +111,8 @@ class _CountStepsBackwards100FieldExerciseState extends State<CountStepsBackward
     ),
     const _LevelConfig(
       levelNumber: 2,
-      title: 'Backwards -5 (Grid)',
-      description: 'Count backwards by 5s with the 100-field',
+      title: 'Rückwärts −5 (Feld)',
+      description: 'In 5er-Schritten rückwärts mit dem Hunderterfeld zählen',
       icon: Icons.grid_on,
       color: Colors.green,
       pedagogicalAction: 'Handlung: Visual backwards counting',
@@ -120,8 +120,8 @@ class _CountStepsBackwards100FieldExerciseState extends State<CountStepsBackward
     ),
     const _LevelConfig(
       levelNumber: 3,
-      title: 'Backwards -10 (Grid)',
-      description: 'Count backwards by 10s with the 100-field',
+      title: 'Rückwärts −10 (Feld)',
+      description: 'In 10er-Schritten rückwärts mit dem Hunderterfeld zählen',
       icon: Icons.grid_on,
       color: Colors.orange,
       pedagogicalAction: 'Handlung: Visual backwards counting',
@@ -129,8 +129,8 @@ class _CountStepsBackwards100FieldExerciseState extends State<CountStepsBackward
     ),
     const _LevelConfig(
       levelNumber: 4,
-      title: 'Backwards -2 (Mental)',
-      description: 'Count backwards by 2s without the grid',
+      title: 'Rückwärts −2 (im Kopf)',
+      description: 'In 2er-Schritten rückwärts ohne das Feld zählen',
       icon: Icons.psychology,
       color: Colors.purple,
       pedagogicalAction: 'Bild/Symbol: Mental backwards counting',
@@ -138,8 +138,8 @@ class _CountStepsBackwards100FieldExerciseState extends State<CountStepsBackward
     ),
     const _LevelConfig(
       levelNumber: 5,
-      title: 'Backwards -5 (Mental)',
-      description: 'Count backwards by 5s without the grid',
+      title: 'Rückwärts −5 (im Kopf)',
+      description: 'In 5er-Schritten rückwärts ohne das Feld zählen',
       icon: Icons.psychology,
       color: Colors.teal,
       pedagogicalAction: 'Bild/Symbol: Mental backwards counting',
@@ -147,8 +147,8 @@ class _CountStepsBackwards100FieldExerciseState extends State<CountStepsBackward
     ),
     const _LevelConfig(
       levelNumber: 6,
-      title: 'Backwards -10 (Mental)',
-      description: 'Count backwards by 10s without the grid',
+      title: 'Rückwärts −10 (im Kopf)',
+      description: 'In 10er-Schritten rückwärts ohne das Feld zählen',
       icon: Icons.emoji_events,
       color: Colors.amber,
       pedagogicalAction: 'Finale: Mastery of backwards patterns',
@@ -191,7 +191,7 @@ class _CountStepsBackwards100FieldExerciseState extends State<CountStepsBackward
   void _switchLevel(int levelNum) {
     if (!isLevelUnlocked(levelNum)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Complete Level ${levelNum - 1} first!')),
+        SnackBar(content: Text('Schließe zuerst Level ${levelNum - 1} ab!')),
       );
       return;
     }
@@ -213,7 +213,7 @@ class _CountStepsBackwards100FieldExerciseState extends State<CountStepsBackward
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
-              'Select Level',
+              'Level wählen',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
@@ -287,16 +287,16 @@ class _CountStepsBackwards100FieldExerciseState extends State<CountStepsBackward
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         title: Text('Level $levelNumber Complete! 🎉'),
-        content: Text(levelNumber == totalLevels 
-            ? 'Congratulations! You mastered counting backwards on the 100-field!' 
-            : 'Great job! Level ${levelNumber + 1} is now unlocked.'),
+        content: Text(levelNumber == totalLevels
+            ? 'Herzlichen Glückwunsch! Du hast das Rückwärtszählen am Hunderterfeld gemeistert!'
+            : 'Toll gemacht! Level ${levelNumber + 1} ist jetzt freigeschaltet.'),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context); // Close dialog
               Navigator.pop(context); // Exit exercise
             },
-            child: const Text('Stop for Today'),
+            child: const Text('Für heute beenden'),
           ),
           if (levelNumber < totalLevels)
             ElevatedButton(
@@ -307,7 +307,7 @@ class _CountStepsBackwards100FieldExerciseState extends State<CountStepsBackward
                   _currentLevelResults = [];
                 });
               },
-              child: Text('Start Level ${levelNumber + 1}'),
+              child: Text('Starte Level ${levelNumber + 1}'),
             ),
         ],
       ),
@@ -337,12 +337,12 @@ class _CountStepsBackwards100FieldExerciseState extends State<CountStepsBackward
             IconButton(
               icon: const Icon(Icons.menu),
               onPressed: _showLevelSelector,
-              tooltip: 'Select Level',
+              tooltip: 'Level wählen',
             ),
             IconButton(
               icon: const Icon(Icons.help_outline),
               onPressed: _showInstructions,
-              tooltip: 'Instructions',
+              tooltip: 'Anleitung',
             ),
           ],
         ),

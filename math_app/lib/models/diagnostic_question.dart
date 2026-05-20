@@ -22,6 +22,8 @@ class DiagnosticQuestion {
   final String ifWrongPractice; // Deprecated: old numeric system
   final List<String> ifWrongPracticeSkills; // New semantic skill IDs
   final String? ifWrongSkip;
+  final String? skipGroup; // Card-oriented break-off group; if null, fall back to first-skill-prefix
+  final String? zahlenraum; // Explicit ZR (e.g. "ZR20", "ZR100"); overrides number-magnitude heuristic
   final String? imagePath;
 
   DiagnosticQuestion({
@@ -35,6 +37,7 @@ class DiagnosticQuestion {
     @Deprecated('Use ifWrongPracticeSkills instead') this.ifWrongPractice = '',
     required this.ifWrongPracticeSkills,
     this.ifWrongSkip,
+    this.skipGroup,
     this.imagePath,
   });
 }

@@ -159,7 +159,7 @@ class _CountDotsLevel3WidgetState extends State<CountDotsLevel3Widget>
 
       if (_isCorrect) {
         _correctCount++;
-        _feedbackMessage = 'Perfect! You counted $_targetCount dots just by looking!';
+        _feedbackMessage = 'Perfekt! Du hast $_targetCount Punkte nur durch Hinschauen gezählt!';
         widget.onProgressUpdate(_correctCount, _totalAttempts);
 
         // Move to next problem
@@ -172,11 +172,11 @@ class _CountDotsLevel3WidgetState extends State<CountDotsLevel3Widget>
         widget.onProgressUpdate(_correctCount, _totalAttempts);
         final difference = (answer - _targetCount).abs();
         if (difference == 1) {
-          _feedbackMessage = 'Very close! Off by just 1. Try counting again carefully.';
+          _feedbackMessage = 'Sehr nah dran! Nur um 1 daneben. Versuche nochmal genau zu zählen.';
         } else if (difference <= 3) {
-          _feedbackMessage = 'Not quite. Count each dot slowly with your eyes.';
+          _feedbackMessage = 'Nicht ganz. Zähle jeden Punkt langsam mit den Augen.';
         } else {
-          _feedbackMessage = 'Try again. Look at each dot and count in your head.';
+          _feedbackMessage = 'Versuche es nochmal. Schau jeden Punkt an und zähle im Kopf.';
         }
       }
 
@@ -204,7 +204,7 @@ class _CountDotsLevel3WidgetState extends State<CountDotsLevel3Widget>
                   child: Column(
                     children: [
                       const Text(
-                        'Count these dots:',
+                        'Zähle diese Punkte:',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -257,7 +257,7 @@ class _CountDotsLevel3WidgetState extends State<CountDotsLevel3Widget>
                   child: Column(
                     children: [
                       const Text(
-                        'How many dots are there?',
+                        'Wie viele Punkte sind da?',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -272,7 +272,7 @@ class _CountDotsLevel3WidgetState extends State<CountDotsLevel3Widget>
                               focusNode: _answerFocus,
                               keyboardType: TextInputType.number,
                               decoration: InputDecoration(
-                                hintText: 'Count in your head...',
+                                hintText: 'Im Kopf zählen…',
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),

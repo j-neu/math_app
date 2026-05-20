@@ -189,7 +189,7 @@ class _CountDotsLevel4WidgetState extends State<CountDotsLevel4Widget>
       if (_isCorrect) {
         _correctCount++;
         _consecutiveCorrect++;
-        _feedbackMessage = 'Excellent! You counted $_targetCount dots just by looking!';
+        _feedbackMessage = 'Ausgezeichnet! Du hast $_targetCount Punkte nur durch Hinschauen gezählt!';
         widget.onProgressUpdate(_correctCount, _totalAttempts);
 
         // Move to next problem
@@ -203,9 +203,9 @@ class _CountDotsLevel4WidgetState extends State<CountDotsLevel4Widget>
         widget.onProgressUpdate(_correctCount, _totalAttempts);
         final difference = (answer - _targetCount).abs();
         if (difference == 1) {
-          _feedbackMessage = 'So close! Off by just 1. Follow each dot with your eyes carefully.';
+          _feedbackMessage = 'So nah dran! Um 1 daneben. Verfolge jeden Punkt sorgfältig mit den Augen.';
         } else {
-          _feedbackMessage = 'Not quite. Try tracking each dot slowly with your eyes - don\'t miss any!';
+          _feedbackMessage = 'Nicht ganz. Versuche jeden Punkt langsam mit den Augen zu verfolgen — verpass keinen!';
         }
       }
 
@@ -270,7 +270,7 @@ class _CountDotsLevel4WidgetState extends State<CountDotsLevel4Widget>
                   child: Column(
                     children: [
                       const Text(
-                        'How many dots did you count?',
+                        'Wie viele Punkte hast du gezählt?',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -285,7 +285,7 @@ class _CountDotsLevel4WidgetState extends State<CountDotsLevel4Widget>
                               focusNode: _answerFocus,
                               keyboardType: TextInputType.number,
                               decoration: InputDecoration(
-                                hintText: 'Track with eyes...',
+                                hintText: 'Mit den Augen verfolgen…',
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),

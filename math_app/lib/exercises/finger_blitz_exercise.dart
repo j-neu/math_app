@@ -85,32 +85,32 @@ class _FingerBlitzExerciseState extends State<FingerBlitzExercise>
   final List<_LevelConfig> _levels = [
     _LevelConfig(
       levelNumber: 1,
-      title: 'Recognize Fingers',
-      description: 'How many fingers do you see? Take your time.',
+      title: 'Finger erkennen',
+      description: 'Wie viele Finger siehst du? Nimm dir Zeit.',
       icon: Icons.visibility,
       color: Colors.blue,
       scaffoldLevel: ScaffoldLevel.guidedExploration,
     ),
     _LevelConfig(
       levelNumber: 2,
-      title: 'Finger Blitz!',
-      description: 'Watch closely! The fingers will disappear quickly.',
+      title: 'Fingerblitz!',
+      description: 'Pass gut auf! Die Finger verschwinden schnell.',
       icon: Icons.flash_on,
       color: Colors.orange,
       scaffoldLevel: ScaffoldLevel.supportedPractice,
     ),
     _LevelConfig(
       levelNumber: 3,
-      title: 'Show Fingers',
-      description: 'Make the number using 5 and some more.',
+      title: 'Finger zeigen',
+      description: 'Stelle die Zahl mit 5 und noch ein paar mehr dar.',
       icon: Icons.pan_tool,
       color: Colors.green,
       scaffoldLevel: ScaffoldLevel.independentMastery,
     ),
     _LevelConfig(
       levelNumber: 4,
-      title: 'Subtract from 10',
-      description: 'Start with 10, then take some away to make the number.',
+      title: 'Von 10 abziehen',
+      description: 'Starte mit 10 und nimm welche weg, um die Zahl zu bilden.',
       icon: Icons.remove_circle_outline,
       color: Colors.purple,
       scaffoldLevel: ScaffoldLevel.advancedChallenge,
@@ -177,15 +177,15 @@ class _FingerBlitzExerciseState extends State<FingerBlitzExercise>
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: Text('Level $_currentLevelNumber Complete! 🎉'),
-        content: const Text('Great job!'),
+        title: Text('Level $_currentLevelNumber geschafft! 🎉'),
+        content: const Text('Tolle Arbeit!'),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            child: const Text('Stop'),
+            child: const Text('Stopp'),
           ),
           if (_currentLevelNumber < totalLevels)
             ElevatedButton(
@@ -197,7 +197,7 @@ class _FingerBlitzExerciseState extends State<FingerBlitzExercise>
                 // _levels[1] -> Level 2
                 // if current=1, next=2. _levels[1] is correct.
               },
-              child: const Text('Next Level'),
+              child: const Text('Nächstes Level'),
             ),
         ],
       ),
@@ -207,7 +207,7 @@ class _FingerBlitzExerciseState extends State<FingerBlitzExercise>
   void _switchLevel(_LevelConfig level) {
     if (widget.userProfile != null && !isLevelUnlocked(level.levelNumber)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Level locked!')),
+        const SnackBar(content: Text('Level gesperrt!')),
       );
       return;
     }
@@ -284,7 +284,7 @@ class _FingerBlitzExerciseState extends State<FingerBlitzExercise>
           mode: FingerConstructionMode.subtractive,
         );
       default:
-        return const Center(child: Text('Error'));
+        return const Center(child: Text('Fehler'));
     }
   }
 }

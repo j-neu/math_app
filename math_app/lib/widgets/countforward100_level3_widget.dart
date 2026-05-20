@@ -147,8 +147,8 @@ class _CountForwardLevel3WidgetState extends State<CountForwardLevel3Widget> {
 
       _isComplete = false;
       _feedbackMessage = _isForward
-          ? 'Fill in the missing numbers counting FORWARD'
-          : 'Fill in the missing numbers counting BACKWARD';
+          ? 'Trage die fehlenden Zahlen ein — VORWÄRTS zählen'
+          : 'Trage die fehlenden Zahlen ein — RÜCKWÄRTS zählen';
       _showSuccess = false;
     });
   }
@@ -165,7 +165,7 @@ class _CountForwardLevel3WidgetState extends State<CountForwardLevel3Widget> {
 
     if (!allFilled) {
       setState(() {
-        _feedbackMessage = 'Please fill in all the blanks!';
+        _feedbackMessage = 'Bitte fülle alle Lücken aus.';
         _showSuccess = false;
       });
       return;
@@ -190,8 +190,8 @@ class _CountForwardLevel3WidgetState extends State<CountForwardLevel3Widget> {
         _problemsCompleted++;
         _consecutiveCorrect++;
         _feedbackMessage = _isForward
-            ? 'Perfect! You counted forward correctly!'
-            : 'Excellent! You counted backward correctly!';
+            ? 'Perfekt! Du hast vorwärts richtig gezählt!'
+            : 'Klasse! Du hast rückwärts richtig gezählt!';
         _showSuccess = true;
       });
 
@@ -211,7 +211,7 @@ class _CountForwardLevel3WidgetState extends State<CountForwardLevel3Widget> {
       // Incorrect - show correct answers
       _consecutiveCorrect = 0; // Reset streak
       setState(() {
-        _feedbackMessage = 'Not quite. Check your answers and try again!';
+        _feedbackMessage = 'Fast! Schau deine Antworten an und versuche es nochmal.';
         _showSuccess = false;
       });
 
@@ -223,8 +223,8 @@ class _CountForwardLevel3WidgetState extends State<CountForwardLevel3Widget> {
               controller.clear();
             }
             _feedbackMessage = _isForward
-                ? 'Try again! Count forward from ${_sequence[0]}'
-                : 'Try again! Count backward from ${_sequence[0]}';
+                ? 'Nochmal versuchen! Zähle vorwärts ab ${_sequence[0]}.'
+                : 'Nochmal versuchen! Zähle rückwärts ab ${_sequence[0]}.';
           });
         }
       });
@@ -341,7 +341,7 @@ class _CountForwardLevel3WidgetState extends State<CountForwardLevel3Widget> {
             ElevatedButton.icon(
               onPressed: _checkAnswer,
               icon: const Icon(Icons.check),
-              label: const Text('Check Answers'),
+              label: const Text('Antworten prüfen'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.purple,
                 foregroundColor: Colors.white,
@@ -358,7 +358,7 @@ class _CountForwardLevel3WidgetState extends State<CountForwardLevel3Widget> {
             ElevatedButton.icon(
               onPressed: () => widget.onLevelComplete?.call(),
               icon: const Icon(Icons.celebration),
-              label: const Text('Continue to Level 4'),
+              label: const Text('Zu Level 4'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 foregroundColor: Colors.white,

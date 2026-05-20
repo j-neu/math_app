@@ -148,7 +148,7 @@ class _CountDotsLevel2WidgetState extends State<CountDotsLevel2Widget>
 
       if (_isCorrect) {
         _correctCount++;
-        _feedbackMessage = 'Perfect! You counted $_targetCount dots correctly!';
+        _feedbackMessage = 'Perfekt! Du hast $_targetCount Punkte richtig gezählt!';
         widget.onProgressUpdate(_correctCount, _totalAttempts);
 
         // Move to next problem
@@ -160,9 +160,9 @@ class _CountDotsLevel2WidgetState extends State<CountDotsLevel2Widget>
       } else {
         widget.onProgressUpdate(_correctCount, _totalAttempts);
         if (answer == _tappedDots.length) {
-          _feedbackMessage = 'You counted the tapped dots: ${_tappedDots.length}. But count ALL the dots!';
+          _feedbackMessage = 'Du hast die angetippten Punkte gezählt: ${_tappedDots.length}. Zähle aber ALLE Punkte!';
         } else {
-          _feedbackMessage = 'Not quite. Try tapping each dot again and count carefully.';
+          _feedbackMessage = 'Nicht ganz. Tippe jeden Punkt nochmal an und zähle genau.';
         }
       }
 
@@ -198,7 +198,7 @@ class _CountDotsLevel2WidgetState extends State<CountDotsLevel2Widget>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(
-                        'Tapped: ',
+                        'Angetippt: ',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -279,7 +279,7 @@ class _CountDotsLevel2WidgetState extends State<CountDotsLevel2Widget>
                 TextButton.icon(
                   onPressed: _resetTaps,
                   icon: const Icon(Icons.refresh),
-                  label: const Text('Start over'),
+                  label: const Text('Von vorne'),
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.grey.shade700,
                   ),
@@ -294,7 +294,7 @@ class _CountDotsLevel2WidgetState extends State<CountDotsLevel2Widget>
                     child: Column(
                       children: [
                         const Text(
-                          'How many dots did you count?',
+                          'Wie viele Punkte hast du gezählt?',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -309,7 +309,7 @@ class _CountDotsLevel2WidgetState extends State<CountDotsLevel2Widget>
                                 focusNode: _answerFocus,
                                 keyboardType: TextInputType.number,
                                 decoration: InputDecoration(
-                                  hintText: 'Enter number...',
+                                  hintText: 'Zahl eingeben…',
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),

@@ -67,10 +67,10 @@ class ExerciseConfig {
     this.maxAttemptsBeforeHint = 2,
     this.orderMatters = false,
     this.hints = const [],
-    this.successMessages = const ['Great job!', 'Well done!', 'Excellent!'],
+    this.successMessages = const ['Toll gemacht!', 'Gut gemacht!', 'Super!'],
     this.guidanceMessages = const [
-      'Let\'s try a different way to see this.',
-      'Can you find another way?',
+      'Versuchen wir es auf eine andere Art.',
+      'Kannst du einen anderen Weg finden?',
     ],
   });
 
@@ -78,10 +78,9 @@ class ExerciseConfig {
   factory ExerciseConfig.decompose10() {
     return const ExerciseConfig(
       id: 'Z1',
-      title: 'Decompose 10',
+      title: 'Zahlen zerlegen bis 10',
       skillTags: ['decomposition_1', 'decomposition_3'],
 
-      // Pedagogical metadata from PIKAS Card 9
       sourceCard: 'PIKAS Card 9: Zahlen zerlegen',
       concept: 'Understanding part-whole relationships: 10 can be split into pairs (10+0, 9+1, 8+2, etc.)',
       observationPoints: [
@@ -93,31 +92,29 @@ class ExerciseConfig {
           'Progress to seeing decomposition table in Image view → '
           'Master symbolic equations in Symbol view (10 = ___ + ___)',
 
-      // Exercise configuration
       targetNumber: 10,
-      expectedDecompositions: 11, // 0+10, 1+9, 2+8, ..., 10+0
+      expectedDecompositions: 11,
       maxAttemptsBeforeHint: 2,
-      orderMatters: false, // 3+7 same as 7+3 for this exercise
+      orderMatters: false,
 
-      // Hints from PIKAS "Gezielte Impulse"
       hints: [
-        'Can you find another decomposition? (Findest du noch eine andere Zerlegung?)',
-        'Have you found them all? How do you know? (Hast du alle gefunden? Woher weißt du das?)',
-        'What happens when one part gets larger? (Was passiert, wenn ein Teil größer wird?)',
-        'Try flipping the counters to see different combinations.',
+        'Findest du noch eine andere Zerlegung?',
+        'Hast du alle gefunden? Woher weißt du das?',
+        'Was passiert, wenn ein Teil größer wird?',
+        'Versuche, einige Plättchen umzudrehen, um neue Kombinationen zu finden.',
       ],
 
       successMessages: [
-        'Excellent! You found a decomposition!',
-        'Great work! You\'re discovering the pattern!',
-        'Amazing! You found all the ways to make 10!',
-        'You\'re a decomposition expert!',
+        'Super! Du hast eine Zerlegung gefunden!',
+        'Tolle Arbeit! Du entdeckst das Muster!',
+        'Erstaunlich! Du hast alle Möglichkeiten gefunden!',
+        'Du bist ein Zerlegungs-Profi!',
       ],
 
       guidanceMessages: [
-        'Let\'s look at this in a different way.',
-        'Try switching to the Action view to see it with counters.',
-        'Can you flip some counters to find more ways?',
+        'Schauen wir uns das auf eine andere Art an.',
+        'Versuche, in die Handlungs-Ansicht zu wechseln und mit Plättchen zu arbeiten.',
+        'Kannst du einige Plättchen umdrehen, um mehr Wege zu finden?',
       ],
     );
   }

@@ -72,15 +72,15 @@ class _OppositeChangeExerciseState extends State<OppositeChangeExercise>
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: Text('Level ${_currentLevel.levelNumber} Complete! 🎉'),
-        content: Text('Great job! Ready for the next challenge?'),
+        title: Text('Level ${_currentLevel.levelNumber} geschafft! 🎉'),
+        content: Text('Toll gemacht! Bereit für die nächste Aufgabe?'),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context); // Close dialog
               Navigator.pop(context); // Return to menu
             },
-            child: Text('Stop for Today'),
+            child: Text('Für heute beenden'),
           ),
           if (nextLevelNumber <= totalLevels)
             ElevatedButton(
@@ -88,7 +88,7 @@ class _OppositeChangeExerciseState extends State<OppositeChangeExercise>
                 Navigator.pop(context);
                 _switchLevel(ScaffoldLevel.values[nextLevelNumber - 1]);
               },
-              child: Text('Continue'),
+              child: Text('Weiter'),
             ),
         ],
       ),
@@ -98,7 +98,7 @@ class _OppositeChangeExerciseState extends State<OppositeChangeExercise>
   void _switchLevel(ScaffoldLevel level) {
     if (!isLevelUnlocked(level.levelNumber)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Complete previous levels first!')),
+        SnackBar(content: Text('Schließe zuerst die vorherigen Level ab!')),
       );
       return;
     }

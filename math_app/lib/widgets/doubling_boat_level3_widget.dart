@@ -38,7 +38,7 @@ class _DoublingBoatLevel3WidgetState extends State<DoublingBoatLevel3Widget> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Not quite! Try doubling again.'), 
+          content: Text('Fast! Versuche das Verdoppeln nochmal.'),
           duration: Duration(milliseconds: 1000),
           backgroundColor: Colors.orange,
         ),

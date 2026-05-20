@@ -254,7 +254,7 @@ class _CountObjectsLevel1WidgetState extends State<CountObjectsLevel1Widget> {
             ElevatedButton.icon(
               onPressed: _resetProblem,
               icon: const Icon(Icons.refresh),
-              label: const Text('New Problem'),
+              label: const Text('Neue Aufgabe'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               ),
@@ -266,7 +266,7 @@ class _CountObjectsLevel1WidgetState extends State<CountObjectsLevel1Widget> {
               ElevatedButton.icon(
                 onPressed: widget.onReadyForNextLevel,
                 icon: const Icon(Icons.arrow_forward),
-                label: const Text('Ready for Next Level!'),
+                label: const Text('Bereit für nächstes Level!'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
@@ -282,7 +282,7 @@ class _CountObjectsLevel1WidgetState extends State<CountObjectsLevel1Widget> {
         // Progress hint
         if (!_readyToProgress)
           Text(
-            'Counted $_problemsSolved/3 problems. Keep exploring!',
+            'Gezählt $_problemsSolved/3 Aufgaben. Weiter so!',
             style: TextStyle(
               fontSize: 14,
               color: Colors.grey.shade600,

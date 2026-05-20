@@ -21,7 +21,7 @@ class Count100FieldExercise extends StatefulWidget {
     required this.userProfile,
   }) : config = const ExerciseConfig(
           id: 'C6.0',
-          title: 'Number Sequences on 100-Field',
+          title: 'Zahlenfolgen im Hunderterfeld',
           skillTags: ['counting_8'],
           sourceCard: 'iMINT Arbeitskarte 8: Zahlenfolgen in der Hundertertafel verstehen (Pages 87-88)',
           concept:
@@ -92,8 +92,8 @@ class _Count100FieldExerciseState extends State<Count100FieldExercise>
   final List<_LevelConfig> _levels = [
     _LevelConfig(
       levelNumber: 1,
-      title: 'Explore the 100-Field',
-      description: 'Explore the field',
+      title: 'Entdecke das Hunderterfeld',
+      description: 'Erkunde das Feld',
       icon: Icons.explore,
       color: Colors.blue,
       pedagogicalAction: 'Free exploration',
@@ -101,8 +101,8 @@ class _Count100FieldExerciseState extends State<Count100FieldExercise>
     ),
     _LevelConfig(
       levelNumber: 2,
-      title: 'Vertical Sequences',
-      description: 'Fill numbers going down (+10)',
+      title: 'Senkrechte Zahlenfolgen',
+      description: 'Fülle die Zahlen nach unten (+10)',
       icon: Icons.arrow_downward,
       color: Colors.green,
       pedagogicalAction: 'Vertical +10 pattern',
@@ -110,8 +110,8 @@ class _Count100FieldExerciseState extends State<Count100FieldExercise>
     ),
     _LevelConfig(
       levelNumber: 3,
-      title: 'Horizontal Sequences',
-      description: 'Fill numbers going right (+1)',
+      title: 'Waagerechte Zahlenfolgen',
+      description: 'Fülle die Zahlen nach rechts (+1)',
       icon: Icons.arrow_forward,
       color: Colors.orange,
       pedagogicalAction: 'Horizontal +1 pattern',
@@ -119,8 +119,8 @@ class _Count100FieldExerciseState extends State<Count100FieldExercise>
     ),
     _LevelConfig(
       levelNumber: 4,
-      title: 'Fill from Context',
-      description: 'Find missing number',
+      title: 'Aus dem Zusammenhang',
+      description: 'Finde die fehlende Zahl',
       icon: Icons.question_mark,
       color: Colors.purple,
       pedagogicalAction: 'Context filling',
@@ -128,8 +128,8 @@ class _Count100FieldExerciseState extends State<Count100FieldExercise>
     ),
     _LevelConfig(
       levelNumber: 5,
-      title: 'Finale: Mixed Practice',
-      description: 'Show what you learned!',
+      title: 'Finale: Gemischte Aufgaben',
+      description: 'Zeig, was du gelernt hast!',
       icon: Icons.emoji_events,
       color: Colors.amber,
       pedagogicalAction: 'Consolidation',
@@ -213,21 +213,21 @@ class _Count100FieldExerciseState extends State<Count100FieldExercise>
        context: context,
        barrierDismissible: false,
        builder: (context) => AlertDialog(
-         title: Text(
-             isFinaleComplete ? 'Exercise Complete! 🎉' : 'Level $_currentLevelNumber Complete! 🎉'
-         ),
-         content: Text(
-             isFinaleComplete 
-                 ? 'Amazing work! You\'ve mastered the 100-field! 🌟' 
-                 : 'Great job! Ready for the next challenge?'
-         ),
+          title: Text(
+              isFinaleComplete ? 'Übung geschafft! 🎉' : 'Level $_currentLevelNumber geschafft! 🎉'
+          ),
+          content: Text(
+              isFinaleComplete 
+                  ? 'Toll gemacht! Du kennst dich jetzt im Hunderterfeld aus! 🌟' 
+                  : 'Toll gemacht! Bereit für die nächste Aufgabe?'
+          ),
          actions: [
            TextButton(
              onPressed: () {
                Navigator.pop(context);
                Navigator.pop(context); // Return to path
              },
-             child: const Text('Stop for Today'),
+             child: const Text('Für heute beenden'),
            ),
            if (_currentLevelNumber < totalLevels)
              ElevatedButton(
@@ -235,7 +235,7 @@ class _Count100FieldExerciseState extends State<Count100FieldExercise>
                  Navigator.pop(context);
                  _switchLevel(ScaffoldLevel.values[_currentLevelNumber]); // Move to next (index + 1)
                },
-               child: const Text('Continue'),
+               child: const Text('Weiter'),
              ),
          ],
        ),
@@ -245,7 +245,7 @@ class _Count100FieldExerciseState extends State<Count100FieldExercise>
   void _switchLevel(ScaffoldLevel level) {
     if (!isLevelUnlocked(level.levelNumber)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Level locked! Complete previous levels first.')),
+        const SnackBar(content: Text('Level gesperrt. Schließe zuerst die vorherigen Level ab.')),
       );
       return;
     }
@@ -291,11 +291,11 @@ class _Count100FieldExerciseState extends State<Count100FieldExercise>
 
   String _getInstructions(int level) {
     switch(level) {
-      case 1: return "Explore the field! Pan around. When ready, tap the button.";
-      case 2: return "Fill in the numbers going DOWN. Remember: +10!";
-      case 3: return "Fill in the numbers going RIGHT. Remember: +1!";
-      case 4: return "Fill in the missing number in the middle.";
-      case 5: return "Mix of all challenges! Good luck!";
+      case 1: return "Erkunde das Feld! Schau dich um. Wenn du bereit bist, tippe auf den Knopf.";
+      case 2: return "Fülle die Zahlen nach UNTEN ein. Denk dran: +10!";
+      case 3: return "Fülle die Zahlen nach RECHTS ein. Denk dran: +1!";
+      case 4: return "Fülle die fehlende Zahl in der Mitte ein.";
+      case 5: return "Gemischte Aufgaben aus allen Leveln. Viel Erfolg!";
       default: return "";
     }
   }
@@ -307,7 +307,7 @@ class _Count100FieldExerciseState extends State<Count100FieldExercise>
       case 3: return Count100FieldLevel3Widget(onProblemSolved: _onProblemResult);
       case 4: return Count100FieldLevel4Widget(onProblemSolved: _onProblemResult);
       case 5: return Count100FieldLevel5Widget(onProblemSolved: _onProblemResult);
-      default: return const Center(child: Text("Error"));
+      default: return const Center(child: Text("Fehler"));
     }
   }
 }

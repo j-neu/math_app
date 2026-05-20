@@ -73,7 +73,7 @@ class _InteractiveTwentyFrameWidgetState extends State<InteractiveTwentyFrameWid
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Text(
-            'Tap the counters to flip them between red and blue.\nFind different ways to make ${widget.totalCounters}!',
+            'Tippe auf die Zähler, um sie zwischen rot und blau zu kippen.\nFinde verschiedene Wege, um ${widget.totalCounters} zu machen!',
             style: theme.textTheme.titleMedium,
             textAlign: TextAlign.center,
           ),
@@ -146,7 +146,7 @@ class _InteractiveTwentyFrameWidgetState extends State<InteractiveTwentyFrameWid
           child: ElevatedButton.icon(
             onPressed: _resetCounters,
             icon: const Icon(Icons.refresh),
-            label: const Text('Reset'),
+            label: const Text('Zurücksetzen'),
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),

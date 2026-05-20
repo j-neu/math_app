@@ -468,12 +468,12 @@ class _WhatComesNextExerciseState extends State<WhatComesNextExercise>
         actions: [
           IconButton(
             icon: const Icon(Icons.menu),
-            tooltip: 'Choose Level',
+            tooltip: 'Level wählen',
             onPressed: _showLevelDrawer,
           ),
           IconButton(
             icon: const Icon(Icons.help_outline),
-            tooltip: 'Instructions',
+            tooltip: 'Anleitung',
             onPressed: _showInstructions,
           ),
         ],

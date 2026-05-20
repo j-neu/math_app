@@ -157,7 +157,7 @@ class _OrderCardsLevel3WidgetState extends State<OrderCardsLevel3Widget> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              'Find All Missing Numbers!',
+              'Finde alle fehlenden Zahlen!',
               style: Theme.of(context).textTheme.titleLarge,
               textAlign: TextAlign.center,
             ),
@@ -182,7 +182,7 @@ class _OrderCardsLevel3WidgetState extends State<OrderCardsLevel3Widget> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              'Completed from memory: $_correctCount times',
+                      'Aus dem Gedächtnis gelöst: $_correctCount mal',
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
@@ -213,7 +213,7 @@ class _OrderCardsLevel3WidgetState extends State<OrderCardsLevel3Widget> {
                 ElevatedButton.icon(
                   onPressed: _checkAnswer,
                   icon: const Icon(Icons.check_circle),
-                  label: const Text('Check Answer'),
+                  label: const Text('Antwort prüfen'),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                     textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -223,7 +223,7 @@ class _OrderCardsLevel3WidgetState extends State<OrderCardsLevel3Widget> {
                 OutlinedButton.icon(
                   onPressed: _showHint,
                   icon: const Icon(Icons.lightbulb_outline),
-                  label: const Text('Hint'),
+                  label: const Text('Tipp'),
                 ),
               ],
             ),

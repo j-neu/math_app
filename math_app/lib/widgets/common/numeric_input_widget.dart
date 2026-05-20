@@ -69,7 +69,7 @@ class _NumericInputWidgetState extends State<NumericInputWidget> {
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
               textStyle: const TextStyle(fontSize: 20),
             ),
-            child: const Text('Check'),
+            child: const Text('Prüfen'),
           ),
         ],
       ),

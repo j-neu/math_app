@@ -152,7 +152,7 @@ class _Count100FieldLevel4WidgetState extends State<Count100FieldLevel4Widget> {
                     foregroundColor: Colors.white,
                     elevation: 6,
                   ),
-                  child: const Text('Check', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                  child: const Text('Prüfen', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                 ),
               ),
             ),

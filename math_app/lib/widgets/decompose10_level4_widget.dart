@@ -128,7 +128,7 @@ class _Decompose10Level4WidgetState extends State<Decompose10Level4Widget> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Finale: Decompose $_total',
+                          'Finale: Zerlege $_total',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -140,7 +140,7 @@ class _Decompose10Level4WidgetState extends State<Decompose10Level4Widget> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Count the blue and red counters. Write the equation!',
+                    'Zähle die blauen und roten Zähler. Schreib die Gleichung!',
                     style: TextStyle(fontSize: 16, color: Colors.indigo.shade900),
                   ),
                 ],
@@ -162,7 +162,7 @@ class _Decompose10Level4WidgetState extends State<Decompose10Level4Widget> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Finale Progress:',
+                        'Finale-Fortschritt:',
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           color: Colors.grey.shade700,
@@ -323,7 +323,7 @@ class _Decompose10Level4WidgetState extends State<Decompose10Level4Widget> {
                 backgroundColor: Colors.indigo,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Check Answer', style: TextStyle(fontSize: 18)),
+              child: const Text('Antwort prüfen', style: TextStyle(fontSize: 18)),
             ),
 
             const SizedBox(height: 16),
@@ -368,7 +368,7 @@ class _Decompose10Level4WidgetState extends State<Decompose10Level4Widget> {
             // Skip button
             TextButton(
               onPressed: _generateNewDecomposition,
-              child: const Text('Skip to Next Problem'),
+              child: const Text('Überspringen'),
             ),
           ],
         ),

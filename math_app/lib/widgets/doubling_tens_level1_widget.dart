@@ -77,7 +77,7 @@ class _DoublingTensLevel1WidgetState extends State<DoublingTensLevel1Widget> wit
         });
       } else {
         setState(() {
-          _feedbackMessage = 'Nicht ganz. Zähle die Zehnerstreifen.';
+          _feedbackMessage = 'Fast! Zähle die Zehnerstreifen.';
           _feedbackColor = Colors.orange;
           _controller.clear();
         });

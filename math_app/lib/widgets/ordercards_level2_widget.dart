@@ -127,7 +127,7 @@ class _OrderCardsLevel2WidgetState extends State<OrderCardsLevel2Widget> {
           ElevatedButton.icon(
             onPressed: _checkAnswer,
             icon: const Icon(Icons.check_circle),
-            label: const Text('Check Answer'),
+            label: const Text('Antwort prüfen'),
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),

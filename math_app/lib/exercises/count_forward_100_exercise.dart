@@ -67,14 +67,14 @@ class CountForward100Exercise extends StatefulWidget {
     required this.userProfile,
   }) : config = const ExerciseConfig(
           id: 'C3.3',
-          title: 'Count Forward to 100',
+          title: 'Zähl vorwärts bis 100',
           skillTags: ['counting_3'],
           sourceCard: 'iMINT Arbeitskarte 3: Zählen am Zahlenband bis 100 (Pages 77-78) - Adapted for 1-100 range',
           concept:
               'Understanding the number sequence 1-100: recognizing patterns, '
               'counting forward and backward fluently, internalizing the sequence',
           observationPoints: [
-            'Can child tap numbers in sequence without specific prompts?',
+            'Does child tap numbers in sequence without specific prompts?',
             'Can child identify covered numbers mentally (Level 2)?',
             'Can child fill in missing numbers in a sequence (Level 3)?',
             'Is counting automatic or does child still need to "figure it out"?',
@@ -83,12 +83,12 @@ class CountForward100Exercise extends StatefulWidget {
           internalizationPath:
               'Level 1 (Tap sequence) → Level 2 (Identify covered number) → '
               'Level 3 (Fill missing numbers) → Level 4 (Finale consolidation)',
-          targetNumber: 100, // Count up to 20
+          targetNumber: 100,
           hints: [
-            'The ones-digit counts up: 1,2,3...9, then starts again at 11,12,13...',
-            'After 9 comes 10, after 19 comes 20',
-            'Count in your head - what comes next?',
-            'If you get stuck, try counting from 1',
+            'Die Einerziffer zählt hoch: 1, 2, 3 … 9, dann geht es weiter mit 11, 12, 13 …',
+            'Nach der 9 kommt die 10, nach der 19 kommt die 20.',
+            'Zähle im Kopf — was kommt als Nächstes?',
+            'Wenn du nicht weiter weißt, fang von vorne an zu zählen.',
           ],
         );
 
@@ -230,7 +230,7 @@ class _CountForward100ExerciseState extends State<CountForward100Exercise>
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                '${level.displayName} unlocked!',
+                '${level.displayName} freigeschaltet!',
                 style: const TextStyle(fontSize: 16),
               ),
             ),
@@ -253,20 +253,20 @@ class _CountForward100ExerciseState extends State<CountForward100Exercise>
         break;
       case ScaffoldLevel.supportedPractice:
         isUnlocked = _progress.level2Unlocked;
-        lockMessage = 'Complete Level 1 first!';
+        lockMessage = 'Schließe zuerst Level 1 ab!';
         break;
       case ScaffoldLevel.independentMastery:
         isUnlocked = _progress.level3Unlocked;
         lockMessage =
-            'Complete Level 2 first!';
+            'Schließe zuerst Level 2 ab!';
         break;
       case ScaffoldLevel.advancedChallenge:
         isUnlocked = false;
-        lockMessage = 'Not available for this exercise';
+        lockMessage = 'Nicht verfügbar für diese Übung';
         break;
       case ScaffoldLevel.finale:
         isUnlocked = _progress.level4Unlocked;
-        lockMessage = 'Complete Level 3 first!';
+        lockMessage = 'Schließe zuerst Level 3 ab!';
         break;
     }
 
@@ -306,12 +306,12 @@ class _CountForward100ExerciseState extends State<CountForward100Exercise>
         actions: [
           IconButton(
             icon: const Icon(Icons.menu),
-            tooltip: 'Choose Level',
+            tooltip: 'Level wählen',
             onPressed: _showLevelDrawer,
           ),
           IconButton(
             icon: const Icon(Icons.help_outline),
-            tooltip: 'Instructions',
+            tooltip: 'Anleitung',
             onPressed: _showInstructions,
           ),
         ],
@@ -360,48 +360,48 @@ class _CountForward100ExerciseState extends State<CountForward100Exercise>
 
     switch (_progress.currentLevel) {
       case ScaffoldLevel.guidedExploration:
-        levelTitle = 'Level 1: Tap Sequence';
-        instructionText = 'Tap the numbers in order on the number band.\n\n'
-            '• The number band shows 1-100\n'
-            '• Tap each number in sequence\n'
-            '• Say the numbers out loud as you tap\n'
-            '• Notice the pattern: the ones-digit repeats!';
+        levelTitle = 'Level 1: Zahlen antippen';
+        instructionText = 'Tippe die Zahlen auf dem Zahlenband in der richtigen Reihenfolge.\n\n'
+            '• Das Zahlenband zeigt 1 bis 100\n'
+            '• Tippe jede Zahl der Reihe nach\n'
+            '• Sage die Zahlen laut, während du tippst\n'
+            '• Beachte das Muster: die Einerziffer wiederholt sich!';
         levelColor = Colors.blue;
         break;
 
       case ScaffoldLevel.supportedPractice:
-        levelTitle = 'Level 2: Covered Number';
-        instructionText = 'The marker covers the current number - you must figure it out!\n\n'
-            '• A marker (?) covers the number you\'re on\n'
-            '• Type what number is covered\n'
-            '• You can see the numbers before and after\n'
-            '• Count forward OR backward';
+        levelTitle = 'Level 2: Verdeckte Zahl';
+        instructionText = 'Die Markierung verdeckt die aktuelle Zahl — du musst herausfinden, welche es ist!\n\n'
+            '• Eine Markierung (?) verdeckt die Zahl\n'
+            '• Tippe ein, welche Zahl darunter steckt\n'
+            '• Du siehst die Zahlen davor und danach\n'
+            '• Zähle vorwärts ODER rückwärts';
         levelColor = Colors.orange;
         break;
 
       case ScaffoldLevel.independentMastery:
-        levelTitle = 'Level 3: Fill the Sequence';
-        instructionText = 'Fill in the missing numbers in the sequence.\n\n'
-            '• You see the first 2 and last 2 numbers\n'
-            '• Fill in the middle numbers\n'
-            '• Count in your head!\n'
-            '• Works forward and backward';
+        levelTitle = 'Level 3: Reihe ausfüllen';
+        instructionText = 'Fülle die fehlenden Zahlen in der Reihe aus.\n\n'
+            '• Du siehst die ersten 2 und die letzten 2 Zahlen\n'
+            '• Fülle die mittleren Zahlen ein\n'
+            '• Zähle im Kopf!\n'
+            '• Vorwärts und rückwärts';
         levelColor = Colors.purple;
         break;
 
       case ScaffoldLevel.finale:
         levelTitle = 'Level 4: Finale';
-        instructionText = 'Practice makes perfect! Tap to count forward or backward.\n\n'
-            '• The number band is visible to help\n'
-            '• Shorter sequences (easier than Level 3)\n'
-            '• Both forward and backward\n'
-            '• Celebrate your success!';
+        instructionText = 'Übung macht den Meister! Tippe vorwärts oder rückwärts.\n\n'
+            '• Das Zahlenband ist sichtbar\n'
+            '• Kürzere Aufgaben (leichter als Level 3)\n'
+            '• Vorwärts und rückwärts\n'
+            '• Feiere deinen Erfolg!';
         levelColor = Colors.green;
         break;
 
       default:
-        levelTitle = 'Instructions';
-        instructionText = 'Select a level to see instructions.';
+        levelTitle = 'Anleitung';
+        instructionText = 'Wähle ein Level, um die Anleitung zu sehen.';
         levelColor = Colors.grey;
     }
 
@@ -462,7 +462,7 @@ class _CountForward100ExerciseState extends State<CountForward100Exercise>
                   children: [
                     Icon(Icons.celebration, color: Colors.white),
                     SizedBox(width: 12),
-                    Text('Congratulations! You\'ve completed counting to 100!'),
+                    Text('Toll gemacht! Du kannst jetzt bis 100 zählen!'),
                   ],
                 ),
                 backgroundColor: Colors.green,

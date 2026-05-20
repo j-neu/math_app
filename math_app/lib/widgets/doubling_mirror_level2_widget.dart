@@ -77,7 +77,7 @@ class _DoublingMirrorLevel2WidgetState extends State<DoublingMirrorLevel2Widget>
         });
       } else {
         setState(() {
-          _feedbackMessage = 'Versuch es nochmal!';
+          _feedbackMessage = 'Fast! Versuch es nochmal!';
           _feedbackColor = Colors.orange;
           _controller.clear();
         });
@@ -202,9 +202,9 @@ class _DoublingMirrorLevel2WidgetState extends State<DoublingMirrorLevel2Widget>
           height: 120,
           padding: const EdgeInsets.all(16),
           color: Colors.grey.shade100,
-          child: _step != 1 
+          child: _step != 1
             ? _buildInputArea()
-            : Center(child: Text('Drücke den Knopf in der Mitte!', style: TextStyle(fontSize: 18))),
+            : Center(child: Text('Drücke den Spiegel-Knopf in der Mitte!', style: TextStyle(fontSize: 18))),
         ),
       ],
     );

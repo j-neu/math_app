@@ -61,11 +61,11 @@ class RewardService {
 
   /// Get next reward text (cycles through list)
   ///
-  /// If no reward texts configured, returns generic "Great job!"
+  /// If no reward texts configured, returns generic "Toll gemacht!"
   /// Otherwise cycles through reward texts based on total rewards earned.
   String getNextRewardText(UserProfile profile) {
     final texts = profile.rewardConfig?.rewardTexts ?? [];
-    if (texts.isEmpty) return "Great job!";
+    if (texts.isEmpty) return "Toll gemacht!";
 
     final rewardCount = profile.rewardConfig?.rewardsEarned.length ?? 0;
     final index = rewardCount % texts.length;

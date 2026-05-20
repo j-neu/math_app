@@ -67,14 +67,14 @@ class CountForward50Exercise extends StatefulWidget {
     required this.userProfile,
   }) : config = const ExerciseConfig(
           id: 'C3.2',
-          title: 'Count Forward to 50',
+          title: 'Zähl vorwärts bis 50',
           skillTags: ['counting_3'],
           sourceCard: 'iMINT Arbeitskarte 3: Zählen am Zahlenband bis 100 (Pages 77-78) - Adapted for 1-50 range',
           concept:
               'Understanding the number sequence 1-50: recognizing patterns, '
               'counting forward and backward fluently, internalizing the sequence',
           observationPoints: [
-            'Can child tap numbers in sequence without specific prompts?',
+            'Does child tap numbers in sequence without specific prompts?',
             'Can child identify covered numbers mentally (Level 2)?',
             'Can child fill in missing numbers in a sequence (Level 3)?',
             'Is counting automatic or does child still need to "figure it out"?',
@@ -85,10 +85,10 @@ class CountForward50Exercise extends StatefulWidget {
               'Level 3 (Fill missing numbers) → Level 4 (Finale consolidation)',
           targetNumber: 50,
           hints: [
-            'The ones-digit counts up: 1,2,3...9, then starts again at 11,12,13...',
-            'After 9 comes 10, after 19 comes 20',
-            'Count in your head - what comes next?',
-            'If you get stuck, try counting from 1',
+            'Die Einerziffer zählt hoch: 1, 2, 3 … 9, dann geht es weiter mit 11, 12, 13 …',
+            'Nach der 9 kommt die 10, nach der 19 kommt die 20.',
+            'Zähle im Kopf — was kommt als Nächstes?',
+            'Wenn du nicht weiter weißt, fang von vorne an zu zählen.',
           ],
         );
 
@@ -215,7 +215,7 @@ class _CountForward50ExerciseState extends State<CountForward50Exercise>
           children: [
             Icon(Icons.celebration, color: Colors.white),
             SizedBox(width: 12),
-            Text('Congratulations! You\'ve completed counting to 50!'),
+             Text('Toll gemacht! Du kannst jetzt bis 50 zählen!'),
           ],
         ),
         backgroundColor: Colors.green,
@@ -239,7 +239,7 @@ class _CountForward50ExerciseState extends State<CountForward50Exercise>
             children: [
               const Icon(Icons.lock, color: Colors.white),
               const SizedBox(width: 12),
-              Text('Complete Level ${level - 1} first!'),
+              Text('Schließe zuerst Level ${level - 1} ab!'),
             ],
           ),
           backgroundColor: Colors.orange,
@@ -256,27 +256,27 @@ class _CountForward50ExerciseState extends State<CountForward50Exercise>
 
     switch (_currentLevel) {
       case 1:
-        title = 'Level 1: Tap Sequence';
-        instructions = 'Tap numbers in order from the start number to the target number. '
-            'Say each number out loud as you tap it! Notice how decade numbers (10, 20, 30...) are highlighted.';
+        title = 'Level 1: Zahlen antippen';
+        instructions = 'Tippe die Zahlen von der Startzahl bis zur Zielzahl in der richtigen Reihenfolge. '
+            'Sage jede Zahl laut, während du tippst! Beachte: Die Zehnerzahlen (10, 20, 30 …) sind hervorgehoben.';
         color = Colors.blue;
         break;
       case 2:
-        title = 'Level 2: Walking Marker';
-        instructions = 'A marker covers the current number (shown as ?). Type what number you think is covered, '
-            'then press Check. You\'ll count both FORWARD and BACKWARD!';
+        title = 'Level 2: Wandernde Markierung';
+        instructions = 'Eine Markierung verdeckt die aktuelle Zahl (als ?). Tippe ein, welche Zahl du vermutest, '
+            'dann drücke auf Prüfen. Du zählst vorwärts UND rückwärts!';
         color = Colors.orange;
         break;
       case 3:
-        title = 'Level 3: Mental Counting';
-        instructions = 'Fill in the missing numbers in the sequence. The first 2 and last 2 numbers are shown. '
-            'Count in your head to figure out what goes in the blanks!';
+        title = 'Level 3: Im Kopf zählen';
+        instructions = 'Fülle die fehlenden Zahlen in der Reihe aus. Die ersten 2 und die letzten 2 Zahlen sind sichtbar. '
+            'Zähle im Kopf, um herauszufinden, was in die Lücken gehört!';
         color = Colors.purple;
         break;
       case 4:
         title = 'Level 4: Finale';
-        instructions = 'Final practice! Tap numbers forward or backward from start to target. '
-            'The number band is visible to help you succeed. Complete 10 problems to finish!';
+        instructions = 'Letzte Übung! Tippe die Zahlen vorwärts oder rückwärts von Start bis Ziel. '
+            'Das Zahlenband ist sichtbar, damit du Erfolg hast. Löse 10 Aufgaben!';
         color = Colors.green;
         break;
     }

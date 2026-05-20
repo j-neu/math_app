@@ -54,14 +54,14 @@ class _DoublingBoatLevel2WidgetState extends State<DoublingBoatLevel2Widget> {
       if (input == 10) {
         setState(() => _step = LevelStep.checkOnes);
       } else {
-         _showFeedback('Double the 5s. 5 + 5 = ?');
+         _showFeedback('Verdopple die Fünfen. 5 + 5 = ?');
       }
     } else if (_step == LevelStep.checkOnes) {
       final remainder = (target - 5) * 2;
       if (input == remainder) {
         setState(() => _step = LevelStep.checkTotal);
       } else {
-        _showFeedback('Double the rest. ${target-5} + ${target-5} = ?');
+        _showFeedback('Verdopple den Rest. ${target-5} + ${target-5} = ?');
       }
     } else if (_step == LevelStep.checkTotal) {
       final total = target * 2;
@@ -74,7 +74,7 @@ class _DoublingBoatLevel2WidgetState extends State<DoublingBoatLevel2Widget> {
           widget.onResult(true);
         });
       } else {
-        _showFeedback('Try again!');
+        _showFeedback('Versuche es nochmal!');
       }
     }
   }

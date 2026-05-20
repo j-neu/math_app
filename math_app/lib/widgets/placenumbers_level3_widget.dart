@@ -212,11 +212,11 @@ class _PlaceNumbersLevel3WidgetState extends State<PlaceNumbersLevel3Widget>
                 }
               });
             },
-            child: const Text('Show me the line'),
+            child: const Text('Zahlenstrahl zeigen'),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Got it!'),
+            child: const Text('Verstanden!'),
           ),
         ],
       ),
@@ -260,7 +260,7 @@ class _PlaceNumbersLevel3WidgetState extends State<PlaceNumbersLevel3Widget>
                           const SizedBox(width: 8),
                           const Expanded(
                             child: Text(
-                              'Level 3: Mental Positioning',
+                              'Level 3: Mentale Positionierung',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -271,13 +271,13 @@ class _PlaceNumbersLevel3WidgetState extends State<PlaceNumbersLevel3Widget>
                           IconButton(
                             icon: const Icon(Icons.help_outline, color: Colors.purple),
                             onPressed: _showHint,
-                            tooltip: 'Get a hint',
+                            tooltip: 'Tipp',
                           ),
                         ],
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Use your mental number line! Imagine where each number belongs and type your answer.',
+                        'Nutze deinen mentalen Zahlenstrahl! Stell dir vor, wo jede Zahl hingehört, und gib deine Antwort ein.',
                         style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
                       ),
                     ],
@@ -313,7 +313,7 @@ class _PlaceNumbersLevel3WidgetState extends State<PlaceNumbersLevel3Widget>
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
-                              'Range: 0-$_maxNumber',
+                              'Bereich: 0-$_maxNumber',
                               style: const TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -330,7 +330,7 @@ class _PlaceNumbersLevel3WidgetState extends State<PlaceNumbersLevel3Widget>
                               size: 16, color: Colors.orange.shade700),
                           const SizedBox(width: 4),
                           Text(
-                            'Streak: $_consecutiveCorrect',
+                            'Serie: $_consecutiveCorrect',
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.grey.shade700,
@@ -339,7 +339,7 @@ class _PlaceNumbersLevel3WidgetState extends State<PlaceNumbersLevel3Widget>
                           const SizedBox(width: 16),
                           if (_totalAttempts > 0)
                             Text(
-                              'Accuracy: ${((_correctCount / _totalAttempts) * 100).toStringAsFixed(0)}%',
+                              'Genauigkeit: ${((_correctCount / _totalAttempts) * 100).toStringAsFixed(0)}%',
                               style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.grey.shade700,
@@ -373,7 +373,7 @@ class _PlaceNumbersLevel3WidgetState extends State<PlaceNumbersLevel3Widget>
                           ),
                           const SizedBox(height: 16),
                           const Text(
-                            'Imagine the number line...\nWhere does this number belong?',
+                            'Stell dir den Zahlenstrahl vor…\nWohin gehört diese Zahl?',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 16,
@@ -422,7 +422,7 @@ class _PlaceNumbersLevel3WidgetState extends State<PlaceNumbersLevel3Widget>
                   child: Column(
                     children: [
                       const Text(
-                        'Type where it belongs on the line:',
+                        'Gib ein, wo sie auf der Linie hingehört:',
                         style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                       ),
                       const SizedBox(height: 12),
@@ -437,7 +437,7 @@ class _PlaceNumbersLevel3WidgetState extends State<PlaceNumbersLevel3Widget>
                                 FilteringTextInputFormatter.digitsOnly,
                               ],
                               decoration: InputDecoration(
-                                hintText: 'Your answer...',
+                                hintText: 'Deine Antwort…',
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -494,7 +494,7 @@ class _PlaceNumbersLevel3WidgetState extends State<PlaceNumbersLevel3Widget>
                             Icon(Icons.visibility, color: Colors.amber),
                             SizedBox(width: 8),
                             Text(
-                              'Here\'s the line to help you:',
+                              'Hier ist die Linie, um dir zu helfen:',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.amber,

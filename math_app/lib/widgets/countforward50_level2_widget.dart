@@ -318,7 +318,7 @@ class _CountForwardLevel2WidgetState extends State<CountForwardLevel2Widget> {
                     ElevatedButton.icon(
                       onPressed: _checkAnswer,
                       icon: const Icon(Icons.check),
-                      label: const Text('Check'),
+                      label: const Text('Prüfen'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _isForward ? Colors.green : Colors.orange,
                         foregroundColor: Colors.white,

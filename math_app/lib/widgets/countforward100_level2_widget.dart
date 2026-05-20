@@ -107,8 +107,8 @@ class _CountForwardLevel2WidgetState extends State<CountForwardLevel2Widget> {
       _answerController.clear();
 
       _feedbackMessage = _isForward
-          ? 'Count FORWARD. What number is covered by the marker?'
-          : 'Count BACKWARD. What number is covered by the marker?';
+          ? 'VORWÄRTS zählen. Welche Zahl ist vom Plättchen verdeckt?'
+          : 'RÜCKWÄRTS zählen. Welche Zahl ist vom Plättchen verdeckt?';
       _showSuccess = false;
       _isComplete = false;
     });
@@ -121,7 +121,7 @@ class _CountForwardLevel2WidgetState extends State<CountForwardLevel2Widget> {
 
     if (answer == null) {
       setState(() {
-        _feedbackMessage = 'Please enter a number!';
+        _feedbackMessage = 'Bitte eine Zahl eingeben.';
         _showSuccess = false;
       });
       return;
@@ -139,21 +139,21 @@ class _CountForwardLevel2WidgetState extends State<CountForwardLevel2Widget> {
           if (_currentPosition > _targetNumber) {
             _completeSequence();
           } else {
-            _feedbackMessage = 'Correct! What number is covered now?';
+            _feedbackMessage = 'Richtig! Welche Zahl ist jetzt verdeckt?';
           }
         } else {
           _currentPosition--;
           if (_currentPosition < _targetNumber) {
             _completeSequence();
           } else {
-            _feedbackMessage = 'Correct! What number is covered now?';
+            _feedbackMessage = 'Richtig! Welche Zahl ist jetzt verdeckt?';
           }
         }
       });
     } else {
       // Incorrect answer
       setState(() {
-        _feedbackMessage = 'Not quite. The covered number is $_currentPosition. Try again!';
+        _feedbackMessage = 'Fast. Die verdeckte Zahl ist $_currentPosition. Versuche es nochmal.';
         _showSuccess = false;
         _answerController.clear();
       });
@@ -164,8 +164,8 @@ class _CountForwardLevel2WidgetState extends State<CountForwardLevel2Widget> {
     _isComplete = true;
     _problemsCompleted++;
     _feedbackMessage = _isForward
-        ? 'Perfect! You counted forward from $_startNumber to $_targetNumber!'
-        : 'Excellent! You counted backward from $_startNumber to $_targetNumber!';
+        ? 'Perfekt! Du hast von $_startNumber bis $_targetNumber vorwärts gezählt!'
+        : 'Klasse! Du hast von $_startNumber bis $_targetNumber rückwärts gezählt!';
     _showSuccess = true;
 
     widget.onProblemComplete?.call(true);
@@ -258,7 +258,7 @@ class _CountForwardLevel2WidgetState extends State<CountForwardLevel2Widget> {
                     ElevatedButton.icon(
                       onPressed: _checkAnswer,
                       icon: const Icon(Icons.check),
-                      label: const Text('Check'),
+                      label: const Text('Prüfen'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _isForward ? Colors.green : Colors.orange,
                         foregroundColor: Colors.white,
@@ -276,7 +276,7 @@ class _CountForwardLevel2WidgetState extends State<CountForwardLevel2Widget> {
             ElevatedButton.icon(
               onPressed: () => widget.onLevelComplete?.call(),
               icon: const Icon(Icons.arrow_forward),
-              label: const Text('Continue to Level 3'),
+              label: const Text('Zu Level 3'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 foregroundColor: Colors.white,

@@ -29,12 +29,12 @@ class _DoublingFingersLevel2WidgetState extends State<DoublingFingersLevel2Widge
       children: [
         SizedBox(height: 20),
         Text(
-          'Double ${widget.targetNumber}!',
+          'Verdopple ${widget.targetNumber}!',
           style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 10),
         Text(
-          'Imagine the other hand.',
+          'Stell dir die andere Hand vor.',
           style: TextStyle(fontSize: 18, color: Colors.grey.shade700),
         ),
         

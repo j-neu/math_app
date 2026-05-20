@@ -58,7 +58,7 @@ class CountDotsExerciseV2 extends StatefulWidget {
     required this.userProfile,
   }) : config = const ExerciseConfig(
           id: 'C1.1',
-          title: 'Count the Dots',
+          title: 'Plättchen zählen',
           skillTags: ['counting_1'],
           sourceCard: 'iMINT Green Card 1: Plättchen zählen (4-level version)',
           concept:
@@ -70,12 +70,12 @@ class CountDotsExerciseV2 extends StatefulWidget {
           ],
           internalizationPath:
               'L1 (Drag) → L2 (Tap) → L3 (Look-Structured) → L4 (Look-Random)',
-          targetNumber: 20, // Max dots across all levels
+          targetNumber: 20,
           hints: [
-            'Move each dot once as you count.',
-            'Tap each dot once - no double counting!',
-            'Count the dots you see, then enter the number.',
-            'Track each dot with your eyes - don\'t miss any!',
+            'Schiebe jedes Plättchen einmal zur Seite, während du zählst.',
+            'Tippe jedes Plättchen einmal an — nicht doppelt zählen!',
+            'Zähle die Plättchen und gib dann die Zahl ein.',
+            'Verfolge jedes Plättchen mit den Augen — verpasse keines!',
           ],
         );
 
@@ -172,8 +172,8 @@ class _CountDotsExerciseV2State extends State<CountDotsExerciseV2>
       if (_level1ProblemsCompleted >= _level1RequiredProblems &&
           !isLevelUnlocked(2)) {
         unlockLevel(2);
-        _showLevelUnlockedMessage('Level 2: Tap to Count',
-            'Tap dots instead of dragging them!');
+        _showLevelUnlockedMessage('Level 2: Antippen',
+            'Tippe die Plättchen an, statt sie zu schieben!');
         _autoAdvanceToNextLevel();
       }
     });
@@ -192,8 +192,8 @@ class _CountDotsExerciseV2State extends State<CountDotsExerciseV2>
 
       if (correct >= _level2RequiredCorrect && !isLevelUnlocked(3)) {
         unlockLevel(3);
-        _showLevelUnlockedMessage('Level 3: No-Action Count',
-            'Count without touching - just look and think!');
+        _showLevelUnlockedMessage('Level 3: Nur zählen',
+            'Zähle ohne zu berühren — nur schauen und denken!');
         _autoAdvanceToNextLevel();
       }
     });
@@ -212,8 +212,8 @@ class _CountDotsExerciseV2State extends State<CountDotsExerciseV2>
 
       if (correct >= _level3RequiredCorrect && !isLevelUnlocked(4)) {
         unlockLevel(4);
-        _showLevelUnlockedMessage('Level 4: Flash & Memory',
-            'The ultimate challenge - count from memory!');
+        _showLevelUnlockedMessage('Level 4: Kurz zeigen',
+            'Die letzte Herausforderung — zähle aus dem Gedächtnis!');
         _autoAdvanceToNextLevel();
       }
     });
@@ -238,7 +238,7 @@ class _CountDotsExerciseV2State extends State<CountDotsExerciseV2>
   void _showLevelUnlockedMessage(String levelName, String description) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('🎉 $levelName Unlocked!\n$description'),
+        content: Text('🎉 $levelName freigeschaltet!\n$description'),
         backgroundColor: Colors.green,
         duration: const Duration(seconds: 3),
       ),
@@ -319,13 +319,13 @@ class _CountDotsExerciseV2State extends State<CountDotsExerciseV2>
       case ScaffoldLevel.guidedExploration:
         return '';
       case ScaffoldLevel.supportedPractice:
-        return 'Complete $_level1RequiredProblems problems in Level 1 first!';
+        return 'Schließe zuerst $_level1RequiredProblems Aufgaben in Level 1 ab!';
       case ScaffoldLevel.independentMastery:
-        return 'Get $_level2RequiredCorrect correct in Level 2 first!';
+        return 'Du brauchst mindestens $_level2RequiredCorrect richtige in Level 2!';
       case ScaffoldLevel.advancedChallenge:
-        return 'Get $_level3RequiredCorrect correct in Level 3 first!';
+        return 'Du brauchst mindestens $_level3RequiredCorrect richtige in Level 3!';
       case ScaffoldLevel.finale:
-        return 'Get $_level4RequiredCorrect correct in Level 4 first!';
+        return 'Du brauchst mindestens $_level4RequiredCorrect richtige in Level 4!';
     }
   }
 
@@ -350,12 +350,12 @@ class _CountDotsExerciseV2State extends State<CountDotsExerciseV2>
                   children: [
                     IconButton(
                       icon: const Icon(Icons.menu),
-                      tooltip: 'Choose Level',
+                      tooltip: 'Level wählen',
                       onPressed: _showLevelSelector,
                     ),
                     IconButton(
                       icon: const Icon(Icons.help_outline),
-                      tooltip: 'Instructions',
+                      tooltip: 'Anleitung',
                       onPressed: _showInstructions,
                     ),
                   ],
@@ -406,30 +406,30 @@ class _CountDotsExerciseV2State extends State<CountDotsExerciseV2>
   String _getLevelTitle(ScaffoldLevel level) {
     switch (level) {
       case ScaffoldLevel.guidedExploration:
-        return 'Drag to Count';
+        return 'Schieben und zählen';
       case ScaffoldLevel.supportedPractice:
-        return 'Tap to Count';
+        return 'Antippen und zählen';
       case ScaffoldLevel.independentMastery:
-        return 'Look-Structured';
+        return 'Nur schauen';
       case ScaffoldLevel.advancedChallenge:
-        return 'Look-Random';
+        return 'Kurz zeigen';
       case ScaffoldLevel.finale:
-        return 'Not used in C1.1';
+        return 'Nicht verwendet';
     }
   }
 
   String _getLevelInstructions(ScaffoldLevel level) {
     switch (level) {
       case ScaffoldLevel.guidedExploration:
-        return 'Drag each dot to the "counted" area as you count them out loud. This helps you match each dot with a number word.';
+        return 'Schiebe jedes Plättchen in den „gezählt"-Bereich, während du laut zählst. So ordnest du jedes Plättchen einem Zahlwort zu.';
       case ScaffoldLevel.supportedPractice:
-        return 'Tap each dot once as you count. The dots will mark themselves as counted. No double counting!';
+        return 'Tippe jedes Plättchen einmal an, während du zählst. Die Plättchen werden als gezählt markiert. Nicht doppelt zählen!';
       case ScaffoldLevel.independentMastery:
-        return 'Look at the dots (structured layout) and count them silently. When you know how many there are, enter the number.';
+        return 'Schau dir die Plättchen an (ordentlich angeordnet) und zähle leise. Wenn du weißt, wie viele es sind, gib die Zahl ein.';
       case ScaffoldLevel.advancedChallenge:
-        return 'Look at the randomly scattered dots and count by tracking with your eyes. Test your eye-scanning skills!';
+        return 'Schau dir die wild verteilten Plättchen an und zähle, indem du mit den Augen verfolgst. Teste dein Augen-Scanning!';
       case ScaffoldLevel.finale:
-        return 'Not used in C1.1 - this skill has 4 levels only.';
+        return 'Nicht verwendet — diese Übung hat 4 Level.';
     }
   }
 
@@ -474,7 +474,7 @@ class _CountDotsExerciseV2State extends State<CountDotsExerciseV2>
       case ScaffoldLevel.finale:
         // C1.1 has no finale level - only 4 card-prescribed levels
         return const Center(
-          child: Text('Level 5 removed - C1.1 has 4 levels only'),
+          child: Text('Level 5 entfernt — C1.1 hat nur 4 Level'),
         );
     }
   }

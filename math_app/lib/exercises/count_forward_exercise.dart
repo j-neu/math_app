@@ -67,14 +67,14 @@ class CountForwardExercise extends StatefulWidget {
     required this.userProfile,
   }) : config = const ExerciseConfig(
           id: 'C3.1',
-          title: 'Count Forward to 20',
+          title: 'Zähl vorwärts bis 20',
           skillTags: ['counting_3'],
           sourceCard: 'iMINT Arbeitskarte 3: Zählen am Zahlenband bis 100 (Pages 77-78) - Adapted for 1-20 range',
           concept:
               'Understanding the number sequence 1-20: recognizing patterns, '
               'counting forward and backward fluently, internalizing the sequence',
           observationPoints: [
-            'Can child tap numbers in sequence without specific prompts?',
+            'Does child tap numbers in sequence without specific prompts?',
             'Can child identify covered numbers mentally (Level 2)?',
             'Can child fill in missing numbers in a sequence (Level 3)?',
             'Is counting automatic or does child still need to "figure it out"?',
@@ -83,12 +83,12 @@ class CountForwardExercise extends StatefulWidget {
           internalizationPath:
               'Level 1 (Tap sequence) → Level 2 (Identify covered number) → '
               'Level 3 (Fill missing numbers) → Level 4 (Finale consolidation)',
-          targetNumber: 20, // Count up to 20
+          targetNumber: 20,
           hints: [
-            'The ones-digit counts up: 1,2,3...9, then starts again at 11,12,13...',
-            'After 9 comes 10, after 19 comes 20',
-            'Count in your head - what comes next?',
-            'If you get stuck, try counting from 1',
+            'Die Einerziffer zählt hoch: 1, 2, 3 … 9, dann geht es weiter mit 11, 12, 13 …',
+            'Nach der 9 kommt die 10, nach der 19 kommt die 20.',
+            'Zähle im Kopf — was kommt als Nächstes?',
+            'Wenn du nicht weiter weißt, fang von vorne an zu zählen.',
           ],
         );
 
@@ -210,7 +210,7 @@ class _CountForwardExerciseState extends State<CountForwardExercise>
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                '${level.displayName} unlocked!',
+                '${level.displayName} freigeschaltet!',
                 style: const TextStyle(fontSize: 16),
               ),
             ),
@@ -233,20 +233,20 @@ class _CountForwardExerciseState extends State<CountForwardExercise>
         break;
       case ScaffoldLevel.supportedPractice:
         isUnlocked = _progress.level2Unlocked;
-        lockMessage = 'Complete Level 1 first!';
+        lockMessage = 'Schließe zuerst Level 1 ab!';
         break;
       case ScaffoldLevel.independentMastery:
         isUnlocked = _progress.level3Unlocked;
         lockMessage =
-            'Complete Level 2 first!';
+            'Schließe zuerst Level 2 ab!';
         break;
       case ScaffoldLevel.advancedChallenge:
         isUnlocked = false;
-        lockMessage = 'Not available for this exercise';
+        lockMessage = 'Nicht verfügbar für diese Übung';
         break;
       case ScaffoldLevel.finale:
         isUnlocked = _progress.level4Unlocked;
-        lockMessage = 'Complete Level 3 first!';
+        lockMessage = 'Schließe zuerst Level 3 ab!';
         break;
     }
 
@@ -308,12 +308,12 @@ class _CountForwardExerciseState extends State<CountForwardExercise>
           actions: [
             IconButton(
               icon: const Icon(Icons.menu),
-              tooltip: 'Choose Level',
+              tooltip: 'Level wählen',
               onPressed: _showLevelSelector,
             ),
             IconButton(
               icon: const Icon(Icons.help_outline),
-              tooltip: 'Instructions',
+              tooltip: 'Anleitung',
               onPressed: _showInstructions,
             ),
           ],
@@ -372,29 +372,29 @@ class _CountForwardExerciseState extends State<CountForwardExercise>
 
     switch (_progress.currentLevel) {
       case ScaffoldLevel.guidedExploration:
-        levelTitle = 'Level 1: Count Forward';
-        instructionText = 'Tap the numbers in order and say them out loud! '
-            'The number line will help you see the pattern. '
-            'Notice how 10 and 20 are highlighted - these are decade numbers!';
+        levelTitle = 'Level 1: Vorwärts zählen';
+        instructionText = 'Tippe die Zahlen in der richtigen Reihenfolge und sage sie laut! '
+            'Das Zahlenband hilft dir, das Muster zu sehen. '
+            'Beachte: Die 10 und die 20 sind hervorgehoben — das sind Zehnerzahlen!';
         break;
       case ScaffoldLevel.supportedPractice:
-        levelTitle = 'Level 2: Walking Marker';
-        instructionText = 'Count forward or backward! The marker covers the current number (shown as ?). '
-            'You must THINK what number you\'re on before typing your answer.';
+        levelTitle = 'Level 2: Wandernde Markierung';
+        instructionText = 'Zähle vorwärts oder rückwärts! Die Markierung verdeckt die aktuelle Zahl (als ?). '
+            'Du musst DENKEN, welche Zahl drunter steht, bevor du deine Antwort eingibst.';
         break;
       case ScaffoldLevel.independentMastery:
-        levelTitle = 'Level 3: Mental Counting';
-        instructionText = 'Fill in the missing numbers! You\'ll see the first 2 and last 2 numbers. '
-            'Count in your head to fill in the middle numbers.';
+        levelTitle = 'Level 3: Im Kopf zählen';
+        instructionText = 'Fülle die fehlenden Zahlen aus! Du siehst die ersten 2 und die letzten 2 Zahlen. '
+            'Zähle im Kopf, um die mittleren Zahlen herauszufinden.';
         break;
       case ScaffoldLevel.finale:
         levelTitle = 'Level 4: Finale';
-        instructionText = 'Practice counting forward and backward to 20! '
-            'This is the finale - the number band is visible to help you succeed. '
-            'Sequences are shorter than Level 3.';
+        instructionText = 'Übe das Vorwärts- und Rückwärtszählen bis 20! '
+            'Das ist das Finale — das Zahlenband ist sichtbar, damit du Erfolg hast. '
+            'Die Aufgaben sind kürzer als in Level 3.';
         break;
       case ScaffoldLevel.advancedChallenge:
-        levelTitle = 'Not Available';
+        levelTitle = 'Nicht verfügbar';
         instructionText = '';
         break;
     }
@@ -456,7 +456,7 @@ class _CountForwardExerciseState extends State<CountForwardExercise>
                   children: [
                     Icon(Icons.celebration, color: Colors.white),
                     SizedBox(width: 12),
-                    Text('Congratulations! You\'ve completed counting to 20!'),
+                    Text('Toll gemacht! Du kannst jetzt bis 20 zählen!'),
                   ],
                 ),
                 backgroundColor: Colors.green,

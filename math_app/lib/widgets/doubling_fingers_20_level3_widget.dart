@@ -23,7 +23,7 @@ class DoublingFingers20Level3Widget extends StatelessWidget {
       children: [
         Spacer(),
         Text(
-          'Double it!',
+          'Verdopple!',
           style: TextStyle(fontSize: 24, color: Colors.grey.shade600),
         ),
         SizedBox(height: 40),

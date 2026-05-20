@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class SingleAnswerWidget extends StatelessWidget {
   final TextEditingController controller;
+  final VoidCallback? onSubmit;
 
-  const SingleAnswerWidget({super.key, required this.controller});
+  const SingleAnswerWidget({
+    super.key,
+    required this.controller,
+    this.onSubmit,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -11,12 +17,16 @@ class SingleAnswerWidget extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 50.0),
       child: TextField(
         controller: controller,
+        autofocus: true,
         keyboardType: TextInputType.number,
+        textInputAction: TextInputAction.done,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        onSubmitted: (_) => onSubmit?.call(),
         textAlign: TextAlign.center,
         style: Theme.of(context).textTheme.headlineMedium,
         decoration: const InputDecoration(
           border: OutlineInputBorder(),
-          labelText: 'Your Answer',
+          labelText: 'Deine Antwort',
         ),
       ),
     );
@@ -27,12 +37,14 @@ class MultipleAnswerWidget extends StatefulWidget {
   final TextEditingController controller;
   final int fieldCount;
   final String? prefixText;
+  final VoidCallback? onSubmit;
 
   const MultipleAnswerWidget({
     super.key,
     required this.controller,
     this.fieldCount = 7, // Default to 7 for backward compatibility
     this.prefixText,
+    this.onSubmit,
   });
 
   @override
@@ -41,12 +53,14 @@ class MultipleAnswerWidget extends StatefulWidget {
 
 class _MultipleAnswerWidgetState extends State<MultipleAnswerWidget> {
   final List<TextEditingController> _controllers = [];
+  final List<FocusNode> _focusNodes = [];
 
   @override
   void initState() {
     super.initState();
     for (int i = 0; i < widget.fieldCount; i++) {
       _controllers.add(TextEditingController());
+      _focusNodes.add(FocusNode());
     }
   }
 
@@ -54,6 +68,9 @@ class _MultipleAnswerWidgetState extends State<MultipleAnswerWidget> {
   void dispose() {
     for (var controller in _controllers) {
       controller.dispose();
+    }
+    for (var node in _focusNodes) {
+      node.dispose();
     }
     super.dispose();
   }
@@ -65,6 +82,14 @@ class _MultipleAnswerWidgetState extends State<MultipleAnswerWidget> {
         .where((text) => text.isNotEmpty)
         .join(', ');
     widget.controller.text = answers;
+  }
+
+  void _handleSubmitted(int index) {
+    if (index < widget.fieldCount - 1) {
+      _focusNodes[index + 1].requestFocus();
+    } else {
+      widget.onSubmit?.call();
+    }
   }
 
   @override
@@ -83,11 +108,18 @@ class _MultipleAnswerWidgetState extends State<MultipleAnswerWidget> {
               style: Theme.of(context).textTheme.headlineSmall,
             ),
           ...List.generate(widget.fieldCount, (index) {
+            final isLast = index == widget.fieldCount - 1;
             return SizedBox(
               width: 60,
               child: TextField(
                 controller: _controllers[index],
+                focusNode: _focusNodes[index],
+                autofocus: index == 0,
                 keyboardType: TextInputType.number,
+                textInputAction:
+                    isLast ? TextInputAction.done : TextInputAction.next,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                onSubmitted: (_) => _handleSubmitted(index),
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleMedium,
                 decoration: const InputDecoration(
@@ -149,15 +181,18 @@ class _SortAnswerWidgetState extends State<SortAnswerWidget> {
           });
         },
         children: _sortedItems.asMap().entries.map((entry) {
-          return Card(
+          return ReorderableDragStartListener(
             key: ValueKey(entry.value),
-            margin: const EdgeInsets.symmetric(vertical: 4),
-            child: ListTile(
-              leading: Icon(Icons.drag_handle),
-              title: Text(
-                entry.value,
-                style: Theme.of(context).textTheme.headlineSmall,
-                textAlign: TextAlign.center,
+            index: entry.key,
+            child: Card(
+              margin: const EdgeInsets.symmetric(vertical: 4),
+              child: ListTile(
+                leading: Icon(Icons.drag_handle),
+                title: Text(
+                  entry.value,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
           );

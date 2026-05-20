@@ -130,15 +130,15 @@ class _DoublingFingers20ExerciseState extends State<DoublingFingers20Exercise>
         context: context,
         barrierDismissible: false,
         builder: (context) => AlertDialog(
-          title: Text('Level ${_currentLevel.levelNumber} Complete! 🎉'),
-          content: Text('Great job! Ready for the next challenge?'),
+          title: Text('Level ${_currentLevel.levelNumber} geschafft! 🎉'),
+          content: Text('Toll gemacht! Bereit für die nächste Aufgabe?'),
           actions: [
             TextButton(
               onPressed: () {
                  Navigator.pop(context); // Close dialog
                  Navigator.of(context).pop(); // Exit exercise
               },
-              child: Text('Stop for Today'),
+              child: Text('Für heute beenden'),
             ),
             if (nextLevelNumber <= totalLevels)
               ElevatedButton(
@@ -146,7 +146,7 @@ class _DoublingFingers20ExerciseState extends State<DoublingFingers20Exercise>
                   Navigator.pop(context);
                   _switchLevel(ScaffoldLevel.values[nextLevelNumber - 1]);
                 },
-                child: Text('Next Level'),
+                child: Text('Nächstes Level'),
               ),
           ],
         ),
@@ -196,7 +196,7 @@ class _DoublingFingers20ExerciseState extends State<DoublingFingers20Exercise>
           onComplete: _onProblemComplete,
         );
       default:
-        return Center(child: Text('Level not implemented'));
+        return Center(child: Text('Level noch nicht verfügbar'));
     }
   }
 

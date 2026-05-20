@@ -195,21 +195,21 @@ class _CountObjectsLevel2WidgetV2State extends State<CountObjectsLevel2WidgetV2>
   String _getObjectName({bool plural = false}) {
     switch (_currentObjectType) {
       case ObjectType.apple:
-        return plural ? 'apples' : 'apple';
+        return plural ? 'Äpfel' : 'Apfel';
       case ObjectType.book:
-        return plural ? 'books' : 'book';
+        return plural ? 'Bücher' : 'Buch';
       case ObjectType.ball:
-        return plural ? 'balls' : 'ball';
+        return plural ? 'Bälle' : 'Ball';
       case ObjectType.flower:
-        return plural ? 'flowers' : 'flower';
+        return plural ? 'Blumen' : 'Blume';
       case ObjectType.car:
-        return plural ? 'cars' : 'car';
+        return plural ? 'Autos' : 'Auto';
       case ObjectType.butterfly:
-        return plural ? 'butterflies' : 'butterfly';
+        return plural ? 'Schmetterlinge' : 'Schmetterling';
       case ObjectType.leaf:
-        return plural ? 'leaves' : 'leaf';
+        return plural ? 'Blätter' : 'Blatt';
       case ObjectType.fish:
-        return 'fish'; // Same singular/plural
+        return 'Fische'; // Same for plural; use singular form for singular case
     }
   }
 
@@ -266,7 +266,7 @@ class _CountObjectsLevel2WidgetV2State extends State<CountObjectsLevel2WidgetV2>
       if (_isCorrect) {
         _correctCount++;
         _feedbackMessage =
-            'Perfect! You counted $_targetCount ${_getObjectName(plural: true)} correctly!';
+            'Perfekt! Du hast $_targetCount ${_getObjectName(plural: true)} richtig gezählt!';
         widget.onProgressUpdate(_correctCount, _totalAttempts);
 
         // Move to next problem
@@ -279,10 +279,10 @@ class _CountObjectsLevel2WidgetV2State extends State<CountObjectsLevel2WidgetV2>
         widget.onProgressUpdate(_correctCount, _totalAttempts);
         if (answer == _tappedObjects.length) {
           _feedbackMessage =
-              'You counted the tapped ${_getObjectName(plural: true)}: ${_tappedObjects.length}. But count ALL the ${_getObjectName(plural: true)}!';
+              'Du hast die angetippten ${_getObjectName(plural: true)} gezählt: ${_tappedObjects.length}. Zähle aber ALLE ${_getObjectName(plural: true)}!';
         } else {
           _feedbackMessage =
-              'Not quite. Try tapping each ${_getObjectName()} again and count carefully.';
+              'Nicht ganz. Tippe jedes ${_getObjectName()} nochmal an und zähle genau.';
         }
       }
 
@@ -369,7 +369,7 @@ class _CountObjectsLevel2WidgetV2State extends State<CountObjectsLevel2WidgetV2>
                 TextButton.icon(
                   onPressed: _resetTaps,
                   icon: const Icon(Icons.refresh),
-                  label: const Text('Reset Taps'),
+                  label: const Text('Zurücksetzen'),
                 ),
 
               // Answer input (only shown after all objects tapped)
@@ -381,7 +381,7 @@ class _CountObjectsLevel2WidgetV2State extends State<CountObjectsLevel2WidgetV2>
                     child: Column(
                       children: [
                         Text(
-                          'How many ${_getObjectName(plural: true)} did you count?',
+                          'Wie viele ${_getObjectName(plural: true)} hast du gezählt?',
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -392,7 +392,7 @@ class _CountObjectsLevel2WidgetV2State extends State<CountObjectsLevel2WidgetV2>
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const Text(
-                              'I counted',
+                              'Ich habe',
                               style: TextStyle(fontSize: 18),
                             ),
                             const SizedBox(width: 12),
@@ -454,7 +454,7 @@ class _CountObjectsLevel2WidgetV2State extends State<CountObjectsLevel2WidgetV2>
                                 ),
                               ),
                               child: const Text(
-                                'Check Answer',
+                                'Prüfen',
                                 style: TextStyle(fontSize: 16),
                               ),
                             ),
@@ -462,7 +462,7 @@ class _CountObjectsLevel2WidgetV2State extends State<CountObjectsLevel2WidgetV2>
                             TextButton.icon(
                               onPressed: _resetTaps,
                               icon: const Icon(Icons.refresh),
-                              label: const Text('Reset Taps'),
+                              label: const Text('Zurücksetzen'),
                             ),
                           ],
                         ),

@@ -196,7 +196,7 @@ class _OrderCardsExerciseState extends State<OrderCardsExercise>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content:
-              Text('Complete Level ${level.levelNumber - 1} to unlock!'),
+              Text('Schließe zuerst Level ${level.levelNumber - 1} ab!'),
           duration: const Duration(seconds: 2),
         ),
       );

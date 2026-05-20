@@ -147,7 +147,7 @@ class _DecompositionSymbolWidgetState extends State<DecompositionSymbolWidget> {
           children: [
             // Title
             Text(
-              'Decompose ${widget.targetNumber}',
+              'Zerlege ${widget.targetNumber}',
               style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -162,7 +162,7 @@ class _DecompositionSymbolWidgetState extends State<DecompositionSymbolWidget> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                'Found $foundCount of $totalDecompositions ways',
+                'Gefunden: $foundCount von $totalDecompositions Wegen',
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
@@ -277,7 +277,7 @@ class _DecompositionSymbolWidgetState extends State<DecompositionSymbolWidget> {
                 padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
                 textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              child: const Text('Check Answer'),
+              child: const Text('Antwort prüfen'),
             ),
 
             const SizedBox(height: 16),

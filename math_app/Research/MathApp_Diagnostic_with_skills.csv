@@ -17,67 +17,67 @@ ListNumber,SourceType,QuestionText,AnswerFormat,CorrectAnswer,German,English,IfW
 16,Text,14,multiple,"12, 10, 8, 6",Zähle in Zweierschritten von 14 aus zurück!,Count backwards in steps of two from 14 ,"counting_6, counting_7",,Skip count by 2s backward ZR20
 17,Text,36,multiple,"38, 40, 42, 44",Zähle in Zweierschritten von 36 aus weiter!,Count forward in steps of two from 36,"counting_6, counting_7",,Skip count by 2s ZR100
 18,Text,72,multiple,"70, 68, 66, 64, 62, 60",Zähle in Zweierschritten von 72 aus zurück!,Count backwards in steps of two from 72 ,"counting_6, counting_7",,Skip count by 2s backward ZR100
-19,Cards,,Sort,"4, 9, 12, 14, 22",Ordne die Zahlenkarten. Beginne mit der kleinsten Zahl!,Order the number cards. Start with the smallest number!,"counting_2, counting_10",,Order numbers ZR20
-20,Cards,,Sort,"3, 35, 53, 80, 91",Ordne die Zahlenkarten. Beginne mit der kleinsten Zahl!,Order the number cards. Start with the smallest number!,"counting_3, counting_11",,Order numbers ZR100
-21,Text,,Multiple,"1,6 / 2,5 / 3,4 / 4,3 / 5,2 / 6,1",Ich habe mit zwei würfeln eine 7 gewürfelt. Was könnte sonst auf den zwei würfeln stehen?,I rolled the dice again and 7 came up. What could the numbers on the two dice be?,"decomposition_1, decomposition_2, decomposition_5, decomposition_6, decomposition_7",,All decompositions of 7
-22,Text,3,Single,7,Wie viele fehlen bis 10,How many are missing until 10?,"decomposition_3, decomposition_15",,Complete to 10
-23,Text,8,Single,2,Wie viele fehlen bis 10,How many are missing until 10?,"decomposition_3, decomposition_15",,Complete to 10
-24,Text,5,Single,5,Wie viele fehlen bis 10,How many are missing until 10?,"decomposition_3, decomposition_15",,Complete to 10
-25,Text,11,Single,9,Wie viele fehlen bis 20,How many are missing until 20?,"decomposition_3, decomposition_15",,Complete to 20
-26,Text,9,Single,11,Wie viele fehlen bis 20,How many are missing until 20?,"decomposition_3, decomposition_15",,Complete to 20
-27,Text,1,Single,19,Wie viele fehlen bis 20,How many are missing until 20?,"decomposition_3, decomposition_15",,Complete to 20
-28,Image,img1936.jpg,Single,7,Wie viele Plättchen siehst du?,How many circles do you see?,decomposition_7,,Conscious seeing to 10
-29,Image,img1937.jpg,Single,8,Wie viele Plättchen siehst du?,How many circles do you see?,decomposition_7,,Conscious seeing to 10
-30,Image,img1938.jpg,Single,6,Wie viele Plättchen siehst du?,How many circles do you see?,decomposition_7,,Conscious seeing to 10
-31,Image,img1939.jpg,Single,10,Wie viele Plättchen siehst du?,How many circles do you see?,decomposition_7,,Conscious seeing to 10
-32,Image,img1888.jpg,Single,9,Wie viele rote Plättchen siehst du?,How many red circles do you see?,"basic_strategy_20, basic_strategy_21, basic_strategy_22, decomposition_9",,Quick seeing on Rechenschiffchen to 20
-33,Image,img1890.jpg,Single,14,Wie viele rote Plättchen siehst du?,How many red circles do you see?,"basic_strategy_20, basic_strategy_21, basic_strategy_22, decomposition_9",,Quick seeing on Rechenschiffchen to 20
-34,Image,img1889.jpg,Single,19,Wie viele rote Plättchen siehst du?,How many red circles do you see?,"basic_strategy_20, basic_strategy_21, basic_strategy_22, decomposition_9",,Quick seeing on Rechenschiffchen to 20
-35,Image,img1891.jpg,Single,16,Wie viele rote Plättchen siehst du?,How many red circles do you see?,"basic_strategy_20, basic_strategy_21, basic_strategy_22, decomposition_9",,Quick seeing on Rechenschiffchen to 20
-36,Image,img1858.jpg,Single,57,Wie viele sind es insgesamt?,How many are there?,"place_value_4, place_value_5, place_value_6",,Bundling/place value recognition ZR100
-37,Image,img1859.jpg,Single,35,Wie viele sind es insgesamt?,How many are there?,"place_value_4, place_value_6",,Bundling/place value recognition ZR100
-38,Text,,Multiple,"9, 17, 54, 60, 71, 90","Schreibe bitte die Zahlen auf, die ich dir ansage!","Write down the numbers that you hear! 9, 17, 54, 60, 71, 90","place_value_4, place_value_5, place_value_6",,German number word comprehension
-39,Image,img1809.jpg,Single,100,Wie viele grüne Punkte siehst du?,How many green dots do you see?,"decomposition_13, place_value_2",,100-dot field recognition (full)
-40,Image,img1810.jpg,Single,12,Wie viele rote Punkte siehst du?,How many red dots do you see?,"decomposition_13, place_value_2",,100-dot field recognition (small)
-41,Image,img1811.jpg,Single,85,Wie viele rote Punkte siehst du?,How many red dots do you see?,"decomposition_13, place_value_2",,100-dot field recognition (large)
-42,Image,img1812.jpg,Single,99,Wie viele rote Punkte siehst du?,How many red dots do you see?,"decomposition_13, place_value_2",,100-dot field recognition (near 100)
-43,Text,5,Multiple,"10, 15, 20, 25, 30, 35",Zähle in Fünfer Schritten von 5 aus weiter!,Count forward in steps of 5 ,"counting_8, counting_9",,Skip count by 5s
-44,Text,10,Multiple,"20, 30, 40, 50, 60, 70, 80, 90, 100",Zähle in Zehner Schritten von 10 aus weiter!,Count forward i steps of 10,"counting_8, counting_9",,Skip count by 10s
-45,Text,42,Multiple,"32, 22, 12, 2","Zähle in Zehner Schritten von 42 aus zurück, bis ich ‚stopp' sage!",Count backwards in steps of 10 from the number 42,"counting_8, counting_9",,Skip count by 10s backward
-46,Text,,Single,2,Wie viele Würfelpunkte hast du mehr als ich?,Your dice is the red one and mine is blue. How many more or fewer dots do you have than me?,"basic_strategy_4, basic_strategy_3, basic_strategy_5",,Comparison: more/less
-47,Text,1 + 5,Single,6,Eins plus 5 ist gleich was?,What is the answer to one plus 5?,"basic_strategy_2, basic_strategy_3",,Basic addition ZR10
-48,Text,5 + 4,Single,9,Fünf plus 4 ist gleich was?,What is the answer to 5 plus 4?,"basic_strategy_2, basic_strategy_3, combined_strategy_1, combined_strategy_3",,Basic addition ZR10 (near double)
-49,Text,8 – 5,Single,3,Acht minus 5 ist gleich was?,What is the answer to eight minus 5?,"basic_strategy_2, basic_strategy_3, combined_strategy_1, combined_strategy_3",,Basic subtraction ZR10
-50,Text,5 + _ = 8,Single,3,Fünf plus was ist acht? Was muss in die Lücke?,What do I have to add to 5 to make eight? What needs to go in the gap?,"basic_strategy_2, basic_strategy_3, combined_strategy_1, combined_strategy_3",,Fill-in-blank addition
-51,Text,_ + 2 = 7,Single,5,Was plus zwei ist sieben? Was muss in die Lücke?,What plus two is seven? What has to go in the gap?,"basic_strategy_2, basic_strategy_3, combined_strategy_1, combined_strategy_3",,Fill-in-blank addition (first position)
-52,Text,10 + 3,Single,13,Was ist 10 + 3?,What is 10 + 3?,basic_strategy_20,,Decade + ones
-53,Text,1 + 10,Single,11,Was ist 1 + 10?,What is 1 + 10?,basic_strategy_20,,Ones + decade (commutative)
-54,Text,10 – 7,Single,3,Was ist 10 – 7?,What is 10 - 7?,basic_strategy_20,,Decade - ones
-55,Text,18 – 10,Single,8,Was ist 18 – 10?,What is 18 - 10?,basic_strategy_20,,Teens - decade
-56,Text,20 + 3,Single,23,Was ist 20 + 3?,What is 20 + 3?,basic_strategy_21,,Decades + ones ZR100
-57,Text,6 + 30,Single,36,Was ist 6 + 30?,What is 6 + 30?,basic_strategy_21,,Ones + decades ZR100
-58,Text,78 – 8,Single,70,Was ist 78 – 8?,What is 78 - 8?,basic_strategy_21,,2-digit - ones
-59,Text,40 – 7,Single,33,Was ist 40 – 7?,What is 40 - 7?,basic_strategy_21,,Decades - ones
-60,Image,img1860.jpg,Single,26,Wie viele Würfel sind das?,How many cubes are these?,"place_value_1, counting_1, decomposition_13",buendeln,Card 10 item 1: 26 unstrukturierte Würfel
-61,Image,img1861.jpg,Single,100,Wie viele Würfel sind das insgesamt?,How many cubes in total?,"place_value_1, place_value_2",buendeln,Card 10 item 4: 8 Zehnerstangen + 20 Einer (fortgesetzte Bündelung)
-62,Text,Doppelte von 4,Single,8,Was ist das Doppelte von 4?,What is the double of 4?,"basic_strategy_7, basic_strategy_8",verdoppeln,Card 18 Verdoppeln bis 20
-63,Text,Doppelte von 5,Single,10,Was ist das Doppelte von 5?,What is the double of 5?,"basic_strategy_7, basic_strategy_8",verdoppeln,Card 18 Verdoppeln bis 20
-64,Text,Doppelte von 7,Single,14,Was ist das Doppelte von 7?,What is the double of 7?,"basic_strategy_8, basic_strategy_9",verdoppeln,Card 18 Verdoppeln bis 20
-65,Text,Doppelte von 9,Single,18,Was ist das Doppelte von 9?,What is the double of 9?,"basic_strategy_8, basic_strategy_9",verdoppeln,Card 18 Verdoppeln bis 20 (near-decade)
-66,Text,Doppelte von 10,Single,20,Was ist das Doppelte von 10?,What is the double of 10?,basic_strategy_10,verdoppeln,Card 18 Verdoppeln bis 20 (decade anchor)
-67,Text,Doppelte von 19,Single,38,Was ist das Doppelte von 19?,What is the double of 19?,"basic_strategy_10, combined_strategy_17",verdoppeln,Card 19 Verdoppeln bis 100 (near-decade with crossing)
-68,Text,Doppelte von 25,Single,50,Was ist das Doppelte von 25?,What is the double of 25?,combined_strategy_17,verdoppeln,Card 19 Verdoppeln bis 100 (Kraft der 5 helps)
-69,Text,Doppelte von 60,Single,120,Was ist das Doppelte von 60?,What is the double of 60?,"basic_strategy_10, combined_strategy_17",verdoppeln,Card 19 Verdoppeln bis 100 (decade > 100)
-70,Text,Hälfte von 6,Single,3,Was ist die Hälfte von 6?,What is half of 6?,basic_strategy_12,halbieren,Card 20 Halbieren bis 20
-71,Text,Hälfte von 8,Single,4,Was ist die Hälfte von 8?,What is half of 8?,basic_strategy_12,halbieren,Card 20 Halbieren bis 20
-72,Text,Hälfte von 10,Single,5,Was ist die Hälfte von 10?,What is half of 10?,"basic_strategy_12, decomposition_3",halbieren,Card 20 Halbieren bis 20 (anchor)
-73,Text,Hälfte von 14,Single,7,Was ist die Hälfte von 14?,What is half of 14?,"basic_strategy_12, basic_strategy_13",halbieren,Card 20 Halbieren bis 20 (with crossing)
-74,Text,Hälfte von 18,Single,9,Was ist die Hälfte von 18?,What is half of 18?,basic_strategy_12,halbieren,Card 20 Halbieren bis 20
-75,Text,Hälfte von 20,Single,10,Was ist die Hälfte von 20?,What is half of 20?,basic_strategy_14,halbieren,Card 20 Halbieren bis 20 (decade)
-76,Text,Hälfte von 50,Single,25,Was ist die Hälfte von 50?,What is half of 50?,"basic_strategy_14, combined_strategy_18",halbieren,Card 21 Halbieren bis 100 (decade)
-77,Text,Hälfte von 32,Single,16,Was ist die Hälfte von 32?,What is half of 32?,combined_strategy_18,halbieren,Card 21 Halbieren bis 100 (non-decade)
-78,Text,Hälfte von 70,Single,35,Was ist die Hälfte von 70?,What is half of 70?,"basic_strategy_14, combined_strategy_18",halbieren,Card 21 Halbieren bis 100 (decomposition needed)
-79,Text,Hälfte von 140,Single,70,Was ist die Hälfte von 140?,What is half of 140?,combined_strategy_18,halbieren,Card 21 Halbieren bis 100 (Analogie)
+19,Text,5,Multiple,"10, 15, 20, 25, 30, 35",Zähle in Fünfer Schritten von 5 aus weiter!,Count forward in steps of 5 ,"counting_8, counting_9",,Skip count by 5s
+20,Text,10,Multiple,"20, 30, 40, 50, 60, 70, 80, 90, 100",Zähle in Zehner Schritten von 10 aus weiter!,Count forward i steps of 10,"counting_8, counting_9",,Skip count by 10s
+21,Text,42,Multiple,"32, 22, 12, 2","Zähle in Zehner Schritten von 42 aus zurück, bis ich ‚stopp' sage!",Count backwards in steps of 10 from the number 42,"counting_8, counting_9",,Skip count by 10s backward
+22,Cards,,Sort,"4, 9, 12, 14, 22",Ordne die Zahlenkarten. Beginne mit der kleinsten Zahl!,Order the number cards. Start with the smallest number!,"counting_2, counting_10",,Order numbers ZR20
+23,Cards,,Sort,"3, 35, 53, 80, 91",Ordne die Zahlenkarten. Beginne mit der kleinsten Zahl!,Order the number cards. Start with the smallest number!,"counting_3, counting_11",,Order numbers ZR100
+24,Text,,Multiple,"1,6 / 2,5 / 3,4 / 4,3 / 5,2 / 6,1",Ich habe mit zwei würfeln eine 7 gewürfelt. Was könnte sonst auf den zwei würfeln stehen?,I rolled the dice again and 7 came up. What could the numbers on the two dice be?,"decomposition_1, decomposition_2, decomposition_5, decomposition_6, decomposition_7",,All decompositions of 7
+25,Text,3,Single,7,Wie viele fehlen bis 10,How many are missing until 10?,"decomposition_3, decomposition_15",,Complete to 10
+26,Text,8,Single,2,Wie viele fehlen bis 10,How many are missing until 10?,"decomposition_3, decomposition_15",,Complete to 10
+27,Text,5,Single,5,Wie viele fehlen bis 10,How many are missing until 10?,"decomposition_3, decomposition_15",,Complete to 10
+28,Text,11,Single,9,Wie viele fehlen bis 20,How many are missing until 20?,"decomposition_3, decomposition_15",,Complete to 20
+29,Text,9,Single,11,Wie viele fehlen bis 20,How many are missing until 20?,"decomposition_3, decomposition_15",,Complete to 20
+30,Text,1,Single,19,Wie viele fehlen bis 20,How many are missing until 20?,"decomposition_3, decomposition_15",,Complete to 20
+31,Image,img1936.jpg,Single,7,Wie viele Plättchen siehst du?,How many circles do you see?,decomposition_7,,Conscious seeing to 10
+32,Image,img1937.jpg,Single,8,Wie viele Plättchen siehst du?,How many circles do you see?,decomposition_7,,Conscious seeing to 10
+33,Image,img1938.jpg,Single,6,Wie viele Plättchen siehst du?,How many circles do you see?,decomposition_7,,Conscious seeing to 10
+34,Image,img1939.jpg,Single,10,Wie viele Plättchen siehst du?,How many circles do you see?,decomposition_7,,Conscious seeing to 10
+35,Image,img1888.jpg,Single,9,Wie viele rote Plättchen siehst du?,How many red circles do you see?,"basic_strategy_20, basic_strategy_21, basic_strategy_22, decomposition_9",,Quick seeing on Rechenschiffchen to 20
+36,Image,img1890.jpg,Single,14,Wie viele rote Plättchen siehst du?,How many red circles do you see?,"basic_strategy_20, basic_strategy_21, basic_strategy_22, decomposition_9",,Quick seeing on Rechenschiffchen to 20
+37,Image,img1889.jpg,Single,19,Wie viele rote Plättchen siehst du?,How many red circles do you see?,"basic_strategy_20, basic_strategy_21, basic_strategy_22, decomposition_9",,Quick seeing on Rechenschiffchen to 20
+38,Image,img1891.jpg,Single,16,Wie viele rote Plättchen siehst du?,How many red circles do you see?,"basic_strategy_20, basic_strategy_21, basic_strategy_22, decomposition_9",,Quick seeing on Rechenschiffchen to 20
+39,Image,img1860.jpg,Single,26,Wie viele Würfel sind das?,How many cubes are these?,"place_value_1, counting_1, decomposition_13",buendeln,Card 10 item 1: 26 unstrukturierte Würfel
+40,Image,img1861.jpg,Single,100,Wie viele Würfel sind das insgesamt?,How many cubes in total?,"place_value_1, place_value_2",buendeln,Card 10 item 4: 8 Zehnerstangen + 20 Einer (fortgesetzte Bündelung)
+41,Image,img1809.jpg,Single,100,Wie viele grüne Punkte siehst du?,How many green dots do you see?,"decomposition_13, place_value_2",,100-dot field recognition (full)
+42,Image,img1810.jpg,Single,12,Wie viele rote Punkte siehst du?,How many red dots do you see?,"decomposition_13, place_value_2",,100-dot field recognition (small)
+43,Image,img1811.jpg,Single,85,Wie viele rote Punkte siehst du?,How many red dots do you see?,"decomposition_13, place_value_2",,100-dot field recognition (large)
+44,Image,img1812.jpg,Single,99,Wie viele rote Punkte siehst du?,How many red dots do you see?,"decomposition_13, place_value_2",,100-dot field recognition (near 100)
+45,Image,img1858.jpg,Single,57,Wie viele sind es insgesamt?,How many are there?,"place_value_4, place_value_5, place_value_6",,Bundling/place value recognition ZR100
+46,Image,img1859.jpg,Single,35,Wie viele sind es insgesamt?,How many are there?,"place_value_4, place_value_6",,Bundling/place value recognition ZR100
+47,Text,,Multiple,"9, 17, 54, 60, 71, 90","Schreibe bitte die Zahlen auf, die ich dir ansage!","Write down the numbers that you hear! 9, 17, 54, 60, 71, 90","place_value_4, place_value_5, place_value_6",,German number word comprehension
+48,Text,,Single,2,Wie viele Würfelpunkte hast du mehr als ich?,Your dice is the red one and mine is blue. How many more or fewer dots do you have than me?,"basic_strategy_4, basic_strategy_3, basic_strategy_5",,Comparison: more/less
+49,Text,1 + 5,Single,6,Eins plus 5 ist gleich was?,What is the answer to one plus 5?,"basic_strategy_2, basic_strategy_3",,Basic addition ZR10
+50,Text,5 + 4,Single,9,Fünf plus 4 ist gleich was?,What is the answer to 5 plus 4?,"basic_strategy_2, basic_strategy_3, combined_strategy_1, combined_strategy_3",,Basic addition ZR10 (near double)
+51,Text,8 – 5,Single,3,Acht minus 5 ist gleich was?,What is the answer to eight minus 5?,"basic_strategy_2, basic_strategy_3, combined_strategy_1, combined_strategy_3",,Basic subtraction ZR10
+52,Text,5 + _ = 8,Single,3,Fünf plus was ist acht? Was muss in die Lücke?,What do I have to add to 5 to make eight? What needs to go in the gap?,"basic_strategy_2, basic_strategy_3, combined_strategy_1, combined_strategy_3",,Fill-in-blank addition
+53,Text,_ + 2 = 7,Single,5,Was plus zwei ist sieben? Was muss in die Lücke?,What plus two is seven? What has to go in the gap?,"basic_strategy_2, basic_strategy_3, combined_strategy_1, combined_strategy_3",,Fill-in-blank addition (first position)
+54,Text,Doppelte von 4,Single,8,Was ist das Doppelte von 4?,What is the double of 4?,"basic_strategy_7, basic_strategy_8",verdoppeln,Card 18 Verdoppeln bis 20
+55,Text,Doppelte von 5,Single,10,Was ist das Doppelte von 5?,What is the double of 5?,"basic_strategy_7, basic_strategy_8",verdoppeln,Card 18 Verdoppeln bis 20
+56,Text,Doppelte von 7,Single,14,Was ist das Doppelte von 7?,What is the double of 7?,"basic_strategy_8, basic_strategy_9",verdoppeln,Card 18 Verdoppeln bis 20
+57,Text,Doppelte von 9,Single,18,Was ist das Doppelte von 9?,What is the double of 9?,"basic_strategy_8, basic_strategy_9",verdoppeln,Card 18 Verdoppeln bis 20 (near-decade)
+58,Text,Doppelte von 10,Single,20,Was ist das Doppelte von 10?,What is the double of 10?,basic_strategy_10,verdoppeln,Card 18 Verdoppeln bis 20 (decade anchor)
+59,Text,Doppelte von 19,Single,38,Was ist das Doppelte von 19?,What is the double of 19?,"basic_strategy_10, combined_strategy_17",verdoppeln,Card 19 Verdoppeln bis 100 (near-decade with crossing)
+60,Text,Doppelte von 25,Single,50,Was ist das Doppelte von 25?,What is the double of 25?,combined_strategy_17,verdoppeln,Card 19 Verdoppeln bis 100 (Kraft der 5 helps)
+61,Text,Doppelte von 60,Single,120,Was ist das Doppelte von 60?,What is the double of 60?,"basic_strategy_10, combined_strategy_17",verdoppeln,Card 19 Verdoppeln bis 100 (decade > 100)
+62,Text,Hälfte von 6,Single,3,Was ist die Hälfte von 6?,What is half of 6?,basic_strategy_12,halbieren,Card 20 Halbieren bis 20
+63,Text,Hälfte von 8,Single,4,Was ist die Hälfte von 8?,What is half of 8?,basic_strategy_12,halbieren,Card 20 Halbieren bis 20
+64,Text,Hälfte von 10,Single,5,Was ist die Hälfte von 10?,What is half of 10?,"basic_strategy_12, decomposition_3",halbieren,Card 20 Halbieren bis 20 (anchor)
+65,Text,Hälfte von 14,Single,7,Was ist die Hälfte von 14?,What is half of 14?,"basic_strategy_12, basic_strategy_13",halbieren,Card 20 Halbieren bis 20 (with crossing)
+66,Text,Hälfte von 18,Single,9,Was ist die Hälfte von 18?,What is half of 18?,basic_strategy_12,halbieren,Card 20 Halbieren bis 20
+67,Text,Hälfte von 20,Single,10,Was ist die Hälfte von 20?,What is half of 20?,basic_strategy_14,halbieren,Card 20 Halbieren bis 20 (decade)
+68,Text,Hälfte von 50,Single,25,Was ist die Hälfte von 50?,What is half of 50?,"basic_strategy_14, combined_strategy_18",halbieren,Card 21 Halbieren bis 100 (decade)
+69,Text,Hälfte von 32,Single,16,Was ist die Hälfte von 32?,What is half of 32?,combined_strategy_18,halbieren,Card 21 Halbieren bis 100 (non-decade)
+70,Text,Hälfte von 70,Single,35,Was ist die Hälfte von 70?,What is half of 70?,"basic_strategy_14, combined_strategy_18",halbieren,Card 21 Halbieren bis 100 (decomposition needed)
+71,Text,Hälfte von 140,Single,70,Was ist die Hälfte von 140?,What is half of 140?,combined_strategy_18,halbieren,Card 21 Halbieren bis 100 (Analogie)
+72,Text,10 + 3,Single,13,Was ist 10 + 3?,What is 10 + 3?,basic_strategy_20,,Decade + ones
+73,Text,1 + 10,Single,11,Was ist 1 + 10?,What is 1 + 10?,basic_strategy_20,,Ones + decade (commutative)
+74,Text,10 – 7,Single,3,Was ist 10 – 7?,What is 10 - 7?,basic_strategy_20,,Decade - ones
+75,Text,18 – 10,Single,8,Was ist 18 – 10?,What is 18 - 10?,basic_strategy_20,,Teens - decade
+76,Text,20 + 3,Single,23,Was ist 20 + 3?,What is 20 + 3?,basic_strategy_21,,Decades + ones ZR100
+77,Text,6 + 30,Single,36,Was ist 6 + 30?,What is 6 + 30?,basic_strategy_21,,Ones + decades ZR100
+78,Text,78 – 8,Single,70,Was ist 78 – 8?,What is 78 - 8?,basic_strategy_21,,2-digit - ones
+79,Text,40 – 7,Single,33,Was ist 40 – 7?,What is 40 - 7?,basic_strategy_21,,Decades - ones
 80,Text,30 + 20,Single,50,Was ist 30 + 20?,What is 30 + 20?,"basic_strategy_11, combined_strategy_5",rechnen_zehner,Card 22 Rechnen mit Zehnern
 81,Text,40 + 30,Single,70,Was ist 40 + 30?,What is 40 + 30?,"basic_strategy_11, combined_strategy_5",rechnen_zehner,Card 22 Rechnen mit Zehnern
 82,Text,70 – 60,Single,10,Was ist 70 – 60?,What is 70 - 60?,"basic_strategy_11, combined_strategy_5",rechnen_zehner,Card 22 Rechnen mit Zehnern

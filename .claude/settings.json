@@ -78,7 +78,9 @@
       "PowerShell(cmd /c \"vercel env add NEXT_PUBLIC_STUDENT_APP_URL production < .envval\" 2>&1)",
       "PowerShell(vercel env add --help 2>&1)",
       "PowerShell(vercel env add NEXT_PUBLIC_STUDENT_APP_URL production --value 'https://prozedia-app.vercel.app' --no-sensitive 2>&1)",
-      "PowerShell(vercel env ls production 2>&1)"
+      "PowerShell(vercel env ls production 2>&1)",
+      "PowerShell(flutter --version 2>&1)",
+      "Bash(curl -s -I https://prozedia-app.vercel.app/)"
     ],
     "additionalDirectories": [
       "c:\\Users\\jakob\\.claude\\projects\\c--Users-jakob-StudioProjects-Math-App\\memory",

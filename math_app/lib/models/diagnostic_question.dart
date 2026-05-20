@@ -38,6 +38,7 @@ class DiagnosticQuestion {
     required this.ifWrongPracticeSkills,
     this.ifWrongSkip,
     this.skipGroup,
+    this.zahlenraum,
     this.imagePath,
   });
 }

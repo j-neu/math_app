@@ -46,35 +46,37 @@ export default async function FoerderplanPage({ params }: Props) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  const { data: sessionMeta } = await supabase
+    .from("diagnostic_sessions")
+    .select("status")
+    .eq("id", params.sessionId)
+    .single();
+
+  const isPartial = sessionMeta?.status !== "completed";
+
+  // Always (re)generate for in-progress sessions so the plan reflects the latest answers.
+  // For completed sessions, only generate if no plan exists yet.
   let { data: plan } = await supabase
     .from("foerderplaene")
     .select("*")
     .eq("session_id", params.sessionId)
     .maybeSingle();
 
-  if (!plan) {
-    const { data: sessionStatus } = await supabase
-      .from("diagnostic_sessions")
-      .select("status")
-      .eq("id", params.sessionId)
-      .single();
-
-    if (sessionStatus?.status === "completed") {
-      await generateFoerderplan(params.sessionId);
-      const retry = await supabase
-        .from("foerderplaene")
-        .select("*")
-        .eq("session_id", params.sessionId)
-        .maybeSingle();
-      plan = retry.data;
-    }
+  if (!plan || isPartial) {
+    await generateFoerderplan(params.sessionId);
+    const retry = await supabase
+      .from("foerderplaene")
+      .select("*")
+      .eq("session_id", params.sessionId)
+      .maybeSingle();
+    plan = retry.data;
   }
 
   if (!plan) {
     return (
       <div className="text-center py-16 text-gray-400">
-        <p>Kein Förderplan gefunden.</p>
-        <p className="text-sm mt-1">Möglicherweise wurde die Diagnostik noch nicht abgeschlossen.</p>
+        <p>Kein Förderplan konnte erstellt werden.</p>
+        <p className="text-sm mt-1">Möglicherweise wurden noch keine Fragen beantwortet.</p>
         <Link href="/dashboard" className="text-blue-600 text-sm mt-4 inline-block hover:underline">
           Zurück zur Übersicht
         </Link>
@@ -134,6 +136,13 @@ export default async function FoerderplanPage({ params }: Props) {
           Als PDF exportieren
         </a>
       </div>
+
+      {/* Partial-plan warning */}
+      {isPartial && (
+        <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg text-sm">
+          <strong>Hinweis:</strong> Die Diagnostik ist noch nicht abgeschlossen. Dieser Förderplan basiert auf den bisher gegebenen Antworten und wird beim erneuten Aufrufen aktualisiert.
+        </div>
+      )}
 
       {/* Slow response warning */}
       {plan.slow_response_flag && (

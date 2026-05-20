@@ -103,15 +103,19 @@ Deno.serve(async (req) => {
     .single();
 
   if (!session) return json({ error: "Session not found" }, 404);
-  if (session.status !== "completed") return json({ error: "Session is not completed" }, 409);
+  // Allow generation from in_progress sessions too — teacher may want a partial plan.
+  // Caller (dashboard) tags the plan as partial via the session status it sees.
 
-  // Return existing plan if already generated
-  const { data: existing } = await supabase
-    .from("foerderplaene")
-    .select("*")
-    .eq("session_id", session_id)
-    .maybeSingle();
-  if (existing) return json(existing);
+  // For completed sessions: return cached plan if one exists.
+  // For in_progress sessions: always regenerate so the plan reflects the latest answers.
+  if (session.status === "completed") {
+    const { data: existing } = await supabase
+      .from("foerderplaene")
+      .select("*")
+      .eq("session_id", session_id)
+      .maybeSingle();
+    if (existing) return json(existing);
+  }
 
   // Load all questions for this diagnostic
   const { data: questions, error: qErr } = await supabase
@@ -218,16 +222,18 @@ Deno.serve(async (req) => {
   }
   const slowResponseFlag = correctCount > 0 && slowCount / correctCount >= SLOW_RESPONSE_FRACTION;
 
-  // --- 6. Persist ---
+  // --- 6. Persist (upsert so in-progress regenerations overwrite the previous partial plan) ---
   const { data: plan, error: pErr } = await supabase
     .from("foerderplaene")
-    .insert({
+    .upsert({
       session_id,
       brief_skill_ids: briefSkillIds,
       recommended_skill_ids: recommendedSkillIds,
       category_stats: categoryStats,
       slow_response_flag: slowResponseFlag,
-    })
+      generated_at: new Date().toISOString(),
+      pdf_storage_path: null,
+    }, { onConflict: "session_id" })
     .select()
     .single();
 

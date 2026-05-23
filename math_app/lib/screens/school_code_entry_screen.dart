@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
+import 'diagnostic_complete_screen.dart';
 import 'diagnostic_screen.dart';
 
 // Entry screen for the short-URL classroom flow.
@@ -38,9 +39,16 @@ class _SchoolCodeEntryScreenState extends State<SchoolCodeEntryScreen> {
       _error = null;
     });
     try {
-      final (:sessionId, :resumed, :priorResults) =
+      final (:sessionId, :resumed, :alreadyCompleted, :priorResults) =
           await ApiService().startSessionByCode(widget.schoolSlug, code);
       if (!mounted) return;
+
+      if (alreadyCompleted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const DiagnosticCompleteScreen()),
+        );
+        return;
+      }
 
       final profile = UserProfile(
         id: sessionId,
@@ -60,7 +68,7 @@ class _SchoolCodeEntryScreenState extends State<SchoolCodeEntryScreen> {
         ),
       );
     } on TicketNotFoundException {
-      setState(() => _error = 'Code nicht gefunden. Bitte prüfe die Eingabe oder frage deinen Lehrer.');
+      setState(() => _error = 'Code nicht gefunden. Bitte prüfe die Eingabe oder frage deine Lehrkraft.');
     } catch (_) {
       setState(() => _error = 'Ein Fehler ist aufgetreten. Bitte versuche es noch einmal.');
     } finally {

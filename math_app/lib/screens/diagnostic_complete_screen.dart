@@ -29,7 +29,7 @@ class DiagnosticCompleteScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                'Fertig!\nBitte zeig deinem Lehrer den Bildschirm.',
+                'Fertig!\nBitte zeig deiner Lehrkraft den Bildschirm.',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       color: Colors.black87,
                       height: 1.5,

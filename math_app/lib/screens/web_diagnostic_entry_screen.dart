@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
+import 'diagnostic_complete_screen.dart';
 import 'diagnostic_screen.dart';
 
 // Entry point for the web student flow: receives a ticket ID from the URL,
@@ -26,9 +27,16 @@ class _WebDiagnosticEntryScreenState extends State<WebDiagnosticEntryScreen> {
 
   Future<void> _startSession() async {
     try {
-      final (:sessionId, :resumed, :priorResults) =
+      final (:sessionId, :resumed, :alreadyCompleted, :priorResults) =
           await ApiService().startSession(widget.ticketId);
       if (!mounted) return;
+
+      if (alreadyCompleted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const DiagnosticCompleteScreen()),
+        );
+        return;
+      }
 
       final profile = UserProfile(
         id: sessionId,
@@ -49,10 +57,10 @@ class _WebDiagnosticEntryScreenState extends State<WebDiagnosticEntryScreen> {
       );
     } on SessionExpiredException {
       setState(() => _error =
-          'Dieser Link ist abgelaufen.\nBitte bitte deinen Lehrer um einen neuen QR-Code.');
+          'Dieser Link ist abgelaufen.\nBitte bitte deine Lehrkraft um einen neuen QR-Code.');
     } on TicketNotFoundException {
       setState(() => _error =
-          'Dieser Link ist ungültig.\nBitte bitte deinen Lehrer um einen neuen QR-Code.');
+          'Dieser Link ist ungültig.\nBitte bitte deine Lehrkraft um einen neuen QR-Code.');
     } catch (_) {
       setState(() => _error =
           'Ein Fehler ist aufgetreten.\nBitte versuche es später noch einmal.');

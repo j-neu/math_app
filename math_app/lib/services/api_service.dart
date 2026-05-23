@@ -37,16 +37,16 @@ class ServerResult {
 
 class ApiService {
   // Exchanges a session ticket UUID for a session ID (QR-code flow).
-  Future<({String sessionId, bool resumed, List<ServerResult> priorResults})>
+  Future<({String sessionId, bool resumed, bool alreadyCompleted, List<ServerResult> priorResults})>
       startSession(String ticketId) => _startSessionRaw({'ticket_id': ticketId});
 
   // Resolves a school slug + 4-char code and starts (or resumes) a session
   // (keyboard-code / short-URL flow).
-  Future<({String sessionId, bool resumed, List<ServerResult> priorResults})>
+  Future<({String sessionId, bool resumed, bool alreadyCompleted, List<ServerResult> priorResults})>
       startSessionByCode(String schoolSlug, String code) =>
           _startSessionRaw({'school_slug': schoolSlug, 'short_code': code.toUpperCase()});
 
-  Future<({String sessionId, bool resumed, List<ServerResult> priorResults})>
+  Future<({String sessionId, bool resumed, bool alreadyCompleted, List<ServerResult> priorResults})>
       _startSessionRaw(Map<String, dynamic> body) async {
     final response = await http.post(
       Uri.parse('$_supabaseUrl/diagnostic-sessions'),
@@ -65,6 +65,7 @@ class ApiService {
     return (
       sessionId: data['session_id'] as String,
       resumed: data['resumed'] as bool? ?? false,
+      alreadyCompleted: data['already_completed'] as bool? ?? false,
       priorResults: rawResults
           .map((r) => ServerResult.fromJson(r as Map<String, dynamic>))
           .toList(),

@@ -57,6 +57,19 @@ Deno.serve(async (req) => {
     return json({ error: "Ticket expired" }, 410);
   }
 
+  // ── Already-completed session — return it without creating a new one ─────────
+  // This prevents a page-refresh from spawning a second empty session.
+  const { data: done } = await supabase
+    .from("diagnostic_sessions")
+    .select("id")
+    .eq("ticket_id", ticket_id)
+    .eq("status", "completed")
+    .maybeSingle();
+
+  if (done) {
+    return json({ session_id: done.id, resumed: false, already_completed: true });
+  }
+
   // ── Resume in-progress session ───────────────────────────────────────────────
   const { data: existing } = await supabase
     .from("diagnostic_sessions")

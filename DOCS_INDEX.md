@@ -11,7 +11,7 @@ One stop for every `.md` file in this repo. Read this first; jump from here.
 - [README.md](README.md) — 🟢 One-page project overview + pointers. The elevator pitch.
 - [STATUS.md](STATUS.md) — 🟢 What's shipped / active / paused right now. The headline status doc.
 - [phase1_school_platform.md](phase1_school_platform.md) — 🟢 Active build plan: backend, dashboard, Flutter web, pilot.
-- [phase1.1_fixes.md](phase1.1_fixes.md) — 🟢 Phase 1.1: 11 diagnostic & dashboard fixes (issues 1–6 done; 7–9, 11 planned).
+- [phase1.1_fixes.md](phase1.1_fixes.md) — 🟢 Phase 1.1: 11 diagnostic & dashboard fixes — all deployed 2026-05-23.
 - [TERMINOLOGY.md](TERMINOLOGY.md) — 🟢 Defines Skill / Level / Problem hierarchy. Read once and "exercise" vs "skill" stops being confusing.
 
 ## Diagnostic / Förderplan

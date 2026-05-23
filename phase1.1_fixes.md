@@ -2,7 +2,7 @@
 
 **Created:** 2026-05-23
 **Owner:** Jakob (solo)
-**Status:** In Progress
+**Status:** ✅ Deployed 2026-05-23
 
 Eleven issues found during first end-to-end testing, organized and tracked here.
 Branches from Phase D.5 completion. Does not touch the practice engine.
@@ -29,23 +29,14 @@ Branches from Phase D.5 completion. Does not touch the practice engine.
 
 ## Deploy checklist (all 11 issues)
 
+All steps completed 2026-05-23.
+
 ```bash
-# 1. Push DB migrations (two files: question fixes + ticket schema)
-cd backend && supabase db push
-
-# 2. Deploy updated edge functions
-supabase functions deploy diagnostic-sessions
-supabase functions deploy diagnostic-results
-supabase functions deploy foerderplan-kurz-pdf   # new
-
-# 3. Rebuild Flutter web build (bundled CSV + screen changes)
-cd ../math_app && flutter build web --no-tree-shake-icons
-
-# 4. Deploy Flutter web build
-vercel deploy --prod   # from math_app/build/web — see reference_vercel.md
-
-# 5. Deploy dashboard (git push triggers auto-deploy on prozedia-portal)
-cd ../dashboard && git push
+# 1. DB migrations — already applied (supabase db push --dry-run confirmed up to date)
+# 2. Edge functions — deployed: diagnostic-sessions, diagnostic-results, foerderplan-kurz-pdf
+# 3. Flutter web — rebuilt (also fixed school_code_entry_screen.dart compile error)
+# 4. Flutter web — deployed to prozedia-app.vercel.app via vercel --prod --yes
+# 5. Dashboard — pushed to main; prozedia-portal auto-deployed
 ```
 
 ---

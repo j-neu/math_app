@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-05-23
+**Last updated:** 2026-05-23 (evening)
 
 One-screen view of what's shipped, what's active, and what's paused. For the doc map, see [DOCS_INDEX.md](DOCS_INDEX.md). For the active plan, see [phase1_school_platform.md](phase1_school_platform.md).
 
@@ -16,14 +16,14 @@ One-screen view of what's shipped, what's active, and what's paused. For the doc
 - **Flutter Web student client** (Phase C, 2026-05-17). `go_router`, `ApiService`, `/s/:ticket` route, `WebDiagnosticEntryScreen`, `DiagnosticCompleteScreen` (no Förderplan on kid screen). Deployed to Vercel `fra1` as `prozedia-app`.
 - **Pilot polish** (Phase D, ~80%). DSGVO pages (`/datenschutz`, `/impressum`), CookieBanner, footer in dashboard layout, `delete-school-data` edge function (right-to-erasure with cascade), audio moved to Supabase Storage.
 - **Phase D.5 blockers fixed** (2026-05-20 → 2026-05-22). Diagnostic resume across browser close, Q47 audio, Förderplan lazy-generation on view, full 98-question web build, bulk QR PDF for a class, short-URL school login (slug + 4-char short code, no ticket expiry).
+- **Phase 1.1 fixes** (2026-05-23). All 11 issues deployed: Q39/Q40 deleted, doubling/halving question content fixed, Q48 dice, Förderplan race condition, session force-complete, retry-wrong-questions ticket, abbreviated-mode toggle (server-driven), historical-sessions page per student, SenBJF Kurzförderplan PDF + Word. Plus: `leer`/`übersprungen` status labels in detail table, `school_code_entry_screen` wired to full ticket flags. Deployed: 3 edge functions, Flutter web rebuild, dashboard via git push.
 - **Vercel deployments.** `prozedia-portal` (git-connected to `main`) and `prozedia-app` (CLI-only deploys). See [memory: reference-vercel](../../.claude/projects/c--Users-jakob-StudioProjects-Math-App/memory/reference_vercel.md).
 
 ## Active
 
 Work in flight or queued in priority order:
 
-1. **Phase 1.1 fixes** (2026-05-23). See [phase1.1_fixes.md](phase1.1_fixes.md). All 11 issues implemented, awaiting deploy. Deploy checklist in `phase1.1_fixes.md`.
-2. **Fill legal placeholders** in `dashboard/app/impressum/page.tsx` and `dashboard/app/datenschutz/page.tsx` (`[NAME/ADRESSE/EMAIL]`).
+1. **Fill legal placeholders** in `dashboard/app/impressum/page.tsx` and `dashboard/app/datenschutz/page.tsx` (`[NAME/ADRESSE/EMAIL]`).
 2. **AVV/DPA signature** with Supabase (`supabase.com/legal/dpa`) and with each pilot school before data processing.
 3. **One-page German teacher onboarding document.**
 4. **Cross-browser smoke** of the Flutter web client (iPad Safari, Android Chrome, Firefox) — deferred to pilot day-1 unless something specific surfaces sooner.

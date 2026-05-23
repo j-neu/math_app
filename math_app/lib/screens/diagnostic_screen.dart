@@ -33,6 +33,9 @@ class DiagnosticScreen extends StatefulWidget {
   // previously submitted to the server and should be used to hydrate state
   // and skip to the first unanswered question.
   final List<ServerResult>? priorResults;
+  // When non-null and retryMode is true, only questions with these list numbers
+  // are shown. Returned by the server when a retry ticket is redeemed.
+  final List<int>? retryQuestionNumbers;
 
   const DiagnosticScreen({
     super.key,
@@ -40,6 +43,7 @@ class DiagnosticScreen extends StatefulWidget {
     this.retryMode = false,
     this.sessionId,
     this.priorResults,
+    this.retryQuestionNumbers,
   });
 
   @override
@@ -132,14 +136,20 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
 
   Future<List<DiagnosticQuestion>> _loadQuestions() async {
     final allQuestions = await DiagnosticService().loadQuestions();
-    
+
     if (!widget.retryMode) {
       return allQuestions;
     }
 
-    // Filter for incorrect questions from last session
+    // Server-driven retry: use question numbers returned by the API.
+    if (widget.retryQuestionNumbers != null && widget.retryQuestionNumbers!.isNotEmpty) {
+      final numberSet = widget.retryQuestionNumbers!.toSet();
+      return allQuestions.where((q) => numberSet.contains(q.listNumber)).toList();
+    }
+
+    // Fallback: filter from local diagnostic history (desktop/offline mode).
     if (widget.userProfile.diagnosticHistory.isEmpty) {
-      return allQuestions; // Fallback
+      return allQuestions;
     }
 
     final lastSession = widget.userProfile.diagnosticHistory.last;
@@ -147,9 +157,8 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
         .where((r) => !r.wasCorrect)
         .map((r) => r.questionId)
         .toSet();
-        
+
     if (incorrectIds.isEmpty) {
-      // Perfect score? Return all just in case or handle empty state
       return allQuestions;
     }
 
@@ -587,6 +596,13 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
       setState(() {
         _currentQuestionIndex++;
       });
+      // Force-complete the session on the server regardless of whether all
+      // individual skip-result posts succeeded (they may have failed silently).
+      try {
+        await ApiService().completeSession(_sessionId!);
+      } catch (e) {
+        debugPrint('completeSession failed: $e');
+      }
       await Future.delayed(const Duration(seconds: 2));
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
@@ -674,8 +690,8 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   bool _checkAnswer(String userAnswer, String correctAnswer, AnswerFormat format, int questionNumber) {
     if (userAnswer.isEmpty) return false;
 
-    // Special case for Question 21: Any pair summing to 7
-    if (questionNumber == 21) {
+    // Q21 and Q24 both ask for any two dice values that sum to 7
+    if (questionNumber == 21 || questionNumber == 24) {
        // Expecting "val1, val2" from MultipleAnswerWidget
        final parts = userAnswer.split(',').map((s) => int.tryParse(s.trim()) ?? -1).toList();
        // Check if we have exactly 2 valid numbers > 0 that sum to 7
@@ -804,9 +820,9 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
                     _buildQ21Display(),
                     const SizedBox(height: 8),
                   ],
-                  // Q46: generated dice comparison (red = child, blue = teacher)
-                  if (question.listNumber == 46) ...[
-                    _buildQ46Display(),
+                  // Q48: generated dice comparison (red = child, blue = teacher)
+                  if (question.listNumber == 48) ...[
+                    _buildQ48Display(),
                     const SizedBox(height: 8),
                   ],
                   // Display image if available
@@ -885,9 +901,9 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   Widget _buildAnswerWidget(
       DiagnosticQuestion question, List<DiagnosticQuestion> questions) {
     void onSubmit() => _nextQuestion(questions);
-    if (question.listNumber == 21) {
+    if (question.listNumber == 21 || question.listNumber == 24) {
       return Q21AnswerWidget(
-        key: ValueKey('q21_${question.listNumber}'),
+        key: ValueKey('q_${question.listNumber}'),
         controller: _textController,
         onSubmit: onSubmit,
       );
@@ -989,8 +1005,8 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     );
   }
 
-  // Q46: red die (child = 5) and blue die (teacher = 3).
-  Widget _buildQ46Display() {
+  // Q48: red die (child = 5) and blue die (teacher = 3).
+  Widget _buildQ48Display() {
     return Column(
       children: [
         Row(

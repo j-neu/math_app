@@ -12,7 +12,7 @@ This document uses the term "exercise" in some places for historical reasons, bu
 - **Problem** = Individual question within a level
 
 When you see "exercise" below, it typically refers to a **skill** (the complete multi-level module).
-See [GEMINI.md](GEMINI.md) Terminology section for full clarification.
+See [TERMINOLOGY.md](TERMINOLOGY.md) for full clarification.
 
 ---
 
@@ -1661,4 +1661,4 @@ This design system prioritizes:
 
 ---
 
-**For questions or clarifications, see [GEMINI.md](GEMINI.md) or contact project maintainer.**
+**For questions or clarifications, see [TERMINOLOGY.md](TERMINOLOGY.md) and [STATUS.md](STATUS.md), or contact project maintainer.**

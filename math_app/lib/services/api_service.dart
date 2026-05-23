@@ -37,16 +37,16 @@ class ServerResult {
 
 class ApiService {
   // Exchanges a session ticket UUID for a session ID (QR-code flow).
-  Future<({String sessionId, bool resumed, bool alreadyCompleted, List<ServerResult> priorResults})>
+  Future<({String sessionId, bool resumed, bool alreadyCompleted, List<ServerResult> priorResults, bool retryMode, List<int> retryQuestionNumbers, bool abbreviatedMode})>
       startSession(String ticketId) => _startSessionRaw({'ticket_id': ticketId});
 
   // Resolves a school slug + 4-char code and starts (or resumes) a session
   // (keyboard-code / short-URL flow).
-  Future<({String sessionId, bool resumed, bool alreadyCompleted, List<ServerResult> priorResults})>
+  Future<({String sessionId, bool resumed, bool alreadyCompleted, List<ServerResult> priorResults, bool retryMode, List<int> retryQuestionNumbers, bool abbreviatedMode})>
       startSessionByCode(String schoolSlug, String code) =>
           _startSessionRaw({'school_slug': schoolSlug, 'short_code': code.toUpperCase()});
 
-  Future<({String sessionId, bool resumed, bool alreadyCompleted, List<ServerResult> priorResults})>
+  Future<({String sessionId, bool resumed, bool alreadyCompleted, List<ServerResult> priorResults, bool retryMode, List<int> retryQuestionNumbers, bool abbreviatedMode})>
       _startSessionRaw(Map<String, dynamic> body) async {
     final response = await http.post(
       Uri.parse('$_supabaseUrl/diagnostic-sessions'),
@@ -62,6 +62,7 @@ class ApiService {
 
     final data = jsonDecode(response.body) as Map<String, dynamic>;
     final rawResults = (data['results'] as List?) ?? const [];
+    final rawRetryNums = (data['retry_question_numbers'] as List?) ?? const [];
     return (
       sessionId: data['session_id'] as String,
       resumed: data['resumed'] as bool? ?? false,
@@ -69,6 +70,9 @@ class ApiService {
       priorResults: rawResults
           .map((r) => ServerResult.fromJson(r as Map<String, dynamic>))
           .toList(),
+      retryMode: data['retry_mode'] as bool? ?? false,
+      retryQuestionNumbers: rawRetryNums.map((n) => n as int).toList(),
+      abbreviatedMode: data['abbreviated_mode'] as bool? ?? false,
     );
   }
 
@@ -101,6 +105,21 @@ class ApiService {
 
     final data = jsonDecode(response.body) as Map<String, dynamic>;
     return data['session_completed'] as bool? ?? false;
+  }
+
+  // Explicitly marks a session as completed on the server.
+  // Called by the web client after the last question is answered, as a safety
+  // net in case any skip-result posts failed silently and the auto-complete
+  // check in diagnostic-results never fired.
+  Future<void> completeSession(String sessionId) async {
+    final response = await http.post(
+      Uri.parse('$_supabaseUrl/diagnostic-sessions'),
+      headers: _headers,
+      body: jsonEncode({'session_id': sessionId, 'action': 'complete'}),
+    );
+    if (response.statusCode != 200) {
+      throw ApiException('completeSession failed (${response.statusCode}): ${response.body}');
+    }
   }
 }
 

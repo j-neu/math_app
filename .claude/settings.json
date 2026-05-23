@@ -80,7 +80,22 @@
       "PowerShell(vercel env add NEXT_PUBLIC_STUDENT_APP_URL production --value 'https://prozedia-app.vercel.app' --no-sensitive 2>&1)",
       "PowerShell(vercel env ls production 2>&1)",
       "PowerShell(flutter --version 2>&1)",
-      "Bash(curl -s -I https://prozedia-app.vercel.app/)"
+      "Bash(curl -s -I https://prozedia-app.vercel.app/)",
+      "Bash(supabase storage *)",
+      "Bash(supabase status *)",
+      "Bash(curl -sI \"https://zzxqeqwffexythqzjkxr.supabase.co/storage/v1/object/public/audio/zahlen_diktat.mp3\")",
+      "Bash(vercel ls *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(git rm *)",
+      "Bash(git -C \"C:/Users/jakob/StudioProjects/Math_App\" status)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\jakob\\\\StudioProjects\\\\Math_App\" -Recurse -Directory -Name)",
+      "Bash(Select-Object -First 30)",
+      "Bash(xargs grep -l \"session_tickets\\\\|diagnostic_sessions\")",
+      "Bash(xargs grep -l \"\\\\/s\\\\/\")",
+      "Bash(Select-String -Path \"c:\\\\Users\\\\jakob\\\\StudioProjects\\\\Math_App\\\\dashboard\\\\package.json\" -Pattern \"docx\" -Quiet)",
+      "Bash(npx tsc *)"
     ],
     "additionalDirectories": [
       "c:\\Users\\jakob\\.claude\\projects\\c--Users-jakob-StudioProjects-Math-App\\memory",

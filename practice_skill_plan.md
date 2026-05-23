@@ -18,7 +18,7 @@ A Claude Code Skill is the right shape for this kind of repeatable, multi-doc wo
 
 1. **Canonical pattern not settled.** Z1 has a finale level; `IMINT_TO_APP_FRAMEWORK.md` (current) says no finale ever; `Archive/C1.1_FINALE_PATTERN.md` prescribes one. A skill built today would encode a contradiction. Pick one, retrofit or grandfather the others, then encode.
 
-2. **Widget primitives missing.** `tasks.md` lists `DienesBlocksWidget`, `RechenschiffchenWidget` (partial), `HundredChartWidget`, `FlashCardWidget`, `WendeplättchenWidget` as critical for Sets 2-4 and absent today. A skill that "creates an exercise" hits a wall the moment the required manipulative doesn't exist — turning into a frustration amplifier that runs 80% then dies. Build the widget catalog first; have the skill assume "pick from this list."
+2. **Widget primitives missing.** `Archive/tasks_2026-05.md` lists `DienesBlocksWidget`, `RechenschiffchenWidget` (partial), `HundredChartWidget`, `FlashCardWidget`, `WendeplättchenWidget` as critical for Sets 2-4 and absent today. A skill that "creates an exercise" hits a wall the moment the required manipulative doesn't exist — turning into a frustration amplifier that runs 80% then dies. Build the widget catalog first; have the skill assume "pick from this list."
 
 3. **Wrong phase.** Phase 0 (Diagnostic) is the MVP. Tooling for deferred work is premature.
 

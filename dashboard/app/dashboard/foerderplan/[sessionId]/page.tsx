@@ -44,16 +44,11 @@ export default async function FoerderplanPage({ params }: Props) {
     .maybeSingle();
 
   if (!plan || isPartial) {
-    const { error: fnErr } = await supabase.functions.invoke("foerderplan-generate", {
+    const { data: generated, error: fnErr } = await supabase.functions.invoke("foerderplan-generate", {
       body: { session_id: params.sessionId },
     });
     if (fnErr) console.error("foerderplan-generate failed:", fnErr);
-    const retry = await supabase
-      .from("foerderplaene")
-      .select("*")
-      .eq("session_id", params.sessionId)
-      .maybeSingle();
-    plan = retry.data;
+    else if (generated) plan = generated;
   }
 
   if (!plan) {
@@ -145,11 +140,13 @@ export default async function FoerderplanPage({ params }: Props) {
     : "—";
 
   const pdfUrl = `/api/foerderplan-pdf?session_id=${params.sessionId}`;
+  const kurzPdfUrl = `/api/foerderplan-kurz-pdf?session_id=${params.sessionId}`;
+  const kurzDocxUrl = `/api/foerderplan-kurz-docx?session_id=${params.sessionId}`;
 
   return (
     <div className="space-y-8 max-w-3xl">
       {/* Header */}
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between gap-4">
         <div>
           <Link href="/dashboard" className="text-sm text-gray-400 hover:text-gray-600">
             ← Zurück zur Übersicht
@@ -159,13 +156,28 @@ export default async function FoerderplanPage({ params }: Props) {
             {student?.display_name ?? "—"} · {sessionDate}
           </p>
         </div>
-        <a
-          href={pdfUrl}
-          target="_blank"
-          className="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-        >
-          Als PDF exportieren
-        </a>
+        <div className="flex flex-col items-end gap-2 flex-shrink-0">
+          <a
+            href={pdfUrl}
+            target="_blank"
+            className="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          >
+            Als PDF exportieren
+          </a>
+          <a
+            href={kurzPdfUrl}
+            target="_blank"
+            className="inline-flex items-center gap-2 border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          >
+            Förderplan nach SenBJF (PDF)
+          </a>
+          <a
+            href={kurzDocxUrl}
+            className="inline-flex items-center gap-2 border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          >
+            Förderplan nach SenBJF (Word)
+          </a>
+        </div>
       </div>
 
       {/* Partial-plan warning */}

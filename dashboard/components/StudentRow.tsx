@@ -45,7 +45,10 @@ export function StudentRow({ student, diagnosticId, totalQuestions }: Props) {
   const [ticketUrl, setTicketUrl] = useState<string | null>(null);
   const [shortCode, setShortCode] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
+  const [generatingRetry, setGeneratingRetry] = useState(false);
   const [showQr, setShowQr] = useState(false);
+  const [isRetryTicket, setIsRetryTicket] = useState(false);
+  const [abbreviatedMode, setAbbreviatedMode] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const router = useRouter();
 
@@ -58,9 +61,11 @@ export function StudentRow({ student, diagnosticId, totalQuestions }: Props) {
     .filter((s) => s.status === "completed" || (s.diagnostic_results?.length ?? 0) > 0);
   const latest = realSessions[0];
   const answeredCount = latest?.diagnostic_results?.length ?? 0;
+  const latestCompleted = realSessions.find((s) => s.status === "completed");
 
   async function generateTicket() {
     setGenerating(true);
+    setIsRetryTicket(false);
     const supabase = createClient();
 
     // Priority 1: If there is an active in_progress session (with answers), reuse its
@@ -101,11 +106,15 @@ export function StudentRow({ student, diagnosticId, totalQuestions }: Props) {
       code = unconsumed.short_code ?? "";
     } else {
       // Priority 3: No active session, no unconsumed ticket — create a fresh one.
-      // This happens after a completed diagnostic when the teacher wants to re-run.
       const newCode = generateShortCode();
       const { data } = await supabase
         .from("session_tickets")
-        .insert({ student_id: student.id, diagnostic_id: diagnosticId, short_code: newCode })
+        .insert({
+          student_id: student.id,
+          diagnostic_id: diagnosticId,
+          short_code: newCode,
+          abbreviated_mode: abbreviatedMode,
+        })
         .select("id, short_code")
         .single();
       if (!data) { setGenerating(false); return; }
@@ -118,6 +127,34 @@ export function StudentRow({ student, diagnosticId, totalQuestions }: Props) {
     setShortCode(code);
     setShowQr(true);
     setGenerating(false);
+  }
+
+  async function generateRetryTicket() {
+    if (!latestCompleted) return;
+    setGeneratingRetry(true);
+    setIsRetryTicket(true);
+    const supabase = createClient();
+
+    const newCode = generateShortCode();
+    const { data } = await supabase
+      .from("session_tickets")
+      .insert({
+        student_id: student.id,
+        diagnostic_id: diagnosticId,
+        short_code: newCode,
+        retry_mode: true,
+        retry_session_id: latestCompleted.id,
+      })
+      .select("id, short_code")
+      .single();
+
+    if (!data) { setGeneratingRetry(false); return; }
+
+    const base = process.env.NEXT_PUBLIC_STUDENT_APP_URL ?? window.location.origin;
+    setTicketUrl(`${base}/s/${data.id}`);
+    setShortCode(data.short_code ?? newCode);
+    setShowQr(true);
+    setGeneratingRetry(false);
   }
 
   async function deleteStudent() {
@@ -136,7 +173,9 @@ export function StudentRow({ student, diagnosticId, totalQuestions }: Props) {
             {student.display_name.charAt(0).toUpperCase()}
           </div>
           <div>
-            <p className="font-medium text-sm">{student.display_name}</p>
+            <Link href={`/dashboard/students/${student.id}`} className="font-medium text-sm hover:text-blue-600 hover:underline">
+              {student.display_name}
+            </Link>
             {latest && (
               <div className="flex items-center gap-2 mt-0.5">
                 <span className={`text-xs px-1.5 py-0.5 rounded ${STATUS_LABEL[latest.status]?.className ?? ""}`}>
@@ -161,13 +200,37 @@ export function StudentRow({ student, diagnosticId, totalQuestions }: Props) {
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Abbreviated mode toggle — only relevant when creating a fresh ticket */}
+          <label className="flex items-center gap-1.5 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={abbreviatedMode}
+              onChange={(e) => setAbbreviatedMode(e.target.checked)}
+              className="w-3.5 h-3.5 rounded"
+            />
+            <span className="text-xs text-gray-500">Verkürzt</span>
+          </label>
+
           <button
             onClick={generateTicket}
-            disabled={generating}
+            disabled={generating || generatingRetry}
             className="text-sm bg-gray-900 hover:bg-gray-700 disabled:opacity-50 text-white px-3 py-1.5 rounded-lg transition-colors"
           >
             {generating ? "…" : "Diagnostik starten"}
           </button>
+
+          {/* Retry button — only visible when there is a completed session */}
+          {latestCompleted && (
+            <button
+              onClick={generateRetryTicket}
+              disabled={generating || generatingRetry}
+              className="text-sm border border-gray-300 hover:border-gray-400 text-gray-700 disabled:opacity-50 px-3 py-1.5 rounded-lg transition-colors"
+              title="Nur falsche Antworten wiederholen"
+            >
+              {generatingRetry ? "…" : "Falsche wiederholen"}
+            </button>
+          )}
+
           <button
             onClick={deleteStudent}
             disabled={deleting}
@@ -184,10 +247,17 @@ export function StudentRow({ student, diagnosticId, totalQuestions }: Props) {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-8 w-full max-w-sm shadow-2xl text-center space-y-6">
             <div>
-              <h3 className="text-lg font-semibold">Diagnostik starten</h3>
+              <h3 className="text-lg font-semibold">
+                {isRetryTicket ? "Falsche Antworten wiederholen" : "Diagnostik starten"}
+              </h3>
               <p className="text-sm text-gray-500 mt-1">
                 {student.display_name} — QR-Code scannen oder Link öffnen
               </p>
+              {isRetryTicket && (
+                <p className="text-xs text-amber-600 mt-1">
+                  Nur falsch beantwortete Fragen der letzten Diagnostik
+                </p>
+              )}
             </div>
 
             <div className="bg-white p-4 border border-gray-200 rounded-xl inline-block">

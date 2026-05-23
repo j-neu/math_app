@@ -1,9 +1,8 @@
-# Phase 1 (post-tasks.md): School Platform Foundation
+# School Platform Foundation
 
 **Status:** Phases A ✅ + B ✅ + C ✅ + D.5 ✅ done. Phase D in progress (AVV + teacher onboarding doc remaining). Phase E (real pilot) ready to schedule.
-**Last updated:** 2026-05-22
 **Created:** 2026-05-15
-**Last updated:** 2026-05-21
+**Last updated:** 2026-05-23
 **Owner:** Jakob (solo)
 **Horizon:** 3–6 months elapsed, part-time. First pilot school using it by ~2026 Q4 if started in earnest after current diagnostic work ships.
 
@@ -23,7 +22,7 @@ Until a teacher can do those four things, the product is a demo — not a tool. 
 
 **The decision is to pivot from "local Flutter app" to a "browser-based diagnostic for kids + web dashboard for teachers, backed by a multi-tenant EU-hosted backend."** Pricing is deferred to after the pilot validates value (free for pilot schools).
 
-This plan is the work that follows `tasks.md` Phase 2.5 (Set 1 QA) and `phase0_tasks.md` (Diagnostic Report MVP). It does **not** include practice exercises in v1 of the platform — diagnostic only. Practice migration is a future phase.
+This plan is the work that follows the diagnostic report MVP (`Archive/phase0_tasks.md`, shipped) and supersedes the practice-engine roadmap (`Archive/tasks_2026-05.md`, paused). It does **not** include practice exercises in v1 of the platform — diagnostic only. Practice migration is a future phase.
 
 ---
 
@@ -204,77 +203,39 @@ RLS policies: teachers see only their school's rows. Students (anon JWT with ses
 
 Each phase ends with something a pilot teacher can actually use. No phase is "infrastructure only — no user value."
 
-### Phase A — Backend foundation + auth ✅ DONE (2026-05-17)
+### Phases A–C — Backend, dashboard, Flutter Web ✅ DONE (2026-05-17)
 
-1. ✅ Supabase EU project created (`zzxqeqwffexythqzjkxr`, Frankfurt). Schema migrated. RLS policies in place.
-2. ✅ Skill catalog (87 skills) + diagnostic CSV (59 questions) imported via migration seed.
-3. ✅ Edge functions: `diagnostic-sessions`, `diagnostic-results`, `foerderplan-generate` (TypeScript port of `DiagnosticReportGenerator`).
-4. ✅ Edge function: `foerderplan-pdf` (pdf-lib, cached in Supabase Storage bucket `pdf-cache`).
-5. ✅ Smoke tested end-to-end: school → class → student → ticket → 59 answers → Förderplan (33 skills, correct pedagogical order) → PDF.
+Shipped together: Supabase EU project `zzxqeqwffexythqzjkxr` (Frankfurt) with 9-table schema, RLS, 87-skill seed, edge functions (`diagnostic-sessions`, `diagnostic-results`, `foerderplan-generate`, `foerderplan-pdf`), `pdf-cache` Storage bucket; Next.js 14 dashboard at `dashboard/` (login, Klassen-Übersicht, Klasse-Detail with QR tickets, Förderplan-Ansicht, aggregate table); Flutter Web client at `math_app/` with `go_router`, `ApiService`, `/s/:ticket` route, `DiagnosticCompleteScreen`, deployed as static site to Vercel `fra1` (`prozedia-app`). Local dirs: `backend/`, `dashboard/`, `math_app/`. Credentials and deploy commands in memory (`project-school-platform-status`, `reference-vercel`); per-file diffs in `git log`.
 
-**Local:** `backend/` (supabase init + linked). Run `supabase db push` / `supabase functions deploy <name>` from there.
+Cross-browser test (iPad Safari / Android Chrome / Firefox) deferred to pilot day-1.
 
-### Phase B — Teacher dashboard MVP ✅ DONE (2026-05-17)
+### Phase D — Pilot polish ⏳ IN PROGRESS
 
-**Stack:** Next.js 14 (App Router) + Supabase SSR + Tailwind. Local: `dashboard/` (`npm run dev` → http://localhost:3000).
+**Done:**
+- DSGVO public routes `/datenschutz` and `/impressum` (German content, but with `[NAME/ADRESSE/EMAIL]` placeholders).
+- `CookieBanner` (essential-only, localStorage consent) + footer in dashboard root layout.
+- `delete-school-data` edge function — DSGVO right-to-erasure, cascades classes → students → sessions → results → Förderpläne, deletes auth.users for teachers.
+- `zahlen_diktat.mp3` moved to Supabase Storage public bucket `audio`; `DiagnosticQuestion.audioAsset` URL field; CSV column `AudioAsset`; `DiagnosticScreen` uses `UrlSource` on web.
 
-1. ✅ **Login** — email/password via Supabase Auth. Middleware guards all `/dashboard/*` routes.
-2. ✅ **Klassen-Übersicht** (`/dashboard`) — lists classes with student count; Neue-Klasse modal.
-3. ✅ **Klasse-Detail** (`/dashboard/klassen/[id]`) — student list; add/delete students; "Diagnostik starten" generates session ticket and shows QR code.
-4. ✅ **Förderplan-Ansicht** (`/dashboard/foerderplan/[sessionId]`) — brief plan (top 3), category progress bars, collapsible full plan, collapsible detail table, PDF export.
-5. ✅ **Klassen-Übersicht (aggregate)** — student × category × % failed table, colour-coded, shown at bottom of Klasse-Detail.
+**Remaining:**
+- [ ] Fill `[NAME/ADRESSE/EMAIL]` placeholders in `dashboard/app/impressum/page.tsx` and `dashboard/app/datenschutz/page.tsx`.
+- [ ] Sign AVV/DPA — Supabase template at supabase.com/legal/dpa; must also be signed with each pilot school before data processing.
+- [ ] One-page German teacher onboarding doc.
 
-Teacher account: `jneumann.bouche@gmail.com` / `MathApp2026!` (school: Pilotschule, Berlin).
+**Bundle size reference (uncompressed Flutter web build):** ~36 MB total (WASM lazy-loaded). `main.dart.js` 4.3 MB (gzip ~1.1 MB). `skwasm.wasm` 3.3 MB on Chromium, 6.8 MB elsewhere. Diagnostic pictures ~1.5 MB. Material icons font 1.6 MB (unavoidable).
 
-Authentication: invite-flow deferred to Phase D (pilot polish); direct account creation via Supabase Auth admin for pilot teachers.
+### Phase D.5 — Pilot blockers ✅ DONE (2026-05-20 → 2026-05-22)
 
-### Phase C — Flutter Web student client ✅ DONE (2026-05-17)
+First end-to-end test on the deployed flow surfaced seven blockers; all shipped:
 
-1. ✅ `go_router` wired with `/s/:ticket` route → `WebDiagnosticEntryScreen`.
-2. ✅ `ApiService` posts answers to backend via Supabase edge functions instead of `shared_preferences`.
-3. ✅ Built + deployed as static site to Vercel Frankfurt (`prozedia-app`); see [reference_vercel.md](file:///c%3A/Users/jakob/.claude/projects/c--Users-jakob-StudioProjects-Math-App/memory/reference_vercel.md) for deploy commands.
-4. ⏳ Smoke-tested in Chromium on dev hardware; iPad / Android tablet / Safari / Firefox testing deferred to pilot day-1.
-5. ✅ `DiagnosticCompleteScreen` shows "Super gemacht! Fertig! Bitte zeig deinem Lehrer den Bildschirm." — no Förderplan on kid client.
+- **Diagnostic resume across browser close** — `diagnostic-sessions` returns prior results joined with question metadata; `_hydrateFromServer()` in `DiagnosticScreen` restores `_answers`, `_diagnosticResults`, and break-off state, trusting server's `was_correct`.
+- **Q47 audio silent** — audio moved to Supabase Storage; `DiagnosticQuestion.audioAsset` URL field added; trigger condition changed from `listNumber == 38` magic to `question.audioAsset != null`.
+- **Förderplan not generated on completion** — dashboard lazy-generates on view; edge function accepts in-progress sessions and upserts; "Diagnostik noch nicht abgeschlossen" banner on partial plans; layout aligned with Flutter `DiagnosticReportScreen`.
+- **Web build missing new questions** + **wrong order** — bundled CSV + Supabase + Flutter web build now all carry full 98 questions in correct pedagogical order (Zählen 1–23, Zahlzerlegung 24–38, Stellenwerte 39–47, Grundstrategien 48–87, Kombinierte Strategien 88–98). Reorder via `scripts/reorder_diagnostic.py`.
+- **Bulk QR PDF for a class** — `dashboard/app/api/bulk-qr-pdf` creates tickets for all students; A4 PDF 2-per-page with QR + name via `pdf-lib` + `qrcode`.
+- **Short-URL school login** — `schools.slug` + `session_tickets.short_code` (4-char, globally unique, confusables excluded). Router detects UUID vs slug in `/s/:param`. `SchoolCodeEntryScreen` for code entry. `diagnostic-sessions` accepts `{school_slug, short_code}`. Dashboard shows Kurzlink banner. Bulk QR PDF shows QR + short code side-by-side. **Tickets no longer expire.**
 
-### Phase D — Pilot polish ⏳ IN PROGRESS (started 2026-05-17)
-
-- ✅ Middleware: `/datenschutz` and `/impressum` are public (no auth required).
-- ✅ `dashboard/app/datenschutz/page.tsx` — full DSGVO Datenschutzerklärung (Supabase EU, pseudonymised students, rights Art. 15–22). **TODO: fill in [NAME/ADRESSE/EMAIL] placeholders before going live.**
-- ✅ `dashboard/app/impressum/page.tsx` — Impressum. **TODO: fill in [NAME/ADRESSE/EMAIL] placeholders.**
-- ✅ `dashboard/components/CookieBanner.tsx` — essential-only cookie notice, localStorage consent, closes on "Verstanden".
-- ✅ `dashboard/app/layout.tsx` — footer with Impressum/Datenschutz links + CookieBanner injected.
-- ✅ `backend/supabase/functions/delete-school-data/index.ts` — DSGVO right-to-erasure. Requires school_admin JWT. Deletes school (cascades: classes → students → sessions → results → Förderplaene) + auth.users for teachers. Deploy with `supabase functions deploy delete-school-data`.
-- [ ] AVV/DPA template — Supabase provides a standard AVV; request at supabase.com/legal/dpa. Must be signed with each pilot school before data processing.
-- **Bundle size findings (uncompressed):**
-  - Total build: ~36 MB (not all downloaded at once — WASM lazy-loaded)
-  - `main.dart.js`: 4.3 MB (gzip ~1.1 MB expected)
-  - CanvasKit: `skwasm.wasm` 3.3 MB on Chromium (Flutter's default renderer); falls back to 6.8 MB on non-Chromium browsers
-  - Audio (`zahlen_diktat.mp3`): 481 KB — **move to Supabase Storage** to avoid bundling (see Phase C open question #4)
-  - Diagnostic pictures: ~1.5 MB total, 20–100 KB each — acceptable
-  - Material icons font: 1.6 MB — unavoidable with Material
-- [x] Move `zahlen_diktat.mp3` to Supabase Storage bucket; update `DiagnosticScreen` to load from URL on web. ✅ (2026-05-21, done as part of D.5 Q47 fix)
-- [ ] One-page teacher onboarding doc in German.
-
-### Phase D.5 — Pilot blockers (found + 4 of 7 fixed 2026-05-20)
-
-First end-to-end test of the deployed flow (`prozedia-portal` + `prozedia-app`) surfaced seven blockers. Four shipped on 2026-05-20; three remain.
-
-**Deploy / infra (also done 2026-05-20, not originally listed):**
-- Vercel: `prozedia-portal` Root Directory set to `dashboard`, framework Next.js, git-connected (auto-deploy on push). `prozedia-app` git-disconnected — CLI-only deploys to avoid Vercel trying to build Flutter (no SDK in build image). See [reference_vercel.md](file:///c%3A/Users/jakob/.claude/projects/c--Users-jakob-StudioProjects-Math-App/memory/reference_vercel.md).
-- Env var `NEXT_PUBLIC_STUDENT_APP_URL=https://prozedia-app.vercel.app` set on `prozedia-portal`; QR / ticket links now point at production Flutter web, not localhost.
-
-**Diagnostic flow bugs**
-- [x] **Resume broken** ✅ (2026-05-20) — `diagnostic-sessions` edge function now returns prior results (joined with `diagnostic_questions` to include `question_number`) when an in-progress session already exists for the ticket. `ApiService.startSession` returns them as `priorResults: List<ServerResult>`. `WebDiagnosticEntryScreen` passes them to `DiagnosticScreen`, which has a new `_hydrateFromServer()` that fills `_answers` + `_diagnosticResults` + break-off state and advances `_currentQuestionIndex` to the first unanswered question. Trusts server's `was_correct` rather than re-evaluating client-side (avoids drift on questions like Q21 dice).
-- [x] **Q47 audio silent** ✅ (2026-05-21) — `zahlen_diktat.mp3` uploaded to Supabase Storage public bucket `audio`. Added `audioAsset` (nullable URL) field to `DiagnosticQuestion` + `AudioAsset` column to CSV (Q47 gets the public URL). `DiagnosticService` parses column 12. `DiagnosticScreen` now triggers on `question.audioAsset != null` instead of the stale `listNumber == 38` magic number. On web uses `UrlSource(url)`; on Windows keeps the temp-file workaround; on other native uses `AssetSource`. Deployed to `prozedia-app`.
-- [x] **Förderplan not generated on completion** ✅ (2026-05-20) — dashboard page now lazy-generates on view: if no plan row exists OR the session is still `in_progress`, calls `foerderplan-generate` server-side and re-queries. Edge function loosened to accept in-progress sessions and upsert (so partial plans regenerate as more answers come in). Dashboard shows blue "Diagnostik noch nicht abgeschlossen" banner on partial plans. Also: Förderplan layout aligned with Flutter `DiagnosticReportScreen` — Kategorie-Übersicht now shows plain "X / Y falsch" (green if 0) instead of ambiguous progress bar; brief plan uses left color bar + category badge; full plan grouped by category; detail table is per-question results (Q#, Frage, Richtig, Antwort, Zeit, Status).
-
-**Diagnostic content**
-- [x] **Web build missing new questions** ✅ (2026-05-20) — bundled CSV + Supabase + Flutter web build all now carry the full 98 questions (was 59). Reorder script at `scripts/reorder_diagnostic.py` rewrites CSV + emits SQL migration; ran `supabase db push` then rebuilt + redeployed via `flutter build web` + `vercel --prod --yes`. Fixed pre-existing bug in [diagnostic_question.dart](math_app/lib/models/diagnostic_question.dart) where `zahlenraum` was declared but missing from constructor (blocked the build).
-- [x] **New questions in wrong order** ✅ (2026-05-20) — same migration. Final order: Zählen 1–23, Zahlzerlegung 24–38, Stellenwerte 39–47 (Dienes [60–61] moved to 39–40, right before 100-Feld), Grundstrategien 48–87 (Verdoppeln/Halbieren [62–79] moved to 54–71, between basic +/- and decade ops), Kombinierte Strategien 88–98.
-
-**Teacher portal features (new — not in original Phase B scope)**
-- [x] **Bulk QR PDF for a class** ✅ (2026-05-21) — "Alle QR-Codes drucken" button on class detail page. Next.js API route (`/api/bulk-qr-pdf`) creates tickets for all students, renders A4 PDF (2 per page) with QR codes + names via `pdf-lib` + `qrcode`. Downloads directly from browser.
-- [x] **Short-URL school login** ✅ (2026-05-22) — `schools.slug` + `session_tickets.short_code` (4-char, globally unique, confusable chars excluded). Router detects UUID vs slug in `/s/:param`. Flutter `SchoolCodeEntryScreen` for code entry. `diagnostic-sessions` edge function accepts `{school_slug, short_code}` alongside existing `{ticket_id}`. Dashboard class page shows "Kurzlink" banner with the school URL. Bulk QR PDF shows both QR and short code side-by-side on each card. Tickets no longer expire.
+**Deploy/infra also shipped:** Vercel `prozedia-portal` (git-connected, Root Directory `dashboard`, Next.js, fra1) and `prozedia-app` (git-disconnected, CLI-only deploys since Vercel has no Flutter SDK), `NEXT_PUBLIC_STUDENT_APP_URL` env var set on portal.
 
 ### Phase E — Pilot (3 months, in parallel with E+)
 
@@ -291,7 +252,7 @@ Real classroom use at one or two schools. Watch what breaks. Do not add features
 
 ## Critical risks (with confidence levels)
 
-- **(High confidence) Solo-dev burnout.** This is a 4–6 month part-time pivot while also working on `tasks.md` content. The plan front-loads the boring infra so the fun part (real pilot feedback) arrives sooner — but it is still a lot of work for one person.
+- **(High confidence) Solo-dev burnout.** This is a 4–6 month part-time pivot. The plan front-loads the boring infra so the fun part (real pilot feedback) arrives sooner — but it is still a lot of work for one person.
 - **(High confidence) DSGVO is the showstopper, not the tech.** A Schulleiter who says yes can be vetoed by the Datenschutzbeauftragte. Get the school's data-protection officer to review the AVV before deep building. If they say "no US-flow, no third-party JS," that already constrains tools — Vercel may need to swap to Hetzner.
 - **(Moderate confidence) Flutter Web bundle size + first-paint.** A Flutter Web app on a school's old Windows tablet over school WiFi can take 5–10 s to first interactive. Test early on the actual hardware a pilot school has, not on your dev laptop.
 - **(Moderate confidence) Schulträger procurement will eat 6+ months when you try to charge.** Doesn't matter for pilot, matters for revenue. Start that conversation while pilot is running, not after.
@@ -347,8 +308,8 @@ Real classroom use at one or two schools. Watch what breaks. Do not add features
 ## Dependencies on current work
 
 This plan **assumes complete**:
-- `phase0_tasks.md` — `DiagnosticReportGenerator`, `Foerderplan` model, German `DiagnosticReportScreen`, CSV fixes. The TypeScript port in Phase A is straightforward only if the Dart version is stable.
-- `tasks.md` Phase 2.5 — diagnostic Set 1 QA. We do not want to be hunting down "Z1 hangs after 10 problems" bugs in a multi-tenant deployment.
+- `Archive/phase0_tasks.md` — `DiagnosticReportGenerator`, `Foerderplan` model, German `DiagnosticReportScreen`, CSV fixes. Shipped.
+- Practice-engine Set 1 QA was paused, not finished — see `Archive/tasks_2026-05.md`. If practice resumes, residual "Z1 hangs after 10 problems" bugs must be cleared before going live in a multi-tenant deployment.
 
 This plan **does not require**:
 - Any practice exercise work past Set 1.

@@ -198,7 +198,7 @@ int _getDotCountForProblem(int problemIndex) {
 - [ ] Skill C4.1: What Comes Next (5 levels)
 - [ ] Skill Z1: Decompose 10 (3 levels + finale pending)
 
-**See:** [tasks.md](tasks.md) for retroactive application tracking
+**See:** [Archive/tasks_2026-05.md](Archive/tasks_2026-05.md) for retroactive application tracking (practice-engine work is paused — see [STATUS.md](STATUS.md))
 
 ---
 
@@ -378,7 +378,7 @@ case 9: return 6 + Random().nextInt(3); // 6-8 (Easy)
 ---
 
 **See also:**
-- [GEMINI.md](GEMINI.md) - Skill creation checklist (includes difficulty curve requirement)
+- [TERMINOLOGY.md](TERMINOLOGY.md) - Terminology used in skill design
 - [adhd guidelines.md](adhd%20guidelines.md) - ADHD design principles (rationale for Easy→Hard→Easy)
 - [IMINT_TO_APP_FRAMEWORK.md](IMINT_TO_APP_FRAMEWORK.md) - Scaffolding framework
-- [tasks.md](tasks.md) - Retroactive application tracking
+- [Archive/tasks_2026-05.md](Archive/tasks_2026-05.md) - Retroactive application tracking (practice work paused)

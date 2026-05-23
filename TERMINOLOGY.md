@@ -210,6 +210,6 @@ Examples:
 ---
 
 **See also:**
-- [GEMINI.md](GEMINI.md) - Main project guide with terminology section
+- [README.md](README.md) and [STATUS.md](STATUS.md) - Project overview and current status
 - [COMPLETION_CRITERIA.md](COMPLETION_CRITERIA.md) - Progress & completion tracking
 - [IMINT_TO_APP_FRAMEWORK.md](IMINT_TO_APP_FRAMEWORK.md) - Skill scaffolding framework

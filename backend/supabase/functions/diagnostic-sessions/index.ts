@@ -23,11 +23,21 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
-  let body: { ticket_id?: string; school_slug?: string; short_code?: string };
+  let body: { ticket_id?: string; school_slug?: string; short_code?: string; session_id?: string; action?: string };
   try {
     body = await req.json();
   } catch {
     return json({ error: "Invalid JSON body" }, 400);
+  }
+
+  // ── Force-complete a session (called by Flutter client at end of diagnostic) ──
+  if (body.action === "complete" && body.session_id) {
+    await supabase
+      .from("diagnostic_sessions")
+      .update({ status: "completed", completed_at: new Date().toISOString() })
+      .eq("id", body.session_id)
+      .eq("status", "in_progress");
+    return json({ ok: true });
   }
 
   // ── Resolve ticket ID ────────────────────────────────────────────────────────
@@ -46,7 +56,7 @@ Deno.serve(async (req) => {
   // ── Load ticket ──────────────────────────────────────────────────────────────
   const { data: ticket, error: tErr } = await supabase
     .from("session_tickets")
-    .select("id, student_id, diagnostic_id, expires_at, consumed_at")
+    .select("id, student_id, diagnostic_id, expires_at, consumed_at, retry_mode, retry_session_id, abbreviated_mode")
     .eq("id", ticket_id)
     .single();
 
@@ -68,6 +78,23 @@ Deno.serve(async (req) => {
 
   if (done) {
     return json({ session_id: done.id, resumed: false, already_completed: true });
+  }
+
+  // ── Resolve retry question numbers (retry_mode only) ─────────────────────────
+  let retryQuestionNumbers: number[] | null = null;
+  if (ticket.retry_mode && ticket.retry_session_id) {
+    const { data: wrongResults } = await supabase
+      .from("diagnostic_results")
+      .select("diagnostic_questions!inner(question_number)")
+      .eq("session_id", ticket.retry_session_id)
+      .eq("was_correct", false);
+
+    if (wrongResults && wrongResults.length > 0) {
+      retryQuestionNumbers = wrongResults.map(
+        // deno-lint-ignore no-explicit-any
+        (r) => (r.diagnostic_questions as any).question_number as number,
+      );
+    }
   }
 
   // ── Resume in-progress session ───────────────────────────────────────────────
@@ -96,7 +123,14 @@ Deno.serve(async (req) => {
       user_answer: r.user_answer as string | null,
     }));
 
-    return json({ session_id: existing.id, resumed: true, results });
+    return json({
+      session_id: existing.id,
+      resumed: true,
+      results,
+      retry_mode: ticket.retry_mode ?? false,
+      retry_question_numbers: retryQuestionNumbers,
+      abbreviated_mode: ticket.abbreviated_mode ?? false,
+    });
   }
 
   // ── Mark ticket consumed (idempotent) ────────────────────────────────────────
@@ -123,7 +157,13 @@ Deno.serve(async (req) => {
     return json({ error: "Failed to create session", detail: sErr?.message }, 500);
   }
 
-  return json({ session_id: session.id, resumed: false });
+  return json({
+    session_id: session.id,
+    resumed: false,
+    retry_mode: ticket.retry_mode ?? false,
+    retry_question_numbers: retryQuestionNumbers,
+    abbreviated_mode: ticket.abbreviated_mode ?? false,
+  });
 });
 
 // ── Helpers ──────────────────────────────────────────────────────────────────

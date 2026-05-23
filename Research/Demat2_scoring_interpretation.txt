@@ -1,0 +1,44 @@
+Scoring & Interpretation (DEMAT 2+)
+Scoring Method
+Step 1: Raw Score Calculation
+
+Use transparent answer templates (Auswertungsschablonen) overlaid on test pages
+Count correct answers in each of the 10 subtests
+Addition and Subtraction scored separately
+Sum all subtests → Total Raw Score (Rohwert ges)
+Interpretation Method
+Norm-Referenced Comparison:
+The raw score is compared against norm tables based on a sample of 4,014 German children (2,298 in grade 2; 1,716 in grade 3), separated by grade level AND gender.
+
+Two Key Metrics:
+
+Percentile Ranks (PR) — shows what % of the norm group scored at or below the child's level
+
+96-100: Outstanding (ausgezeichnet)
+76-95: Above average (überdurchschnittlich)
+26-75: Average (durchschnittlich)
+11-25: Below average (unterdurchschnittlich)
+6-10: Poor (schwach)
+1-5: Very poor (sehr schwach)
+T-Values — standardized scores where 50 = mean, with 68% confidence bands built in
+
+Used primarily for dyscalculia diagnosis
+Accounts for measurement error
+Diagnosis of Dyscalculia (Rechenschwäche)
+Key Criterion:
+
+A 12–15 T-value point difference between math performance and IQ
+The DEMAT 2+ provides T-values for every possible raw score to enable this comparison
+Identifies specific learning disability vs. general low achievement
+Result Profile (Ergebnisprofil)
+Graphical display of subtest-by-subtest performance
+Important caveat: Subtest scores are for initial screening only, not diagnostic
+Used to identify possible problem areas for further individual assessment
+Tom example (2nd grade):
+Overall: 24 points → T=53 → 55th percentile (average)
+Weaknesses: doubling (PR=19) and halving (PR=10) tasks
+Conclusion: targeted support in these areas, no comprehensive intervention needed
+Key Results from Standardization
+Significant gender differences: boys scored ~3 points higher (statistically significant but small effect size)
+Two test forms (A/B) showed no differences → results are comparable
+Normal distribution across all student groups

@@ -27,7 +27,7 @@ class _WebDiagnosticEntryScreenState extends State<WebDiagnosticEntryScreen> {
 
   Future<void> _startSession() async {
     try {
-      final (:sessionId, :resumed, :alreadyCompleted, :priorResults) =
+      final (:sessionId, :resumed, :alreadyCompleted, :priorResults, :retryMode, :retryQuestionNumbers, :abbreviatedMode) =
           await ApiService().startSession(widget.ticketId);
       if (!mounted) return;
 
@@ -43,7 +43,7 @@ class _WebDiagnosticEntryScreenState extends State<WebDiagnosticEntryScreen> {
         name: 'Schüler',
         age: 7,
         skillTags: const [],
-        useBreakOffLogic: true,
+        useBreakOffLogic: abbreviatedMode,
       );
 
       Navigator.of(context).pushReplacement(
@@ -52,6 +52,8 @@ class _WebDiagnosticEntryScreenState extends State<WebDiagnosticEntryScreen> {
             userProfile: profile,
             sessionId: sessionId,
             priorResults: resumed ? priorResults : null,
+            retryMode: retryMode,
+            retryQuestionNumbers: retryQuestionNumbers.isNotEmpty ? retryQuestionNumbers : null,
           ),
         ),
       );

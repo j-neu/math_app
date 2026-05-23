@@ -189,7 +189,7 @@ export function StudentRow({ student, diagnosticId, totalQuestions }: Props) {
                 </span>
                 {latest.status === "in_progress" && answeredCount > 0 && (
                   <span className="text-xs text-gray-400">
-                    {answeredCount}{totalQuestions ? ` / ${totalQuestions}` : ""} Fragen
+                    {totalQuestions ? Math.min(answeredCount, totalQuestions) : answeredCount}{totalQuestions ? ` / ${totalQuestions}` : ""} Fragen
                   </span>
                 )}
                 {answeredCount > 0 && (

@@ -813,7 +813,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Aufgabe ${question.listNumber}/${questions.length}',
+                    'Aufgabe ${_currentQuestionIndex + 1}/${questions.length}',
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: 20),

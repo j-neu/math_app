@@ -291,7 +291,7 @@ export default async function FoerderplanPage({ params }: Props) {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {detailRows.map((row) => {
+              {detailRows.map((row, index) => {
                 let statusLabel = "Falsch";
                 let statusClass = "text-red-700 bg-red-50 border-red-200";
                 if (row.status === "skipped") {
@@ -309,7 +309,7 @@ export default async function FoerderplanPage({ params }: Props) {
                 }
                 return (
                   <tr key={row.question_id} className="hover:bg-gray-50 align-top">
-                    <td className="px-3 py-2 text-gray-400 font-mono text-xs">{row.question_number}</td>
+                    <td className="px-3 py-2 text-gray-400 font-mono text-xs">{index + 1}</td>
                     <td className="px-3 py-2 text-gray-700 max-w-xs">{row.prompt_de}</td>
                     <td className="px-3 py-2 text-gray-600">{formatAnswer(row.correct_answer)}</td>
                     <td className="px-3 py-2 text-gray-600">{row.user_answer ?? "—"}</td>

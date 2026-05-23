@@ -17,6 +17,7 @@ interface DiagnosticSession {
   status: string;
   completed_at: string;
   started_at: string;
+  diagnostic_results: { id: string }[];
 }
 
 interface Student {
@@ -30,6 +31,7 @@ interface Student {
 interface Props {
   student: Student;
   diagnosticId: string;
+  totalQuestions?: number;
 }
 
 const STATUS_LABEL: Record<string, { label: string; className: string }> = {
@@ -38,7 +40,7 @@ const STATUS_LABEL: Record<string, { label: string; className: string }> = {
   abandoned: { label: "Abgebrochen", className: "text-gray-500 bg-gray-50" },
 };
 
-export function StudentRow({ student, diagnosticId }: Props) {
+export function StudentRow({ student, diagnosticId, totalQuestions }: Props) {
   const [ticketUrl, setTicketUrl] = useState<string | null>(null);
   const [shortCode, setShortCode] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
@@ -47,9 +49,14 @@ export function StudentRow({ student, diagnosticId }: Props) {
   const router = useRouter();
 
   const sessions = student.diagnostic_sessions ?? [];
-  const latest = sessions
+  // Discard ghost sessions: in_progress with 0 results (created by page-refresh before fix).
+  // Keep completed sessions (always real) and in_progress sessions that have ≥1 answer.
+  const realSessions = sessions
     .slice()
-    .sort((a, b) => new Date(b.started_at).getTime() - new Date(a.started_at).getTime())[0];
+    .sort((a, b) => new Date(b.started_at ?? 0).getTime() - new Date(a.started_at ?? 0).getTime())
+    .filter((s) => s.status === "completed" || (s.diagnostic_results?.length ?? 0) > 0);
+  const latest = realSessions[0];
+  const answeredCount = latest?.diagnostic_results?.length ?? 0;
 
   async function generateTicket() {
     setGenerating(true);
@@ -113,12 +120,17 @@ export function StudentRow({ student, diagnosticId }: Props) {
                 <span className={`text-xs px-1.5 py-0.5 rounded ${STATUS_LABEL[latest.status]?.className ?? ""}`}>
                   {STATUS_LABEL[latest.status]?.label ?? latest.status}
                 </span>
-                {latest.status === "completed" && (
+                {latest.status === "in_progress" && answeredCount > 0 && (
+                  <span className="text-xs text-gray-400">
+                    {answeredCount}{totalQuestions ? ` / ${totalQuestions}` : ""} Fragen
+                  </span>
+                )}
+                {answeredCount > 0 && (
                   <Link
                     href={`/dashboard/foerderplan/${latest.id}`}
                     className="text-xs text-blue-600 hover:underline"
                   >
-                    Förderplan ansehen
+                    {latest.status === "in_progress" ? "Vorläufiger Förderplan" : "Förderplan ansehen"}
                   </Link>
                 )}
               </div>

@@ -31,15 +31,23 @@ export default async function KlasseDetailPage({ params }: Props) {
 
   if (teacher?.school_id !== klass.school_id) redirect("/dashboard");
 
-  // Fetch students with their latest session
+  const DIAG_ID = "00000000-0000-0000-0000-000000000001";
+
+  // Fetch students with their sessions and per-session result counts
   const { data: students } = await supabase
     .from("students")
     .select(`
       id, display_name, age, external_ref,
-      diagnostic_sessions(id, status, completed_at, started_at)
+      diagnostic_sessions(id, status, completed_at, started_at,
+        diagnostic_results(id))
     `)
     .eq("class_id", params.id)
     .order("display_name");
+
+  const { count: totalQuestions } = await supabase
+    .from("diagnostic_questions")
+    .select("id", { count: "exact", head: true })
+    .eq("diagnostic_id", DIAG_ID);
 
   // Category stats for aggregate view
   const sessionIds = (students ?? [])
@@ -70,8 +78,6 @@ export default async function KlasseDetailPage({ params }: Props) {
   const allCategories = Array.from(
     new Set(aggregateRows.flatMap((r) => Object.keys(r.stats)))
   ).sort();
-
-  const DIAG_ID = "00000000-0000-0000-0000-000000000001";
   const schoolSlug = (klass as { schools?: { slug?: string | null } | null }).schools?.slug ?? null;
   const studentAppBase = process.env.NEXT_PUBLIC_STUDENT_APP_URL ?? "";
   const shortLoginUrl = schoolSlug ? `${studentAppBase}/s/${schoolSlug}` : null;
@@ -126,9 +132,16 @@ export default async function KlasseDetailPage({ params }: Props) {
                   display_name: string;
                   age: number | null;
                   external_ref: string | null;
-                  diagnostic_sessions: { id: string; status: string; completed_at: string; started_at: string }[];
+                  diagnostic_sessions: {
+                    id: string;
+                    status: string;
+                    completed_at: string;
+                    started_at: string;
+                    diagnostic_results: { id: string }[];
+                  }[];
                 }}
                 diagnosticId={DIAG_ID}
+                totalQuestions={totalQuestions ?? undefined}
               />
             ))}
           </div>

@@ -38,7 +38,7 @@ export default async function KlasseDetailPage({ params }: Props) {
     .from("students")
     .select(`
       id, display_name, age, external_ref,
-      diagnostic_sessions(id, status, completed_at, started_at,
+      diagnostic_sessions(id, status, completed_at, started_at, ticket_id,
         diagnostic_results(id))
     `)
     .eq("class_id", params.id)
@@ -137,6 +137,7 @@ export default async function KlasseDetailPage({ params }: Props) {
                     status: string;
                     completed_at: string;
                     started_at: string;
+                    ticket_id: string | null;
                     diagnostic_results: { id: string }[];
                   }[];
                 }}

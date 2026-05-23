@@ -17,6 +17,7 @@ interface DiagnosticSession {
   status: string;
   completed_at: string;
   started_at: string;
+  ticket_id: string | null;
   diagnostic_results: { id: string }[];
 }
 
@@ -62,8 +63,27 @@ export function StudentRow({ student, diagnosticId, totalQuestions }: Props) {
     setGenerating(true);
     const supabase = createClient();
 
-    // Reuse the existing unconsumed ticket so the code stays stable
-    const { data: existing } = await supabase
+    // Priority 1: If there is an active in_progress session (with answers), reuse its
+    // ticket so the student can resume using the same code they already have.
+    const inProgressSession = realSessions.find((s) => s.status === "in_progress");
+    if (inProgressSession?.ticket_id) {
+      const { data: ticket } = await supabase
+        .from("session_tickets")
+        .select("id, short_code")
+        .eq("id", inProgressSession.ticket_id)
+        .single();
+      if (ticket) {
+        const base = process.env.NEXT_PUBLIC_STUDENT_APP_URL ?? window.location.origin;
+        setTicketUrl(`${base}/s/${ticket.id}`);
+        setShortCode(ticket.short_code ?? "");
+        setShowQr(true);
+        setGenerating(false);
+        return;
+      }
+    }
+
+    // Priority 2: Unconsumed ticket (session not yet started) — reuse it.
+    const { data: unconsumed } = await supabase
       .from("session_tickets")
       .select("id, short_code")
       .eq("student_id", student.id)
@@ -76,10 +96,12 @@ export function StudentRow({ student, diagnosticId, totalQuestions }: Props) {
     let ticketId: string;
     let code: string;
 
-    if (existing) {
-      ticketId = existing.id;
-      code = existing.short_code ?? "";
+    if (unconsumed) {
+      ticketId = unconsumed.id;
+      code = unconsumed.short_code ?? "";
     } else {
+      // Priority 3: No active session, no unconsumed ticket — create a fresh one.
+      // This happens after a completed diagnostic when the teacher wants to re-run.
       const newCode = generateShortCode();
       const { data } = await supabase
         .from("session_tickets")

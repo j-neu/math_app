@@ -2,25 +2,6 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
-const SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-async function generateFoerderplan(sessionId: string): Promise<void> {
-  const resp = await fetch(`${SB_URL}/functions/v1/foerderplan-generate`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${SERVICE_KEY}`,
-      apikey: SERVICE_KEY,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ session_id: sessionId }),
-    cache: "no-store",
-  });
-  if (!resp.ok) {
-    console.error("foerderplan-generate failed", resp.status, await resp.text());
-  }
-}
-
 const CATEGORY_COLORS: Record<string, string> = {
   "Zählen": "bg-green-500",
   "Zahlzerlegung / Schnelles Sehen": "bg-yellow-400",
@@ -63,7 +44,10 @@ export default async function FoerderplanPage({ params }: Props) {
     .maybeSingle();
 
   if (!plan || isPartial) {
-    await generateFoerderplan(params.sessionId);
+    const { error: fnErr } = await supabase.functions.invoke("foerderplan-generate", {
+      body: { session_id: params.sessionId },
+    });
+    if (fnErr) console.error("foerderplan-generate failed:", fnErr);
     const retry = await supabase
       .from("foerderplaene")
       .select("*")

@@ -13,20 +13,25 @@ class SingleAnswerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 50.0),
-      child: TextField(
-        controller: controller,
-        autofocus: true,
-        keyboardType: TextInputType.number,
-        textInputAction: TextInputAction.done,
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-        onSubmitted: (_) => onSubmit?.call(),
-        textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.headlineMedium,
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-          labelText: 'Deine Antwort',
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 300),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: TextField(
+            controller: controller,
+            autofocus: true,
+            keyboardType: TextInputType.number,
+            textInputAction: TextInputAction.done,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            onSubmitted: (_) => onSubmit?.call(),
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.headlineMedium,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Deine Antwort',
+            ),
+          ),
         ),
       ),
     );
@@ -165,38 +170,43 @@ class _SortAnswerWidgetState extends State<SortAnswerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      child: ReorderableListView(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        onReorder: (oldIndex, newIndex) {
-          setState(() {
-            if (newIndex > oldIndex) {
-              newIndex -= 1;
-            }
-            final item = _sortedItems.removeAt(oldIndex);
-            _sortedItems.insert(newIndex, item);
-            _updateMainController();
-          });
-        },
-        children: _sortedItems.asMap().entries.map((entry) {
-          return ReorderableDragStartListener(
-            key: ValueKey(entry.value),
-            index: entry.key,
-            child: Card(
-              margin: const EdgeInsets.symmetric(vertical: 4),
-              child: ListTile(
-                leading: Icon(Icons.drag_handle),
-                title: Text(
-                  entry.value,
-                  style: Theme.of(context).textTheme.headlineSmall,
-                  textAlign: TextAlign.center,
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 400),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          child: ReorderableListView(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            onReorder: (oldIndex, newIndex) {
+              setState(() {
+                if (newIndex > oldIndex) {
+                  newIndex -= 1;
+                }
+                final item = _sortedItems.removeAt(oldIndex);
+                _sortedItems.insert(newIndex, item);
+                _updateMainController();
+              });
+            },
+            children: _sortedItems.asMap().entries.map((entry) {
+              return ReorderableDragStartListener(
+                key: ValueKey(entry.value),
+                index: entry.key,
+                child: Card(
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  child: ListTile(
+                    leading: Icon(Icons.drag_handle),
+                    title: Text(
+                      entry.value,
+                      style: Theme.of(context).textTheme.headlineSmall,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          );
-        }).toList(),
+              );
+            }).toList(),
+          ),
+        ),
       ),
     );
   }

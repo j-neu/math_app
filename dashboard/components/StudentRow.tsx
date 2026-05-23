@@ -46,8 +46,10 @@ export function StudentRow({ student, diagnosticId, totalQuestions }: Props) {
   const [shortCode, setShortCode] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [generatingRetry, setGeneratingRetry] = useState(false);
+  const [generatingResume, setGeneratingResume] = useState(false);
   const [showQr, setShowQr] = useState(false);
   const [isRetryTicket, setIsRetryTicket] = useState(false);
+  const [isResumeTicket, setIsResumeTicket] = useState(false);
   const [abbreviatedMode, setAbbreviatedMode] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const router = useRouter();
@@ -63,31 +65,34 @@ export function StudentRow({ student, diagnosticId, totalQuestions }: Props) {
   const answeredCount = latest?.diagnostic_results?.length ?? 0;
   const latestCompleted = realSessions.find((s) => s.status === "completed");
 
+  async function resumeTicket() {
+    const inProgressSession = realSessions.find((s) => s.status === "in_progress");
+    if (!inProgressSession?.ticket_id) return;
+    setGeneratingResume(true);
+    setIsResumeTicket(true);
+    setIsRetryTicket(false);
+    const supabase = createClient();
+    const { data: ticket } = await supabase
+      .from("session_tickets")
+      .select("id, short_code")
+      .eq("id", inProgressSession.ticket_id)
+      .single();
+    if (ticket) {
+      const base = process.env.NEXT_PUBLIC_STUDENT_APP_URL ?? window.location.origin;
+      setTicketUrl(`${base}/s/${ticket.id}`);
+      setShortCode(ticket.short_code ?? "");
+      setShowQr(true);
+    }
+    setGeneratingResume(false);
+  }
+
   async function generateTicket() {
     setGenerating(true);
     setIsRetryTicket(false);
+    setIsResumeTicket(false);
     const supabase = createClient();
 
-    // Priority 1: If there is an active in_progress session (with answers), reuse its
-    // ticket so the student can resume using the same code they already have.
-    const inProgressSession = realSessions.find((s) => s.status === "in_progress");
-    if (inProgressSession?.ticket_id) {
-      const { data: ticket } = await supabase
-        .from("session_tickets")
-        .select("id, short_code")
-        .eq("id", inProgressSession.ticket_id)
-        .single();
-      if (ticket) {
-        const base = process.env.NEXT_PUBLIC_STUDENT_APP_URL ?? window.location.origin;
-        setTicketUrl(`${base}/s/${ticket.id}`);
-        setShortCode(ticket.short_code ?? "");
-        setShowQr(true);
-        setGenerating(false);
-        return;
-      }
-    }
-
-    // Priority 2: Unconsumed ticket (session not yet started) — reuse it.
+    // Priority 1: Unconsumed ticket (session not yet started) — reuse it.
     const { data: unconsumed } = await supabase
       .from("session_tickets")
       .select("id, short_code")
@@ -105,7 +110,7 @@ export function StudentRow({ student, diagnosticId, totalQuestions }: Props) {
       ticketId = unconsumed.id;
       code = unconsumed.short_code ?? "";
     } else {
-      // Priority 3: No active session, no unconsumed ticket — create a fresh one.
+      // No unconsumed ticket — create a fresh one.
       const newCode = generateShortCode();
       const { data } = await supabase
         .from("session_tickets")
@@ -133,6 +138,7 @@ export function StudentRow({ student, diagnosticId, totalQuestions }: Props) {
     if (!latestCompleted) return;
     setGeneratingRetry(true);
     setIsRetryTicket(true);
+    setIsResumeTicket(false);
     const supabase = createClient();
 
     const newCode = generateShortCode();
@@ -211,9 +217,21 @@ export function StudentRow({ student, diagnosticId, totalQuestions }: Props) {
             <span className="text-xs text-gray-500">Verkürzt</span>
           </label>
 
+          {/* Resume button — only visible when there is an in-progress session */}
+          {realSessions.find((s) => s.status === "in_progress") && (
+            <button
+              onClick={resumeTicket}
+              disabled={generating || generatingResume || generatingRetry}
+              className="text-sm bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-3 py-1.5 rounded-lg transition-colors"
+              title="Angefangene Diagnostik fortsetzen"
+            >
+              {generatingResume ? "…" : "Fortsetzen"}
+            </button>
+          )}
+
           <button
             onClick={generateTicket}
-            disabled={generating || generatingRetry}
+            disabled={generating || generatingResume || generatingRetry}
             className="text-sm bg-gray-900 hover:bg-gray-700 disabled:opacity-50 text-white px-3 py-1.5 rounded-lg transition-colors"
           >
             {generating ? "…" : "Diagnostik starten"}
@@ -223,7 +241,7 @@ export function StudentRow({ student, diagnosticId, totalQuestions }: Props) {
           {latestCompleted && (
             <button
               onClick={generateRetryTicket}
-              disabled={generating || generatingRetry}
+              disabled={generating || generatingResume || generatingRetry}
               className="text-sm border border-gray-300 hover:border-gray-400 text-gray-700 disabled:opacity-50 px-3 py-1.5 rounded-lg transition-colors"
               title="Nur falsche Antworten wiederholen"
             >
@@ -248,7 +266,11 @@ export function StudentRow({ student, diagnosticId, totalQuestions }: Props) {
           <div className="bg-white rounded-2xl p-8 w-full max-w-sm shadow-2xl text-center space-y-6">
             <div>
               <h3 className="text-lg font-semibold">
-                {isRetryTicket ? "Falsche Antworten wiederholen" : "Diagnostik starten"}
+                {isRetryTicket
+                  ? "Falsche Antworten wiederholen"
+                  : isResumeTicket
+                  ? "Angefangene Diagnostik fortsetzen"
+                  : "Diagnostik starten"}
               </h3>
               <p className="text-sm text-gray-500 mt-1">
                 {student.display_name} — QR-Code scannen oder Link öffnen
@@ -256,6 +278,11 @@ export function StudentRow({ student, diagnosticId, totalQuestions }: Props) {
               {isRetryTicket && (
                 <p className="text-xs text-amber-600 mt-1">
                   Nur falsch beantwortete Fragen der letzten Diagnostik
+                </p>
+              )}
+              {isResumeTicket && (
+                <p className="text-xs text-blue-600 mt-1">
+                  Kind macht weiter, wo es aufgehört hat.
                 </p>
               )}
             </div>
@@ -283,7 +310,7 @@ export function StudentRow({ student, diagnosticId, totalQuestions }: Props) {
                 Drucken
               </button>
               <button
-                onClick={() => setShowQr(false)}
+                onClick={() => { setShowQr(false); setIsResumeTicket(false); }}
                 className="flex-1 bg-gray-900 text-white text-sm font-medium py-2 rounded-lg hover:bg-gray-700 transition-colors"
               >
                 Schließen

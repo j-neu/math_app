@@ -66,34 +66,44 @@ export async function POST(req: NextRequest) {
     return errJson("Keine Schüler/innen in dieser Klasse", 400);
   }
 
-  // Generate unique short codes (intra-batch unique; DB constraint handles global uniqueness)
-  const codes = generateUniqueCodes(students.length);
-
-  const { data: tickets, error: ticketErr } = await supabase
-    .from("session_tickets")
-    .insert(
-      students.map((s, i) => ({
-        student_id: s.id,
-        diagnostic_id: DIAG_ID,
-        short_code: codes[i],
-        // expires_at omitted — tickets no longer expire
-      })),
-    )
-    .select("id, student_id, short_code");
-
-  if (ticketErr || !tickets) {
-    console.error("ticket insert error", ticketErr);
-    return errJson("Fehler beim Erstellen der Tickets", 500);
-  }
-
   const baseUrl = process.env.NEXT_PUBLIC_STUDENT_APP_URL ?? "http://localhost:3000";
   const nameById = new Map(students.map((s) => [s.id, s.display_name]));
 
-  const entries: { name: string; url: string; code: string }[] = tickets.map((t) => ({
-    name: nameById.get(t.student_id) ?? "Unbekannt",
-    url: `${baseUrl}/s/${t.id}`,
-    code: t.short_code ?? "",
-  }));
+  // Reuse existing unconsumed tickets so codes stay stable across PDF regenerations
+  const { data: existingTickets } = await supabase
+    .from("session_tickets")
+    .select("id, student_id, short_code")
+    .in("student_id", students.map((s) => s.id))
+    .eq("diagnostic_id", DIAG_ID)
+    .is("consumed_at", null)
+    .order("created_at", { ascending: false });
+
+  // Keep only the most-recent active ticket per student
+  const activeByStudent = new Map<string, { id: string; short_code: string }>();
+  for (const t of existingTickets ?? []) {
+    if (!activeByStudent.has(t.student_id)) activeByStudent.set(t.student_id, t);
+  }
+
+  // Create tickets only for students who don't have one yet
+  const needTicket = students.filter((s) => !activeByStudent.has(s.id));
+  if (needTicket.length > 0) {
+    const codes = generateUniqueCodes(needTicket.length);
+    const { data: newTickets, error: ticketErr } = await supabase
+      .from("session_tickets")
+      .insert(needTicket.map((s, i) => ({ student_id: s.id, diagnostic_id: DIAG_ID, short_code: codes[i] })))
+      .select("id, student_id, short_code");
+
+    if (ticketErr || !newTickets) {
+      console.error("ticket insert error", ticketErr);
+      return errJson("Fehler beim Erstellen der Tickets", 500);
+    }
+    for (const t of newTickets) activeByStudent.set(t.student_id, t);
+  }
+
+  const entries: { name: string; url: string; code: string }[] = students.map((s) => {
+    const t = activeByStudent.get(s.id)!;
+    return { name: s.display_name, url: `${baseUrl}/s/${t.id}`, code: t.short_code ?? "" };
+  });
 
   // ── Build PDF ──────────────────────────────────────────────────────────────
   const pdfDoc = await PDFDocument.create();

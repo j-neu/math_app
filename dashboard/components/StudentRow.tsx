@@ -54,24 +54,40 @@ export function StudentRow({ student, diagnosticId }: Props) {
   async function generateTicket() {
     setGenerating(true);
     const supabase = createClient();
-    const code = generateShortCode();
-    const { data } = await supabase
-      .from("session_tickets")
-      .insert({
-        student_id: student.id,
-        diagnostic_id: diagnosticId,
-        short_code: code,
-        // expires_at omitted — tickets no longer expire
-      })
-      .select("id, short_code")
-      .single();
 
-    if (data) {
-      const base = process.env.NEXT_PUBLIC_STUDENT_APP_URL ?? window.location.origin;
-      setTicketUrl(`${base}/s/${data.id}`);
-      setShortCode(data.short_code ?? code);
-      setShowQr(true);
+    // Reuse the existing unconsumed ticket so the code stays stable
+    const { data: existing } = await supabase
+      .from("session_tickets")
+      .select("id, short_code")
+      .eq("student_id", student.id)
+      .eq("diagnostic_id", diagnosticId)
+      .is("consumed_at", null)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    let ticketId: string;
+    let code: string;
+
+    if (existing) {
+      ticketId = existing.id;
+      code = existing.short_code ?? "";
+    } else {
+      const newCode = generateShortCode();
+      const { data } = await supabase
+        .from("session_tickets")
+        .insert({ student_id: student.id, diagnostic_id: diagnosticId, short_code: newCode })
+        .select("id, short_code")
+        .single();
+      if (!data) { setGenerating(false); return; }
+      ticketId = data.id;
+      code = data.short_code ?? newCode;
     }
+
+    const base = process.env.NEXT_PUBLIC_STUDENT_APP_URL ?? window.location.origin;
+    setTicketUrl(`${base}/s/${ticketId}`);
+    setShortCode(code);
+    setShowQr(true);
     setGenerating(false);
   }
 

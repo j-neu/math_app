@@ -113,7 +113,7 @@ export function StudentRow({ student, diagnosticId, totalQuestions }: Props) {
           student_id: student.id,
           diagnostic_id: diagnosticId,
           short_code: newCode,
-          abbreviated_mode: abbreviatedMode,
+          ...(abbreviatedMode ? { abbreviated_mode: true } : {}),
         })
         .select("id, short_code")
         .single();

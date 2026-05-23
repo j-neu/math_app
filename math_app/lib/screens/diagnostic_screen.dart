@@ -743,7 +743,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
               content: Text(
                 _currentQuestionIndex == 0
                     ? 'Möchtest du die Diagnose wirklich beenden?'
-                    : 'Dein Fortschritt wurde gespeichert. Du kannst später ab Aufgabe ${_currentQuestionIndex + 1} weitermachen.\n\nMöchtest du wirklich beenden?',
+                    : 'Dein Fortschritt wurde gespeichert. Du kannst später dort weitermachen, wo du aufgehört hast.\n\nMöchtest du wirklich beenden?',
               ),
               actions: [
                 TextButton(
@@ -813,7 +813,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Aufgabe ${_currentQuestionIndex + 1}/${questions.length}',
+                    'Aufgabe ${question.listNumber}/${questions.length}',
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: 20),

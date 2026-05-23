@@ -25,6 +25,7 @@ class DiagnosticQuestion {
   final String? skipGroup; // Card-oriented break-off group; if null, fall back to first-skill-prefix
   final String? zahlenraum; // Explicit ZR (e.g. "ZR20", "ZR100"); overrides number-magnitude heuristic
   final String? imagePath;
+  final String? audioAsset; // Public URL for audio asset (e.g. Supabase Storage URL)
 
   DiagnosticQuestion({
     required this.listNumber,
@@ -40,5 +41,6 @@ class DiagnosticQuestion {
     this.skipGroup,
     this.zahlenraum,
     this.imagePath,
+    this.audioAsset,
   });
 }

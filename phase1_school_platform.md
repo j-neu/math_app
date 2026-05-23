@@ -1,7 +1,9 @@
 # Phase 1 (post-tasks.md): School Platform Foundation
 
-**Status:** Phase A ✅ + Phase B ✅ done (2026-05-17). Phase C (Flutter Web student client) is next.
+**Status:** Phases A ✅ + B ✅ + C ✅ + D.5 ✅ done. Phase D in progress (AVV + teacher onboarding doc remaining). Phase E (real pilot) ready to schedule.
+**Last updated:** 2026-05-22
 **Created:** 2026-05-15
+**Last updated:** 2026-05-21
 **Owner:** Jakob (solo)
 **Horizon:** 3–6 months elapsed, part-time. First pilot school using it by ~2026 Q4 if started in earnest after current diagnostic work ships.
 
@@ -226,15 +228,15 @@ Teacher account: `jneumann.bouche@gmail.com` / `MathApp2026!` (school: Pilotschu
 
 Authentication: invite-flow deferred to Phase D (pilot polish); direct account creation via Supabase Auth admin for pilot teachers.
 
-### Phase C — Flutter Web student client (2–3 weeks part-time)
+### Phase C — Flutter Web student client ✅ DONE (2026-05-17)
 
-1. Wire `go_router` with `/s/:ticket` route.
-2. `ApiService` that posts answers to backend instead of `shared_preferences`.
-3. Build + deploy as static site (Supabase Storage / Vercel / Cloudflare Pages — EU region).
-4. Tested in Chromium, Safari, Firefox on iPad and Android tablet.
-5. **Decision point:** after completion, kid sees a "Fertig! Bitte zeig deinem Lehrer den Bildschirm." screen — no Förderplan rendering on kid client (it's teacher-facing).
+1. ✅ `go_router` wired with `/s/:ticket` route → `WebDiagnosticEntryScreen`.
+2. ✅ `ApiService` posts answers to backend via Supabase edge functions instead of `shared_preferences`.
+3. ✅ Built + deployed as static site to Vercel Frankfurt (`prozedia-app`); see [reference_vercel.md](file:///c%3A/Users/jakob/.claude/projects/c--Users-jakob-StudioProjects-Math-App/memory/reference_vercel.md) for deploy commands.
+4. ⏳ Smoke-tested in Chromium on dev hardware; iPad / Android tablet / Safari / Firefox testing deferred to pilot day-1.
+5. ✅ `DiagnosticCompleteScreen` shows "Super gemacht! Fertig! Bitte zeig deinem Lehrer den Bildschirm." — no Förderplan on kid client.
 
-### Phase D — Pilot polish ✅ IN PROGRESS (2026-05-17)
+### Phase D — Pilot polish ⏳ IN PROGRESS (started 2026-05-17)
 
 - ✅ Middleware: `/datenschutz` and `/impressum` are public (no auth required).
 - ✅ `dashboard/app/datenschutz/page.tsx` — full DSGVO Datenschutzerklärung (Supabase EU, pseudonymised students, rights Art. 15–22). **TODO: fill in [NAME/ADRESSE/EMAIL] placeholders before going live.**
@@ -250,16 +252,20 @@ Authentication: invite-flow deferred to Phase D (pilot polish); direct account c
   - Audio (`zahlen_diktat.mp3`): 481 KB — **move to Supabase Storage** to avoid bundling (see Phase C open question #4)
   - Diagnostic pictures: ~1.5 MB total, 20–100 KB each — acceptable
   - Material icons font: 1.6 MB — unavoidable with Material
-- [ ] Move `zahlen_diktat.mp3` to Supabase Storage bucket; update `DiagnosticScreen` to load from URL on web.
+- [x] Move `zahlen_diktat.mp3` to Supabase Storage bucket; update `DiagnosticScreen` to load from URL on web. ✅ (2026-05-21, done as part of D.5 Q47 fix)
 - [ ] One-page teacher onboarding doc in German.
 
-### Phase D.5 — Pilot blockers (found 2026-05-20)
+### Phase D.5 — Pilot blockers (found + 4 of 7 fixed 2026-05-20)
 
-First end-to-end test of the deployed flow (`prozedia-portal` + `prozedia-app`) surfaced these. All block pilot.
+First end-to-end test of the deployed flow (`prozedia-portal` + `prozedia-app`) surfaced seven blockers. Four shipped on 2026-05-20; three remain.
+
+**Deploy / infra (also done 2026-05-20, not originally listed):**
+- Vercel: `prozedia-portal` Root Directory set to `dashboard`, framework Next.js, git-connected (auto-deploy on push). `prozedia-app` git-disconnected — CLI-only deploys to avoid Vercel trying to build Flutter (no SDK in build image). See [reference_vercel.md](file:///c%3A/Users/jakob/.claude/projects/c--Users-jakob-StudioProjects-Math-App/memory/reference_vercel.md).
+- Env var `NEXT_PUBLIC_STUDENT_APP_URL=https://prozedia-app.vercel.app` set on `prozedia-portal`; QR / ticket links now point at production Flutter web, not localhost.
 
 **Diagnostic flow bugs**
-- [ ] **Resume broken** — child closes browser mid-diagnostic, re-scans QR, restarts from Q1. Server stores `diagnostic_sessions.status = 'in_progress'` already; Flutter web client isn't picking up existing answers. Verify `ApiService` checks for an in-progress session before creating a new one, and that `DiagnosticScreen` hydrates from `diagnostic_results` rows. Spec (Phase C step 5 + Phase D verification step 7) requires resume on same ticket within lifetime.
-- [ ] **Q38 audio silent** — `zahlen_diktat.mp3` doesn't play on web build. Likely asset path resolution on Flutter Web. Finishes the Phase D task of moving audio to Supabase Storage anyway — do both: move + verify playback.
+- [x] **Resume broken** ✅ (2026-05-20) — `diagnostic-sessions` edge function now returns prior results (joined with `diagnostic_questions` to include `question_number`) when an in-progress session already exists for the ticket. `ApiService.startSession` returns them as `priorResults: List<ServerResult>`. `WebDiagnosticEntryScreen` passes them to `DiagnosticScreen`, which has a new `_hydrateFromServer()` that fills `_answers` + `_diagnosticResults` + break-off state and advances `_currentQuestionIndex` to the first unanswered question. Trusts server's `was_correct` rather than re-evaluating client-side (avoids drift on questions like Q21 dice).
+- [x] **Q47 audio silent** ✅ (2026-05-21) — `zahlen_diktat.mp3` uploaded to Supabase Storage public bucket `audio`. Added `audioAsset` (nullable URL) field to `DiagnosticQuestion` + `AudioAsset` column to CSV (Q47 gets the public URL). `DiagnosticService` parses column 12. `DiagnosticScreen` now triggers on `question.audioAsset != null` instead of the stale `listNumber == 38` magic number. On web uses `UrlSource(url)`; on Windows keeps the temp-file workaround; on other native uses `AssetSource`. Deployed to `prozedia-app`.
 - [x] **Förderplan not generated on completion** ✅ (2026-05-20) — dashboard page now lazy-generates on view: if no plan row exists OR the session is still `in_progress`, calls `foerderplan-generate` server-side and re-queries. Edge function loosened to accept in-progress sessions and upsert (so partial plans regenerate as more answers come in). Dashboard shows blue "Diagnostik noch nicht abgeschlossen" banner on partial plans. Also: Förderplan layout aligned with Flutter `DiagnosticReportScreen` — Kategorie-Übersicht now shows plain "X / Y falsch" (green if 0) instead of ambiguous progress bar; brief plan uses left color bar + category badge; full plan grouped by category; detail table is per-question results (Q#, Frage, Richtig, Antwort, Zeit, Status).
 
 **Diagnostic content**
@@ -267,12 +273,8 @@ First end-to-end test of the deployed flow (`prozedia-portal` + `prozedia-app`) 
 - [x] **New questions in wrong order** ✅ (2026-05-20) — same migration. Final order: Zählen 1–23, Zahlzerlegung 24–38, Stellenwerte 39–47 (Dienes [60–61] moved to 39–40, right before 100-Feld), Grundstrategien 48–87 (Verdoppeln/Halbieren [62–79] moved to 54–71, between basic +/- and decade ops), Kombinierte Strategien 88–98.
 
 **Teacher portal features (new — not in original Phase B scope)**
-- [ ] **Bulk QR PDF for a class** — "Alle QR-Codes drucken" action on class detail page generates one printable PDF with all students' QR codes + names (grid or one-per-page). Server-side PDF, consistent with `foerderplan-pdf`.
-- [ ] **Short-URL school login (no QR needed)** — for classrooms without QR-scanning devices. URL like `prozedia-app.vercel.app/s/Pilotschule` → kid enters 4-char alphanumeric code → starts diagnostic. Requires:
-  - `schools.slug` column (unique, kebab-case)
-  - `session_tickets.short_code` (4 chars, unique per school)
-  - Flutter route `/s/:schoolSlug` → code-input screen → resolves to existing ticket flow
-  - **Decision needed:** per-student code (secure, harder to print) vs. per-class code with kid picking their name (classroom-friendly).
+- [x] **Bulk QR PDF for a class** ✅ (2026-05-21) — "Alle QR-Codes drucken" button on class detail page. Next.js API route (`/api/bulk-qr-pdf`) creates tickets for all students, renders A4 PDF (2 per page) with QR codes + names via `pdf-lib` + `qrcode`. Downloads directly from browser.
+- [x] **Short-URL school login** ✅ (2026-05-22) — `schools.slug` + `session_tickets.short_code` (4-char, globally unique, confusable chars excluded). Router detects UUID vs slug in `/s/:param`. Flutter `SchoolCodeEntryScreen` for code entry. `diagnostic-sessions` edge function accepts `{school_slug, short_code}` alongside existing `{ticket_id}`. Dashboard class page shows "Kurzlink" banner with the school URL. Bulk QR PDF shows both QR and short code side-by-side on each card. Tickets no longer expire.
 
 ### Phase E — Pilot (3 months, in parallel with E+)
 

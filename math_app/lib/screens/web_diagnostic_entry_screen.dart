@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
-import 'diagnostic_complete_screen.dart';
 import 'diagnostic_screen.dart';
 
 // Entry point for the web student flow: receives a ticket ID from the URL,
@@ -27,7 +26,7 @@ class _WebDiagnosticEntryScreenState extends State<WebDiagnosticEntryScreen> {
 
   Future<void> _startSession() async {
     try {
-      final (:sessionId, :resumed) =
+      final (:sessionId, :resumed, :priorResults) =
           await ApiService().startSession(widget.ticketId);
       if (!mounted) return;
 
@@ -44,6 +43,7 @@ class _WebDiagnosticEntryScreenState extends State<WebDiagnosticEntryScreen> {
           builder: (_) => DiagnosticScreen(
             userProfile: profile,
             sessionId: sessionId,
+            priorResults: resumed ? priorResults : null,
           ),
         ),
       );

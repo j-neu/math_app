@@ -6,6 +6,12 @@ import Link from "next/link";
 import QRCode from "react-qr-code";
 import { createClient } from "@/lib/supabase/client";
 
+// 32-char charset: uppercase letters + digits, no 0/O/1/I/L to avoid misreads
+const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+function generateShortCode(): string {
+  return Array.from({ length: 4 }, () => CODE_CHARS[Math.floor(Math.random() * 32)]).join("");
+}
+
 interface DiagnosticSession {
   id: string;
   status: string;
@@ -34,6 +40,7 @@ const STATUS_LABEL: Record<string, { label: string; className: string }> = {
 
 export function StudentRow({ student, diagnosticId }: Props) {
   const [ticketUrl, setTicketUrl] = useState<string | null>(null);
+  const [shortCode, setShortCode] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [showQr, setShowQr] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -47,21 +54,22 @@ export function StudentRow({ student, diagnosticId }: Props) {
   async function generateTicket() {
     setGenerating(true);
     const supabase = createClient();
-    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-    const { data, error } = await supabase
+    const code = generateShortCode();
+    const { data } = await supabase
       .from("session_tickets")
       .insert({
         student_id: student.id,
         diagnostic_id: diagnosticId,
-        expires_at: expires,
+        short_code: code,
+        // expires_at omitted — tickets no longer expire
       })
-      .select("id")
+      .select("id, short_code")
       .single();
 
     if (data) {
-      // The student client URL will be /s/<ticket_id> — base URL from env
       const base = process.env.NEXT_PUBLIC_STUDENT_APP_URL ?? window.location.origin;
       setTicketUrl(`${base}/s/${data.id}`);
+      setShortCode(data.short_code ?? code);
       setShowQr(true);
     }
     setGenerating(false);
@@ -140,9 +148,12 @@ export function StudentRow({ student, diagnosticId }: Props) {
               <p className="text-xs text-gray-400 break-all font-mono">{ticketUrl}</p>
             </div>
 
-            <p className="text-xs text-gray-400">
-              Gültig für 24 Stunden · Einmalige Nutzung
-            </p>
+            {shortCode && (
+              <div className="bg-gray-50 rounded-lg px-3 py-3">
+                <p className="text-xs text-gray-400 mb-1">Oder: Code eingeben unter <span className="font-mono text-gray-600">/s/&lt;schulname&gt;</span></p>
+                <p className="text-3xl font-mono font-bold tracking-widest text-gray-800">{shortCode}</p>
+              </div>
+            )}
 
             <div className="flex gap-3">
               <button

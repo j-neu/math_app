@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { StudentRow } from "@/components/StudentRow";
 import { AddStudentForm } from "@/components/AddStudentForm";
+import { BulkQrButton } from "@/components/BulkQrButton";
 
 interface Props {
   params: { id: string };
@@ -15,7 +16,7 @@ export default async function KlasseDetailPage({ params }: Props) {
 
   const { data: klass } = await supabase
     .from("classes")
-    .select("id, name, grade, school_id")
+    .select("id, name, grade, school_id, schools(slug)")
     .eq("id", params.id)
     .single();
 
@@ -71,6 +72,9 @@ export default async function KlasseDetailPage({ params }: Props) {
   ).sort();
 
   const DIAG_ID = "00000000-0000-0000-0000-000000000001";
+  const schoolSlug = (klass as { schools?: { slug?: string | null } | null }).schools?.slug ?? null;
+  const studentAppBase = process.env.NEXT_PUBLIC_STUDENT_APP_URL ?? "";
+  const shortLoginUrl = schoolSlug ? `${studentAppBase}/s/${schoolSlug}` : null;
 
   return (
     <div className="space-y-10">
@@ -83,8 +87,27 @@ export default async function KlasseDetailPage({ params }: Props) {
 
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">{klass.name}</h1>
-        <AddStudentForm classId={params.id} />
+        <div className="flex items-center gap-2">
+          <BulkQrButton
+            classId={params.id}
+            className={klass.name}
+            studentCount={students?.length ?? 0}
+          />
+          <AddStudentForm classId={params.id} />
+        </div>
       </div>
+
+      {/* Short-URL info banner */}
+      {shortLoginUrl && (
+        <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 flex items-center gap-3">
+          <span className="text-blue-400 text-xl">🔗</span>
+          <div>
+            <p className="text-sm font-medium text-blue-900">Kurzlink für Schüler/innen (ohne QR-Scanner)</p>
+            <p className="text-sm font-mono text-blue-700 mt-0.5">{shortLoginUrl}</p>
+            <p className="text-xs text-blue-500 mt-0.5">Schreibe diese Adresse an die Tafel. Jede/r Schüler/in gibt dann ihren/seinen 4-stelligen Code ein.</p>
+          </div>
+        </div>
+      )}
 
       {/* Student list */}
       <section className="space-y-3">

@@ -1,4 +1,4 @@
-ListNumber,SourceType,QuestionText,AnswerFormat,CorrectAnswer,German,English,IfWrong_practice_skills,Ifwrong_skip,Notes
+ListNumber,SourceType,QuestionText,AnswerFormat,CorrectAnswer,German,English,IfWrong_practice_skills,Ifwrong_skip,Notes,SkipGroup,Zahlenraum,AudioAsset
 1,Image,img2113.jpg,Single,8,Wie viele kreise siehst du?,How many circles do you see?,"counting_1, counting_2",,Subitizing/quick recognition to 10
 2,Image,img2114.jpg,Single,17,Wie viele kreise siehst du?,How many circles do you see?,"counting_1, counting_2",,Subitizing/quick recognition to 20
 3,Text,8,multiple,"9, 10, 11, 12, 13, 14, 15",Zähle in Einer-Schritten vorwärts!,Count forward from the number 8.,"counting_3, counting_4",,Forward counting ZR20
@@ -45,7 +45,7 @@ ListNumber,SourceType,QuestionText,AnswerFormat,CorrectAnswer,German,English,IfW
 44,Image,img1812.jpg,Single,99,Wie viele rote Punkte siehst du?,How many red dots do you see?,"decomposition_13, place_value_2",,100-dot field recognition (near 100)
 45,Image,img1858.jpg,Single,57,Wie viele sind es insgesamt?,How many are there?,"place_value_4, place_value_5, place_value_6",,Bundling/place value recognition ZR100
 46,Image,img1859.jpg,Single,35,Wie viele sind es insgesamt?,How many are there?,"place_value_4, place_value_6",,Bundling/place value recognition ZR100
-47,Text,,Multiple,"9, 17, 54, 60, 71, 90","Schreibe bitte die Zahlen auf, die ich dir ansage!","Write down the numbers that you hear! 9, 17, 54, 60, 71, 90","place_value_4, place_value_5, place_value_6",,German number word comprehension
+47,Text,,Multiple,"9, 17, 54, 60, 71, 90","Schreibe bitte die Zahlen auf, die ich dir ansage!","Write down the numbers that you hear! 9, 17, 54, 60, 71, 90","place_value_4, place_value_5, place_value_6",,German number word comprehension,,,https://zzxqeqwffexythqzjkxr.supabase.co/storage/v1/object/public/audio/zahlen_diktat.mp3
 48,Text,,Single,2,Wie viele Würfelpunkte hast du mehr als ich?,Your dice is the red one and mine is blue. How many more or fewer dots do you have than me?,"basic_strategy_4, basic_strategy_3, basic_strategy_5",,Comparison: more/less
 49,Text,1 + 5,Single,6,Eins plus 5 ist gleich was?,What is the answer to one plus 5?,"basic_strategy_2, basic_strategy_3",,Basic addition ZR10
 50,Text,5 + 4,Single,9,Fünf plus 4 ist gleich was?,What is the answer to 5 plus 4?,"basic_strategy_2, basic_strategy_3, combined_strategy_1, combined_strategy_3",,Basic addition ZR10 (near double)

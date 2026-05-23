@@ -29,12 +29,17 @@ class DiagnosticScreen extends StatefulWidget {
   // When set, answers are posted to the Supabase API instead of (or in addition to)
   // SharedPreferences. Used by the web student client.
   final String? sessionId;
+  // When non-null, the diagnostic is being resumed; these results were
+  // previously submitted to the server and should be used to hydrate state
+  // and skip to the first unanswered question.
+  final List<ServerResult>? priorResults;
 
   const DiagnosticScreen({
     super.key,
     required this.userProfile,
     this.retryMode = false,
     this.sessionId,
+    this.priorResults,
   });
 
   @override
@@ -58,7 +63,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   DateTime? _questionStartTime;
   Timer? _timeoutTimer;
   final AudioPlayer _audioPlayer = AudioPlayer();
-  String? _q38TempFilePath;
+  String? _audioTempFilePath;
 
   // Break-off logic tracking
   final Map<String, bool> _categoryFailedZR20 = {}; // Track which categories failed in ZR 20
@@ -68,13 +73,60 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   void initState() {
     super.initState();
     _questionsFuture = _loadQuestions();
-    
+
     // Only load saved progress if NOT in retry mode
     if (!widget.retryMode) {
-      // Wait for questions to be available before loading progress
       _questionsFuture.then((questions) {
-        _loadDiagnosticProgress(questions);
+        if (widget.priorResults != null && widget.priorResults!.isNotEmpty) {
+          _hydrateFromServer(questions, widget.priorResults!);
+        } else {
+          _loadDiagnosticProgress(questions);
+        }
       });
+    }
+  }
+
+  /// Populates state from server-side results when a session is resumed,
+  /// then advances the index to the first unanswered question.
+  void _hydrateFromServer(
+    List<DiagnosticQuestion> questions,
+    List<ServerResult> serverResults,
+  ) {
+    final resultsByListNumber = {
+      for (final r in serverResults) r.questionNumber: r,
+    };
+
+    // Walk questions in display order; stop at the first one without a server result.
+    int firstUnansweredIndex = questions.length;
+    for (int i = 0; i < questions.length; i++) {
+      final q = questions[i];
+      final r = resultsByListNumber[q.listNumber];
+      if (r == null) {
+        firstUnansweredIndex = i;
+        break;
+      }
+      _answers[i] = r.userAnswer ?? '';
+      _diagnosticResults.add(DiagnosticResult(
+        questionId: q.listNumber.toString(),
+        wasCorrect: r.wasCorrect,
+        responseTimeSeconds: r.responseTimeSeconds ?? 0,
+        status: r.status,
+        userAnswer: r.userAnswer,
+      ));
+      if (!r.wasCorrect) {
+        _skillTagsToPractice.addAll(q.ifWrongPracticeSkills);
+        _checkBreakOffLogic(q, false);
+      } else {
+        _checkBreakOffLogic(q, true);
+      }
+    }
+
+    setState(() {
+      _currentQuestionIndex = firstUnansweredIndex;
+    });
+
+    if (_currentQuestionIndex >= questions.length) {
+      _processResults(questions);
     }
   }
 
@@ -124,8 +176,8 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     // Determine timeout based on question type
     final question = questions[_currentQuestionIndex];
 
-    if (question.listNumber == 38) {
-      _playQ38Audio();
+    if (question.audioAsset != null) {
+      _playAudio(question.audioAsset!);
     }
 
     final timeoutDuration = question.answerFormat == AnswerFormat.single
@@ -809,9 +861,8 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  // Q38: audio replay button
-                  if (question.listNumber == 38) ...[
-                    _buildQ38AudioButton(),
+                  if (question.audioAsset != null) ...[
+                    _buildAudioReplayButton(question.audioAsset!),
                     const SizedBox(height: 12),
                   ],
                   // Dynamically build the answer widget based on format
@@ -980,29 +1031,31 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     );
   }
 
-  // Q38: button to replay the audio dictation.
-  Widget _buildQ38AudioButton() {
+  Widget _buildAudioReplayButton(String audioUrl) {
     return OutlinedButton.icon(
       icon: const Icon(Icons.replay),
       label: const Text('Nochmal anhören'),
-      onPressed: _playQ38Audio,
+      onPressed: () => _playAudio(audioUrl),
     );
   }
 
-  Future<void> _playQ38Audio() async {
+  Future<void> _playAudio(String audioUrl) async {
     await _audioPlayer.stop();
     Source source;
-    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+    if (kIsWeb) {
+      // On web, load from the public Supabase Storage URL.
+      source = UrlSource(audioUrl);
+    } else if (defaultTargetPlatform == TargetPlatform.windows) {
       // audioplayers_windows doesn't resolve AssetSource paths reliably;
       // extract to a temp file once and reuse.
-      if (_q38TempFilePath == null) {
+      if (_audioTempFilePath == null) {
         final data = await rootBundle.load('Research/zahlen_diktat.mp3');
         final dir = await getTemporaryDirectory();
         final file = File('${dir.path}/zahlen_diktat.mp3');
         await file.writeAsBytes(data.buffer.asUint8List());
-        _q38TempFilePath = file.path;
+        _audioTempFilePath = file.path;
       }
-      source = DeviceFileSource(_q38TempFilePath!);
+      source = DeviceFileSource(_audioTempFilePath!);
     } else {
       source = AssetSource('Research/zahlen_diktat.mp3');
     }

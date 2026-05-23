@@ -11,15 +11,47 @@ const _headers = {
   'apikey': _anonKey,
 };
 
+class ServerResult {
+  final int questionNumber;
+  final bool wasCorrect;
+  final double? responseTimeSeconds;
+  final String status; // 'attempted' | 'skipped' | 'timeout'
+  final String? userAnswer;
+
+  const ServerResult({
+    required this.questionNumber,
+    required this.wasCorrect,
+    required this.responseTimeSeconds,
+    required this.status,
+    required this.userAnswer,
+  });
+
+  factory ServerResult.fromJson(Map<String, dynamic> j) => ServerResult(
+        questionNumber: j['question_number'] as int,
+        wasCorrect: j['was_correct'] as bool? ?? false,
+        responseTimeSeconds: (j['response_time_seconds'] as num?)?.toDouble(),
+        status: j['status'] as String? ?? 'attempted',
+        userAnswer: j['user_answer'] as String?,
+      );
+}
+
 class ApiService {
-  // Exchanges a session ticket for a session ID.
-  // Returns (sessionId, resumed) — resumed=true means a prior session was found.
-  Future<({String sessionId, bool resumed})> startSession(
-      String ticketId) async {
+  // Exchanges a session ticket UUID for a session ID (QR-code flow).
+  Future<({String sessionId, bool resumed, List<ServerResult> priorResults})>
+      startSession(String ticketId) => _startSessionRaw({'ticket_id': ticketId});
+
+  // Resolves a school slug + 4-char code and starts (or resumes) a session
+  // (keyboard-code / short-URL flow).
+  Future<({String sessionId, bool resumed, List<ServerResult> priorResults})>
+      startSessionByCode(String schoolSlug, String code) =>
+          _startSessionRaw({'school_slug': schoolSlug, 'short_code': code.toUpperCase()});
+
+  Future<({String sessionId, bool resumed, List<ServerResult> priorResults})>
+      _startSessionRaw(Map<String, dynamic> body) async {
     final response = await http.post(
       Uri.parse('$_supabaseUrl/diagnostic-sessions'),
       headers: _headers,
-      body: jsonEncode({'ticket_id': ticketId}),
+      body: jsonEncode(body),
     );
 
     if (response.statusCode == 410) throw const SessionExpiredException();
@@ -29,9 +61,13 @@ class ApiService {
     }
 
     final data = jsonDecode(response.body) as Map<String, dynamic>;
+    final rawResults = (data['results'] as List?) ?? const [];
     return (
       sessionId: data['session_id'] as String,
       resumed: data['resumed'] as bool? ?? false,
+      priorResults: rawResults
+          .map((r) => ServerResult.fromJson(r as Map<String, dynamic>))
+          .toList(),
     );
   }
 

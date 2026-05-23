@@ -28,6 +28,7 @@ class DiagnosticService {
 
         final skipGroupRaw = row.length > 10 ? row[10].toString().trim() : '';
         final zahlenraumRaw = row.length > 11 ? row[11].toString().trim() : '';
+        final audioAssetRaw = row.length > 12 ? row[12].toString().trim() : '';
         questions.add(
           DiagnosticQuestion(
             listNumber: listNumber,
@@ -42,6 +43,7 @@ class DiagnosticService {
             skipGroup: skipGroupRaw.isEmpty ? null : skipGroupRaw,
             zahlenraum: zahlenraumRaw.isEmpty ? null : zahlenraumRaw,
             imagePath: _getImagePath(questionText, sourceType),
+            audioAsset: audioAssetRaw.isEmpty ? null : audioAssetRaw,
           ),
         );
       } catch (e) {

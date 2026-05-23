@@ -9,6 +9,7 @@ import 'package:math_app/screens/diagnostic_screen.dart';
 import 'package:math_app/screens/learning_path_screen.dart';
 import 'package:math_app/screens/settings_screen.dart';
 import 'package:math_app/screens/user_selection_screen.dart';
+import 'package:math_app/screens/school_code_entry_screen.dart';
 import 'package:math_app/screens/web_diagnostic_entry_screen.dart';
 import 'package:math_app/services/user_service.dart';
 
@@ -21,6 +22,11 @@ void main() async {
   runApp(const MyApp());
 }
 
+final _uuidRegex = RegExp(
+  r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+  caseSensitive: false,
+);
+
 final _router = GoRouter(
   routes: [
     GoRoute(
@@ -29,10 +35,14 @@ final _router = GoRouter(
           kIsWeb ? const NoTicketScreen() : const UserSelectionScreen(),
     ),
     GoRoute(
-      path: '/s/:ticket',
+      path: '/s/:param',
       builder: (context, state) {
-        final ticket = state.pathParameters['ticket']!;
-        return WebDiagnosticEntryScreen(ticketId: ticket);
+        final param = state.pathParameters['param']!;
+        // UUIDs are 8-4-4-4-12 hex with dashes (36 chars); anything else is a school slug.
+        if (_uuidRegex.hasMatch(param)) {
+          return WebDiagnosticEntryScreen(ticketId: param);
+        }
+        return SchoolCodeEntryScreen(schoolSlug: param);
       },
     ),
   ],

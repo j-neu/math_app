@@ -475,11 +475,13 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     final tookTooLong = responseTime > timeThreshold;
     final wasCorrect = textCorrect && !tookTooLong;
 
+    final answerStatus = userAnswer.isEmpty ? 'leer' : 'attempted';
+
     final result = DiagnosticResult(
       questionId: currentQuestion.listNumber.toString(),
       wasCorrect: wasCorrect,
       responseTimeSeconds: responseTime,
-      status: 'attempted',
+      status: answerStatus,
       userAnswer: userAnswer,
     );
 
@@ -493,7 +495,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
           questionNumber: currentQuestion.listNumber,
           wasCorrect: wasCorrect,
           responseTimeSeconds: responseTime,
-          status: 'attempted',
+          status: answerStatus,
           userAnswer: userAnswer.isEmpty ? null : userAnswer,
         );
       } catch (e) {
@@ -690,8 +692,8 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   bool _checkAnswer(String userAnswer, String correctAnswer, AnswerFormat format, int questionNumber) {
     if (userAnswer.isEmpty) return false;
 
-    // Q21 and Q24 both ask for any two dice values that sum to 7
-    if (questionNumber == 21 || questionNumber == 24) {
+    // Q24: any two dice values (1–6) that sum to 7
+    if (questionNumber == 24) {
        // Expecting "val1, val2" from MultipleAnswerWidget
        final parts = userAnswer.split(',').map((s) => int.tryParse(s.trim()) ?? -1).toList();
        // Check if we have exactly 2 valid numbers > 0 that sum to 7
@@ -815,8 +817,8 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: 20),
-                  // Q21: generated dice illustration (6 + 1 = 7 example)
-                  if (question.listNumber == 21) ...[
+                  // Q24: generated dice illustration (6 + 1 = 7 example)
+                  if (question.listNumber == 24) ...[
                     _buildQ21Display(),
                     const SizedBox(height: 8),
                   ],
@@ -901,9 +903,9 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   Widget _buildAnswerWidget(
       DiagnosticQuestion question, List<DiagnosticQuestion> questions) {
     void onSubmit() => _nextQuestion(questions);
-    if (question.listNumber == 21 || question.listNumber == 24) {
+    if (question.listNumber == 24) {
       return Q21AnswerWidget(
-        key: ValueKey('q_${question.listNumber}'),
+        key: const ValueKey('q24_dice'),
         controller: _textController,
         onSubmit: onSubmit,
       );

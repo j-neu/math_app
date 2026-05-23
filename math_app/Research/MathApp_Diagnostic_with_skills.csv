@@ -19,7 +19,7 @@ ListNumber,SourceType,QuestionText,AnswerFormat,CorrectAnswer,German,English,IfW
 18,Text,72,multiple,"70, 68, 66, 64, 62, 60",Zähle in Zweierschritten von 72 aus zurück!,Count backwards in steps of two from 72 ,"counting_6, counting_7",,Skip count by 2s backward ZR100
 19,Text,5,Multiple,"10, 15, 20, 25, 30, 35",Zähle in Fünfer Schritten von 5 aus weiter!,Count forward in steps of 5 ,"counting_8, counting_9",,Skip count by 5s
 20,Text,10,Multiple,"20, 30, 40, 50, 60, 70, 80, 90, 100",Zähle in Zehner Schritten von 10 aus weiter!,Count forward i steps of 10,"counting_8, counting_9",,Skip count by 10s
-21,Text,42,Multiple,"32, 22, 12, 2","Zähle in Zehner Schritten von 42 aus zurück, bis ich ‚stopp' sage!",Count backwards in steps of 10 from the number 42,"counting_8, counting_9",,Skip count by 10s backward
+21,Text,42,Multiple,"32, 22, 12, 2","Zähle in Zehner Schritten von 42 aus zurück!",Count backwards in steps of 10 from the number 42,"counting_8, counting_9",,Skip count by 10s backward
 22,Cards,,Sort,"4, 9, 12, 14, 22",Ordne die Zahlenkarten. Beginne mit der kleinsten Zahl!,Order the number cards. Start with the smallest number!,"counting_2, counting_10",,Order numbers ZR20
 23,Cards,,Sort,"3, 35, 53, 80, 91",Ordne die Zahlenkarten. Beginne mit der kleinsten Zahl!,Order the number cards. Start with the smallest number!,"counting_3, counting_11",,Order numbers ZR100
 24,Text,,Multiple,"1,6 / 2,5 / 3,4 / 4,3 / 5,2 / 6,1",Ich habe mit zwei würfeln eine 7 gewürfelt. Was könnte sonst auf den zwei würfeln stehen?,I rolled the dice again and 7 came up. What could the numbers on the two dice be?,"decomposition_1, decomposition_2, decomposition_5, decomposition_6, decomposition_7",,All decompositions of 7

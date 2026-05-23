@@ -294,7 +294,13 @@ export default async function FoerderplanPage({ params }: Props) {
               {detailRows.map((row) => {
                 let statusLabel = "Falsch";
                 let statusClass = "text-red-700 bg-red-50 border-red-200";
-                if (row.status === "timeout") {
+                if (row.status === "skipped") {
+                  statusLabel = "Übersprungen";
+                  statusClass = "text-gray-500 bg-gray-50 border-gray-200";
+                } else if (row.status === "leer") {
+                  statusLabel = "Leer";
+                  statusClass = "text-amber-700 bg-amber-50 border-amber-200";
+                } else if (row.status === "timeout") {
                   statusLabel = "Timeout";
                   statusClass = "text-orange-700 bg-orange-50 border-orange-200";
                 } else if (row.was_correct) {

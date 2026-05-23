@@ -39,7 +39,7 @@ class _SchoolCodeEntryScreenState extends State<SchoolCodeEntryScreen> {
       _error = null;
     });
     try {
-      final (:sessionId, :resumed, :alreadyCompleted, :priorResults) =
+      final (:sessionId, :resumed, :alreadyCompleted, :priorResults, :retryMode, :retryQuestionNumbers, :abbreviatedMode) =
           await ApiService().startSessionByCode(widget.schoolSlug, code);
       if (!mounted) return;
 
@@ -55,7 +55,7 @@ class _SchoolCodeEntryScreenState extends State<SchoolCodeEntryScreen> {
         name: 'Schüler',
         age: 7,
         skillTags: const [],
-        useBreakOffLogic: true,
+        useBreakOffLogic: abbreviatedMode,
       );
 
       Navigator.of(context).pushReplacement(
@@ -64,6 +64,8 @@ class _SchoolCodeEntryScreenState extends State<SchoolCodeEntryScreen> {
             userProfile: profile,
             sessionId: sessionId,
             priorResults: resumed ? priorResults : null,
+            retryMode: retryMode,
+            retryQuestionNumbers: retryQuestionNumbers.isNotEmpty ? retryQuestionNumbers : null,
           ),
         ),
       );

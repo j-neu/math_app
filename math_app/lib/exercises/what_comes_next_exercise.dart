@@ -14,8 +14,8 @@ import '../widgets/common/segmented_progress_bar.dart';
 
 /// Complete implementation of C4.1: What Comes Next? exercise with 5-Level Scaffolding.
 ///
-/// This exercise follows the framework documented in IMINT_TO_APP_FRAMEWORK.md
-/// to properly answer "Wie kommt die Handlung in den Kopf?" (How does action become mental?)
+/// Scaffolding: progressive reduction of external support until the child
+/// can carry out the action mentally.
 ///
 /// **Level 1: Guided Exploration (Handlung)**
 /// - Interactive number line exploration
@@ -73,7 +73,6 @@ import '../widgets/common/segmented_progress_bar.dart';
 ///
 /// **Skills:** counting_4 (predecessor), counting_5 (successor)
 ///
-/// Source: iMINT Green Card 4: Vorgänger/Nachfolger
 class WhatComesNextExercise extends StatefulWidget {
   final ExerciseConfig config;
   final UserProfile userProfile;
@@ -85,7 +84,6 @@ class WhatComesNextExercise extends StatefulWidget {
           id: 'C4.1',
           title: 'What Comes Next?',
           skillTags: ['counting_4', 'counting_5'],
-          sourceCard: 'iMINT Green Card 4: Vorgänger/Nachfolger',
           concept:
               'Understanding predecessor (number before) and successor (number after) relationships',
           observationPoints: [

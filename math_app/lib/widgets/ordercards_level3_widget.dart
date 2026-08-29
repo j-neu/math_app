@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 /// Level 3: Reproduce from Memory - No Structure Given
 ///
-/// **Source:** iMINT Green Card 2, Assessment
 /// **Card Quote:** "Eine gute Überprüfung des Lernzuwachses besteht darin, dass
 /// die Kinder nach der Übung die vollständige Auslage — ohne Vorgabe einer
 /// Struktur und ohne Sicht — aufschreiben bzw. aufmalen können."

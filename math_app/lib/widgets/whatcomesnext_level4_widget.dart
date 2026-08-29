@@ -21,7 +21,7 @@ import 'dart:math' as math;
 /// - Extends Level 3's single-number recall to two-number sequences
 /// - Tests deeper understanding of counting forward/backward
 ///
-/// **"Wie kommt die Handlung in den Kopf?"**
+/// **Internalisation (action becomes mental):**
 /// - Level 3: Single predecessor/successor recall
 /// - Level 4: Extended sequence completion (two numbers)
 /// - Prepares for Level 5: Finale mixed review

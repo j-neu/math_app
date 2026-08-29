@@ -1,22 +1,21 @@
 # Numeris — Math Diagnostic for German Primary School
 
-A diagnostic and Förderplan tool for German Grundschule maths teachers, with a special focus on supporting children with ADHD. Built on iMINT and PIKAS pedagogical research; designed by a remedial maths teacher specialised in prozessorientierte Diagnose.
+A diagnostic and Förderplan tool for German Grundschule maths teachers, with a special focus on supporting children with ADHD. Designed by a remedial maths teacher specialised in prozessorientierte Diagnose, on the basis of the German mathematics-didactics research on preventing arithmetic difficulties.
+
+> **⚖️ Clean-Room Rewrite in progress (since 2026-08-29).** The product is **non-commercial** until it completes — free, school-internal, research-partnership use only. The current diagnostic content is derived from the iMINT-Kartei and PIKAS and is being rebuilt from primary sources. Plan: [tasks.md](tasks.md). Reasoning: [rewrite.md](rewrite.md).
 
 The product is two things glued together:
 
 - **A teacher-facing web dashboard** ([dashboard/](dashboard/), Next.js, hosted EU) — teachers create classes, hand out QR-code session tickets, see per-student Förderpläne and class-level aggregates, export PDFs.
 - **A child-facing Flutter Web client** ([math_app/](math_app/)) — kids open a URL or scan a QR, complete a German-language diagnostic, see "Fertig!".
 
-Backed by a Supabase EU project (Frankfurt, RLS-multi-tenant). DSGVO-aware. Pilot schools free; pricing deferred until pilot validates value.
+Backed by a Supabase EU project (Frankfurt, RLS-multi-tenant). DSGVO-aware. Free for pilot schools; pricing cannot be discussed until the clean-room rewrite completes (`tasks.md` R7.5).
 
 ## Current focus
 
 The diagnostic and the school-platform pilot. The practice-exercise engine is paused (eight skills exist in code; framework docs are flagged paused in [DOCS_INDEX.md](DOCS_INDEX.md)).
 
-Two diagnostic instruments are supported in parallel and must never be mixed in reports:
-
-- **iMINT** — `math_app/Research/MathApp_Diagnostic_with_skills.csv`, 98 questions.
-- **Schulz/Wartha** — `math_app/Research/MathApp_Diagnostic_Schulz.csv`, 151 questions, 8 blocks.
+The diagnostic currently runs on `math_app/Research/MathApp_Diagnostic_with_skills.csv` (92 questions). That item bank is being replaced by an independently derived one — see [tasks.md](tasks.md) Phase R2. The Schulz/Wartha instrument was dropped from product scope on 2026-08-29 (CC BY-ND).
 
 For where things stand right now, see [STATUS.md](STATUS.md). For the active build plan (school-platform Phase D and pilot scheduling), see [phase1_school_platform.md](phase1_school_platform.md).
 
@@ -46,7 +45,8 @@ cd backend && supabase functions deploy <name>
 
 ## Research foundation
 
-- **iMINT-Kartei** — diagnostic-first approach, "Ablösung vom zählenden Rechnen", 76 skills across five categories (Zahlverständnis, Operationsverständnis, Stellenwertverständnis, Schnelles Kopfrechnen, Zahlenrechnen).
-- **PIKAS FÖDIMA** — connecting representations (Handlung, Bild, Sprache, Mathesprache), conceptual understanding, 58 cards.
+The diagnostic addresses the standard constructs of German Grundschulmathematik: counting competence, quantity recognition, number decomposition, place value, and addition/subtraction strategies — with the didactic goal of "Ablösung vom zählenden Rechnen".
 
-Source materials live in [math_app/Research/](math_app/Research/). The skill taxonomy (88 skills, `category_number` IDs) is in [math_app/Research/Research/skills_taxonomy.csv](math_app/Research/Research/skills_taxonomy.csv).
+The bibliography this is derived from is being assembled at `docs/clean-room/03-bibliography.md` ([tasks.md](tasks.md) R1.2) and will be published in the product as a "Wissenschaftliche Grundlagen" page (R7.1).
+
+The skill taxonomy currently in use (88 skills) is in [math_app/Research/skills_taxonomy.csv](math_app/Research/skills_taxonomy.csv); it is replaced in R3.3.

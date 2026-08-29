@@ -18,7 +18,7 @@ import 'package:flutter/material.dart';
 /// - Physical: Point to number card, then to card before/after it
 /// - Digital: Tap number, see visual arrows to before/after
 ///
-/// **"Wie kommt die Handlung in den Kopf?"**
+/// **Internalisation (action becomes mental):**
 /// - Level 1: SEE the before/after relationship visually
 /// - Prepares for Level 2: WRITE the predecessor/successor
 /// - Prepares for Level 3: RECALL from memory

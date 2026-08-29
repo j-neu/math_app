@@ -13,10 +13,9 @@ import '../widgets/common/level_selection_drawer.dart';
 
 /// Complete implementation of C3.2: Count Forward to 50 exercise with Card-Based Scaffolding.
 ///
-/// This exercise follows the framework documented in IMINT_TO_APP_FRAMEWORK.md
-/// to properly answer "Wie kommt die Handlung in den Kopf?" (How does action become mental?)
+/// Scaffolding: progressive reduction of external support until the child
+/// can carry out the action mentally.
 ///
-/// **Source:** iMINT Arbeitskarte 3: "Zählen am Zahlenband bis 100" (Pages 77-78)
 /// **Note:** This is the 1-50 range version. See C3.1 (1-20) and C3.3 (1-100) for other ranges.
 ///
 /// **Level 1: Tap Sequence (Activity B)**
@@ -69,7 +68,6 @@ class CountForward50Exercise extends StatefulWidget {
           id: 'C3.2',
           title: 'Zähl vorwärts bis 50',
           skillTags: ['counting_3'],
-          sourceCard: 'iMINT Arbeitskarte 3: Zählen am Zahlenband bis 100 (Pages 77-78) - Adapted for 1-50 range',
           concept:
               'Understanding the number sequence 1-50: recognizing patterns, '
               'counting forward and backward fluently, internalizing the sequence',

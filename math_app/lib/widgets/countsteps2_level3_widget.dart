@@ -3,8 +3,7 @@ import 'package:flutter/services.dart';
 
 /// Level 3: Count Forward in Steps of 2 (No Visual Support)
 ///
-/// **Source:** iMINT Card 6 + 7: "Zweierschritte am Rechenschiffchen" / "In Zweierschritten zählen"
-/// **Physical action from card:** Mental counting in steps of 2
+/// **Physical action modelled:** Mental counting in steps of 2
 /// **App translation:** Fill in ONE even number at a time (2, 4, 6, 8, 10...)
 ///
 /// **Grid Layout (Example for Problem 1 - asking for "2"):**

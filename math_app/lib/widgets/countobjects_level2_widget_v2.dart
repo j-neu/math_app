@@ -4,7 +4,7 @@ import 'dart:math';
 
 /// Level 2 V2: Tap Objects to Count (No Count Feedback)
 ///
-/// **From Card 1:** "Später wird es beim lauten Zählen nur angetippt."
+/// **Scaffolding step:** the object is only touched while counting aloud.
 ///
 /// **CRITICAL DIFFERENCE:** Child is NEVER shown the count automatically.
 /// They must count independently as they tap, then enter the total themselves.

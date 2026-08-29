@@ -4,8 +4,8 @@ import 'dart:math';
 
 /// Level 1 V2: Drag Objects to Count (No Count Feedback)
 ///
-/// **From Card 1:** "Zuerst wird das gezählte Objekt zur Seite geschoben.
-/// Dabei wird die Zählzahl genannt."
+/// **Scaffolding step:** each counted object is moved aside while the
+/// number word is spoken.
 ///
 /// **CRITICAL DIFFERENCE:** Child is NEVER shown the count automatically.
 /// They must count independently as they drag, then enter the total themselves.

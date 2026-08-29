@@ -5,8 +5,7 @@ import 'common/scrolling_number_band.dart';
 
 /// Level 2: Walking Marker with Covered Numbers (Partial Support)
 ///
-/// **Source:** iMINT Card 3, Activity C (pages 77-78)
-/// **Physical action from card:** Move counter that covers numbers while counting
+/// **Physical action modelled:** Move counter that covers numbers while counting
 /// **App translation:** Animated marker hops along, covering numbers as it moves
 ///
 /// **Features:**

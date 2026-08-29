@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Interactive 20-frame widget with tap-to-flip Wendeplättchen (two-color counters).
 ///
-/// Based on PIKAS Card 9, Activity 4: Wendeplättchen flipping.
+/// Wendeplättchen flipping.
 /// Children tap counters to flip between two colors, discovering decompositions.
 ///
 /// For "Decompose 10" exercise, only the first 10 positions are active.

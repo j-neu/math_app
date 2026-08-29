@@ -10,10 +10,9 @@ import '../widgets/findneighbors_level4_widget.dart';
 
 /// Complete implementation of C5.1: Find Neighboring Numbers (Card Game) exercise with Card-Based Scaffolding.
 ///
-/// This exercise follows the framework documented in IMINT_TO_APP_FRAMEWORK.md
-/// to properly answer "Wie kommt die Handlung in den Kopf?" (How does action become mental?)
+/// Scaffolding: progressive reduction of external support until the child
+/// can carry out the action mentally.
 ///
-/// **Source:** iMINT Arbeitskarte 5: "Nachbarzahlen finden (Spiel: 'Die grüne 50')" (Pages 81-82)
 ///
 /// **Concept:** A digital version of the card game "Die grüne 50" (similar to "Elfer raus").
 /// Children place numbered cards in ascending/descending sequence by dragging and dropping them
@@ -85,7 +84,6 @@ class FindNeighborsExercise extends StatefulWidget {
           id: 'C5.1',
           title: 'Find Neighboring Numbers',
           skillTags: ['counting_5'],
-          sourceCard: 'iMINT Arbeitskarte 5: Nachbarzahlen finden (Spiel: "Die grüne 50") (Pages 81-82)',
           concept:
               'Consolidate understanding of neighboring numbers through a playful card game. '
               'Children place cards in sequence, developing fluency with ascending/descending number patterns.',

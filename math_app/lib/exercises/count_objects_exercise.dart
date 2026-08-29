@@ -16,11 +16,11 @@ import '../widgets/common/level_selection_drawer.dart';
 /// This exercise is a COPY of C1.1 structure but uses various object types instead of
 /// uniform dots. This teaches that counting works with ANY objects (abstraction).
 ///
-/// **iMINT Card 1: "Wie kommt die Handlung in den Kopf?"**
-/// 1. Zuerst wird das gezählte Objekt zur Seite geschoben (push aside while counting)
-/// 2. Später wird es beim lauten Zählen nur angetippt (tap/touch while counting)
-/// 3. Der nächste Schritt ist das laute Abzählen ohne weitere äußere Handlung (count without action)
-/// 4. Das Verfolgen der Zählhandlung mit den Augen und die Nennung des Ergebnisses (eyes only, then result)
+/// **Scaffolding: progressive reduction of physical action while counting**
+/// 1. Move each counted object aside
+/// 2. Only touch each object while counting aloud
+/// 3. Count aloud with no external action
+/// 4. Track the count with the eyes only, then state the result
 ///
 /// **Level 1: Drag Objects (zur Seite schieben)**
 /// - Drag each object (stars, hearts, shapes) to "counted" area
@@ -58,7 +58,6 @@ import '../widgets/common/level_selection_drawer.dart';
 /// - Uses various object types (stars, hearts, shapes) instead of uniform dots
 /// - Teaches abstraction: counting concept applies to all objects equally
 ///
-/// Source: iMINT Green Card 1 (Gegenstände zählen / Count objects - same card as C1.1)
 class CountObjectsExercise extends StatefulWidget {
   final ExerciseConfig config;
   final UserProfile userProfile;
@@ -70,7 +69,6 @@ class CountObjectsExercise extends StatefulWidget {
           id: 'C1.2',
           title: 'Gegenstände zählen',
           skillTags: ['counting_1'],
-          sourceCard: 'iMINT Green Card 1: Gegenstände zählen (4-level version + finale)',
           concept:
               'Understanding counting through one-to-one correspondence with various object types - teaches abstraction',
           observationPoints: [

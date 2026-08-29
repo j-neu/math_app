@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 
 /// Symbol view for decomposition practice with fill-in equations.
 ///
-/// Based on PIKAS progression: Handlung → Vorstellung → Symbol.
+/// Handlung → Vorstellung → Symbol.
 /// This is the final abstraction level where children work with
 /// mathematical notation without visual support.
 ///

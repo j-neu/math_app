@@ -3,8 +3,7 @@ import 'package:flutter/services.dart';
 
 /// Level 4: Count Backward in Steps of 2 (Starting from 20, No Visual Support)
 ///
-/// **Source:** iMINT Card 6 + 7: "Zweierschritte am Rechenschiffchen" / "In Zweierschritten zählen"
-/// **Physical action from card:** Mental counting backward in steps of 2
+/// **Physical action modelled:** Mental counting backward in steps of 2
 /// **App translation:** Fill in ONE even number at a time, starting from 20, counting BACKWARD (18, 16, 14...)
 ///
 /// **Grid Layout (Example for Problem 1 - asking for "18"):**

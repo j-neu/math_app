@@ -26,8 +26,11 @@ class KurzFoerderplanData {
 }
 
 /// Generates structured Ist / Soll / Lernweg content from a [Foerderplan],
-/// grouped by skill category and referenced to the iMINT Kartei
-/// "Auf dem Weg zum denkenden Rechnen".
+/// grouped by skill category.
+///
+/// The text templates here are rewritten against the new taxonomy in
+/// tasks.md R4.3; this version only removes the protected work title and the
+/// card references from the generated output (tasks.md R0.3).
 class KurzFoerderplanService {
   static const _categoryOrder = [
     'Zählen',
@@ -99,9 +102,9 @@ class KurzFoerderplanService {
   }
 
   String _buildLernweg(List<SkillRecommendation> skills) {
-    final buf = StringBuffer('Auf dem Weg zum denkenden Rechnen:');
+    final buf = StringBuffer('Fördervorschläge:');
     for (final s in skills) {
-      buf.write('\n- Karte ${s.cardNumber}: ${s.skillNameDe}');
+      buf.write('\n- ${s.skillNameDe}');
       buf.write('\n  ${s.descriptionDe}');
     }
     return buf.toString();

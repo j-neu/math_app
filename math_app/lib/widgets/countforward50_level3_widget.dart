@@ -4,8 +4,7 @@ import 'dart:math';
 
 /// Level 3: Mental Counting - Fill Missing Numbers (No Visual Support)
 ///
-/// **Source:** iMINT Card 3, Activity D (pages 77-78)
-/// **Physical action from card:** Count with eyes closed, no visual reference
+/// **Physical action modelled:** Count with eyes closed, no visual reference
 /// **App translation:** Show first 2 and last 2 numbers, child fills in the rest
 ///
 /// **Features:**

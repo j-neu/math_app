@@ -3,7 +3,7 @@ import 'dart:math';
 
 /// Level 3: Ohne äußere Handlung (No External Action)
 ///
-/// **From Card 1:** "Der nächste Schritt ist das laute Abzählen ohne weitere äußere Handlung."
+/// **Scaffolding step:** counting aloud with no external action.
 ///
 /// **Purpose:** Child no longer touches/moves objects - just counts by looking.
 /// This is the transition from physical to mental - the objects are visible but

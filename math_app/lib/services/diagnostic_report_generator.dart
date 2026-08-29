@@ -9,7 +9,7 @@ import 'skill_catalog.dart';
 /// Builds a [Foerderplan] from a completed [DiagnosticSession].
 class DiagnosticReportGenerator {
   /// Pedagogical category sequence — earlier categories must be mastered first.
-  /// PIKAS / English-named categories fall through to the end.
+  /// English-named categories fall through to the end.
   static const List<String> _categoryOrder = [
     'Zählen',
     'Zahlzerlegung / Schnelles Sehen',

@@ -3,7 +3,7 @@ import 'dart:math';
 
 /// Level 2: Supported Practice for Decompose 10
 ///
-/// Translation of transition phase between iMINT Activities A and B:
+/// Scaffolding step (transition phase):
 /// Physical: Can still see structured materials, but must verbalize/write decomposition
 /// Digital: See counters with random decomposition, child writes equation
 ///

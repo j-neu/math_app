@@ -13,10 +13,9 @@ import '../widgets/common/segmented_progress_bar.dart';
 
 /// Complete implementation of C3.3: Count Forward to 100 exercise with Card-Based Scaffolding.
 ///
-/// This exercise follows the framework documented in IMINT_TO_APP_FRAMEWORK.md
-/// to properly answer "Wie kommt die Handlung in den Kopf?" (How does action become mental?)
+/// Scaffolding: progressive reduction of external support until the child
+/// can carry out the action mentally.
 ///
-/// **Source:** iMINT Arbeitskarte 3: "Zählen am Zahlenband bis 100" (Pages 77-78)
 /// **Note:** This is the 1-100 range version. See C3.1 (1-20) and C3.2 (1-50) for other ranges.
 ///
 /// **Level 1: Tap Sequence (Activity B)**
@@ -69,7 +68,6 @@ class CountForward100Exercise extends StatefulWidget {
           id: 'C3.3',
           title: 'Zähl vorwärts bis 100',
           skillTags: ['counting_3'],
-          sourceCard: 'iMINT Arbeitskarte 3: Zählen am Zahlenband bis 100 (Pages 77-78) - Adapted for 1-100 range',
           concept:
               'Understanding the number sequence 1-100: recognizing patterns, '
               'counting forward and backward fluently, internalizing the sequence',

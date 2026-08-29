@@ -80,7 +80,6 @@ class _DoublingMirrorExerciseState extends State<DoublingMirrorExercise>
     id: widget.exerciseId,
     title: widget.title,
     skillTags: ['basic_strategy_7'],
-    sourceCard: 'iMINT-Kartei 149-150',
     concept: 'Doubling as adding same quantity',
     observationPoints: ['Can child double numbers up to ${widget.maxInputNumber}?', 'Does child understand 1:1 relation?'],
     internalizationPath: 'Manual placing -> Mirror tool -> Mental doubling',

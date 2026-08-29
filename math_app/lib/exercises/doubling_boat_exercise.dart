@@ -46,7 +46,6 @@ class _DoublingBoatExerciseState extends State<DoublingBoatExercise> with Exerci
     id: 'S3.4',
     title: 'Verdoppeln am Rechenschiffchen',
     skillTags: ['basic_strategy_9', 'basic_strategy_10'],
-    sourceCard: 'iMINT AK 9 / 153-154',
     concept: 'Doubling using the 5/10 structure of the boat.',
     observationPoints: [
       'Does the child use the structure (5+5) or count by ones?',

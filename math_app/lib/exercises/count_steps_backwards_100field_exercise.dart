@@ -30,9 +30,9 @@ class _LevelConfig {
 
 /// Complete implementation of C6.3: Counting BACKWARDS in steps in the 100 field
 ///
-/// This exercise follows the framework documented in IMINT_TO_APP_FRAMEWORK.md.
+/// Scaffolding: progressive reduction of external support until the child
+/// can carry out the action mentally.
 ///
-/// **Source:** iMINT Arbeitskarte 8 (Adapted for backwards steps)
 ///
 /// **Levels:**
 /// 1. Backwards Steps of 2 (Visible Grid)
@@ -52,7 +52,6 @@ class CountStepsBackwards100FieldExercise extends StatefulWidget {
           id: 'C6.3',
           title: 'Rückwärtsschritte im Hunderterfeld',
           skillTags: ['counting_8', 'counting_6', 'counting_7', 'counting_backward'],
-          sourceCard: 'iMINT Arbeitskarte 8 (Adapted for backwards steps)',
           concept:
               'Navigating the 100-field backwards using step counting patterns (2, 5, 10). '
               'Internalizing subtraction and reverse patterns.',

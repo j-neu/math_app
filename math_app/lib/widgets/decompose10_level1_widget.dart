@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Level 1: Guided Exploration for Decompose 10
 ///
-/// Translation of iMINT Card 3 Activity A:
+/// Scaffolding step:
 /// Physical: Partner places pen between your 10 fingers, you name counts left/right
 /// Digital: Tap counters to flip them blue, equation auto-displays
 ///

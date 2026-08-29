@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
   return new NextResponse(pdfBytes, {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="Foerderplan_SenBJF.pdf"`,
+      "Content-Disposition": `attachment; filename="Foerderplan.pdf"`,
     },
   });
 }

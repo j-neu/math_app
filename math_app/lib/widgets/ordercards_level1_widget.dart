@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 /// Level 1: Read the Sequence - Understanding the 2-Row Structure
 ///
-/// **Source:** iMINT Green Card 2, Activity A
 /// **Physical Activity:** "Die Lehrkraft legt die Zahlenkarten bis 20 geordnet auf
 /// den Tisch. Kind B liest die Reihenfolge der Karten laut vor und zeigt dabei auf
 /// die entsprechenden Karten."

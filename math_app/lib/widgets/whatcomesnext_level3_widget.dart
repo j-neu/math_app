@@ -18,7 +18,7 @@ import 'dart:math' as math;
 /// - Number line appears ONLY on errors (no-fail safety net)
 /// - Adaptive difficulty increases range
 ///
-/// **"Wie kommt die Handlung in den Kopf?"**
+/// **Internalisation (action becomes mental):**
 /// - Level 1: SAW the before/after visually
 /// - Level 2: WROTE with visual support
 /// - Level 3: RECALL from memory (visual hidden, mental work)

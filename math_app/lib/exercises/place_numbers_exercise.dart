@@ -23,7 +23,6 @@ class PlaceNumbersExercise extends StatefulWidget {
           id: 'C10.1',
           title: 'Place Numbers on Line',
           skillTags: ['counting_10', 'counting_11'],
-          sourceCard: 'iMINT Green Card 10: Zahlen am Zahlenstrahl positionieren',
           concept: 'Understanding relative position of numbers on a line (0-20)',
           observationPoints: [
             'Can child order numbers correctly?',

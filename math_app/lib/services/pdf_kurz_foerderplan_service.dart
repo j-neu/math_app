@@ -7,11 +7,10 @@ import 'diagnostic_service.dart';
 import 'kurz_foerderplan_service.dart';
 import 'skill_catalog.dart';
 
-/// Generates a two-page A4 Kurzförderplan PDF in the official Berlin school
-/// template format (foerderplan-pdf_02a.pdf).
+/// Generates a two-page A4 Kurzförderplan PDF in the Förderplan form layout
+/// (foerderplan-pdf_02a.pdf).
 ///
-/// Columns 2–4 (Ist / Soll / Lernweg) are auto-filled from diagnostic data,
-/// referencing the iMINT Kartei "Auf dem Weg zum denkenden Rechnen".
+/// Columns 2–4 (Ist / Soll / Lernweg) are auto-filled from diagnostic data.
 /// Columns 5–6 (Absprachen / Reflexion) and all of page 2 are left blank
 /// with visible fill-in boxes for the teacher.
 class PdfKurzFoerderplanService {

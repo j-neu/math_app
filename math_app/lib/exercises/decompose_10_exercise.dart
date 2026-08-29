@@ -36,7 +36,6 @@ class Decompose10Exercise extends StatefulWidget {
           id: 'Z1',
           title: 'Decompose 10',
           skillTags: ['decomposition_1', 'decomposition_3'],
-          sourceCard: 'PIKAS Card 9: Zahlen zerlegen',
           concept: 'Understanding part-whole relationships: 10 can be split into pairs',
           observationPoints: [
             'Gegensinniges Verändern: As one part increases (+1), other decreases (-1)',

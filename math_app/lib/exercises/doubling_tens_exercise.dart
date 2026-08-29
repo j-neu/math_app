@@ -59,7 +59,6 @@ class _DoublingTensExerciseState extends State<DoublingTensExercise>
     id: widget.exerciseId,
     title: 'Zehner verdoppeln',
     skillTags: ['strategy_doubling_tens_1'],
-    sourceCard: 'iMINT-Kartei 155',
     concept: 'Doubling multiples of 10',
     observationPoints: ['Can child double tens?', 'Does child connect tens to ones (3 tens = 30)?'],
     internalizationPath: 'Mirror/Material -> Manual Placing -> Mental',

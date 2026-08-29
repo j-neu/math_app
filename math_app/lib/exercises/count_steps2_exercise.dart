@@ -13,10 +13,9 @@ import '../widgets/common/level_selection_drawer.dart';
 
 /// Complete implementation of C6.1: Count in Steps of 2 exercise with Card-Based Scaffolding.
 ///
-/// This exercise follows the framework documented in IMINT_TO_APP_FRAMEWORK.md
-/// to properly answer "Wie kommt die Handlung in den Kopf?" (How does action become mental?)
+/// Scaffolding: progressive reduction of external support until the child
+/// can carry out the action mentally.
 ///
-/// **Source:** iMINT Arbeitskarte 6 + 7:
 /// - Card 6: "Zweierschritte am Rechenschiffchen" (Page 84)
 /// - Card 7: "Wie viele Würfel? In Zweierschritten zählen" (Page 85)
 ///
@@ -71,9 +70,6 @@ class CountSteps2Exercise extends StatefulWidget {
           id: 'C6.1',
           title: 'Count in Steps of 2',
           skillTags: ['counting_6', 'counting_7'],
-          sourceCard:
-              'iMINT Arbeitskarte 6: Zweierschritte am Rechenschiffchen (Page 84)\n'
-              'iMINT Arbeitskarte 7: In Zweierschritten zählen (Page 85)',
           concept:
               'Skip counting by 2s: recognizing patterns, counting forward and backward '
               'in steps of 2, internalizing the sequence without visual support',

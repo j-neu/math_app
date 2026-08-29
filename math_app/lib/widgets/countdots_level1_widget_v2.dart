@@ -3,8 +3,8 @@ import 'dart:math';
 
 /// Level 1: Zur Seite geschoben (Push Aside)
 ///
-/// **From Card 1:** "Zuerst wird das gezählte Objekt zur Seite geschoben.
-/// Dabei wird die Zählzahl genannt."
+/// **Scaffolding step:** each counted object is moved aside while the
+/// number word is spoken.
 ///
 /// **Purpose:** Child learns one-to-one correspondence by physically moving
 /// each object as they count it. This is the most concrete level.

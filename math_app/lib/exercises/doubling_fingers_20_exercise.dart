@@ -59,7 +59,6 @@ class _DoublingFingers20ExerciseState extends State<DoublingFingers20Exercise>
     id: 'S3.5',
     title: 'Doubling with Fingers (ZR20)',
     skillTags: ['basic_strategy_8', 'counting_20'],
-    sourceCard: 'Custom Extension (Doubling to 20)',
     concept: 'Doubling numbers 1-10 using finger patterns',
     observationPoints: [
       'Does the child recognize the finger pattern instantly?',

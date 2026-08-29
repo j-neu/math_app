@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Level 3: Independent Mastery for Decompose 10
 ///
-/// Translation of iMINT Card 3 Activity B:
+/// Scaffolding step:
 /// Physical: "Hands covered with cloth, imagine your 10 fingers and name decomposition"
 /// Digital: Counters hidden, child writes from memory, counters appear ONLY on errors
 ///

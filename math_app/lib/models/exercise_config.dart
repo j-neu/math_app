@@ -1,10 +1,10 @@
-/// Configuration model for exercises based on iMINT and PIKAS research.
+/// Configuration model for exercises.
 ///
 /// This model captures the complete pedagogical structure of an exercise,
-/// following the three key questions from iMINT Arbeitskarten:
+/// structured around three questions:
 /// 1. Worum geht es? (What's it about?)
 /// 2. Worauf ist zu achten? (What to pay attention to?)
-/// 3. Wie kommt die Handlung in den Kopf? (How does action become mental?)
+/// 3. How does the action become mental?
 class ExerciseConfig {
   /// Unique identifier for the exercise (e.g., 'Z1', 'C1')
   final String id;
@@ -16,17 +16,13 @@ class ExerciseConfig {
   final List<String> skillTags;
 
   // ========== Pedagogical Metadata ==========
-
-  /// Source Arbeitskarte reference (e.g., "PIKAS Card 9: Zahlen zerlegen")
-  final String sourceCard;
-
   /// What mathematical concept does this teach? (Worum geht es?)
   final String concept;
 
   /// What should be observed or emphasized? (Worauf ist zu achten?)
   final List<String> observationPoints;
 
-  /// How does the action become internalized? (Wie kommt die Handlung in den Kopf?)
+  /// How does the action become internalized?
   final String internalizationPath;
 
   // ========== Exercise Configuration ==========
@@ -45,7 +41,7 @@ class ExerciseConfig {
 
   // ========== Hints & Feedback ==========
 
-  /// Hints to provide when child struggles (from PIKAS "Gezielte Impulse")
+  /// Hints to provide when child struggles
   final List<String> hints;
 
   /// Positive feedback messages for correct answers
@@ -58,7 +54,6 @@ class ExerciseConfig {
     required this.id,
     required this.title,
     required this.skillTags,
-    required this.sourceCard,
     required this.concept,
     required this.observationPoints,
     required this.internalizationPath,
@@ -80,8 +75,6 @@ class ExerciseConfig {
       id: 'Z1',
       title: 'Zahlen zerlegen bis 10',
       skillTags: ['decomposition_1', 'decomposition_3'],
-
-      sourceCard: 'PIKAS Card 9: Zahlen zerlegen',
       concept: 'Understanding part-whole relationships: 10 can be split into pairs (10+0, 9+1, 8+2, etc.)',
       observationPoints: [
         'Gegensinniges Verändern: As one part increases (+1), other decreases (-1)',

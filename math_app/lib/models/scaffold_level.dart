@@ -1,8 +1,8 @@
-/// Enumeration of scaffolding levels from the iMINT/PIKAS framework.
+/// Enumeration of scaffolding levels.
 ///
-/// NOTE: The number of levels is determined by each card's "Wie kommt die
-/// Handlung in den Kopf?" section. Some exercises have 3 levels, some have 4.
-/// See IMINT_TO_APP_FRAMEWORK.md for complete framework documentation.
+/// NOTE: The number of levels is determined by the scaffolding sequence the
+/// exercise needs. Some exercises have 3 levels, some have 4.
+/// The framework that defined these is archived — see tasks.md R8.2.
 enum ScaffoldLevel {
   /// Level 1: Guided Exploration (Handlung)
   /// - Visual objects always visible
@@ -40,7 +40,7 @@ enum ScaffoldLevel {
   /// - Easier mixed review of previous content
   /// - Purpose: Ensure positive ending, build confidence, celebrate success
   /// - This level determines "completed" status (finished + zero errors + time limits)
-  /// - See IMINT_TO_APP_FRAMEWORK.md "The Finale Level" section
+  /// - See tasks.md R8.2 (framework archived)
   finale(5, 'Finale');
 
   final int levelNumber;

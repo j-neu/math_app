@@ -23,7 +23,6 @@ class Count100FieldExercise extends StatefulWidget {
           id: 'C6.0',
           title: 'Zahlenfolgen im Hunderterfeld',
           skillTags: ['counting_8'],
-          sourceCard: 'iMINT Arbeitskarte 8: Zahlenfolgen in der Hundertertafel verstehen (Pages 87-88)',
           concept:
               'Understanding the structure of the 100-field: horizontal rows increase by 1, '
               'vertical columns increase by 10.',

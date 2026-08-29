@@ -4,8 +4,7 @@ import 'common/scrolling_number_band.dart';
 
 /// Level 1: Interactive Number Band (Full Visual Support)
 ///
-/// **Source:** iMINT Card 3, Activity B (pages 77-78)
-/// **Physical action from card:** Point to numbers while counting forward
+/// **Physical action modelled:** Point to numbers while counting forward
 /// **App translation:** Tap numbers in sequence → they highlight/animate
 ///
 /// **Features:**

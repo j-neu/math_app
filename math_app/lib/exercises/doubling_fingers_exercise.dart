@@ -59,7 +59,6 @@ class _DoublingFingersExerciseState extends State<DoublingFingersExercise>
     id: 'S3.3',
     title: 'Doubling with Fingers',
     skillTags: ['basic_strategy_8', 'counting_1'],
-    sourceCard: 'iMINT-Kartei 151 (Doubling with Fingers)',
     concept: 'Doubling numbers 1-5 using finger patterns',
     observationPoints: [
       'Does the child recognize the finger pattern instantly?',

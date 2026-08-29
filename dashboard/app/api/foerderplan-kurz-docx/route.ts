@@ -115,9 +115,9 @@ function buildKurzRows(
     }
 
     const soll = skills.map((s) => `- Das Kind kann: ${s.description_de}`).join("\n");
-    const lernParts = ["Auf dem Weg zum denkenden Rechnen:"];
+    const lernParts = ["Fördervorschläge:"];
     for (const s of skills) {
-      lernParts.push(`- Karte ${s.card_number}: ${s.title_de}`);
+      lernParts.push(`- ${s.title_de}`);
       lernParts.push(`  ${s.description_de}`);
     }
 
@@ -374,7 +374,7 @@ export async function GET(request: NextRequest) {
   return new NextResponse(bytes, {
     headers: {
       "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "Content-Disposition": `attachment; filename="Foerderplan_SenBJF_${safeName}.docx"`,
+      "Content-Disposition": `attachment; filename="Foerderplan_${safeName}.docx"`,
     },
   });
 }

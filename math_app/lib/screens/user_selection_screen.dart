@@ -383,13 +383,13 @@ class _UserSelectionScreenState extends State<UserSelectionScreen> {
         'combined_strategy_6', 'combined_strategy_7', 'combined_strategy_8', 'combined_strategy_9', 'combined_strategy_10',
         'combined_strategy_11', 'combined_strategy_12', 'combined_strategy_13', 'combined_strategy_14', 'combined_strategy_15',
         'combined_strategy_16', 'combined_strategy_17', 'combined_strategy_18', 'combined_strategy_19', 'combined_strategy_20',
-        // PIKAS ordinal skills (2)
+        // ordinal skills (2)
         'ordinal_1', 'ordinal_2',
-        // PIKAS representation skills (4)
+        // representation skills (4)
         'representation_1', 'representation_2', 'representation_3', 'representation_4',
-        // PIKAS operational sense skills (3)
+        // operational sense skills (3)
         'operation_sense_add', 'operation_sense_sub', 'operation_sense_story',
-        // PIKAS number line skills (3)
+        // number line skills (3)
         'number_line_rechenstrich', 'number_line_zahlenstrahl', 'number_line_strategies',
       ];
 

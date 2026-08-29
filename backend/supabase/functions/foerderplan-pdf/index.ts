@@ -158,7 +158,7 @@ Deno.serve(async (req) => {
       page.drawRectangle({ x: MARGIN, y: y - 2, width: 4, height: 14, color: rgb(...c) });
       drawText(`${i + 1}. ${s.title_de}`, MARGIN + 10, 11, true);
       drawText(s.description_de, MARGIN + 10, 10);
-      drawText(`Kategorie: ${s.category}  |  Karte ${s.card_number}`, MARGIN + 10, 9, false, [0.5, 0.5, 0.5]);
+      drawText(`Kategorie: ${s.category}`, MARGIN + 10, 9, false, [0.5, 0.5, 0.5]);
       y -= 4;
     }
   }
@@ -213,7 +213,7 @@ Deno.serve(async (req) => {
       page.drawRectangle({ x: MARGIN, y: y - 2, width: 4, height: 14, color: rgb(...c) });
       drawText(`${i + 1}. ${s.title_de}`, MARGIN + 10, 10, true);
       drawText(s.description_de, MARGIN + 10, 9);
-      drawText(`${s.category}  |  Karte ${s.card_number}`, MARGIN + 10, 8, false, [0.5, 0.5, 0.5]);
+      drawText(`${s.category}`, MARGIN + 10, 8, false, [0.5, 0.5, 0.5]);
       y -= 2;
     }
   }

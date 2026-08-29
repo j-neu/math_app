@@ -21,7 +21,6 @@ class OrderCardsExercise extends StatefulWidget {
           id: 'C2.1',
           title: 'Order Cards to 20',
           skillTags: ['counting_2'],
-          sourceCard: 'iMINT Green Card 2: Zahlenkarten bis 20 ordnen (Pages 75-76)',
           concept:
               'Understanding number sequence 1-20 and the tens-structure pattern. '
               'Numbers have fixed positions and predictable neighbor relationships.',

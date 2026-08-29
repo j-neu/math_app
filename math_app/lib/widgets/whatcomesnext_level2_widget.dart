@@ -20,7 +20,7 @@ import 'dart:math' as math;
 /// - Physical: Point to number card, name cards before/after
 /// - Digital: See number on line, write before/after
 ///
-/// **"Wie kommt die Handlung in den Kopf?"**
+/// **Internalisation (action becomes mental):**
 /// - Level 1: SAW the before/after relationship
 /// - Level 2: Now WRITE what comes before and after
 /// - Prepares for Level 3: RECALL from memory

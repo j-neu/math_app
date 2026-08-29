@@ -3,8 +3,8 @@ import 'dart:math';
 
 /// Level 4: Mit den Augen verfolgen (Follow with Eyes)
 ///
-/// **From Card 1:** "Das Verfolgen der Zählhandlung mit den Augen und die
-/// Nennung des Ergebnisses stellt schließlich die schwierigste Aufgabe dar."
+/// **Scaffolding step:** following the count with the eyes alone and stating
+/// the result — the hardest step in the sequence.
 ///
 /// **Purpose:** The MOST DIFFICULT level. Child must count by tracking with
 /// eyes only. The dots remain visible but the child must demonstrate mastery

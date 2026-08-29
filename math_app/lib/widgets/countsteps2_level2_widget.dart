@@ -3,8 +3,7 @@ import 'package:flutter/services.dart';
 
 /// Level 2: Count Backward in Steps of 2 (Odd Numbers Visible)
 ///
-/// **Source:** iMINT Card 6 + 7: "Zweierschritte am Rechenschiffchen" / "In Zweierschritten zählen"
-/// **Physical action from card:** Place counter on every second number counting BACKWARD
+/// **Physical action modelled:** Place counter on every second number counting BACKWARD
 /// **App translation:** Fill in ONE even number at a time, counting BACKWARD (20, 18, 16, 14...)
 ///
 /// **Grid Layout (Example for Problem 1 - asking for "20"):**

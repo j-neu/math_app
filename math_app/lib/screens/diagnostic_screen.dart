@@ -1116,14 +1116,34 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
       );
     }
 
-    // Remaining image assets
-    const double inlineHeight = 320;
-    return GestureDetector(
-      onTap: () => _showZoomedImage(question.imagePath!),
-      child: Image.asset(
-        question.imagePath!,
-        height: inlineHeight,
-        fit: BoxFit.contain,
+    // No bundled image assets remain — the scanned pictures were removed from
+    // the build on 2026-08-29 (tasks.md R0.2). Every image the diagnostic CSV
+    // references is drawn by _widgetForImage above. This branch is only reached
+    // if a CSV row names an image with no widget override, which is a data
+    // error: show it plainly rather than crashing on a missing asset.
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.image_not_supported_outlined,
+              size: 48, color: Colors.grey),
+          const SizedBox(height: 8),
+          Text(
+            'Für diese Aufgabe fehlt die Darstellung.',
+            style: const TextStyle(fontSize: 14),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            name,
+            style: const TextStyle(fontSize: 12, color: Colors.grey),
+          ),
+        ],
       ),
     );
   }

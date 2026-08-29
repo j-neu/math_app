@@ -20,7 +20,6 @@ class FingerBlitzExercise extends StatefulWidget {
           id: 'S1.1',
           title: 'Fingerblitz',
           skillTags: ['basic_strategy_1'],
-          sourceCard: 'iMINT Green Card 137/138: Fingerblitz',
           concept: 'Subitizing and constructing numbers using finger patterns (Kraft der 5, Kraft der 10)',
           observationPoints: [
             'Can child recognize 5+n patterns instantly?',

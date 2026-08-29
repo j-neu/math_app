@@ -1,6 +1,6 @@
 // POST /foerderplan-kurz-pdf
 // Body: { session_id: string }
-// Generates a two-page A4 landscape "Förderplan nach SenBJF" (Kurzförderplan).
+// Generates a two-page A4 landscape Förderplan (Kurzförderplan).
 // Page 1: table with Ist / Soll / Lernweg per failing category + two fillable columns.
 // Page 2: Weitere Vereinbarungen, Gesprächsdokumentation, Unterschriften.
 // Ports PdfKurzFoerderplanService.dart and KurzFoerderplanService.dart.
@@ -115,9 +115,9 @@ function buildKurzRows(
     const soll = skills.map((s) => `- Das Kind kann: ${s.description_de}`).join("\n");
 
     // Lernweg
-    const lernParts = ["Auf dem Weg zum denkenden Rechnen:"];
+    const lernParts = ["Fördervorschläge:"];
     for (const s of skills) {
-      lernParts.push(`- Karte ${s.card_number}: ${s.title_de}`);
+      lernParts.push(`- ${s.title_de}`);
       lernParts.push(`  ${s.description_de}`);
     }
 
@@ -153,7 +153,7 @@ Deno.serve(async (req) => {
   const { data: cached } = await supabase.storage.from("pdf-cache").download(cachedPath);
   if (cached) {
     const bytes = await cached.arrayBuffer();
-    return pdfResponse(new Uint8Array(bytes), "Foerderplan_SenBJF.pdf");
+    return pdfResponse(new Uint8Array(bytes), "Foerderplan.pdf");
   }
 
   // Load plan
@@ -469,7 +469,7 @@ Deno.serve(async (req) => {
     .from("pdf-cache")
     .upload(cachedPath, pdfBytes, { contentType: "application/pdf", upsert: true });
 
-  return pdfResponse(pdfBytes, "Foerderplan_SenBJF.pdf");
+  return pdfResponse(pdfBytes, "Foerderplan.pdf");
 });
 
 function pdfResponse(bytes: Uint8Array, filename: string) {

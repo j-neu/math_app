@@ -158,7 +158,6 @@ class ExerciseService {
           id: 'S1.2',
           title: 'Finger Klappen',
           skillTags: ['basic_strategy_2'],
-          sourceCard: 'iMINT Strategy Card: Finger Patterns',
           concept: 'Using finger patterns for calculation',
           observationPoints: ['Simultaneous finger usage vs counting'],
           internalizationPath: 'Action -> Mental Image -> Symbol',
@@ -177,7 +176,6 @@ class ExerciseService {
           id: 'S1.4',
           title: 'More or Less (Hamstern)',
           skillTags: ['basic_strategy_4'],
-          sourceCard: 'iMINT Strategy Card: Hamstern',
           concept: 'Comparing quantities and determining differences',
           observationPoints: [
             'Instant recognition of more/less',
@@ -199,7 +197,6 @@ class ExerciseService {
           id: 'S2.3',
           title: 'Opposite Change',
           skillTags: ['strategy_opposite_change_1'],
-          sourceCard: 'iMINT Card 6: Gegensinniges Verändern',
           concept: 'Compensation Strategy',
           observationPoints: [
             'Simultaneous change (+1 and -1)',
@@ -275,7 +272,7 @@ class ExerciseService {
       skillTags: ['basic_strategy_11'],
       exerciseBuilder: (userProfile) => TensCalculationExercise(userProfile: userProfile),
     ),
-    // NEW: Fully functional Z1 implementation based on PIKAS Card 9
+    // NEW: Fully functional Z1 implementation 
     Exercise(
       id: 'Z1',
       title: 'Decompose 10',

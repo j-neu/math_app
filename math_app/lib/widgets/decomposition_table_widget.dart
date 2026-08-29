@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Static decomposition table showing all ways to decompose a target number.
 ///
-/// Based on PIKAS Card 9: Image representation (Vorstellung).
+/// Image representation (Vorstellung).
 /// Shows structured visual of all decomposition pairs to help children
 /// recognize patterns like "gegensinniges Verändern" (opposite change).
 ///

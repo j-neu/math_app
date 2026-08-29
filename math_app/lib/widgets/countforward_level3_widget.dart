@@ -5,8 +5,7 @@ import 'common/scrolling_number_band.dart';
 
 /// Level 3: Mental Counting - Hidden Band (No Visual Support)
 ///
-/// **Source:** iMINT Card 3, Activity D (pages 77-78)
-/// **Physical action from card:** Count with eyes closed, no visual reference
+/// **Physical action modelled:** Count with eyes closed, no visual reference
 /// **App translation:** Flash starting number, then hide entire band
 ///
 /// **Features:**

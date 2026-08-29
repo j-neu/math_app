@@ -3,7 +3,7 @@ import 'dart:math';
 
 /// Level 2: Angetippt (Tap/Touch)
 ///
-/// **From Card 1:** "Später wird es beim lauten Zählen nur angetippt."
+/// **Scaffolding step:** the object is only touched while counting aloud.
 ///
 /// **Purpose:** Child reduces physical action - no longer moving objects aside,
 /// just tapping them. This is less concrete but still provides tactile confirmation.

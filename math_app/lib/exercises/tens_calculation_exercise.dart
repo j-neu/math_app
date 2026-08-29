@@ -22,7 +22,6 @@ class TensCalculationExercise extends StatefulWidget {
           id: 'basic_strategy_11',
           title: 'Tens Calculation',
           skillTags: ['basic_strategy_11'],
-          sourceCard: 'iMINT Kartei 157-158: Rechnen mit Zehnerzahlen',
           concept: 'Calculating with tens using the analogy to ones',
           observationPoints: [
             'Does the child understand 3 Zehner = 30?',

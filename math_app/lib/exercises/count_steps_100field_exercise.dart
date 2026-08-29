@@ -30,9 +30,9 @@ class _LevelConfig {
 
 /// Complete implementation of C6.2: Counting in steps in the 100 field
 ///
-/// This exercise follows the framework documented in IMINT_TO_APP_FRAMEWORK.md.
+/// Scaffolding: progressive reduction of external support until the child
+/// can carry out the action mentally.
 ///
-/// **Source:** iMINT Arbeitskarte 8 (related to 100-field) and general step counting.
 ///
 /// **Levels:**
 /// 1. Steps of 2 (Visible Grid)
@@ -52,7 +52,6 @@ class CountSteps100FieldExercise extends StatefulWidget {
           id: 'C6.2',
           title: 'Schritte im Hunderterfeld',
           skillTags: ['counting_8', 'counting_6', 'counting_7'],
-          sourceCard: 'iMINT Arbeitskarte 8 (Adapted for steps)',
           concept:
               'Navigating the 100-field using step counting patterns (2, 5, 10). '
               'Internalizing the position of numbers and their relationships.',

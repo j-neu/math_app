@@ -13,10 +13,10 @@ import 'dart:math' as math;
 /// - Progressive difficulty: starts at 5, increases to 20
 /// - Various object types for visual diversity
 ///
-/// **Pedagogical goal:** "Wie kommt die Handlung in den Kopf?"
+/// **Pedagogical goal:** the action becomes mental.
 /// - Child must imagine the objects (Vorstellung)
 /// - Builds subitizing and estimation skills with diverse visual stimuli
-/// **iMINT principle:** Visual support appears ONLY when needed
+/// **Principle:** Visual support appears ONLY when needed
 class CountObjectsLevel3Widget extends StatefulWidget {
   final Function(int correctCount) onProgressUpdate;
 

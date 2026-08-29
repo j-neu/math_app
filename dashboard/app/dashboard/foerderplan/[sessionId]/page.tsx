@@ -169,13 +169,13 @@ export default async function FoerderplanPage({ params }: Props) {
             target="_blank"
             className="inline-flex items-center gap-2 border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg transition-colors"
           >
-            Förderplan nach SenBJF (PDF)
+            Förderplan (PDF)
           </a>
           <a
             href={kurzDocxUrl}
             className="inline-flex items-center gap-2 border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg transition-colors"
           >
-            Förderplan nach SenBJF (Word)
+            Förderplan (Word)
           </a>
         </div>
       </div>

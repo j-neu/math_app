@@ -20,7 +20,6 @@ class PlaceNumbers100Exercise extends StatefulWidget {
           id: 'C10.2',
           title: 'Place Numbers on Line (0-100)',
           skillTags: ['counting_10', 'counting_11', 'number_range_100'],
-          sourceCard: 'iMINT Green Card 10 Extension',
           concept: 'Understanding relative position of numbers on a line (0-100)',
           observationPoints: [
             'Can child order larger numbers correctly?',

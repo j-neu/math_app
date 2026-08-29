@@ -302,7 +302,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ListTile(
             leading: const Icon(Icons.school),
             title: const Text('Pädagogisches Konzept'),
-            subtitle: const Text('Basiert auf iMINT- und PIKAS-Forschung'),
+            subtitle: const Text(
+                'Auf Grundlage der mathematikdidaktischen Forschung zur '
+                'Prävention von Rechenschwierigkeiten'),
           ),
         ],
       ),

@@ -1,5 +1,8 @@
 # School Platform Foundation
 
+> **⚠️ Superseded on content and commercial status (2026-08-29).** A Clean-Room Rewrite of the diagnostic content is now the top priority — see [tasks.md](tasks.md). The **infrastructure** described below is accurate and shipped. The **content** it serves is being replaced, and **Phase G (Billing) must not be started**: the product is non-commercial until `tasks.md` R7.5. Phase E pilots continue as research partnerships, not sales.
+
+
 **Status:** Phases A ✅ + B ✅ + C ✅ + D.5 ✅ done. Phase D in progress (AVV + teacher onboarding doc remaining). Phase E (real pilot) ready to schedule.
 **Created:** 2026-05-15
 **Last updated:** 2026-05-23

@@ -12,7 +12,7 @@ import 'dart:math' as math;
 /// - Child explores freely, seeing count increase as they tap
 ///
 /// **Pedagogical goal:** Build understanding that counting works with any objects
-/// **iMINT skill:** counting_1 (Count objects one by one)
+/// **Skill:** counting_1 (Count objects one by one)
 class CountObjectsLevel1Widget extends StatefulWidget {
   final int numberOfObjects;
   final VoidCallback onReadyForNextLevel;

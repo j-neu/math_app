@@ -13,14 +13,13 @@ import '../widgets/common/level_selection_drawer.dart';
 
 /// Complete implementation of C1.1 V2: Count the Dots exercise with 4-Level Scaffolding.
 ///
-/// This exercise follows the iMINT Card 1 prescription for "Plättchen zählen" which
-/// explicitly describes 4 scaffolding levels:
+/// The exercise uses a 4-level scaffolding sequence:
 ///
-/// **iMINT Card 1: "Wie kommt die Handlung in den Kopf?"**
-/// 1. Zuerst wird das gezählte Objekt zur Seite geschoben (push aside while counting)
-/// 2. Später wird es beim lauten Zählen nur angetippt (tap/touch while counting)
-/// 3. Der nächste Schritt ist das laute Abzählen ohne weitere äußere Handlung (count without action)
-/// 4. Das Verfolgen der Zählhandlung mit den Augen und die Nennung des Ergebnisses (eyes only, then result)
+/// **Scaffolding: progressive reduction of physical action while counting**
+/// 1. Move each counted object aside
+/// 2. Only touch each object while counting aloud
+/// 3. Count aloud with no external action
+/// 4. Track the count with the eyes only, then state the result
 ///
 /// **Level 1: Drag to Count (zur Seite schieben)**
 /// - Drag each dot to "counted" area
@@ -48,7 +47,6 @@ import '../widgets/common/level_selection_drawer.dart';
 ///
 /// **Pedagogical Goal:** Progressive reduction of support from physical to mental
 ///
-/// Source: iMINT Green Card 1 (Plättchen zählen / Count dots)
 class CountDotsExerciseV2 extends StatefulWidget {
   final ExerciseConfig config;
   final UserProfile userProfile;
@@ -60,7 +58,6 @@ class CountDotsExerciseV2 extends StatefulWidget {
           id: 'C1.1',
           title: 'Plättchen zählen',
           skillTags: ['counting_1'],
-          sourceCard: 'iMINT Green Card 1: Plättchen zählen (4-level version)',
           concept:
               'Understanding counting through one-to-one correspondence with progressive scaffolding',
           observationPoints: [

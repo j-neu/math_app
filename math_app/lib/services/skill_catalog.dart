@@ -1,12 +1,14 @@
 import 'package:csv/csv.dart';
 import 'package:flutter/services.dart';
 
-/// One row of `Research/skills_taxonomy.csv`.
+/// One row of `Research/skills_taxonomy.csv` (new taxonomy, tasks.md R3.3):
+/// skill_id, domain, construct_id, color, title_de, title_en, description_de,
+/// description_en. `nameDe`/`nameEn` map to title_de/title_en.
 class SkillCatalogEntry {
   final String skillId;
-  final String category;
-  final String categoryColor;
-  final int cardNumber;
+  final String domain; // Domain letter A–D
+  final String constructId; // e.g. 'A1.1'
+  final String color; // e.g. 'amber', 'indigo', 'emerald', 'violet'
   final String nameDe;
   final String nameEn;
   final String descriptionDe;
@@ -14,9 +16,9 @@ class SkillCatalogEntry {
 
   SkillCatalogEntry({
     required this.skillId,
-    required this.category,
-    required this.categoryColor,
-    required this.cardNumber,
+    required this.domain,
+    required this.constructId,
+    required this.color,
     required this.nameDe,
     required this.nameEn,
     required this.descriptionDe,
@@ -36,24 +38,42 @@ class SkillCatalog {
   Future<void> load() async {
     if (_loaded) return;
     final raw = await rootBundle.loadString('Research/skills_taxonomy.csv');
-    final rows = const CsvToListConverter().convert(raw, eol: '\n');
+    _bySkillId.addAll(parse(raw));
+    _loaded = true;
+  }
+
+  /// Pure parse of the taxonomy CSV text; used by [load] and by
+  /// [loadFromCsv] so tests do not need the asset bundle.
+  static Map<String, SkillCatalogEntry> parse(String csv) {
+    final rows = const CsvToListConverter()
+        .convert(csv.replaceAll('\r\n', '\n'), eol: '\n');
+    final map = <String, SkillCatalogEntry>{};
 
     for (var i = 1; i < rows.length; i++) {
       final r = rows[i];
       if (r.length < 8) continue;
       final id = r[0].toString();
-      _bySkillId[id] = SkillCatalogEntry(
+      map[id] = SkillCatalogEntry(
         skillId: id,
-        category: r[1].toString(),
-        categoryColor: r[2].toString(),
-        cardNumber: int.tryParse(r[3].toString()) ?? 0,
+        domain: r[1].toString(),
+        constructId: r[2].toString(),
+        color: r[3].toString(),
         nameDe: r[4].toString(),
         nameEn: r[5].toString(),
         descriptionDe: r[6].toString(),
         descriptionEn: r[7].toString(),
       );
     }
-    _loaded = true;
+    return map;
+  }
+
+  /// Builds a standalone catalog from raw CSV text (test-friendly; no asset
+  /// bundle). Prefer [SkillCatalog.instance] for runtime lookups.
+  static SkillCatalog loadFromCsv(String csv) {
+    final catalog = SkillCatalog._();
+    catalog._bySkillId.addAll(parse(csv));
+    catalog._loaded = true;
+    return catalog;
   }
 
   SkillCatalogEntry? get(String skillId) => _bySkillId[skillId];

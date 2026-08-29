@@ -5,18 +5,18 @@ import '../models/skill_recommendation.dart';
 import '../models/user_profile.dart';
 import 'diagnostic_service.dart';
 import 'skill_catalog.dart';
+import 'skill_recommendation_order.dart';
 
 /// Builds a [Foerderplan] from a completed [DiagnosticSession].
 class DiagnosticReportGenerator {
-  /// Pedagogical category sequence — earlier categories must be mastered first.
-  /// English-named categories fall through to the end.
-  static const List<String> _categoryOrder = [
-    'Zählen',
-    'Zahlzerlegung / Schnelles Sehen',
-    'Stellenwerte verstehen',
-    'Grundstrategien',
-    'Kombinierte Strategien',
-  ];
+  /// Domain labels for the new taxonomy (matches the labels used by
+  /// `KurzFoerderplanService`), keyed by the skill's domain letter.
+  static const Map<String, String> _domainLabels = <String, String>{
+    'A': 'Domäne A — Zahlbegriff',
+    'B': 'Domäne B — Stellenwertverständnis',
+    'C': 'Domäne C — Rechenstrategien',
+    'D': 'Domäne D — Sachsituationen',
+  };
 
   /// Fraction of *correct* answers that must exceed the per-question slow
   /// threshold for `slowResponseFlag` to fire.
@@ -88,27 +88,24 @@ class DiagnosticReportGenerator {
         skillId: entry.key,
         skillNameDe: meta.nameDe,
         descriptionDe: meta.descriptionDe,
-        category: meta.category,
-        categoryColor: meta.categoryColor,
-        cardNumber: meta.cardNumber,
+        category: _domainLabel(meta.domain),
+        categoryColor: meta.color,
+        cardNumber: 0,
         triggeringQuestionIds: entry.value,
       ));
     }
     return out;
   }
 
-  void _sortPedagogically(List<SkillRecommendation> recs) {
-    recs.sort((a, b) {
-      final ar = _categoryRank(a.category);
-      final br = _categoryRank(b.category);
-      if (ar != br) return ar.compareTo(br);
-      return a.cardNumber.compareTo(b.cardNumber);
-    });
-  }
+  /// Domain label for a taxonomy skill; unknown domains keep the raw letter.
+  String _domainLabel(String domain) => _domainLabels[domain] ?? domain;
 
-  int _categoryRank(String category) {
-    final idx = _categoryOrder.indexOf(category);
-    return idx == -1 ? _categoryOrder.length : idx;
+  /// Orders recommendations by the documented R4.2 rule: canonical construct
+  /// position first, then ID suffix (see `skill_recommendation_order.dart`).
+  void _sortPedagogically(List<SkillRecommendation> recs) {
+    final order = sortSkillIds(recs.map((r) => r.skillId).toList());
+    final rank = {for (var i = 0; i < order.length; i++) order[i]: i};
+    recs.sort((a, b) => rank[a.skillId]!.compareTo(rank[b.skillId]!));
   }
 
   Map<String, ({int failed, int total})> _computeCategoryStats(
@@ -128,7 +125,7 @@ class DiagnosticReportGenerator {
       final categories = <String>{};
       for (final skillId in question.ifWrongPracticeSkills) {
         final meta = catalog.get(skillId);
-        if (meta != null) categories.add(meta.category);
+        if (meta != null) categories.add(_domainLabel(meta.domain));
       }
 
       for (final c in categories) {

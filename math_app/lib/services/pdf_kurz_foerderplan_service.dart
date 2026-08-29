@@ -7,12 +7,14 @@ import 'diagnostic_service.dart';
 import 'kurz_foerderplan_service.dart';
 import 'skill_catalog.dart';
 
-/// Generates a two-page A4 Kurzförderplan PDF in the Förderplan form layout
-/// (foerderplan-pdf_02a.pdf).
+/// Generates a two-page A4 Kurzförderplan PDF in our own Förderplan layout.
 ///
-/// Columns 2–4 (Ist / Soll / Lernweg) are auto-filled from diagnostic data.
-/// Columns 5–6 (Absprachen / Reflexion) and all of page 2 are left blank
-/// with visible fill-in boxes for the teacher.
+/// Columns 1–3 (Ist / Soll / Lernweg) are auto-filled from diagnostic data.
+/// Columns 4–5 (Absprachen / Reflexion) and all of page 2 are left blank
+/// with visible fill-in boxes for the teacher. The header is filled with the
+/// student name (from `Foerderplan.studentName`) and the session date
+/// ("von", from `Foerderplan.sessionDate`); "bis" stays an empty fill-in box
+/// because the schema has no end-date field (form-mapping.md R6.1/R6.2).
 class PdfKurzFoerderplanService {
   Future<Uint8List> generatePdf(Foerderplan plan) async {
     await SkillCatalog.instance.load();
@@ -32,7 +34,7 @@ class PdfKurzFoerderplanService {
         pageFormat: PdfPageFormat.a4.landscape,
         margin: const pw.EdgeInsets.symmetric(horizontal: 28, vertical: 28),
         build: (_) => [
-          _buildHeader(),
+          _buildHeader(plan),
           pw.SizedBox(height: 14),
           _buildMainTable(data),
           pw.SizedBox(height: 8),
@@ -54,7 +56,7 @@ class PdfKurzFoerderplanService {
 
   // ──────────────────────────────────────────────────── page 1 header
 
-  pw.Widget _buildHeader() {
+  pw.Widget _buildHeader(Foerderplan plan) {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
@@ -70,7 +72,7 @@ class PdfKurzFoerderplanService {
               style: const pw.TextStyle(fontSize: 9),
             ),
             pw.SizedBox(width: 6),
-            pw.Expanded(child: _inputBox(height: 18)),
+            pw.Expanded(child: _filledLine(plan.studentName)),
           ],
         ),
         pw.SizedBox(height: 5),
@@ -78,7 +80,10 @@ class PdfKurzFoerderplanService {
           children: [
             pw.Text('Für die Zeit von:', style: const pw.TextStyle(fontSize: 9)),
             pw.SizedBox(width: 6),
-            pw.SizedBox(width: 90, child: _inputBox(height: 18)),
+            pw.SizedBox(
+              width: 90,
+              child: _filledLine(_formatGermanDate(plan.sessionDate)),
+            ),
             pw.SizedBox(width: 8),
             pw.Text('bis:', style: const pw.TextStyle(fontSize: 9)),
             pw.SizedBox(width: 6),
@@ -242,9 +247,10 @@ class PdfKurzFoerderplanService {
         pw.SizedBox(height: 18),
         pw.Row(
           children: [
-            pw.Expanded(child: _signatureLine()),
+            pw.Expanded(child: _signatureLine('Unterschrift Lehrkraft')),
             pw.SizedBox(width: 32),
-            pw.Expanded(child: _signatureLine()),
+            pw.Expanded(
+                child: _signatureLine('Unterschrift Eltern/Erziehungsberechtigte')),
           ],
         ),
         pw.SizedBox(height: 26),
@@ -261,7 +267,7 @@ class PdfKurzFoerderplanService {
             pw.SizedBox(width: 6),
             pw.SizedBox(width: 100, child: _inputBox(height: 18)),
             pw.SizedBox(width: 32),
-            pw.Expanded(child: _signatureLine()),
+            pw.Expanded(child: _signatureLine('Unterschrift Erziehungsberechtigte/r')),
           ],
         ),
         pw.SizedBox(height: 4),
@@ -332,18 +338,44 @@ class PdfKurzFoerderplanService {
     );
   }
 
-  pw.Widget _signatureLine() {
+  pw.Widget _signatureLine(String label) {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.center,
       children: [
         pw.Divider(color: PdfColors.grey600, thickness: 0.5),
         pw.SizedBox(height: 3),
         pw.Text(
-          'Unterschrift',
+          label,
           style: const pw.TextStyle(fontSize: 7.5, color: PdfColors.grey600),
         ),
       ],
     );
+  }
+
+  /// A bordered fill-in line whose value is pre-filled with [text].
+  pw.Widget _filledLine(String text, {double fontSize = 9, double height = 18}) {
+    return pw.Container(
+      height: height,
+      alignment: pw.Alignment.centerLeft,
+      decoration: pw.BoxDecoration(
+        color: PdfColors.grey50,
+        border: pw.Border.all(color: PdfColors.grey400, width: 0.5),
+        borderRadius: pw.BorderRadius.circular(2),
+      ),
+      padding: const pw.EdgeInsets.symmetric(horizontal: 4),
+      child: pw.Text(
+        text,
+        style: pw.TextStyle(fontSize: fontSize),
+        overflow: pw.TextOverflow.clip,
+      ),
+    );
+  }
+
+  /// Formats [date] as a readable German date, e.g. `29.08.2026`.
+  String _formatGermanDate(DateTime date) {
+    final d = date.day.toString().padLeft(2, '0');
+    final m = date.month.toString().padLeft(2, '0');
+    return '$d.$m.${date.year}';
   }
 
   PdfColor _pdfColor(String name) {
@@ -365,6 +397,14 @@ class PdfKurzFoerderplanService {
         return PdfColors.orange700;
       case 'teal':
         return PdfColors.teal700;
+      case 'amber':
+        return PdfColors.amber700;
+      case 'indigo':
+        return PdfColors.indigo700;
+      case 'emerald':
+        return PdfColors.green700;
+      case 'violet':
+        return PdfColors.purple700;
       case 'brown':
         return const PdfColor.fromInt(0xFF6D4C41);
       default:

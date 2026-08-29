@@ -17,6 +17,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Link href="/impressum" className="hover:text-gray-700 transition-colors">
             Impressum
           </Link>
+          <Link href="/wissenschaftliche-grundlagen" className="hover:text-gray-700 transition-colors">
+            Wissenschaftliche Grundlagen
+          </Link>
           <Link href="/datenschutz" className="hover:text-gray-700 transition-colors">
             Datenschutz
           </Link>

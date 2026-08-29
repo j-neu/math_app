@@ -17,13 +17,15 @@ import {
   WidthType,
 } from "docx";
 
-const CATEGORY_ORDER = [
-  "Zählen",
-  "Zahlzerlegung / Schnelles Sehen",
-  "Stellenwerte verstehen",
-  "Grundstrategien",
-  "Kombinierte Strategien",
-];
+// New taxonomy (tasks.md R4.3): domain label per skill ID prefix.
+const DOMAIN_LABELS: Record<string, string> = {
+  A: "Domäne A — Zahlbegriff",
+  B: "Domäne B — Stellenwertverständnis",
+  C: "Domäne C — Rechenstrategien",
+  D: "Domäne D — Sachsituationen",
+};
+
+const DOMAIN_PATTERN = /^([A-D])\d/;
 
 // DXA width in twips for A4 landscape: 16838 twips usable - margins
 // Using 6 columns; total ~12000 twips after margins
@@ -79,9 +81,28 @@ interface SkillRow {
   id: string;
   category: string;
   color: string;
-  card_number: number;
   title_de: string;
   description_de: string;
+}
+
+function groupLabel(s: SkillRow): string {
+  const m = DOMAIN_PATTERN.exec(s.id);
+  if (m) return DOMAIN_LABELS[m[1]] ?? s.category;
+  return s.category;
+}
+
+function orderedGroupLabels(labels: string[]): string[] {
+  const domainLabels = Object.values(DOMAIN_LABELS);
+  const rank = (l: string): number => {
+    const idx = domainLabels.indexOf(l);
+    return idx === -1 ? domainLabels.length : idx;
+  };
+  return [...labels].sort((a, b) => {
+    const ra = rank(a);
+    const rb = rank(b);
+    if (ra !== rb) return ra - rb;
+    return a.localeCompare(b, "de");
+  });
 }
 
 function buildKurzRows(
@@ -89,24 +110,24 @@ function buildKurzRows(
   categoryStats: Record<string, { failed: number; total: number }>,
   slowResponseFlag: boolean,
 ) {
-  const byCategory = new Map<string, SkillRow[]>();
+  const byGroup = new Map<string, SkillRow[]>();
   for (const s of recommended) {
-    if (!byCategory.has(s.category)) byCategory.set(s.category, []);
-    byCategory.get(s.category)!.push(s);
+    const label = groupLabel(s);
+    if (!byGroup.has(label)) byGroup.set(label, []);
+    byGroup.get(label)!.push(s);
   }
 
   const rows: { category: string; ist: string; soll: string; lernweg: string }[] = [];
   let firstRow = true;
-  for (const cat of CATEGORY_ORDER) {
-    const skills = byCategory.get(cat);
-    if (!skills || skills.length === 0) continue;
-    const stats = categoryStats[cat];
+  for (const label of orderedGroupLabels(Array.from(byGroup.keys()))) {
+    const skills = byGroup.get(label)!;
+    const stats = categoryStats[label];
 
     const istParts: string[] = [];
     if (stats && stats.failed > 0) {
-      istParts.push(`Im Bereich ${cat} wurden ${stats.failed} von ${stats.total} Aufgaben nicht gelöst.`);
+      istParts.push(`Im Bereich ${label} wurden ${stats.failed} von ${stats.total} Aufgaben nicht gelöst.`);
     } else {
-      istParts.push(`Im Bereich ${cat} besteht Förderbedarf.`);
+      istParts.push(`Im Bereich ${label} besteht Förderbedarf.`);
     }
     istParts.push("Beobachtete Schwierigkeiten:");
     for (const s of skills) istParts.push(`- ${s.title_de}`);
@@ -121,7 +142,7 @@ function buildKurzRows(
       lernParts.push(`  ${s.description_de}`);
     }
 
-    rows.push({ category: cat, ist: istParts.join("\n"), soll, lernweg: lernParts.join("\n") });
+    rows.push({ category: label, ist: istParts.join("\n"), soll, lernweg: lernParts.join("\n") });
     firstRow = false;
   }
   return rows;
@@ -180,7 +201,7 @@ export async function GET(request: NextRequest) {
 
   const { data: skillsData } = await supabase
     .from("skills")
-    .select("id, category, color, card_number, title_de, description_de")
+    .select("id, category, color, title_de, description_de")
     .in("id", plan.recommended_skill_ids as string[]);
 
   const skillMap = new Map((skillsData ?? []).map((s: SkillRow) => [s.id, s]));

@@ -26,7 +26,7 @@ export default function DatenschutzPage() {
             <p className="mt-2">
               [Jakob Neumann]<br />
               [Eulerstraße 12], [13357 Berlin]<br />
-              E-Mail: <a href="mailto:[jakob.neumann@schule.berlin.de]" className="underline hover:text-gray-900">[jakob.neumann@schule.berlin.de]</a>
+              E-Mail: <a href="mailto:[jakob.neumann@schule.berlin.de]" className="underline hover:text-gray-900">jakob.neumann@schule.berlin.de</a>
             </p>
           </section>
 

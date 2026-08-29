@@ -1,6 +1,7 @@
 import '../models/diagnostic_question.dart';
 import '../models/foerderplan.dart';
 import '../models/skill_recommendation.dart';
+import 'skill_recommendation_order.dart';
 
 class KurzFoerderplanRow {
   final String category;
@@ -25,42 +26,44 @@ class KurzFoerderplanData {
   KurzFoerderplanData({required this.rows, required this.hasSlowResponseNote});
 }
 
-/// Generates structured Ist / Soll / Lernweg content from a [Foerderplan],
-/// grouped by skill category.
+/// Generates structured Ist / Soll / Lernweg content from a [Foerderplan].
 ///
-/// The text templates here are rewritten against the new taxonomy in
-/// tasks.md R4.3; this version only removes the protected work title and the
-/// card references from the generated output (tasks.md R0.3).
+/// Rewritten per tasks.md R4.3: rows are grouped by Domain (A–D) instead of
+/// the legacy categories. A skill ID matching `^[A-D]\d` maps to its domain
+/// label (Domäne A — Zahlbegriff, …); any other ID falls back to the skill's
+/// own legacy `category` value as the group label. Rows are ordered by domain
+/// (A, B, C, D) and skills within a domain by the documented recommendation
+/// order ([sortSkillIds]). The text templates are neutral and contain no card
+/// reference and no protected work title.
 class KurzFoerderplanService {
-  static const _categoryOrder = [
-    'Zählen',
-    'Zahlzerlegung / Schnelles Sehen',
-    'Stellenwerte verstehen',
-    'Grundstrategien',
-    'Kombinierte Strategien',
-  ];
+  static const _domainLabels = <String, String>{
+    'A': 'Domäne A — Zahlbegriff',
+    'B': 'Domäne B — Stellenwertverständnis',
+    'C': 'Domäne C — Rechenstrategien',
+    'D': 'Domäne D — Sachsituationen',
+  };
+
+  static final RegExp _domainPattern = RegExp(r'^([A-D])\d');
 
   KurzFoerderplanData generate(
     Foerderplan plan,
     Map<int, DiagnosticQuestion> questionsById,
   ) {
-    final byCategory = <String, List<SkillRecommendation>>{};
+    final byGroup = <String, List<SkillRecommendation>>{};
     for (final s in plan.recommendedSkills) {
-      byCategory.putIfAbsent(s.category, () => []).add(s);
+      byGroup.putIfAbsent(_groupLabel(s), () => []).add(s);
     }
 
     final rows = <KurzFoerderplanRow>[];
     bool firstRow = true;
 
-    for (final cat in _categoryOrder) {
-      final skills = byCategory[cat];
-      if (skills == null || skills.isEmpty) continue;
-
-      final stats = plan.categoryStats[cat];
+    for (final label in _orderedGroupLabels(byGroup.keys)) {
+      final skills = _sortedSkills(byGroup[label]!);
+      final stats = plan.categoryStats[label];
       rows.add(KurzFoerderplanRow(
-        category: cat,
+        category: label,
         categoryColor: skills.first.categoryColor,
-        ist: _buildIst(cat, stats, skills, plan.slowResponseFlag && firstRow),
+        ist: _buildIst(label, stats, skills, plan.slowResponseFlag && firstRow),
         soll: _buildSoll(skills),
         lernweg: _buildLernweg(skills),
       ));
@@ -73,8 +76,43 @@ class KurzFoerderplanService {
     );
   }
 
+  /// The group label for a recommendation: its domain label for new-taxonomy
+  /// IDs, otherwise the skill's own legacy category value.
+  String _groupLabel(SkillRecommendation s) {
+    final match = _domainPattern.firstMatch(s.skillId);
+    if (match != null) return _domainLabels[match.group(1)] ?? s.category;
+    return s.category;
+  }
+
+  /// Domain groups (A, B, C, D) first in canonical order, then any legacy
+  /// groups deterministically by label.
+  List<String> _orderedGroupLabels(Iterable<String> labels) {
+    final sorted = labels.toList();
+    sorted.sort((a, b) {
+      final ra = _labelRank(a);
+      final rb = _labelRank(b);
+      if (ra != rb) return ra - rb;
+      return a.compareTo(b);
+    });
+    return sorted;
+  }
+
+  int _labelRank(String label) {
+    final values = _domainLabels.values.toList();
+    final idx = values.indexOf(label);
+    return idx == -1 ? values.length : idx;
+  }
+
+  /// Skills within a group ordered by the documented recommendation order.
+  List<SkillRecommendation> _sortedSkills(List<SkillRecommendation> skills) {
+    final byId = {for (final s in skills) s.skillId: s};
+    return [
+      for (final id in sortSkillIds(byId.keys.toList())) byId[id]!,
+    ];
+  }
+
   String _buildIst(
-    String category,
+    String label,
     ({int failed, int total})? stats,
     List<SkillRecommendation> skills,
     bool addSlowNote,
@@ -82,9 +120,9 @@ class KurzFoerderplanService {
     final buf = StringBuffer();
     if (stats != null && stats.failed > 0) {
       buf.write(
-          'Im Bereich $category wurden ${stats.failed} von ${stats.total} Aufgaben nicht gelöst.');
+          'Im Bereich $label wurden ${stats.failed} von ${stats.total} Aufgaben nicht gelöst.');
     } else {
-      buf.write('Im Bereich $category besteht Förderbedarf.');
+      buf.write('Im Bereich $label besteht Förderbedarf.');
     }
     buf.write('\nBeobachtete Schwierigkeiten:');
     for (final s in skills) {

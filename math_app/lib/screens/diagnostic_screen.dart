@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, Tar
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:math_app/widgets/answer_widgets.dart';
-import 'package:math_app/widgets/circle_display_widget.dart';
+import 'package:math_app/widgets/common/finger_display_widget.dart';
 import '../models/diagnostic_question.dart';
 import '../models/diagnostic_result.dart';
 import '../models/diagnostic_session.dart';
@@ -17,11 +17,6 @@ import '../screens/diagnostic_complete_screen.dart';
 import '../screens/diagnostic_report_screen.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:path_provider/path_provider.dart';
-import '../widgets/diagnostic/dice_widget.dart';
-import '../widgets/common/hundred_field_widget.dart';
-import '../widgets/common/dienes_block_widget.dart';
-import '../widgets/common/rechenschiffchen_widget.dart';
-import '../widgets/common/pattern_dots_widget.dart';
 
 class DiagnosticScreen extends StatefulWidget {
   final UserProfile userProfile;
@@ -382,14 +377,14 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     return false;
   }
 
-  /// Card-oriented break-off group key. Prefers the explicit `skipGroup`
-  /// CSV column (e.g. "verdoppeln", "halbieren") so a failure on Card 18
-  /// (Verdoppeln bis 20) only suppresses Card 19 (Verdoppeln bis 100),
-  /// not every other ZR100 question in the same coarse skill family.
+  /// Break-off group key. Prefers the explicit `skipGroup` CSV column
+  /// (e.g. "verdoppeln", "halbieren") so a failure on one ZR20 item only
+  /// suppresses the ZR100 items in the same group, not every other ZR100
+  /// question in the same coarse skill family.
   ///
   /// Falls back to the first-skill-prefix (e.g. "basic" from
-  /// `basic_strategy_8`) for legacy rows without a skipGroup, preserving
-  /// the original Phase-0 behaviour for the existing 59 questions.
+  /// `basic_strategy_8`) for rows without a skipGroup, preserving the
+  /// original Phase-0 behaviour.
   String? _categoryKey(DiagnosticQuestion question) {
     final group = question.ifWrongSkip?.trim();
     if (group != null && group.isNotEmpty) return group;
@@ -399,15 +394,15 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
 
   /// Determine if a question is in ZR 100 range (vs ZR 20)
   bool _isZR100Question(DiagnosticQuestion question) {
-    // Explicit CSV override wins — used by Q60+ where the magnitude heuristic
+    // Explicit CSV override wins — used where the magnitude heuristic
     // misclassifies (e.g. "Doppelte von 19" is diagnostically ZR100).
     final zr = question.zahlenraum;
     if (zr != null && zr.isNotEmpty) {
       return zr.toUpperCase() == 'ZR100' || zr.toUpperCase() == 'ZR1000';
     }
 
-    // Don't check image filenames - they contain large numbers like "img2113.jpg"
-    // Only check actual question text for Text/Cards questions
+    // Image questions carry an item ID in questionText (not a filename);
+    // fall back to the correct answer to judge the number range.
     if (question.sourceType == QuestionType.image) {
       // For image questions, check the correct answer instead
       final answer = int.tryParse(question.correctAnswer) ?? 0;
@@ -692,22 +687,6 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   bool _checkAnswer(String userAnswer, String correctAnswer, AnswerFormat format, int questionNumber) {
     if (userAnswer.isEmpty) return false;
 
-    // Q24: any two dice values (1–6) that sum to 7
-    if (questionNumber == 24) {
-       // Expecting "val1, val2" from MultipleAnswerWidget
-       final parts = userAnswer.split(',').map((s) => int.tryParse(s.trim()) ?? -1).toList();
-       // Check if we have exactly 2 valid numbers > 0 that sum to 7
-       // (Dice usually show 1-6, so maybe strictly >0 and <=6? But question says "numbers on dice")
-       // Assuming standard dice: 1-6.
-       if (parts.length == 2 && 
-           parts[0] >= 1 && parts[0] <= 6 && 
-           parts[1] >= 1 && parts[1] <= 6 && 
-           (parts[0] + parts[1] == 7)) {
-         return true;
-       }
-       return false;
-    }
-
     switch (format) {
       case AnswerFormat.single:
         return userAnswer.toLowerCase() == correctAnswer.toLowerCase();
@@ -817,45 +796,6 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: 20),
-                  // Q24: generated dice illustration (6 + 1 = 7 example)
-                  if (question.listNumber == 24) ...[
-                    _buildQ21Display(),
-                    const SizedBox(height: 8),
-                  ],
-                  // Q48: generated dice comparison (red = child, blue = teacher)
-                  if (question.listNumber == 48) ...[
-                    _buildQ48Display(),
-                    const SizedBox(height: 8),
-                  ],
-                  // Display image if available
-                  if (question.imagePath != null)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
-                      child: _buildImageWidget(question),
-                    )
-                  else if (question.sourceType == QuestionType.image)
-                    // Fallback to circle display for simple image questions
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 20.0),
-                      child: CircleDisplayWidget(count: int.tryParse(question.correctAnswer) ?? 0),
-                    ),
-                  const SizedBox(height: 20),
-                  // Display questionText in very large font for Image type questions
-                  if (question.sourceType == QuestionType.image &&
-                      !question.questionText.toLowerCase().endsWith('.jpg') &&
-                      !question.questionText.toLowerCase().endsWith('.png') &&
-                      !question.questionText.toLowerCase().endsWith('.jpeg'))
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Text(
-                        question.questionText,
-                        style: const TextStyle(
-                          fontSize: 48,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
                   // For non-image questions, display questionText in very large font
                   if (question.sourceType == QuestionType.text)
                     Padding(
@@ -903,20 +843,16 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   Widget _buildAnswerWidget(
       DiagnosticQuestion question, List<DiagnosticQuestion> questions) {
     void onSubmit() => _nextQuestion(questions);
-    if (question.listNumber == 24) {
-      return Q21AnswerWidget(
-        key: const ValueKey('q24_dice'),
-        controller: _textController,
-        onSubmit: onSubmit,
-      );
-    }
+
+    final Widget answerInput;
     switch (question.answerFormat) {
       case AnswerFormat.single:
-        return SingleAnswerWidget(
+        answerInput = SingleAnswerWidget(
           key: ValueKey('single_${question.listNumber}'),
           controller: _textController,
           onSubmit: onSubmit,
         );
+        break;
       case AnswerFormat.multiple:
         // Calculate the number of fields based on the correct answer
         final fieldCount = question.correctAnswer
@@ -931,7 +867,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
         // Check if it's a counting question (contains "Count" in English or "Zähle" in German)
         final isCounting = question.english.toLowerCase().contains('count') || 
                            question.german.toLowerCase().contains('zähle');
-                           
+                            
         // Check if the main display text is a number (which is usually the starting number for these questions)
         final isNumber = int.tryParse(question.questionText.trim()) != null;
         
@@ -939,13 +875,14 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
           prefixText = '${question.questionText.trim()}, ';
         }
 
-        return MultipleAnswerWidget(
+        answerInput = MultipleAnswerWidget(
           key: ValueKey('multiple_${question.listNumber}'),
           controller: _textController,
           fieldCount: fieldCount,
           prefixText: prefixText,
           onSubmit: onSubmit,
         );
+        break;
       case AnswerFormat.sort:
         // Parse the correct answer to get the items to sort
         final items = question.correctAnswer
@@ -953,100 +890,36 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
             .map((s) => s.trim())
             .where((s) => s.isNotEmpty)
             .toList();
-        return SortAnswerWidget(
+        answerInput = SortAnswerWidget(
           key: ValueKey('sort_${question.listNumber}'),
           controller: _textController,
           items: items,
         );
+        break;
     }
+
+    // Visual items render the arrangement from their clean-room spec above
+    // the answer input (see buildVisualDisplay).
+    if (question.sourceType == QuestionType.image) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildVisualDisplay(question),
+          const SizedBox(height: 16),
+          answerInput,
+        ],
+      );
+    }
+
+    return answerInput;
   }
 
-  // Q21: two white dice showing 6 and 1 as an example illustration.
-  Widget _buildQ21Display() {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Column(
-              children: [
-                const Text('Würfel 1',
-                    style: TextStyle(fontSize: 13, color: Colors.black54)),
-                const SizedBox(height: 6),
-                DiceWidget(value: 6, size: 90),
-              ],
-            ),
-            const Padding(
-              padding: EdgeInsets.only(bottom: 8, left: 12, right: 12),
-              child: Text('+',
-                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
-            ),
-            Column(
-              children: [
-                const Text('Würfel 2',
-                    style: TextStyle(fontSize: 13, color: Colors.black54)),
-                const SizedBox(height: 6),
-                DiceWidget(value: 1, size: 90),
-              ],
-            ),
-            const Padding(
-              padding: EdgeInsets.only(bottom: 8, left: 12),
-              child: Text('= 7',
-                  style: TextStyle(
-                      fontSize: 28, fontWeight: FontWeight.bold)),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        const Text(
-          'Beispiel',
-          style: TextStyle(fontSize: 12, color: Colors.black38),
-        ),
-      ],
-    );
-  }
-
-  // Q48: red die (child = 5) and blue die (teacher = 3).
-  Widget _buildQ48Display() {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Column(
-              children: [
-                const Text('Dein Würfel',
-                    style: TextStyle(
-                        fontSize: 13, fontWeight: FontWeight.w600)),
-                const SizedBox(height: 6),
-                DiceWidget(
-                  value: 5,
-                  size: 90,
-                  faceColor: Colors.red.shade100,
-                  borderColor: Colors.red.shade400,
-                ),
-              ],
-            ),
-            const SizedBox(width: 32),
-            Column(
-              children: [
-                const Text('Mein Würfel',
-                    style: TextStyle(
-                        fontSize: 13, fontWeight: FontWeight.w600)),
-                const SizedBox(height: 6),
-                DiceWidget(
-                  value: 3,
-                  size: 90,
-                  faceColor: Colors.blue.shade100,
-                  borderColor: Colors.blue.shade400,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ],
-    );
+  /// Renders the arrangement specified by the clean-room item file for the
+  /// current visual item, delegating to the public [buildVisualDisplay] with
+  /// access to the shared text controller (used by the interactive number
+  /// line of DDB-05).
+  Widget _buildVisualDisplay(DiagnosticQuestion question) {
+    return buildVisualDisplay(question, controller: _textController);
   }
 
   Widget _buildAudioReplayButton(String audioUrl) {
@@ -1079,347 +952,732 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     }
     await _audioPlayer.play(source);
   }
+}
 
-  Widget _buildImageWidget(DiagnosticQuestion question) {
-    if (question.imagePath == null) {
+/// Renders the arrangement specified by the clean-room item file for a visual
+/// diagnostic item, keyed by the item ID carried in
+/// [DiagnosticQuestion.questionText] (see docs/clean-room/items/ and tasks.md
+/// R5.2). One case per visual item ID; each matches the Stimulus type of the
+/// corresponding item file.
+///
+/// Public (top-level) so widget tests can pump every arrangement without
+/// instantiating the full [DiagnosticScreen].
+Widget buildVisualDisplay(
+  DiagnosticQuestion question, {
+  TextEditingController? controller,
+}) {
+  switch (question.questionText.trim()) {
+    // A2.1-01 — Rekenrek flash: 4 beads on the top rod, 800 ms.
+    case 'A2.1-01':
+      return const _RekenrekFlashWidget(topLeft: 4, bottomLeft: 0);
+    // A2.2-01 — Zehnerfeld 5×2: top row full + first cell of second row (5+1).
+    case 'A2.2-01':
+      return const _ZehnerfeldWidget(filled: {0, 1, 2, 3, 4, 5});
+    // A2.2-02 — Fingerbild 8 = 5+3.
+    case 'A2.2-02':
+      return const _FingerBildWidget(leftCount: 5, rightCount: 3);
+    // A2.3-01 — two Zehnerfelder: 6 (5+1) vs 8 (5+3).
+    case 'A2.3-01':
+      return const _VergleichZehnerfelderWidget();
+    // B1.2-01 — 34 Stäbchen: 3 bundles + 4 singles, gap between groups.
+    case 'B1.2-01':
+      return const _StaebchenWidget(bundles: 3, singles: 4);
+    // B1.2-02 — 41 Stäbchen: 3 bundles + 11 singles (rebundling needed).
+    case 'B1.2-02':
+      return const _StaebchenWidget(bundles: 3, singles: 11);
+    // B1.3-01 — 13 = 1 bundle + 3 singles; tapping the bundle opens it.
+    case 'B1.3-01':
+      return const _StaebchenOeffnenWidget();
+    // B2.1-01 — Stellenwerttafel (Z|E) with 47 above, empty entry cells.
+    case 'B2.1-01':
+      return const _StellenwerttafelWidget(numberAbove: '47');
+    // B2.1-02 — Stellenwerttafel with Z=6, E=0 (null as placeholder).
+    case 'B2.1-02':
+      return const _StellenwerttafelWidget(tensValue: 6, onesValue: 0);
+    // B2.2-01 — Zahlenstrahl 0–100, anchors 0/50/100, arrow at 80.
+    case 'B2.2-01':
+      return const _ZahlenstrahlArrowWidget(value: 80);
+    // DDA-04 — Zehnerfeld 5+2.
+    case 'DDA-04':
+      return const _ZehnerfeldWidget(filled: {0, 1, 2, 3, 4, 5, 6});
+    // DDA-05 — Rekenrek 5 top + 4 bottom.
+    case 'DDA-05':
+      return const _RekenrekWidget(topLeft: 5, bottomLeft: 4);
+    // DDA-06 — two Rekenreks, 8 vs 5 comparison.
+    case 'DDA-06':
+      return const _VergleichRekenrekWidget();
+    // DDB-01 — 56 Stäbchen: 5 bundles + 6 singles.
+    case 'DDB-01':
+      return const _StaebchenWidget(bundles: 5, singles: 6);
+    // DDB-02 — 25 as 2 bundles + 5 singles; the item file keeps the initial
+    // arrangement visible and the exchange to 1 Z + 15 E is the task.
+    case 'DDB-02':
+      return const _StaebchenWidget(bundles: 2, singles: 5);
+    // DDB-04 — Stellenwerttafel reading 5 Z + 8 E → 58.
+    case 'DDB-04':
+      return const _StellenwerttafelWidget(tensValue: 5, onesValue: 8);
+    // DDB-05 — Zahlenstrahl 0–100; tapping places the marker at 75 and writes
+    // the value to [controller]. Without a controller (tests) the marker is
+    // pre-rendered statically.
+    case 'DDB-05':
+      return controller != null
+          ? _ZahlenstrahlMarkWidget(controller: controller)
+          : const _ZahlenstrahlMarkWidget(initialMark: 75);
+    default:
       return const SizedBox.shrink();
-    }
+  }
+}
 
-    final name = question.imagePath!.split('/').last;
-    final override = _widgetForImage(name);
-    if (override != null) return override;
+/// Zehnerfeld (5×2 raster of ten cells) with the given cells filled.
+///
+/// [filled] holds cell indices 0..9 in row-major order (row 0 = cells 0–4,
+/// row 1 = cells 5–9), matching the coordinate specs of the item files
+/// (A2.2-01, A2.3-01, DDA-04).
+class _ZehnerfeldWidget extends StatelessWidget {
+  final Set<int> filled;
 
-    // PDF placeholder
-    if (question.imagePath!.toLowerCase().endsWith('.pdf')) {
+  const _ZehnerfeldWidget({required this.filled});
+
+  @override
+  Widget build(BuildContext context) {
+    const cellSize = 36.0;
+
+    Widget cell(int index) {
+      final isFilled = filled.contains(index);
       return Container(
-        padding: const EdgeInsets.all(16),
+        width: cellSize,
+        height: cellSize,
+        margin: const EdgeInsets.all(2),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          children: [
-            const Icon(Icons.picture_as_pdf, size: 48),
-            const SizedBox(height: 8),
-            Text(
-              'View image for Question ${question.listNumber}',
-              style: const TextStyle(fontSize: 14),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              name,
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-          ],
+          shape: BoxShape.circle,
+          color: isFilled ? Colors.indigo : Colors.transparent,
+          border: Border.all(
+            color: isFilled ? Colors.indigo : Colors.blueGrey,
+            width: 2,
+          ),
         ),
       );
     }
 
-    // No bundled image assets remain — the scanned pictures were removed from
-    // the build on 2026-08-29 (tasks.md R0.2). Every image the diagnostic CSV
-    // references is drawn by _widgetForImage above. This branch is only reached
-    // if a CSV row names an image with no widget override, which is a data
-    // error: show it plainly rather than crashing on a missing asset.
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.black54, width: 2),
+        borderRadius: BorderRadius.circular(4),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.image_not_supported_outlined,
-              size: 48, color: Colors.grey),
-          const SizedBox(height: 8),
-          Text(
-            'Für diese Aufgabe fehlt die Darstellung.',
-            style: const TextStyle(fontSize: 14),
-            textAlign: TextAlign.center,
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [for (var c = 0; c < 5; c++) cell(c)],
           ),
-          const SizedBox(height: 4),
-          Text(
-            name,
-            style: const TextStyle(fontSize: 12, color: Colors.grey),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [for (var c = 5; c < 10; c++) cell(c)],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Rechenrahmen (Rekenrek) with two rods of ten beads each (5 red + 5 white
+/// per rod). [topLeft]/[bottomLeft] are the numbers of beads pushed to the
+/// left on the upper/lower rod; the remaining beads sit at the right end.
+class _RekenrekWidget extends StatelessWidget {
+  final int topLeft;
+  final int bottomLeft;
+
+  const _RekenrekWidget({required this.topLeft, required this.bottomLeft});
+
+  Widget _bead({required bool red}) {
+    return Container(
+      width: 16,
+      height: 20,
+      margin: const EdgeInsets.symmetric(horizontal: 1.5),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: red ? Colors.red.shade700 : Colors.white,
+        border: Border.all(color: Colors.black26),
+      ),
+    );
+  }
+
+  Widget _rod(int leftCount) {
+    return Container(
+      height: 34,
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      decoration: BoxDecoration(
+        color: Colors.brown.shade200,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.brown.shade400),
+      ),
+      child: Row(
+        children: [
+          for (var i = 0; i < leftCount; i++) _bead(red: true),
+          const SizedBox(width: 20),
+          for (var i = leftCount; i < 10; i++) _bead(red: i < 5),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _rod(topLeft),
+        const SizedBox(height: 6),
+        _rod(bottomLeft),
+      ],
+    );
+  }
+}
+
+/// Rekenrek flash presentation for A2.1-01: the frame is shown for exactly
+/// 800 ms and then fades out so the child answers from memory.
+class _RekenrekFlashWidget extends StatefulWidget {
+  final int topLeft;
+  final int bottomLeft;
+
+  const _RekenrekFlashWidget({
+    required this.topLeft,
+    required this.bottomLeft,
+  });
+
+  @override
+  State<_RekenrekFlashWidget> createState() => _RekenrekFlashWidgetState();
+}
+
+class _RekenrekFlashWidgetState extends State<_RekenrekFlashWidget> {
+  Timer? _timer;
+  bool _visible = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer(const Duration(milliseconds: 800), () {
+      if (mounted) setState(() => _visible = false);
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedOpacity(
+      opacity: _visible ? 1 : 0,
+      duration: const Duration(milliseconds: 200),
+      child: _RekenrekWidget(
+        topLeft: widget.topLeft,
+        bottomLeft: widget.bottomLeft,
+      ),
+    );
+  }
+}
+
+/// Fingerbild of two hands (palms facing out), reusing [FingerDisplayWidget].
+class _FingerBildWidget extends StatelessWidget {
+  final int leftCount;
+  final int rightCount;
+
+  const _FingerBildWidget({required this.leftCount, required this.rightCount});
+
+  @override
+  Widget build(BuildContext context) {
+    return FingerDisplayWidget(
+      leftCount: leftCount,
+      rightCount: rightCount,
+      height: 180,
+    );
+  }
+}
+
+/// Two Zehnerfelder side by side (A2.3-01): left 6 (5+1), right 8 (5+3).
+class _VergleichZehnerfelderWidget extends StatelessWidget {
+  const _VergleichZehnerfelderWidget();
+
+  @override
+  Widget build(BuildContext context) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _labeled(
+            'links',
+            const _ZehnerfeldWidget(filled: {0, 1, 2, 3, 4, 5}),
+          ),
+          const SizedBox(width: 28),
+          _labeled(
+            'rechts',
+            const _ZehnerfeldWidget(filled: {0, 1, 2, 3, 4, 5, 6, 7}),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildScatteredDienesDisplay(
-    List<(DienesType type, double left, double top, double angleDeg)> pieces, {
-    double canvasW = 340,
-    double canvasH = 300,
-  }) {
-    return SizedBox(
-      width: canvasW,
-      height: canvasH,
-      child: Stack(
-        clipBehavior: Clip.hardEdge,
-        children: pieces.map((p) {
-          return Positioned(
-            left: p.$2,
-            top: p.$3,
-            child: Transform.rotate(
-              angle: p.$4 * (3.14159265 / 180),
-              child: DienesBlockWidget(type: p.$1, cellSize: 10),
-            ),
-          );
-        }).toList(),
+  Widget _labeled(String label, Widget child) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 6),
+        child,
+      ],
+    );
+  }
+}
+
+/// Two Rekenreks side by side (DDA-06): left 8 (5 top + 3 bottom), right 5.
+class _VergleichRekenrekWidget extends StatelessWidget {
+  const _VergleichRekenrekWidget();
+
+  @override
+  Widget build(BuildContext context) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _labeled(
+            'links',
+            const _RekenrekWidget(topLeft: 5, bottomLeft: 3),
+          ),
+          const SizedBox(width: 40),
+          _labeled(
+            'rechts',
+            const _RekenrekWidget(topLeft: 5, bottomLeft: 0),
+          ),
+        ],
       ),
     );
   }
 
-  Widget? _widgetForImage(String name) {
-    switch (name) {
-      // Hundred field (Q39–Q42)
-      case 'img1809.jpg':
-        return const HundredFieldWidget(visibleCount: 100);
-      case 'img1810.jpg':
-        return const HundredFieldWidget(visibleCount: 12);
-      case 'img1811.jpg':
-        return const HundredFieldWidget(visibleCount: 85);
-      case 'img1812.jpg':
-        return const HundredFieldWidget(visibleCount: 99);
+  Widget _labeled(String label, Widget child) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 6),
+        child,
+      ],
+    );
+  }
+}
 
-      // Rechenschiffchen (Q32–Q35)
-      case 'img1888.jpg':
-        return const RechenschiffchenWidget(
-            topCount: 9, bottomCount: 0, topColor: Colors.red, bottomColor: Colors.red);
-      case 'img1890.jpg':
-        return const RechenschiffchenWidget(
-            topCount: 9, bottomCount: 5, topColor: Colors.red, bottomColor: Colors.red);
-      case 'img1889.jpg':
-        return const RechenschiffchenWidget(
-            topCount: 9, bottomCount: 10, topColor: Colors.red, bottomColor: Colors.red);
-      case 'img1891.jpg':
-        return const RechenschiffchenWidget(
-            topCount: 8, bottomCount: 8, topColor: Colors.red, bottomColor: Colors.red);
+/// A single ten-stick bundle ("Zehnerbündel") with two rubber bands.
+class _StaebchenBundelWidget extends StatelessWidget {
+  const _StaebchenBundelWidget();
 
-      // Dienes blocks (Q36–Q37) — scattered, mixed, slightly rotated
-      case 'img1858.jpg': // 5 rods + 7 units = 57
-        return _buildScatteredDienesDisplay([
-          (DienesType.rod,  5,   10,  -8),
-          (DienesType.rod,  0,   108,  12),
-          (DienesType.rod,  142, 22,  -5),
-          (DienesType.rod,  130, 132,  18),
-          (DienesType.rod,  52,  210, -12),
-          (DienesType.unit, 110, 8,   20),
-          (DienesType.unit, 248, 12, -15),
-          (DienesType.unit, 278, 68,  30),
-          (DienesType.unit, 252, 148, -20),
-          (DienesType.unit, 288, 202,  25),
-          (DienesType.unit, 158, 245, -30),
-          (DienesType.unit, 225, 258,  15),
-        ]);
-      case 'img1859.jpg': // 2 rods + 15 units = 35
-        return _buildScatteredDienesDisplay([
-          (DienesType.rod,  5,   12,   -6),
-          (DienesType.rod,  10,  148,   10),
-          (DienesType.unit, 112, 2,    20),
-          (DienesType.unit, 145, 12,  -15),
-          (DienesType.unit, 185, 6,    30),
-          (DienesType.unit, 218, 2,   -25),
-          (DienesType.unit, 258, 12,   15),
-          (DienesType.unit, 300, 5,   -20),
-          (DienesType.unit, 122, 82,   25),
-          (DienesType.unit, 168, 72,  -15),
-          (DienesType.unit, 212, 88,   20),
-          (DienesType.unit, 258, 76,  -30),
-          (DienesType.unit, 305, 82,   15),
-          (DienesType.unit, 118, 178, -20),
-          (DienesType.unit, 165, 170,  25),
-          (DienesType.unit, 210, 182, -10),
-          (DienesType.unit, 262, 175,  20),
-        ]);
+  Widget _band() => Container(
+        height: 3,
+        color: Colors.brown.shade600,
+      );
 
-      // Dienes blocks (Q60–Q61) — Card 10 completion
-      case 'img1860.jpg': // 26 units only, unstructured (no rods)
-        return _buildScatteredDienesDisplay(
-          [
-            (DienesType.unit, 15,  12,   15),
-            (DienesType.unit, 65,  25,  -22),
-            (DienesType.unit, 130, 8,    30),
-            (DienesType.unit, 190, 18,  -15),
-            (DienesType.unit, 250, 5,    25),
-            (DienesType.unit, 290, 35,   -8),
-            (DienesType.unit, 10,  78,  -25),
-            (DienesType.unit, 55,  90,   18),
-            (DienesType.unit, 105, 72,  -12),
-            (DienesType.unit, 160, 85,   22),
-            (DienesType.unit, 215, 75,  -18),
-            (DienesType.unit, 275, 95,   12),
-            (DienesType.unit, 25,  138,  20),
-            (DienesType.unit, 80,  152, -28),
-            (DienesType.unit, 135, 142,  10),
-            (DienesType.unit, 195, 158, -20),
-            (DienesType.unit, 245, 145,  28),
-            (DienesType.unit, 290, 162, -10),
-            (DienesType.unit, 15,  208,  15),
-            (DienesType.unit, 70,  215, -25),
-            (DienesType.unit, 125, 222,  18),
-            (DienesType.unit, 180, 212, -12),
-            (DienesType.unit, 235, 228,  22),
-            (DienesType.unit, 285, 218, -18),
-            (DienesType.unit, 100, 275,  25),
-            (DienesType.unit, 195, 282, -15),
-          ],
-          canvasW: 320,
-          canvasH: 320,
-        );
-      case 'img1861.jpg': // 8 rods + 20 units = 100 (fortgesetzte Bündelung)
-        return _buildScatteredDienesDisplay(
-          [
-            (DienesType.rod,  5,   8,   -10),
-            (DienesType.rod,  155, 15,   12),
-            (DienesType.rod,  10,  110,  8),
-            (DienesType.rod,  158, 105, -15),
-            (DienesType.rod,  0,   210,  15),
-            (DienesType.rod,  148, 215, -8),
-            (DienesType.rod,  12,  310, -12),
-            (DienesType.rod,  155, 308,  18),
-            (DienesType.unit, 270, 5,    20),
-            (DienesType.unit, 305, 35,  -15),
-            (DienesType.unit, 335, 12,   25),
-            (DienesType.unit, 290, 75,  -22),
-            (DienesType.unit, 322, 105,  18),
-            (DienesType.unit, 275, 145, -10),
-            (DienesType.unit, 315, 165,  28),
-            (DienesType.unit, 348, 195, -18),
-            (DienesType.unit, 285, 220,  15),
-            (DienesType.unit, 320, 250, -25),
-            (DienesType.unit, 358, 270,  12),
-            (DienesType.unit, 295, 295,  -8),
-            (DienesType.unit, 332, 325,  22),
-            (DienesType.unit, 275, 355, -15),
-            (DienesType.unit, 318, 365,  18),
-            (DienesType.unit, 110, 60,  -28),
-            (DienesType.unit, 95,  165,  25),
-            (DienesType.unit, 125, 265, -12),
-            (DienesType.unit, 75,  360,  15),
-            (DienesType.unit, 140, 372, -20),
-          ],
-          canvasW: 380,
-          canvasH: 380,
-        );
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 84,
+      height: 30,
+      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF8E1),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Stack(
+        children: [
+          Row(
+            children: [
+              for (var i = 0; i < 10; i++)
+                Expanded(
+                  child: Center(
+                    child: Container(
+                      width: 3,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: Colors.deepOrange.shade300,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          Positioned(top: 5, left: 4, right: 4, child: _band()),
+          Positioned(bottom: 5, left: 4, right: 4, child: _band()),
+        ],
+      ),
+    );
+  }
+}
 
-      // Subitizing patterns — Plättchen (Q28–Q31)
-      case 'img1936.jpg': // 7 dots: 3 top, 3 middle, 1 centre bottom
-        return const PatternDotsWidget(
-          count: 7,
-          positions: [
-            Offset(0.25, 0.20), Offset(0.50, 0.20), Offset(0.75, 0.20),
-            Offset(0.25, 0.50), Offset(0.50, 0.50), Offset(0.75, 0.50),
-            Offset(0.50, 0.80),
-          ],
-        );
-      case 'img1937.jpg': // 8 dots: 3×3 grid minus centre
-        return const PatternDotsWidget(
-          count: 8,
-          positions: [
-            Offset(0.25, 0.20), Offset(0.50, 0.20), Offset(0.75, 0.20),
-            Offset(0.25, 0.50),                      Offset(0.75, 0.50),
-            Offset(0.25, 0.80), Offset(0.50, 0.80), Offset(0.75, 0.80),
-          ],
-        );
-      case 'img1938.jpg': // 6 dots: 3 top, 2 middle, 1 bottom-centre
-        return const PatternDotsWidget(
-          count: 6,
-          positions: [
-            Offset(0.25, 0.20), Offset(0.50, 0.20), Offset(0.75, 0.20),
-            Offset(0.35, 0.50), Offset(0.65, 0.50),
-            Offset(0.50, 0.80),
-          ],
-        );
-      case 'img1939.jpg': // 10 dots: 3×3 grid + 1 right of middle row
-        return const PatternDotsWidget(
-          count: 10,
-          positions: [
-            Offset(0.15, 0.20), Offset(0.40, 0.20), Offset(0.65, 0.20),
-            Offset(0.15, 0.50), Offset(0.40, 0.50), Offset(0.65, 0.50),
-            Offset(0.15, 0.80), Offset(0.40, 0.80), Offset(0.65, 0.80),
-            Offset(0.88, 0.50),
-          ],
-        );
+/// A single loose stick.
+class _StaebchenEinzelWidget extends StatelessWidget {
+  const _StaebchenEinzelWidget();
 
-      // Scattered dots (Q1–Q2)
-      case 'img2113.jpg': // 8 green scattered dots
-        return const PatternDotsWidget(
-          count: 8,
-          dotColor: Colors.green,
-          positions: [
-            Offset(0.15, 0.20), Offset(0.45, 0.12), Offset(0.75, 0.25),
-            Offset(0.25, 0.55), Offset(0.62, 0.45), Offset(0.85, 0.68),
-            Offset(0.35, 0.82), Offset(0.60, 0.85),
-          ],
-        );
-      case 'img2114.jpg': // 17 green scattered dots
-        return const PatternDotsWidget(
-          count: 17,
-          dotColor: Colors.green,
-          positions: [
-            Offset(0.10, 0.12), Offset(0.30, 0.08), Offset(0.55, 0.15),
-            Offset(0.78, 0.20), Offset(0.92, 0.10),
-            Offset(0.18, 0.35), Offset(0.45, 0.32), Offset(0.68, 0.38),
-            Offset(0.88, 0.45),
-            Offset(0.08, 0.58), Offset(0.32, 0.55), Offset(0.58, 0.52),
-            Offset(0.80, 0.62),
-            Offset(0.20, 0.78), Offset(0.48, 0.82), Offset(0.70, 0.75),
-            Offset(0.90, 0.85),
-          ],
-        );
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 5,
+      height: 26,
+      margin: const EdgeInsets.symmetric(horizontal: 1.5),
+      decoration: BoxDecoration(
+        color: Colors.deepOrange.shade300,
+        borderRadius: BorderRadius.circular(2),
+      ),
+    );
+  }
+}
 
-      default:
-        return null;
+/// Bundled tens and loose single sticks with a visible gap between the two
+/// groups (B1.2-01, B1.2-02, DDB-01, DDB-02).
+class _StaebchenWidget extends StatelessWidget {
+  final int bundles;
+  final int singles;
+
+  const _StaebchenWidget({required this.bundles, required this.singles});
+
+  @override
+  Widget build(BuildContext context) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          for (var i = 0; i < bundles; i++) ...[
+            if (i > 0) const SizedBox(width: 6),
+            const _StaebchenBundelWidget(),
+          ],
+          const SizedBox(width: 26),
+          for (var i = 0; i < singles; i++) const _StaebchenEinzelWidget(),
+        ],
+      ),
+    );
+  }
+}
+
+/// B1.3-01: one bundle + 3 single sticks; tapping the bundle opens it into
+/// ten single sticks (interactive Entbündelung per the item file).
+class _StaebchenOeffnenWidget extends StatefulWidget {
+  const _StaebchenOeffnenWidget();
+
+  @override
+  State<_StaebchenOeffnenWidget> createState() => _StaebchenOeffnenWidgetState();
+}
+
+class _StaebchenOeffnenWidgetState extends State<_StaebchenOeffnenWidget> {
+  bool _opened = false;
+
+  @override
+  Widget build(BuildContext context) {
+    if (_opened) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                for (var i = 0; i < 13; i++) const _StaebchenEinzelWidget(),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            '13 einzelne Stäbchen',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+        ],
+      );
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            GestureDetector(
+              onTap: () => setState(() => _opened = true),
+              child: const _StaebchenBundelWidget(),
+            ),
+            const SizedBox(width: 26),
+            for (var i = 0; i < 3; i++) const _StaebchenEinzelWidget(),
+          ],
+        ),
+        const SizedBox(height: 10),
+        const Text(
+          'Tippe auf das Bündel, um es zu öffnen.',
+          style: TextStyle(fontSize: 13, color: Colors.black54),
+        ),
+      ],
+    );
+  }
+}
+
+/// Stellenwerttafel with Z/E columns (B2.1-01, B2.1-02, DDB-04). When
+/// [numberAbove] is set it is shown above the table; null column values
+/// render as empty entry cells.
+class _StellenwerttafelWidget extends StatelessWidget {
+  final int? tensValue;
+  final int? onesValue;
+  final String? numberAbove;
+
+  const _StellenwerttafelWidget({
+    this.tensValue,
+    this.onesValue,
+    this.numberAbove,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    Widget columnCell(String text) {
+      return Container(
+        width: 64,
+        height: 56,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.black, width: 2),
+        ),
+        child: Text(
+          text,
+          style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+        ),
+      );
+    }
+
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (numberAbove != null) ...[
+            Text(
+              numberAbove!,
+              style: const TextStyle(fontSize: 42, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+          ],
+          Row(
+            children: [
+              columnCell('Z'),
+              const SizedBox(width: 4),
+              columnCell('E'),
+            ],
+          ),
+          Row(
+            children: [
+              columnCell(tensValue?.toString() ?? ''),
+              const SizedBox(width: 4),
+              columnCell(onesValue?.toString() ?? ''),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Zahlenstrahl painter shared by the static arrow item (B2.2-01) and the
+/// interactive marker item (DDB-05).
+class _ZahlenstrahlPainter extends CustomPainter {
+  final double? arrowAt;
+  final double? markAt;
+  final Set<int> majorTicks;
+  final Set<int> minorTicks;
+  final Map<int, String> labels;
+
+  const _ZahlenstrahlPainter({
+    this.arrowAt,
+    this.markAt,
+    this.majorTicks = const {},
+    this.minorTicks = const {},
+    this.labels = const {},
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const left = 16.0;
+    final right = size.width - 16.0;
+    final baseline = size.height * 0.6;
+
+    double xFor(num v) => left + (right - left) * (v / 100.0);
+
+    canvas.drawLine(
+      Offset(left, baseline),
+      Offset(right, baseline),
+      Paint()
+        ..color = Colors.black
+        ..strokeWidth = 2,
+    );
+
+    for (final v in minorTicks) {
+      canvas.drawLine(
+        Offset(xFor(v), baseline - 4),
+        Offset(xFor(v), baseline + 4),
+        Paint()
+          ..color = Colors.black54
+          ..strokeWidth = 1,
+      );
+    }
+    for (final v in majorTicks) {
+      canvas.drawLine(
+        Offset(xFor(v), baseline - 8),
+        Offset(xFor(v), baseline + 8),
+        Paint()
+          ..color = Colors.black
+          ..strokeWidth = 2,
+      );
+    }
+
+    for (final entry in labels.entries) {
+      final tp = TextPainter(
+        text: TextSpan(
+          text: entry.value,
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      tp.paint(canvas, Offset(xFor(entry.key) - tp.width / 2, baseline + 12));
+    }
+
+    if (arrowAt != null) {
+      final x = xFor(arrowAt!);
+      canvas.drawLine(
+        Offset(x, baseline - 4),
+        Offset(x, baseline - 30),
+        Paint()
+          ..color = Colors.red
+          ..strokeWidth = 2.5,
+      );
+      final head = Path()
+        ..moveTo(x, baseline - 38)
+        ..lineTo(x - 8, baseline - 26)
+        ..lineTo(x + 8, baseline - 26)
+        ..close();
+      canvas.drawPath(
+        head,
+        Paint()
+          ..color = Colors.red
+          ..style = PaintingStyle.fill,
+      );
+    }
+
+    if (markAt != null) {
+      final x = xFor(markAt!);
+      final head = Path()
+        ..moveTo(x, baseline + 4)
+        ..lineTo(x - 9, baseline + 20)
+        ..lineTo(x + 9, baseline + 20)
+        ..close();
+      canvas.drawPath(
+        head,
+        Paint()
+          ..color = Colors.blue
+          ..style = PaintingStyle.fill,
+      );
     }
   }
 
-  void _showZoomedImage(String imagePath) {
-    showDialog<void>(
-      context: context,
-      barrierColor: Colors.black54,
-      barrierDismissible: true,
-      builder: (ctx) {
+  @override
+  bool shouldRepaint(_ZahlenstrahlPainter oldDelegate) =>
+      oldDelegate.arrowAt != arrowAt || oldDelegate.markAt != markAt;
+}
+
+/// Static number line 0–100 with labelled anchors at 0/50/100, unlabelled
+/// tens marks and a red arrow at [value] (B2.2-01).
+class _ZahlenstrahlArrowWidget extends StatelessWidget {
+  final int value;
+
+  const _ZahlenstrahlArrowWidget({required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 340,
+      height: 110,
+      child: CustomPaint(
+        painter: _ZahlenstrahlPainter(
+          arrowAt: value.toDouble(),
+          majorTicks: {for (var v = 0; v <= 100; v += 10) v},
+          labels: const {0: '0', 50: '50', 100: '100'},
+        ),
+      ),
+    );
+  }
+}
+
+/// Interactive number line 0–100 (DDB-05): tapping places a marker snapped to
+/// the nearest 5 and writes the value into [controller] (the answer). Without
+/// a controller the marker is rendered statically at [initialMark].
+class _ZahlenstrahlMarkWidget extends StatefulWidget {
+  final TextEditingController? controller;
+  final double? initialMark;
+
+  const _ZahlenstrahlMarkWidget({this.controller, this.initialMark});
+
+  @override
+  State<_ZahlenstrahlMarkWidget> createState() => _ZahlenstrahlMarkWidgetState();
+}
+
+class _ZahlenstrahlMarkWidgetState extends State<_ZahlenstrahlMarkWidget> {
+  double? _mark;
+
+  @override
+  void initState() {
+    super.initState();
+    _mark = widget.initialMark;
+  }
+
+  double _valueAt(double dx, double width) {
+    final raw = (dx / width) * 100;
+    final snapped = (raw / 5).round() * 5;
+    return snapped.clamp(0, 100).toDouble();
+  }
+
+  void _handleTap(TapUpDetails details, double width) {
+    final value = _valueAt(details.localPosition.dx, width);
+    setState(() => _mark = value);
+    widget.controller?.text = value.round().toString();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
         return GestureDetector(
-          onTap: () => Navigator.of(ctx).pop(),
-          behavior: HitTestBehavior.opaque,
-          child: Stack(
-            children: [
-              Center(
-                child: GestureDetector(
-                  onTap: () {}, // absorb taps on the image itself
-                  child: Padding(
-                    padding: const EdgeInsets.all(40),
-                    child: Image.asset(
-                      imagePath,
-                      height: 480,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ),
+          onTapUp: (details) => _handleTap(details, constraints.maxWidth),
+          child: SizedBox(
+            height: 110,
+            width: double.infinity,
+            child: CustomPaint(
+              painter: _ZahlenstrahlPainter(
+                markAt: _mark,
+                majorTicks: const {0, 25, 50, 75, 100},
+                minorTicks: {for (var v = 0; v <= 100; v += 5) v},
+                labels: const {0: '0', 100: '100'},
               ),
-              Positioned(
-                top: 24,
-                right: 24,
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () => Navigator.of(ctx).pop(),
-                    customBorder: const CircleBorder(),
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.close, size: 28),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         );
       },

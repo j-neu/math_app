@@ -187,7 +187,7 @@ export default async function KlasseDetailPage({ params }: Props) {
               </tbody>
             </table>
           </div>
-          <p className="text-xs text-gray-400">% der Aufgaben in dieser Kategorie falsch beantwortet</p>
+          <p className="text-xs text-gray-400">% der Aufgaben in dieser Domäne falsch beantwortet</p>
         </section>
       )}
     </div>

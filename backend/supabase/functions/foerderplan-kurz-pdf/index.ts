@@ -1,9 +1,10 @@
 // POST /foerderplan-kurz-pdf
 // Body: { session_id: string }
 // Generates a two-page A4 landscape Förderplan (Kurzförderplan).
-// Page 1: table with Ist / Soll / Lernweg per failing category + two fillable columns.
+// Page 1: table with Ist / Soll / Lernweg per domain (A–D) + two fillable columns.
 // Page 2: Weitere Vereinbarungen, Gesprächsdokumentation, Unterschriften.
-// Ports PdfKurzFoerderplanService.dart and KurzFoerderplanService.dart.
+// Ports PdfKurzFoerderplanService.dart and KurzFoerderplanService.dart
+// (rewritten per tasks.md R4.3: domain-based grouping, neutral wording).
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
@@ -18,26 +19,42 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const CATEGORY_ORDER = [
-  "Zählen",
-  "Zahlzerlegung / Schnelles Sehen",
-  "Stellenwerte verstehen",
-  "Grundstrategien",
-  "Kombinierte Strategien",
-];
-
-// Matching Flutter's PdfColor values
-const CATEGORY_COLORS: Record<string, [number, number, number]> = {
-  "Zählen": [0.18, 0.65, 0.35],
-  "Zahlzerlegung / Schnelles Sehen": [0.95, 0.61, 0.07],
-  "Stellenwerte verstehen": [0.20, 0.46, 0.82],
-  "Grundstrategien": [0.75, 0.22, 0.17],
-  "Kombinierte Strategien": [0.54, 0.17, 0.65],
+// New taxonomy (tasks.md R4.3): domain label per skill ID prefix.
+const DOMAIN_LABELS: Record<string, string> = {
+  A: "Domäne A — Zahlbegriff",
+  B: "Domäne B — Stellenwertverständnis",
+  C: "Domäne C — Rechenstrategien",
+  D: "Domäne D — Sachsituationen",
 };
+
+// Row colour derived from the domain for new-taxonomy rows.
+const DOMAIN_COLORS: Record<string, [number, number, number]> = {
+  A: [0.18, 0.65, 0.35], // emerald
+  B: [0.20, 0.46, 0.82], // blue
+  C: [0.75, 0.22, 0.17], // red
+  D: [0.54, 0.17, 0.65], // purple
+};
+
 const DEFAULT_COLOR: [number, number, number] = [0.4, 0.4, 0.4];
 
+const DOMAIN_PATTERN = /^([A-D])\d/;
+
 function catColor(cat: string): [number, number, number] {
-  return CATEGORY_COLORS[cat] ?? DEFAULT_COLOR;
+  for (const [domain, label] of Object.entries(DOMAIN_LABELS)) {
+    if (label === cat) return DOMAIN_COLORS[domain]!;
+  }
+  return DEFAULT_COLOR;
+}
+
+// ── Date formatting (header "von" box) ────────────────────────────────────────
+
+function formatGermanDate(value: string | Date | null | undefined): string {
+  if (!value) return "";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  return `${dd}.${mm}.${d.getFullYear()}`;
 }
 
 // ── Text wrapping helper ──────────────────────────────────────────────────────
@@ -68,7 +85,6 @@ interface SkillRow {
   id: string;
   category: string;
   color: string;
-  card_number: number;
   title_de: string;
   description_de: string;
 }
@@ -80,30 +96,50 @@ interface KurzRow {
   lernweg: string;
 }
 
+function groupLabel(s: SkillRow): string {
+  const m = DOMAIN_PATTERN.exec(s.id);
+  if (m) return DOMAIN_LABELS[m[1]] ?? s.category;
+  return s.category;
+}
+
+function orderedGroupLabels(labels: string[]): string[] {
+  const domainLabels = Object.values(DOMAIN_LABELS);
+  const rank = (l: string): number => {
+    const idx = domainLabels.indexOf(l);
+    return idx === -1 ? domainLabels.length : idx;
+  };
+  return [...labels].sort((a, b) => {
+    const ra = rank(a);
+    const rb = rank(b);
+    if (ra !== rb) return ra - rb;
+    return a.localeCompare(b, "de");
+  });
+}
+
 function buildKurzRows(
   recommended: SkillRow[],
   categoryStats: Record<string, { failed: number; total: number }>,
   slowResponseFlag: boolean,
 ): KurzRow[] {
-  const byCategory = new Map<string, SkillRow[]>();
+  const byGroup = new Map<string, SkillRow[]>();
   for (const s of recommended) {
-    if (!byCategory.has(s.category)) byCategory.set(s.category, []);
-    byCategory.get(s.category)!.push(s);
+    const label = groupLabel(s);
+    if (!byGroup.has(label)) byGroup.set(label, []);
+    byGroup.get(label)!.push(s);
   }
 
   const rows: KurzRow[] = [];
   let firstRow = true;
-  for (const cat of CATEGORY_ORDER) {
-    const skills = byCategory.get(cat);
-    if (!skills || skills.length === 0) continue;
-    const stats = categoryStats[cat];
+  for (const label of orderedGroupLabels(Array.from(byGroup.keys()))) {
+    const skills = byGroup.get(label)!;
+    const stats = categoryStats[label];
 
     // Ist
     const istParts: string[] = [];
     if (stats && stats.failed > 0) {
-      istParts.push(`Im Bereich ${cat} wurden ${stats.failed} von ${stats.total} Aufgaben nicht gelöst.`);
+      istParts.push(`Im Bereich ${label} wurden ${stats.failed} von ${stats.total} Aufgaben nicht gelöst.`);
     } else {
-      istParts.push(`Im Bereich ${cat} besteht Förderbedarf.`);
+      istParts.push(`Im Bereich ${label} besteht Förderbedarf.`);
     }
     istParts.push("Beobachtete Schwierigkeiten:");
     for (const s of skills) istParts.push(`- ${s.title_de}`);
@@ -121,7 +157,7 @@ function buildKurzRows(
       lernParts.push(`  ${s.description_de}`);
     }
 
-    rows.push({ category: cat, ist: istParts.join("\n"), soll, lernweg: lernParts.join("\n") });
+    rows.push({ category: label, ist: istParts.join("\n"), soll, lernweg: lernParts.join("\n") });
     firstRow = false;
   }
   return rows;
@@ -168,7 +204,7 @@ Deno.serve(async (req) => {
   // Load session and student
   const { data: session } = await supabase
     .from("diagnostic_sessions")
-    .select("student_id")
+    .select("student_id, started_at")
     .eq("id", session_id)
     .single();
 
@@ -181,7 +217,7 @@ Deno.serve(async (req) => {
   // Load skills
   const { data: skillsData } = await supabase
     .from("skills")
-    .select("id, category, color, card_number, title_de, description_de")
+    .select("id, category, color, title_de, description_de")
     .in("id", plan.recommended_skill_ids as string[]);
 
   const skillMap = new Map(
@@ -259,6 +295,10 @@ Deno.serve(async (req) => {
   // Time period row
   page1.drawText("Für die Zeit von:", { x: ML, y, size: 8, font: fontReg, color: rgb(0.2, 0.2, 0.2) });
   page1.drawRectangle({ x: ML + 85, y: y - 3, width: 90, height: 13, color: rgb(0.96, 0.96, 0.96), borderColor: rgb(0.75, 0.75, 0.75), borderWidth: 0.5 });
+  const vonDate = formatGermanDate(session?.started_at as string | null | undefined);
+  if (vonDate) {
+    page1.drawText(vonDate, { x: ML + 89, y, size: 8, font: fontBold, color: rgb(0, 0, 0) });
+  }
   page1.drawText("bis:", { x: ML + 185, y, size: 8, font: fontReg, color: rgb(0.2, 0.2, 0.2) });
   page1.drawRectangle({ x: ML + 200, y: y - 3, width: 90, height: 13, color: rgb(0.96, 0.96, 0.96), borderColor: rgb(0.75, 0.75, 0.75), borderWidth: 0.5 });
   y -= 20;
@@ -389,6 +429,13 @@ Deno.serve(async (req) => {
   }
 
   // Footer page 1
+  page1.drawText("Wissenschaftliche Grundlagen: Padberg & Benz (2021); Wartha & Schulz (2019)", {
+    x: ML,
+    y: MB,
+    size: 7,
+    font: fontReg,
+    color: rgb(0.7, 0.7, 0.7),
+  });
   page1.drawText("Erstellt mit Numeris", {
     x: PW - MR - 80,
     y: MB,
@@ -437,8 +484,8 @@ Deno.serve(async (req) => {
   page2.drawLine({ start: { x: ML, y }, end: { x: ML + sigW, y }, thickness: 0.5, color: rgb(0.5, 0.5, 0.5) });
   page2.drawLine({ start: { x: ML + sigW + 32, y }, end: { x: ML + contentW, y }, thickness: 0.5, color: rgb(0.5, 0.5, 0.5) });
   y -= 8;
-  p2Text("Unterschrift", ML + sigW / 2 - 20, y, 7.5);
-  p2Text("Unterschrift", ML + sigW + 32 + sigW / 2 - 20, y, 7.5);
+  p2Text("Unterschrift Lehrkraft", ML + sigW / 2 - 45, y, 7.5);
+  p2Text("Unterschrift Eltern/Erziehungsberechtigte", ML + sigW + 32 + sigW / 2 - 65, y, 7.5);
   y -= 30;
 
   // Information der Erziehungsberechtigten
@@ -454,6 +501,13 @@ Deno.serve(async (req) => {
   p2Text("Unterschrift Erziehungsberechtigte/r", sigX2 + (contentW - 170) / 2 - 60, y, 7.5);
 
   // Footer page 2
+  page2.drawText("Wissenschaftliche Grundlagen: Padberg & Benz (2021); Wartha & Schulz (2019)", {
+    x: ML,
+    y: MB,
+    size: 7,
+    font: fontReg,
+    color: rgb(0.7, 0.7, 0.7),
+  });
   page2.drawText("Erstellt mit Numeris", {
     x: PW - MR - 80,
     y: MB,

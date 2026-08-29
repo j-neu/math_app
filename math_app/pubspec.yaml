@@ -74,7 +74,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - Research/MathApp_Diagnostic_with_skills.csv
+    - Research/diagnostic_core_v1.csv
     - Research/skills_taxonomy.csv
     # Research/DiagnosticPictures/ removed 2026-08-29 (tasks.md R0.2): scanned
     # Kartei pages must not ship. Every image referenced by the diagnostic CSV

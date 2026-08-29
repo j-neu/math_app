@@ -11,14 +11,69 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Pedagogical category ordering — lower index = earlier prerequisite
-const CATEGORY_ORDER = [
-  "Zählen",
-  "Zahlzerlegung / Schnelles Sehen",
-  "Stellenwerte verstehen",
-  "Grundstrategien",
-  "Kombinierte Strategien",
+// New taxonomy (tasks.md R4.2/R4.3): domain label per skill.
+const DOMAIN_LABELS: Record<string, string> = {
+  A: "Domäne A — Zahlbegriff",
+  B: "Domäne B — Stellenwertverständnis",
+  C: "Domäne C — Rechenstrategien",
+  D: "Domäne D — Sachsituationen",
+};
+
+const DOMAIN_PREFIX_PATTERN = /^([A-D])\d/;
+
+// Canonical didactic order of every construct from the construct map
+// (port of math_app/lib/services/skill_recommendation_order.dart, tasks.md R4.2).
+const canonicalConstructOrder = [
+  // Domäne A — Zahlbegriff
+  "A1.1", "A1.2", "A1.3", "A1.4", "A1.5",
+  "A2.1", "A2.2", "A2.3",
+  "A3.1", "A3.2", "A3.3",
+  // Domäne B — Stellenwertverständnis
+  "B1.1", "B1.2", "B1.3",
+  "B2.1", "B2.2", "B2.3",
+  // Domäne C — Rechenstrategien
+  "C1.1", "C1.2", "C1.3",
+  "C2.1", "C2.2", "C2.3",
+  "C3.1", "C3.2", "C3.3", "C3.4",
+  "C4.1", "C4.2",
+  // Domäne D — Sachsituationen
+  "D1.1", "D1.2",
 ];
+
+const SKILL_ID_PATTERN = /^([A-D]\d\.\d)(.*)$/;
+
+// Splits a skill ID into (constructId, suffix): `A1.1a` → (`A1.1`, `a`),
+// `C2.2` → (`C2.2`, ``). IDs without a construct prefix are kept whole.
+function splitSkillId(skillId: string): [string, string] {
+  const m = SKILL_ID_PATTERN.exec(skillId);
+  if (!m) return [skillId, ""];
+  return [m[1]!, m[2]!];
+}
+
+// Compares two skill IDs by the documented recommendation order: construct
+// position in canonicalConstructOrder first, then suffix within the same
+// construct (no suffix first, `a` < `b`), then the full ID.
+function compareRecommendations(skillIdA: string, skillIdB: string): number {
+  const [constructA, suffixA] = splitSkillId(skillIdA);
+  const [constructB, suffixB] = splitSkillId(skillIdB);
+
+  if (constructA !== constructB) {
+    const rankA = canonicalConstructOrder.indexOf(constructA);
+    const rankB = canonicalConstructOrder.indexOf(constructB);
+    if (rankA >= 0 && rankB >= 0) return rankA - rankB;
+    if (rankA >= 0) return -1;
+    if (rankB >= 0) return 1;
+    return constructA < constructB ? -1 : constructA > constructB ? 1 : 0;
+  }
+
+  if (suffixA !== suffixB) {
+    if (suffixA === "") return -1;
+    if (suffixB === "") return 1;
+    return suffixA < suffixB ? -1 : suffixA > suffixB ? 1 : 0;
+  }
+
+  return skillIdA < skillIdB ? -1 : skillIdA > skillIdB ? 1 : 0;
+}
 
 // ≥30% of correct answers exceeding threshold → slowResponseFlag
 const SLOW_RESPONSE_FRACTION = 0.30;
@@ -27,11 +82,6 @@ const SLOW_RESPONSE_FRACTION = 0.30;
 function slowThreshold(answerFormat: string): number {
   if (answerFormat === "single") return 15;
   return 30; // multiple, sort
-}
-
-function categoryRank(category: string): number {
-  const idx = CATEGORY_ORDER.indexOf(category);
-  return idx === -1 ? CATEGORY_ORDER.length : idx;
 }
 
 interface DbQuestion {
@@ -53,8 +103,19 @@ interface SkillMeta {
   category: string;
   color: string;
   card_number: number;
+  domain?: string | null;
+  construct_id?: string | null;
   title_de: string;
   description_de: string;
+}
+
+// Domain label for a skill: new taxonomy `domain` column (A–D), else derived
+// from the skill ID prefix, else the legacy `category` value.
+function domainLabel(meta: SkillMeta): string {
+  if (meta.domain && DOMAIN_LABELS[meta.domain]) return DOMAIN_LABELS[meta.domain];
+  const m = DOMAIN_PREFIX_PATTERN.exec(meta.id);
+  if (m && DOMAIN_LABELS[m[1]!]) return DOMAIN_LABELS[m[1]!];
+  return meta.category;
 }
 
 interface SkillRecommendation {
@@ -139,7 +200,7 @@ Deno.serve(async (req) => {
   // Load skill catalog
   const { data: skillsData } = await supabase
     .from("skills")
-    .select("id, category, color, card_number, title_de, description_de");
+    .select("id, category, color, card_number, title_de, description_de, domain, construct_id");
 
   const skillCatalog = new Map<string, SkillMeta>(
     (skillsData ?? []).map((s) => [s.id, s]),
@@ -167,20 +228,15 @@ Deno.serve(async (req) => {
       skill_id: skillId,
       title_de: meta.title_de,
       description_de: meta.description_de,
-      category: meta.category,
+      category: domainLabel(meta),
       category_color: meta.color,
-      card_number: meta.card_number,
+      card_number: 0,
       triggering_question_numbers: qNums,
     });
   }
 
   // --- 3. Pedagogical sort ---
-  recommendations.sort((a, b) => {
-    const ra = categoryRank(a.category);
-    const rb = categoryRank(b.category);
-    if (ra !== rb) return ra - rb;
-    return a.card_number - b.card_number;
-  });
+  recommendations.sort((a, b) => compareRecommendations(a.skill_id, b.skill_id));
 
   const briefSkillIds = recommendations.slice(0, 3).map((r) => r.skill_id);
   const recommendedSkillIds = recommendations.map((r) => r.skill_id);
@@ -195,7 +251,7 @@ Deno.serve(async (req) => {
     const categories = new Set<string>();
     for (const skillId of q.if_wrong_practice_skills) {
       const meta = skillCatalog.get(skillId);
-      if (meta) categories.add(meta.category);
+      if (meta) categories.add(domainLabel(meta));
     }
     for (const cat of categories) {
       categoryTotal.set(cat, (categoryTotal.get(cat) ?? 0) + 1);

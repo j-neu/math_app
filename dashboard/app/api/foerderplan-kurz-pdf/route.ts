@@ -12,6 +12,18 @@ export async function GET(request: NextRequest) {
   const sessionId = request.nextUrl.searchParams.get("session_id");
   if (!sessionId) return NextResponse.json({ error: "session_id fehlt" }, { status: 400 });
 
+  const { data: session } = await supabase
+    .from("diagnostic_sessions")
+    .select("student_id")
+    .eq("id", sessionId)
+    .single();
+
+  const { data: student } = await supabase
+    .from("students")
+    .select("display_name")
+    .eq("id", session?.student_id ?? "")
+    .single();
+
   const resp = await fetch(`${SB_URL}/functions/v1/foerderplan-kurz-pdf`, {
     method: "POST",
     headers: {
@@ -27,10 +39,12 @@ export async function GET(request: NextRequest) {
   }
 
   const pdfBytes = await resp.arrayBuffer();
+  const safeName = (student?.display_name ?? "").replace(/[\\/:*?"<>|]/g, "").replace(/\s+/g, "_");
+  const filename = safeName ? `Foerderplan_${safeName}.pdf` : "Foerderplan.pdf";
   return new NextResponse(pdfBytes, {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="Foerderplan.pdf"`,
+      "Content-Disposition": `attachment; filename="${filename}"`,
     },
   });
 }

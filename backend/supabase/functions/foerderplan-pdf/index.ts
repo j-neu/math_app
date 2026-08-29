@@ -3,7 +3,7 @@
 // Mirrors the layout of DiagnosticReportScreen:
 //   1. Header (student name, date)
 //   2. Kurzer Förderplan (top 3 skills)
-//   3. Kategorie-Übersicht (per-category pass/fail bar)
+//   3. Domänen-Übersicht (per-domain pass/fail bar)
 //   4. Vollständiger Förderplan (all skills)
 //
 // Returns PDF bytes (application/pdf).
@@ -21,18 +21,28 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Category colours matching the Flutter app palette
-const CATEGORY_COLORS: Record<string, [number, number, number]> = {
-  "Zählen": [0.18, 0.65, 0.35],
-  "Zahlzerlegung / Schnelles Sehen": [0.95, 0.61, 0.07],
-  "Stellenwerte verstehen": [0.20, 0.46, 0.82],
-  "Grundstrategien": [0.75, 0.22, 0.17],
-  "Kombinierte Strategien": [0.54, 0.17, 0.65],
+// New taxonomy (tasks.md R4.3): domain label per skill ID prefix.
+const DOMAIN_LABELS: Record<string, string> = {
+  A: "Domäne A — Zahlbegriff",
+  B: "Domäne B — Stellenwertverständnis",
+  C: "Domäne C — Rechenstrategien",
+  D: "Domäne D — Sachsituationen",
+};
+
+// Row colour derived from the domain for new-taxonomy rows.
+const DOMAIN_COLORS: Record<string, [number, number, number]> = {
+  A: [0.18, 0.65, 0.35], // emerald
+  B: [0.20, 0.46, 0.82], // blue
+  C: [0.75, 0.22, 0.17], // red
+  D: [0.54, 0.17, 0.65], // purple
 };
 const DEFAULT_COLOR: [number, number, number] = [0.4, 0.4, 0.4];
 
 function catColor(cat: string): [number, number, number] {
-  return CATEGORY_COLORS[cat] ?? DEFAULT_COLOR;
+  for (const [domain, label] of Object.entries(DOMAIN_LABELS)) {
+    if (label === cat) return DOMAIN_COLORS[domain]!;
+  }
+  return DEFAULT_COLOR;
 }
 
 Deno.serve(async (req) => {
@@ -77,7 +87,7 @@ Deno.serve(async (req) => {
   // Load skill details for recommended skills
   const { data: skillsData } = await supabase
     .from("skills")
-    .select("id, category, color, card_number, title_de, description_de")
+    .select("id, category, color, title_de, description_de")
     .in("id", plan.recommended_skill_ids as string[]);
 
   const skillMap = new Map((skillsData ?? []).map((s: { id: string; [k: string]: unknown }) => [s.id, s]));
@@ -152,13 +162,13 @@ Deno.serve(async (req) => {
     drawText("Keine spezifischen Fördermaßnahmen erforderlich.", MARGIN, 11);
   } else {
     for (let i = 0; i < brief.length; i++) {
-      const s = brief[i] as { category: string; card_number: number; title_de: string; description_de: string };
+      const s = brief[i] as { category: string; title_de: string; description_de: string };
       newPageIfNeeded(60);
       const c = catColor(s.category);
       page.drawRectangle({ x: MARGIN, y: y - 2, width: 4, height: 14, color: rgb(...c) });
       drawText(`${i + 1}. ${s.title_de}`, MARGIN + 10, 11, true);
       drawText(s.description_de, MARGIN + 10, 10);
-      drawText(`Kategorie: ${s.category}`, MARGIN + 10, 9, false, [0.5, 0.5, 0.5]);
+      drawText(`${s.category}`, MARGIN + 10, 9, false, [0.5, 0.5, 0.5]);
       y -= 4;
     }
   }
@@ -166,9 +176,9 @@ Deno.serve(async (req) => {
   y -= 8;
   drawHRule();
 
-  // ── Kategorie-Übersicht ───────────────────────────────────────────
+  // ── Domänen-Übersicht ─────────────────────────────────────────────
   newPageIfNeeded(100);
-  drawText("Kategorie-Übersicht", MARGIN, 14, true);
+  drawText("Domänen-Übersicht", MARGIN, 14, true);
   y -= 4;
 
   const categoryStats = plan.category_stats as Record<string, { failed: number; total: number }>;
@@ -207,7 +217,7 @@ Deno.serve(async (req) => {
     drawText("Sehr gut! Keine weiteren Fördermaßnahmen notwendig.", MARGIN, 11);
   } else {
     for (let i = 0; i < recommended.length; i++) {
-      const s = recommended[i] as { category: string; card_number: number; title_de: string; description_de: string };
+      const s = recommended[i] as { category: string; title_de: string; description_de: string };
       newPageIfNeeded(55);
       const c = catColor(s.category);
       page.drawRectangle({ x: MARGIN, y: y - 2, width: 4, height: 14, color: rgb(...c) });
@@ -224,6 +234,14 @@ Deno.serve(async (req) => {
     x: MARGIN,
     y,
     size: 8,
+    font: fontReg,
+    color: rgb(0.6, 0.6, 0.6),
+  });
+  y = 20;
+  page.drawText("Wissenschaftliche Grundlagen: Padberg & Benz (2021); Wartha & Schulz (2019)", {
+    x: MARGIN,
+    y,
+    size: 7,
     font: fontReg,
     color: rgb(0.6, 0.6, 0.6),
   });

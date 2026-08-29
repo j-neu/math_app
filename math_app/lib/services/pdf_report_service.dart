@@ -384,6 +384,14 @@ class PdfReportService {
         return PdfColors.orange700;
       case 'teal':
         return PdfColors.teal700;
+      case 'amber':
+        return PdfColors.amber700;
+      case 'indigo':
+        return PdfColors.indigo700;
+      case 'emerald':
+        return PdfColors.green700;
+      case 'violet':
+        return PdfColors.purple700;
       case 'brown':
         return const PdfColor.fromInt(0xFF6D4C41);
       default:

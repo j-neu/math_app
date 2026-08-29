@@ -522,6 +522,14 @@ class _DiagnosticReportScreenState extends State<DiagnosticReportScreen> {
         return Colors.orange.shade700;
       case 'teal':
         return Colors.teal.shade600;
+      case 'amber':
+        return Colors.amber.shade700;
+      case 'indigo':
+        return Colors.indigo.shade600;
+      case 'emerald':
+        return Colors.green.shade600;
+      case 'violet':
+        return Colors.purple.shade600;
       default:
         return Colors.blueGrey.shade600;
     }

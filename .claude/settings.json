@@ -95,7 +95,12 @@
       "Bash(xargs grep -l \"session_tickets\\\\|diagnostic_sessions\")",
       "Bash(xargs grep -l \"\\\\/s\\\\/\")",
       "Bash(Select-String -Path \"c:\\\\Users\\\\jakob\\\\StudioProjects\\\\Math_App\\\\dashboard\\\\package.json\" -Pattern \"docx\" -Quiet)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\jakob\\\\StudioProjects\\\\Math_App\\\\math_app\\\\lib\\\\widgets\\\\diagnostic\\\\\" -Recurse -File | Select-Object FullName)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\jakob\\\\StudioProjects\\\\Math_App\" -Name \"*diagnostic*\" -Recurse)",
+      "Bash(Select-Object -First 20)",
+      "mcp__plugin_vercel_vercel__list_deployments",
+      "Bash(Get-ChildItem -Path \"math_app/lib/widgets/diagnostic\" -Filter \"*.dart\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\jakob\\.claude\\projects\\c--Users-jakob-StudioProjects-Math-App\\memory",

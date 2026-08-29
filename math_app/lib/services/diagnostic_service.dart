@@ -2,11 +2,27 @@ import 'package:csv/csv.dart';
 import 'package:flutter/services.dart';
 import '../models/diagnostic_question.dart';
 
+/// Loads the clean-room diagnostic item bank.
+///
+/// The runtime asset is `Research/diagnostic_core_v1.csv` (the 60-item core
+/// test, tasks.md R5.1). The optional deep-dive blocks live in the sibling
+/// `Research/diagnostic_deepdive_v1.csv` and are not loaded by the core
+/// diagnostic flow. Both files reuse the legacy 13-column schema
+/// (ListNumber,SourceType,QuestionText,AnswerFormat,CorrectAnswer,German,
+/// English,IfWrong_practice_skills,Ifwrong_skip,Notes,SkipGroup,Zahlenraum,
+/// AudioAsset), so the parser column indexes are unchanged.
 class DiagnosticService {
   Future<List<DiagnosticQuestion>> loadQuestions() async {
-    // Use new CSV file with semantic skill IDs
-    final rawData = await rootBundle.loadString('Research/MathApp_Diagnostic_with_skills.csv');
-    final List<List<dynamic>> listData = const CsvToListConverter().convert(rawData, eol: '\n');
+    final rawData =
+        await rootBundle.loadString('Research/diagnostic_core_v1.csv');
+    return loadQuestionsFromCsv(rawData);
+  }
+
+  /// Pure CSV variant of [loadQuestions] — used by tests and by callers that
+  /// already hold the CSV text (e.g. deep-dive files), no asset bundle.
+  static List<DiagnosticQuestion> loadQuestionsFromCsv(String csv) {
+    final List<List<dynamic>> listData = const CsvToListConverter()
+        .convert(csv.replaceAll('\r\n', '\n'), eol: '\n');
 
     final List<DiagnosticQuestion> questions = [];
     // Skip the header row
@@ -99,7 +115,8 @@ class DiagnosticService {
     if (sourceType == QuestionType.image ||
         sourceType == QuestionType.cards ||
         sourceType == QuestionType.picture) {
-      // For Image type, questionText contains the filename (e.g., "img2113.jpg")
+      // Visual items carry an item ID (e.g. "A2.2-01") rather than a bundled
+      // image filename; only legacy filename-style rows get an image path.
       if (questionText.toLowerCase().endsWith('.jpg') ||
           questionText.toLowerCase().endsWith('.png') ||
           questionText.toLowerCase().endsWith('.jpeg')) {

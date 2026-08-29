@@ -2,21 +2,33 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
-const CATEGORY_COLORS: Record<string, string> = {
-  "Zählen": "bg-green-500",
-  "Zahlzerlegung / Schnelles Sehen": "bg-yellow-400",
-  "Stellenwerte verstehen": "bg-blue-500",
-  "Grundstrategien": "bg-red-500",
-  "Kombinierte Strategien": "bg-purple-500",
+// New taxonomy (tasks.md R4.3): domain label per skill ID prefix.
+const DOMAIN_LABELS: Record<string, string> = {
+  A: "Domäne A — Zahlbegriff",
+  B: "Domäne B — Stellenwertverständnis",
+  C: "Domäne C — Rechenstrategien",
+  D: "Domäne D — Sachsituationen",
 };
 
-const CATEGORY_TEXT: Record<string, string> = {
-  "Zählen": "text-green-700 bg-green-50 border-green-200",
-  "Zahlzerlegung / Schnelles Sehen": "text-yellow-700 bg-yellow-50 border-yellow-200",
-  "Stellenwerte verstehen": "text-blue-700 bg-blue-50 border-blue-200",
-  "Grundstrategien": "text-red-700 bg-red-50 border-red-200",
-  "Kombinierte Strategien": "text-purple-700 bg-purple-50 border-purple-200",
+const DOMAIN_STYLES: Record<string, { bar: string; badge: string }> = {
+  A: { bar: "bg-emerald-500", badge: "text-emerald-700 bg-emerald-50 border-emerald-200" },
+  B: { bar: "bg-blue-500", badge: "text-blue-700 bg-blue-50 border-blue-200" },
+  C: { bar: "bg-red-500", badge: "text-red-700 bg-red-50 border-red-200" },
+  D: { bar: "bg-purple-500", badge: "text-purple-700 bg-purple-50 border-purple-200" },
 };
+
+const DOMAIN_PREFIX_PATTERN = /^([A-D])\d/;
+
+const DEFAULT_STYLE = { bar: "bg-gray-400", badge: "text-gray-700 bg-gray-50 border-gray-200" };
+
+function domainStyle(label: string): { bar: string; badge: string } {
+  for (const [letter, domainLabel] of Object.entries(DOMAIN_LABELS)) {
+    if (domainLabel === label) return DOMAIN_STYLES[letter]!;
+  }
+  const m = DOMAIN_PREFIX_PATTERN.exec(label);
+  if (m && DOMAIN_STYLES[m[1]!]) return DOMAIN_STYLES[m[1]!];
+  return DEFAULT_STYLE;
+}
 
 interface Props {
   params: { sessionId: string };
@@ -77,13 +89,13 @@ export default async function FoerderplanPage({ params }: Props) {
 
   const { data: skills } = await supabase
     .from("skills")
-    .select("id, category, color, card_number, title_de, description_de")
+    .select("id, category, color, title_de, description_de")
     .in("id", plan.recommended_skill_ids as string[]);
 
   const skillMap = new Map((skills ?? []).map((s) => [s.id, s]));
   const recommended = (plan.recommended_skill_ids as string[])
     .map((id) => skillMap.get(id))
-    .filter(Boolean) as { id: string; category: string; color: string; card_number: number; title_de: string; description_de: string }[];
+    .filter(Boolean) as { id: string; category: string; color: string; title_de: string; description_de: string }[];
 
   const brief = recommended.slice(0, 3);
   const categoryStats = plan.category_stats as Record<string, { failed: number; total: number }>;
@@ -205,15 +217,14 @@ export default async function FoerderplanPage({ params }: Props) {
         ) : (
           <div className="space-y-3">
             {brief.map((skill) => {
-              const bar = CATEGORY_COLORS[skill.category] ?? "bg-gray-400";
-              const badge = CATEGORY_TEXT[skill.category] ?? "text-gray-700 bg-gray-50 border-gray-200";
+              const style = domainStyle(skill.category);
               return (
                 <div key={skill.id} className="border border-gray-200 rounded-xl p-4 bg-white flex items-stretch gap-3">
-                  <div className={`w-1 rounded-full ${bar} flex-shrink-0`} />
+                  <div className={`w-1 rounded-full ${style.bar} flex-shrink-0`} />
                   <div className="flex-1">
                     <p className="font-semibold">{skill.title_de}</p>
                     <p className="text-sm text-gray-600 mt-1">{skill.description_de}</p>
-                    <span className={`inline-block text-xs px-2 py-0.5 rounded-full border mt-2 ${badge}`}>
+                    <span className={`inline-block text-xs px-2 py-0.5 rounded-full border mt-2 ${style.badge}`}>
                       {skill.category}
                     </span>
                   </div>
@@ -224,9 +235,9 @@ export default async function FoerderplanPage({ params }: Props) {
         )}
       </section>
 
-      {/* Kategorie-Übersicht */}
+      {/* Domänen-Übersicht */}
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">Kategorie-Übersicht</h2>
+        <h2 className="text-lg font-semibold">Domänen-Übersicht</h2>
         <div className="bg-white border border-gray-200 rounded-xl overflow-hidden divide-y divide-gray-50">
           {Object.entries(categoryStats).map(([cat, stat]) => {
             const allCorrect = stat.failed === 0;
@@ -251,10 +262,10 @@ export default async function FoerderplanPage({ params }: Props) {
         </summary>
         <div className="mt-4 space-y-5">
           {Array.from(recommendedByCategory.entries()).map(([cat, items]) => {
-            const badge = CATEGORY_TEXT[cat] ?? "text-gray-700 bg-gray-50 border-gray-200";
+            const style = domainStyle(cat);
             return (
               <div key={cat} className="space-y-2">
-                <span className={`inline-block text-xs px-2 py-0.5 rounded-full border ${badge}`}>
+                <span className={`inline-block text-xs px-2 py-0.5 rounded-full border ${style.badge}`}>
                   {cat}
                 </span>
                 <div className="space-y-1 pl-1">

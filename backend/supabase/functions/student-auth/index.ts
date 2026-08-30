@@ -89,14 +89,14 @@ Deno.serve(async (req) => {
     }
 
     if (!body.school_slug || !body.class_code || !isValidCodeShape(body.class_code)) {
-      return json({ error: "Code nicht gefunden" }, 404);
+      return json({ error: "Diesen Code gibt es nicht. Schau noch mal auf die Tafel." }, 404);
     }
 
     const { data: school } = await supabase
       .from("schools").select("id").eq("slug", body.school_slug).maybeSingle();
 
     if (!school) {
-      return json({ error: "Code nicht gefunden" }, 404);
+      return json({ error: "Diesen Code gibt es nicht. Schau noch mal auf die Tafel." }, 404);
     }
 
     const { data: klass } = await supabase
@@ -107,7 +107,7 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (!klass) {
-      return json({ error: "Code nicht gefunden" }, 404);
+      return json({ error: "Diesen Code gibt es nicht. Schau noch mal auf die Tafel." }, 404);
     }
 
     const { data: students } = await supabase

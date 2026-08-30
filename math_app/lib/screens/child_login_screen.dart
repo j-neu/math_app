@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../services/student_auth_service.dart';
 
-/// Three steps, one decision each: type the class code, tap your name, then
-/// a calm confirmation that login worked. Nothing on this screen requires
-/// reading beyond a first-grader's level — the confirmation step is a
-/// placeholder for the learning-path screen, which replaces it once built.
+/// Steps, one decision each: type the class code, tap your name, optionally
+/// tap your four-picture Bildfolge, then a calm confirmation. Nothing here
+/// requires reading beyond a first-grader's level — the confirmation step is
+/// a placeholder for the learning-path screen, which replaces it once built.
 class ChildLoginScreen extends StatefulWidget {
   final String schoolSlug;
   final StudentAuthService? authService;
@@ -15,7 +15,23 @@ class ChildLoginScreen extends StatefulWidget {
   State<ChildLoginScreen> createState() => _ChildLoginScreenState();
 }
 
-enum _Step { code, roster, welcome }
+enum _Step { code, roster, pin, welcome }
+
+/// The Bildfolge alphabet. Material icons, not emoji: the MaterialIcons font
+/// ships with the app, so these render on every platform. Emoji depend on a
+/// system font that a school tablet may not have.
+const List<({String token, IconData icon, String label})> kPinSymbols = [
+  (token: 'stern', icon: Icons.star, label: 'Stern'),
+  (token: 'herz', icon: Icons.favorite, label: 'Herz'),
+  (token: 'blume', icon: Icons.local_florist, label: 'Blume'),
+  (token: 'sonne', icon: Icons.wb_sunny, label: 'Sonne'),
+  (token: 'ball', icon: Icons.sports_soccer, label: 'Ball'),
+  (token: 'auto', icon: Icons.directions_car, label: 'Auto'),
+  (token: 'haus', icon: Icons.home, label: 'Haus'),
+  (token: 'baum', icon: Icons.park, label: 'Baum'),
+];
+
+const int kPinLength = 4;
 
 class _ChildLoginScreenState extends State<ChildLoginScreen> {
   late final StudentAuthService _auth = widget.authService ?? StudentAuthService();
@@ -26,6 +42,12 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
   bool _busy = false;
   _Step _step = _Step.code;
   String? _loggedInName;
+
+  /// The student whose tile is waiting on the server, so only that tile spins.
+  String? _pendingStudentId;
+
+  RosterEntry? _pinFor;
+  final List<String> _pinTokens = [];
 
   @override
   void dispose() {
@@ -43,6 +65,7 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
         schoolSlug: widget.schoolSlug,
         classCode: _codeController.text,
       );
+      if (!mounted) return;
       setState(() {
         _roster = roster;
         _step = _Step.roster;
@@ -56,13 +79,29 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
     }
   }
 
-  Future<void> _pick(RosterEntry entry) async {
+  /// A class with Bildfolge switched on goes to the picture step first;
+  /// otherwise the tap logs the child straight in.
+  void _tapName(RosterEntry entry) {
+    if (_roster?.requirePin ?? false) {
+      setState(() {
+        _pinFor = entry;
+        _pinTokens.clear();
+        _error = null;
+        _step = _Step.pin;
+      });
+    } else {
+      _login(entry);
+    }
+  }
+
+  Future<void> _login(RosterEntry entry, {String? pin}) async {
     setState(() {
       _busy = true;
+      _pendingStudentId = entry.id;
       _error = null;
     });
     try {
-      final session = await _auth.login(studentId: entry.id);
+      final session = await _auth.login(studentId: entry.id, pin: pin);
       if (!mounted) return;
       setState(() {
         _loggedInName =
@@ -70,19 +109,63 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
         _step = _Step.welcome;
       });
     } on StudentAuthException catch (e) {
-      setState(() => _error = e.message);
+      if (!mounted) return;
+      setState(() {
+        _error = e.message;
+        _pinTokens.clear();
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _error = 'Es hat nicht geklappt. Bitte noch einmal versuchen.';
+        _pinTokens.clear();
+      });
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _pendingStudentId = null;
+        });
+      }
     }
   }
 
-  void _backToCode() {
+  void _tapPinSymbol(String token) {
+    if (_busy || _pinTokens.length >= kPinLength) return;
+    setState(() {
+      _pinTokens.add(token);
+      _error = null;
+    });
+    if (_pinTokens.length == kPinLength && _pinFor != null) {
+      _login(_pinFor!, pin: _pinTokens.join('-'));
+    }
+  }
+
+  void _clearPin() => setState(() {
+        _pinTokens.clear();
+        _error = null;
+      });
+
+  Future<void> _backToCode() async {
+    // Backing out must not leave the previous child signed in on a shared tablet.
+    await _auth.logout();
+    if (!mounted) return;
     setState(() {
       _step = _Step.code;
       _roster = null;
       _error = null;
+      _pinFor = null;
+      _pinTokens.clear();
+      _loggedInName = null;
     });
   }
+
+  void _backToRoster() => setState(() {
+        _step = _Step.roster;
+        _pinFor = null;
+        _pinTokens.clear();
+        _error = null;
+      });
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +180,7 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
                 child: switch (_step) {
                   _Step.code => _buildCodeStep(context),
                   _Step.roster => _buildRosterStep(context),
+                  _Step.pin => _buildPinStep(context),
                   _Step.welcome => _buildWelcomeStep(context),
                 },
               ),
@@ -106,6 +190,12 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
       ),
     );
   }
+
+  Widget _errorText(BuildContext context) => Text(
+        _error!,
+        textAlign: TextAlign.center,
+        style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 18),
+      );
 
   Widget _buildCodeStep(BuildContext context) {
     return Column(
@@ -131,9 +221,7 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
         ),
         if (_error != null) ...[
           const SizedBox(height: 12),
-          Text(_error!,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 18)),
+          _errorText(context),
         ],
         const SizedBox(height: 24),
         SizedBox(
@@ -154,6 +242,8 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
   }
 
   Widget _buildRosterStep(BuildContext context) {
+    final students = _roster?.students ?? const <RosterEntry>[];
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -162,49 +252,29 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
             textAlign: TextAlign.center),
         const SizedBox(height: 24),
         if (_error != null) ...[
-          Text(_error!,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 18)),
+          _errorText(context),
           const SizedBox(height: 16),
         ],
-        GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisCount: 3,
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          childAspectRatio: 1.0,
-          children: [
-            for (final entry in _roster!.students)
-              InkWell(
-                onTap: _busy ? null : () => _pick(entry),
-                borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  constraints: const BoxConstraints(minHeight: 96, minWidth: 96),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                        color: Theme.of(context).colorScheme.outlineVariant, width: 2),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(_avatarGlyph(entry.avatar), style: const TextStyle(fontSize: 40)),
-                      const SizedBox(height: 4),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: Text(entry.displayName,
-                            textAlign: TextAlign.center,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 18)),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-          ],
-        ),
+        if (students.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 24),
+            child: Text(
+              'Für eure Klasse sind noch keine Kinder eingetragen. '
+              'Sag das bitte deiner Lehrkraft.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 18),
+            ),
+          )
+        else
+          GridView.count(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 3,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            childAspectRatio: 0.85,
+            children: [for (final entry in students) _nameTile(context, entry)],
+          ),
         const SizedBox(height: 16),
         SizedBox(
           height: 48,
@@ -217,19 +287,186 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
     );
   }
 
+  Widget _nameTile(BuildContext context, RosterEntry entry) {
+    final scheme = Theme.of(context).colorScheme;
+    final waiting = _pendingStudentId == entry.id;
+
+    return InkWell(
+      onTap: _busy ? null : () => _tapName(entry),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: scheme.outlineVariant, width: 2),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 48,
+              height: 48,
+              child: waiting
+                  ? const Padding(
+                      padding: EdgeInsets.all(8),
+                      child: CircularProgressIndicator(strokeWidth: 3),
+                    )
+                  : _initialAvatar(context, entry),
+            ),
+            const SizedBox(height: 6),
+            // Flexible so a long or hyphenated name shrinks instead of
+            // overflowing its tile — German class lists are full of them.
+            Flexible(
+              child: Text(
+                entry.displayName,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 16, height: 1.15),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// A circle carrying the child's initial, coloured deterministically from
+  /// their id. Renders on every platform (no emoji font needed) and stays
+  /// distinct across a class of 28, which a fixed glyph set cannot.
+  Widget _initialAvatar(BuildContext context, RosterEntry entry) {
+    final initial =
+        entry.displayName.isNotEmpty ? entry.displayName.substring(0, 1).toUpperCase() : '?';
+    return CircleAvatar(
+      backgroundColor: _avatarColour(entry.id),
+      child: Text(
+        initial,
+        style: const TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
+  static const List<Color> _avatarPalette = [
+    Color(0xFF00695C), Color(0xFF283593), Color(0xFFAD1457), Color(0xFF4527A0),
+    Color(0xFF00838F), Color(0xFFC62828), Color(0xFF2E7D32), Color(0xFF6A1B9A),
+    Color(0xFFEF6C00), Color(0xFF37474F), Color(0xFF0277BD), Color(0xFF9E5700),
+  ];
+
+  Color _avatarColour(String id) {
+    var hash = 0;
+    for (final unit in id.codeUnits) {
+      hash = (hash * 31 + unit) & 0x7fffffff;
+    }
+    return _avatarPalette[hash % _avatarPalette.length];
+  }
+
+  Widget _buildPinStep(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final name = _pinFor?.displayName ?? '';
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('Deine Bildfolge',
+            style: Theme.of(context).textTheme.headlineMedium,
+            textAlign: TextAlign.center),
+        const SizedBox(height: 8),
+        Text('Hallo $name! Tippe deine vier Bilder an.',
+            textAlign: TextAlign.center, style: const TextStyle(fontSize: 18)),
+        const SizedBox(height: 20),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            for (var i = 0; i < kPinLength; i++)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Container(
+                  width: 20,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: i < _pinTokens.length ? scheme.primary : Colors.transparent,
+                    border: Border.all(color: scheme.outline, width: 2),
+                  ),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        if (_error != null) ...[
+          _errorText(context),
+          const SizedBox(height: 16),
+        ],
+        GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: 4,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          children: [
+            for (final symbol in kPinSymbols)
+              InkWell(
+                onTap: _busy ? null : () => _tapPinSymbol(symbol.token),
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  constraints: const BoxConstraints(minWidth: 64, minHeight: 64),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: scheme.outlineVariant, width: 2),
+                  ),
+                  child: Semantics(
+                    label: symbol.label,
+                    child: Icon(symbol.icon, size: 36, color: scheme.primary),
+                  ),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        if (_busy)
+          const Padding(
+            padding: EdgeInsets.only(bottom: 8),
+            child: SizedBox(
+              width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 3),
+            ),
+          ),
+        SizedBox(
+          height: 48,
+          child: TextButton(
+            onPressed: _busy || _pinTokens.isEmpty ? null : _clearPin,
+            child: const Text('Nochmal', style: TextStyle(fontSize: 18)),
+          ),
+        ),
+        SizedBox(
+          height: 48,
+          child: TextButton(
+            onPressed: _busy ? null : _backToRoster,
+            child: const Text('Zurück', style: TextStyle(fontSize: 18)),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildWelcomeStep(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final name = _loggedInName ?? '';
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         CircleAvatar(
           radius: 56,
-          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+          backgroundColor: scheme.primaryContainer,
           child: Text(
-            name.isNotEmpty ? name[0].toUpperCase() : '⭐',
+            name.isNotEmpty ? name.substring(0, 1).toUpperCase() : '?',
             style: TextStyle(
               fontSize: 48,
-              color: Theme.of(context).colorScheme.onPrimaryContainer,
+              color: scheme.onPrimaryContainer,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -248,19 +485,12 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
         SizedBox(
           height: 48,
           child: TextButton(
+            style: TextButton.styleFrom(foregroundColor: scheme.onSurface),
             onPressed: _busy ? null : _backToCode,
             child: const Text('Zurück zur Anmeldung', style: TextStyle(fontSize: 16)),
           ),
         ),
       ],
     );
-  }
-
-  String _avatarGlyph(String? avatar) {
-    const glyphs = {
-      'fuchs': '🦊', 'eule': '🦉', 'schildkroete': '🐢', 'biene': '🐝',
-      'igel': '🦔', 'wal': '🐳', 'frosch': '🐸', 'baer': '🐻',
-    };
-    return glyphs[avatar] ?? '⭐';
   }
 }

@@ -1,14 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
-const _supabaseUrl = 'https://zzxqeqwffexythqzjkxr.supabase.co/functions/v1';
-const _anonKey =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6eHFlcXdmZmV4eXRocXpqa3hyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5NjE5ODUsImV4cCI6MjA5NDUzNzk4NX0.Wj_77px6gCPR97W0kOlVhaqDnZp9WqwmtoJlCGHsR4A';
+import 'supabase_config.dart';
 
 const _headers = {
   'Content-Type': 'application/json',
-  'Authorization': 'Bearer $_anonKey',
-  'apikey': _anonKey,
+  'Authorization': 'Bearer $supabaseAnonKey',
+  'apikey': supabaseAnonKey,
 };
 
 class ServerResult {
@@ -49,7 +46,7 @@ class ApiService {
   Future<({String sessionId, bool resumed, bool alreadyCompleted, List<ServerResult> priorResults, bool retryMode, List<int> retryQuestionNumbers, bool abbreviatedMode})>
       _startSessionRaw(Map<String, dynamic> body) async {
     final response = await http.post(
-      Uri.parse('$_supabaseUrl/diagnostic-sessions'),
+      Uri.parse('$supabaseFunctionsUrl/diagnostic-sessions'),
       headers: _headers,
       body: jsonEncode(body),
     );
@@ -87,7 +84,7 @@ class ApiService {
     String? userAnswer,
   }) async {
     final response = await http.post(
-      Uri.parse('$_supabaseUrl/diagnostic-results'),
+      Uri.parse('$supabaseFunctionsUrl/diagnostic-results'),
       headers: _headers,
       body: jsonEncode({
         'session_id': sessionId,
@@ -113,7 +110,7 @@ class ApiService {
   // check in diagnostic-results never fired.
   Future<void> completeSession(String sessionId) async {
     final response = await http.post(
-      Uri.parse('$_supabaseUrl/diagnostic-sessions'),
+      Uri.parse('$supabaseFunctionsUrl/diagnostic-sessions'),
       headers: _headers,
       body: jsonEncode({'session_id': sessionId, 'action': 'complete'}),
     );

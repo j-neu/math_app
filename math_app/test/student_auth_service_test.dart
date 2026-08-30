@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -86,5 +87,68 @@ void main() {
         .fetchRoster(schoolSlug: 'lindenschule', classCode: ' 7k2m ');
 
     expect(jsonDecode(sentBody!)['class_code'], '7K2M');
+  });
+
+  test('fetchRoster surfaces a typed German error on a socket failure', () async {
+    final client = MockClient((req) async => throw const SocketException('no route'));
+
+    late Object caught;
+    try {
+      await StudentAuthService(client: client)
+          .fetchRoster(schoolSlug: 'x', classCode: 'ABCD');
+      fail('expected fetchRoster to throw');
+    } catch (e) {
+      caught = e;
+    }
+
+    expect(caught, isA<StudentAuthException>());
+    expect((caught as StudentAuthException).message, isNotEmpty);
+  });
+
+  test('fetchRoster surfaces a typed German error on a non-JSON 502 body', () async {
+    final client = MockClient((req) async =>
+        http.Response('<html><body>Bad Gateway</body></html>', 502));
+
+    late Object caught;
+    try {
+      await StudentAuthService(client: client)
+          .fetchRoster(schoolSlug: 'x', classCode: 'ABCD');
+      fail('expected fetchRoster to throw');
+    } catch (e) {
+      caught = e;
+    }
+
+    expect(caught, isA<StudentAuthException>());
+    expect(caught, isNot(isA<FormatException>()));
+  });
+
+  test('login surfaces a typed German error on a socket failure', () async {
+    final client = MockClient((req) async => throw const SocketException('no route'));
+
+    late Object caught;
+    try {
+      await StudentAuthService(client: client).login(studentId: 's1');
+      fail('expected login to throw');
+    } catch (e) {
+      caught = e;
+    }
+
+    expect(caught, isA<StudentAuthException>());
+  });
+
+  test('login surfaces a typed German error on a non-JSON 502 body', () async {
+    final client = MockClient((req) async =>
+        http.Response('<html><body>Bad Gateway</body></html>', 502));
+
+    late Object caught;
+    try {
+      await StudentAuthService(client: client).login(studentId: 's1');
+      fail('expected login to throw');
+    } catch (e) {
+      caught = e;
+    }
+
+    expect(caught, isA<StudentAuthException>());
+    expect(caught, isNot(isA<FormatException>()));
   });
 }

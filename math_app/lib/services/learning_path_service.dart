@@ -16,6 +16,11 @@ class LearningPathException implements Exception {
 }
 
 class LearningPathService {
+  static const _connectionErrorMessage =
+      'Verbindung zum Server nicht möglich. Bitte Internetverbindung prüfen.';
+  static const _unreadableResponseMessage =
+      'Antwort vom Server konnte nicht gelesen werden.';
+
   final http.Client _client;
   final AttemptQueue _queue;
 
@@ -30,11 +35,45 @@ class LearningPathService {
         'x-student-token': token,
       };
 
+  /// Runs [request] and always comes back with a status code and a decoded
+  /// body, never a raw exception: a network failure (dropped wifi, DNS,
+  /// timeout, ...) becomes a typed, German-messaged [LearningPathException],
+  /// and a non-JSON body (an HTML captive-portal or proxy error page — both
+  /// common on school wifi) decodes to an empty map instead of throwing a
+  /// raw [FormatException]. This also fixes the ordering bug where decoding
+  /// used to run before the status check, so a non-JSON error response
+  /// crashed before its HTTP failure was ever reported.
+  Future<({Map<String, dynamic> body, int statusCode})> _send(
+    Future<http.Response> Function() request,
+  ) async {
+    late http.Response res;
+    try {
+      res = await request();
+    } catch (_) {
+      throw const LearningPathException(_connectionErrorMessage);
+    }
+
+    Map<String, dynamic> body;
+    try {
+      body = jsonDecode(res.body) as Map<String, dynamic>;
+    } catch (_) {
+      body = const {};
+    }
+
+    return (body: body, statusCode: res.statusCode);
+  }
+
   Future<LearningPath> fetchPath(String token) async {
-    final res = await _client.get(
-      Uri.parse('$supabaseFunctionsUrl/learning-path'),
-      headers: _headers(token),
-    );
+    late http.Response res;
+    try {
+      res = await _client.get(
+        Uri.parse('$supabaseFunctionsUrl/learning-path'),
+        headers: _headers(token),
+      );
+    } catch (_) {
+      throw const LearningPathException(_connectionErrorMessage);
+    }
+
     if (res.statusCode != 200) {
       throw LearningPathException('Lernpfad konnte nicht geladen werden (${res.statusCode})');
     }
@@ -50,7 +89,7 @@ class LearningPathService {
     } on LearningPathException {
       rethrow;
     } catch (_) {
-      throw const LearningPathException('Lernpfad konnte nicht gelesen werden.');
+      throw const LearningPathException(_unreadableResponseMessage);
     }
   }
 
@@ -59,19 +98,25 @@ class LearningPathService {
     required String skillId,
     required int level,
   }) async {
-    final res = await _client.post(
-      Uri.parse('$supabaseFunctionsUrl/practice-session/start'),
-      headers: _headers(token),
-      body: jsonEncode({'skill_id': skillId, 'level': level}),
-    );
-    final body = jsonDecode(res.body) as Map<String, dynamic>;
-    if (res.statusCode != 200) {
-      throw LearningPathException(body['error'] as String? ?? 'Übung konnte nicht gestartet werden');
+    final result = await _send(() => _client.post(
+          Uri.parse('$supabaseFunctionsUrl/practice-session/start'),
+          headers: _headers(token),
+          body: jsonEncode({'skill_id': skillId, 'level': level}),
+        ));
+
+    if (result.statusCode != 200) {
+      throw LearningPathException(
+          result.body['error'] as String? ?? 'Übung konnte nicht gestartet werden');
     }
-    return (
-      practiceSessionId: body['practice_session_id'] as String,
-      seed: body['seed'] as int,
-    );
+
+    try {
+      return (
+        practiceSessionId: result.body['practice_session_id'] as String,
+        seed: result.body['seed'] as int,
+      );
+    } catch (_) {
+      throw const LearningPathException(_unreadableResponseMessage);
+    }
   }
 
   /// Records an attempt locally, then tries to flush. A failed flush is
@@ -104,37 +149,52 @@ class LearningPathService {
     String practiceSessionId, {
     required int slowBandMs,
   }) async {
-    // Last chance to deliver anything still queued before we score the session.
+    // Last chance to deliver anything still queued before we score the
+    // session. Structurally identical to recordAttempt's flush callback:
+    // a network failure here must return false (keeping the queue intact)
+    // rather than throw — this is the exact moment the queue exists to
+    // protect, so losing the child's answers here would be the worst time
+    // to do it.
     await _queue.flush(practiceSessionId, (batch) async {
-      final res = await _client.post(
-        Uri.parse('$supabaseFunctionsUrl/practice-session/sync'),
-        headers: _headers(token),
-        body: jsonEncode({
-          'practice_session_id': practiceSessionId,
-          'attempts': batch.map((a) => a.toJson()).toList(),
-        }),
-      );
-      return res.statusCode == 200;
+      try {
+        final res = await _client.post(
+          Uri.parse('$supabaseFunctionsUrl/practice-session/sync'),
+          headers: _headers(token),
+          body: jsonEncode({
+            'practice_session_id': practiceSessionId,
+            'attempts': batch.map((a) => a.toJson()).toList(),
+          }),
+        );
+        return res.statusCode == 200;
+      } catch (_) {
+        return false;
+      }
     });
 
-    final res = await _client.post(
-      Uri.parse('$supabaseFunctionsUrl/practice-session/end'),
-      headers: _headers(token),
-      body: jsonEncode({
-        'practice_session_id': practiceSessionId,
-        'slow_band_ms': slowBandMs,
-      }),
-    );
-    final body = jsonDecode(res.body) as Map<String, dynamic>;
-    if (res.statusCode != 200) {
-      throw LearningPathException(body['error'] as String? ?? 'Übung konnte nicht abgeschlossen werden');
+    final result = await _send(() => _client.post(
+          Uri.parse('$supabaseFunctionsUrl/practice-session/end'),
+          headers: _headers(token),
+          body: jsonEncode({
+            'practice_session_id': practiceSessionId,
+            'slow_band_ms': slowBandMs,
+          }),
+        ));
+
+    if (result.statusCode != 200) {
+      throw LearningPathException(
+          result.body['error'] as String? ?? 'Übung konnte nicht abgeschlossen werden');
     }
-    return (
-      mastered: body['skill_mastered'] as bool? ?? false,
-      slowFlag: body['slow_flag'] as bool? ?? false,
-      unlocked: ((body['unlocked_skill_ids'] as List?) ?? const [])
-          .map((e) => e as String)
-          .toList(),
-    );
+
+    try {
+      return (
+        mastered: result.body['skill_mastered'] as bool? ?? false,
+        slowFlag: result.body['slow_flag'] as bool? ?? false,
+        unlocked: ((result.body['unlocked_skill_ids'] as List?) ?? const [])
+            .map((e) => e as String)
+            .toList(),
+      );
+    } catch (_) {
+      throw const LearningPathException(_unreadableResponseMessage);
+    }
   }
 }

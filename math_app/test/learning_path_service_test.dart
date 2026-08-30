@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:math_app/services/attempt_queue.dart';
 import 'package:math_app/services/learning_path_service.dart';
 
 void main() {
@@ -91,5 +93,133 @@ void main() {
 
     expect(caught, isA<LearningPathException>());
     expect(caught, isNot(isA<TypeError>()));
+  });
+
+  test('fetchPath surfaces a typed German error on a socket failure', () async {
+    final client = MockClient((req) async => throw const SocketException('no route'));
+
+    late Object caught;
+    try {
+      await LearningPathService(client: client).fetchPath('tok');
+      fail('expected fetchPath to throw');
+    } catch (e) {
+      caught = e;
+    }
+
+    expect(caught, isA<LearningPathException>());
+  });
+
+  test('startPractice surfaces a typed German error on a socket failure', () async {
+    final client = MockClient((req) async => throw const SocketException('no route'));
+
+    late Object caught;
+    try {
+      await LearningPathService(client: client)
+          .startPractice('tok', skillId: 'add-10', level: 1);
+      fail('expected startPractice to throw');
+    } catch (e) {
+      caught = e;
+    }
+
+    expect(caught, isA<LearningPathException>());
+  });
+
+  test('startPractice surfaces a typed German error on a non-JSON 502 body', () async {
+    final client = MockClient((req) async =>
+        http.Response('<html><body>Bad Gateway</body></html>', 502));
+
+    late Object caught;
+    try {
+      await LearningPathService(client: client)
+          .startPractice('tok', skillId: 'add-10', level: 1);
+      fail('expected startPractice to throw');
+    } catch (e) {
+      caught = e;
+    }
+
+    expect(caught, isA<LearningPathException>());
+    expect(caught, isNot(isA<FormatException>()));
+  });
+
+  test('endPractice surfaces a typed German error on a socket failure from the end call', () async {
+    final client = MockClient((req) async {
+      if (req.url.path.endsWith('/practice-session/sync')) {
+        return http.Response(jsonEncode({}), 200);
+      }
+      throw const SocketException('no route');
+    });
+
+    late Object caught;
+    try {
+      await LearningPathService(client: client)
+          .endPractice('tok', 'ps1', slowBandMs: 5000);
+      fail('expected endPractice to throw');
+    } catch (e) {
+      caught = e;
+    }
+
+    expect(caught, isA<LearningPathException>());
+  });
+
+  test('endPractice surfaces a typed German error on a non-JSON 502 body from the end call', () async {
+    final client = MockClient((req) async {
+      if (req.url.path.endsWith('/practice-session/sync')) {
+        return http.Response(jsonEncode({}), 200);
+      }
+      return http.Response('<html><body>Bad Gateway</body></html>', 502);
+    });
+
+    late Object caught;
+    try {
+      await LearningPathService(client: client)
+          .endPractice('tok', 'ps1', slowBandMs: 5000);
+      fail('expected endPractice to throw');
+    } catch (e) {
+      caught = e;
+    }
+
+    expect(caught, isA<LearningPathException>());
+    expect(caught, isNot(isA<FormatException>()));
+  });
+
+  test('a failing endPractice flush leaves the queued attempts intact instead of losing them', () async {
+    // This is the exact scenario AttemptQueue exists to protect against, at
+    // the one moment it matters most: session end. A dropped connection
+    // during the final flush must not throw and must not clear the queue.
+    final queue = AttemptQueue();
+    const sessionId = 'ps-drop';
+    await queue.add(
+      sessionId,
+      const PracticeAttempt(
+        problemIndex: 0,
+        problem: {'a': 2, 'b': 3},
+        answer: '5',
+        wasCorrect: true,
+        responseMs: 1200,
+        errorCode: null,
+      ),
+    );
+
+    final client = MockClient((req) async {
+      if (req.url.path.endsWith('/practice-session/sync')) {
+        throw const SocketException('dropped mid-flush');
+      }
+      return http.Response(
+        jsonEncode({
+          'skill_mastered': false,
+          'slow_flag': false,
+          'unlocked_skill_ids': [],
+        }),
+        200,
+      );
+    });
+
+    final service = LearningPathService(client: client, queue: queue);
+    final result = await service.endPractice('tok', sessionId, slowBandMs: 5000);
+
+    expect(result.mastered, isFalse);
+    final stillPending = await queue.pending(sessionId);
+    expect(stillPending, hasLength(1));
+    expect(stillPending.first.problemIndex, 0);
   });
 }

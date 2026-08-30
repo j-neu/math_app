@@ -101,7 +101,10 @@ Deno.serve(async (req) => {
       .from("practice_attempts")
       .upsert(rows, { onConflict: "practice_session_id,problem_index", ignoreDuplicates: true });
 
-    if (error) return json({ error: "Speichern fehlgeschlagen", detail: error.message }, 500);
+    if (error) {
+      console.error("practice-session/sync: upsert failed:", error);
+      return json({ error: "Speichern fehlgeschlagen" }, 500);
+    }
     return json({ accepted: rows.length });
   }
 

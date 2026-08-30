@@ -4,6 +4,10 @@
 // POST   /learning-path/generate    teacher      → draft path from a session
 // PATCH  /learning-path             teacher      → reorder/add/remove/skip/
 //                                                  activate/unlock_width/reset
+//
+// POST and PATCH are teacher-only, scoped to the teacher's own school, OR
+// the service role — foerderplan-generate calls /generate server-to-server
+// using the service-role key as its bearer token (see commit ff6d26f).
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { sortSkillIds } from "../_shared/ordering.ts";
@@ -13,6 +17,74 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+// deno-lint-ignore no-explicit-any
+type Db = any;
+
+type WriterAuth =
+  | { ok: true; isService: boolean; schoolId: string | null }
+  | { ok: false; status: number; error: string };
+
+// Authenticates the caller of POST /generate and every PATCH action.
+// Accepts either the service role (server-to-server, e.g. foerderplan-generate)
+// or a teacher, following delete-school-data's established pattern: read the
+// bearer JWT, resolve the user via the anon client, then look up their
+// teachers row.
+async function authenticateWriter(req: Request): Promise<WriterAuth> {
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader) return { ok: false, status: 401, error: "Nicht angemeldet" };
+
+  const bearer = authHeader.replace(/^Bearer\s+/i, "").trim();
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  if (bearer === serviceRoleKey) {
+    return { ok: true, isService: true, schoolId: null };
+  }
+
+  const userClient = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_ANON_KEY")!,
+    { global: { headers: { Authorization: authHeader } } },
+  );
+  const { data: { user }, error: authErr } = await userClient.auth.getUser();
+  if (authErr || !user) return { ok: false, status: 401, error: "Nicht angemeldet" };
+
+  const admin = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  );
+  const { data: teacher } = await admin
+    .from("teachers")
+    .select("school_id")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!teacher) return { ok: false, status: 401, error: "Nicht angemeldet" };
+
+  return { ok: true, isService: false, schoolId: teacher.school_id };
+}
+
+// The school_id a given student belongs to, via students → classes → school.
+async function studentSchoolId(supabase: Db, studentId: string): Promise<string | null> {
+  const { data } = await supabase
+    .from("students")
+    .select("classes!inner(school_id)")
+    .eq("id", studentId)
+    .maybeSingle();
+  if (!data) return null;
+  // deno-lint-ignore no-explicit-any
+  const klass = Array.isArray(data.classes) ? data.classes[0] : (data.classes as any);
+  return klass?.school_id ?? null;
+}
+
+// The student_id a given learning path belongs to.
+async function pathStudentId(supabase: Db, pathId: string): Promise<string | null> {
+  const { data } = await supabase
+    .from("learning_paths")
+    .select("student_id")
+    .eq("id", pathId)
+    .maybeSingle();
+  return data?.student_id ?? null;
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -78,6 +150,11 @@ Deno.serve(async (req) => {
     return json({ error: "Methode nicht erlaubt" }, 405);
   }
 
+  // Both POST /generate and every PATCH action are teacher-only (or the
+  // service role). Authenticate before doing anything else.
+  const auth = await authenticateWriter(req);
+  if (!auth.ok) return json({ error: auth.error }, auth.status);
+
   // deno-lint-ignore no-explicit-any
   let body: any;
   try {
@@ -97,6 +174,13 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (!session) return json({ error: "Sitzung nicht gefunden" }, 404);
+
+    if (!auth.isService) {
+      const schoolId = await studentSchoolId(supabase, session.student_id);
+      if (!schoolId || schoolId !== auth.schoolId) {
+        return json({ error: "Kein Zugriff auf diese Klasse" }, 403);
+      }
+    }
 
     const { data: plan } = await supabase
       .from("foerderplaene")
@@ -135,7 +219,10 @@ Deno.serve(async (req) => {
     }));
 
     const { error: iErr } = await supabase.from("path_items").insert(rows);
-    if (iErr) return json({ error: "Pfad-Einträge fehlgeschlagen", detail: iErr.message }, 500);
+    if (iErr) {
+      console.error("learning-path/generate: path_items insert failed:", iErr);
+      return json({ error: "Pfad-Einträge fehlgeschlagen" }, 500);
+    }
 
     return json({ path_id: path.id, item_count: rows.length });
   }
@@ -143,6 +230,14 @@ Deno.serve(async (req) => {
   // ── PATCH: teacher edits ───────────────────────────────────────────────────
   const { path_id, action } = body;
   if (!path_id || !action) return json({ error: "path_id und action erforderlich" }, 400);
+
+  if (!auth.isService) {
+    const targetStudentId = await pathStudentId(supabase, path_id);
+    const schoolId = targetStudentId ? await studentSchoolId(supabase, targetStudentId) : null;
+    if (!schoolId || schoolId !== auth.schoolId) {
+      return json({ error: "Kein Zugriff auf diese Klasse" }, 403);
+    }
+  }
 
   switch (action) {
     case "activate":
@@ -167,7 +262,10 @@ Deno.serve(async (req) => {
         path_id, skill_id: body.skill_id, position: count ?? 0,
         origin: "teacher_added", state: "locked",
       });
-      if (error) return json({ error: "Skill konnte nicht ergänzt werden", detail: error.message }, 400);
+      if (error) {
+        console.error("learning-path/add_skill failed:", error);
+        return json({ error: "Skill konnte nicht ergänzt werden" }, 400);
+      }
       return json({ ok: true });
     }
 
@@ -184,10 +282,13 @@ Deno.serve(async (req) => {
 
     case "reorder": {
       const order: string[] = body.skill_ids ?? [];
-      for (let i = 0; i < order.length; i++) {
-        await supabase.from("path_items")
-          .update({ position: i, updated_at: new Date().toISOString() })
-          .eq("path_id", path_id).eq("skill_id", order[i]);
+      const { error } = await supabase.rpc("reorder_path_items", {
+        p_path_id: path_id,
+        p_skill_ids: order,
+      });
+      if (error) {
+        console.error("learning-path/reorder failed:", error);
+        return json({ error: "Reihenfolge konnte nicht gespeichert werden" }, 400);
       }
       return json({ ok: true });
     }

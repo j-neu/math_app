@@ -244,8 +244,31 @@ Deno.serve(async (req) => {
     return json({ error: "Failed to persist Förderplan", detail: pErr?.message }, 500);
   }
 
+  // Create the draft Lernpfad so the teacher finds one waiting rather than
+  // having to ask for it. A failure here must never fail the Förderplan.
+  let learning_path_id: string | null = null;
+  try {
+    const resp = await fetch(
+      `${Deno.env.get("SUPABASE_URL")}/functions/v1/learning-path/generate`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+        },
+        body: JSON.stringify({ session_id }),
+        // Guard against a hung downstream call: never let this stall the
+        // Förderplan response, which must return regardless of path outcome.
+        signal: AbortSignal.timeout(5000),
+      },
+    );
+    if (resp.ok) learning_path_id = (await resp.json()).path_id ?? null;
+  } catch (_e) {
+    learning_path_id = null;
+  }
+
   // Return enriched response with full recommendation objects
-  return json({ ...plan, recommendations });
+  return json({ ...plan, recommendations, learning_path_id });
 });
 
 function json(body: unknown, status = 200) {

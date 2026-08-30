@@ -40,6 +40,7 @@ dependencies:
   intl: ^0.20.2 # Added for localization
   csv: ^6.0.0 # Added for CSV parsing
   shared_preferences: ^2.3.3 # Added for local data persistence
+  synchronized: ^3.4.0 # Added to serialise offline attempt-queue writes per session
   pdf: ^3.10.4
   printing: ^5.11.0
   audioplayers: ^6.0.0

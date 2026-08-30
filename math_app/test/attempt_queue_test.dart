@@ -67,4 +67,23 @@ void main() {
     expect(sent, 0);
     expect(called, isFalse);
   });
+
+  test('concurrent adds for the same session do not clobber each other', () async {
+    final q = AttemptQueue();
+    await Future.wait([
+      for (var i = 0; i < 20; i++) q.add('ps1', attempt(i)),
+    ]);
+    expect((await q.pending('ps1')).length, 20);
+  });
+
+  test('pending() recovers from a corrupted queue entry instead of throwing',
+      () async {
+    SharedPreferences.setMockInitialValues({
+      'attempt_queue_ps1': 'not-json{{{',
+    });
+    final q = AttemptQueue();
+    expect(await q.pending('ps1'), isEmpty);
+    await q.add('ps1', attempt(0));
+    expect((await q.pending('ps1')).length, 1);
+  });
 }

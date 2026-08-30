@@ -5,6 +5,7 @@
 // Returns the full foerderplan row.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { compareRecommendations, splitSkillId } from "../_shared/ordering.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -20,60 +21,6 @@ const DOMAIN_LABELS: Record<string, string> = {
 };
 
 const DOMAIN_PREFIX_PATTERN = /^([A-D])\d/;
-
-// Canonical didactic order of every construct from the construct map
-// (port of math_app/lib/services/skill_recommendation_order.dart, tasks.md R4.2).
-const canonicalConstructOrder = [
-  // Domäne A — Zahlbegriff
-  "A1.1", "A1.2", "A1.3", "A1.4", "A1.5",
-  "A2.1", "A2.2", "A2.3",
-  "A3.1", "A3.2", "A3.3",
-  // Domäne B — Stellenwertverständnis
-  "B1.1", "B1.2", "B1.3",
-  "B2.1", "B2.2", "B2.3",
-  // Domäne C — Rechenstrategien
-  "C1.1", "C1.2", "C1.3",
-  "C2.1", "C2.2", "C2.3",
-  "C3.1", "C3.2", "C3.3", "C3.4",
-  "C4.1", "C4.2",
-  // Domäne D — Sachsituationen
-  "D1.1", "D1.2",
-];
-
-const SKILL_ID_PATTERN = /^([A-D]\d\.\d)(.*)$/;
-
-// Splits a skill ID into (constructId, suffix): `A1.1a` → (`A1.1`, `a`),
-// `C2.2` → (`C2.2`, ``). IDs without a construct prefix are kept whole.
-function splitSkillId(skillId: string): [string, string] {
-  const m = SKILL_ID_PATTERN.exec(skillId);
-  if (!m) return [skillId, ""];
-  return [m[1]!, m[2]!];
-}
-
-// Compares two skill IDs by the documented recommendation order: construct
-// position in canonicalConstructOrder first, then suffix within the same
-// construct (no suffix first, `a` < `b`), then the full ID.
-function compareRecommendations(skillIdA: string, skillIdB: string): number {
-  const [constructA, suffixA] = splitSkillId(skillIdA);
-  const [constructB, suffixB] = splitSkillId(skillIdB);
-
-  if (constructA !== constructB) {
-    const rankA = canonicalConstructOrder.indexOf(constructA);
-    const rankB = canonicalConstructOrder.indexOf(constructB);
-    if (rankA >= 0 && rankB >= 0) return rankA - rankB;
-    if (rankA >= 0) return -1;
-    if (rankB >= 0) return 1;
-    return constructA < constructB ? -1 : constructA > constructB ? 1 : 0;
-  }
-
-  if (suffixA !== suffixB) {
-    if (suffixA === "") return -1;
-    if (suffixB === "") return 1;
-    return suffixA < suffixB ? -1 : suffixA > suffixB ? 1 : 0;
-  }
-
-  return skillIdA < skillIdB ? -1 : skillIdA > skillIdB ? 1 : 0;
-}
 
 // ≥30% of correct answers exceeding threshold → slowResponseFlag
 const SLOW_RESPONSE_FRACTION = 0.30;

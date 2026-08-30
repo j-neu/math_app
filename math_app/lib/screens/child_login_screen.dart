@@ -81,7 +81,16 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
 
   /// A class with Bildfolge switched on goes to the picture step first;
   /// otherwise the tap logs the child straight in.
+  ///
+  /// The `_busy ? null : ...` guard on the tile's `onTap` is only checked
+  /// when the widget tree is built, so two pointer-down events landing in
+  /// the same frame (a child mashing the tablet with two fingers) both call
+  /// this handler with the stale, pre-tap `_busy == false`. This early
+  /// return re-checks synchronously, before any `await`, so the second tap
+  /// of the same frame is rejected even though the build-time guard let it
+  /// through.
   void _tapName(RosterEntry entry) {
+    if (_busy) return;
     if (_roster?.requirePin ?? false) {
       setState(() {
         _pinFor = entry;
@@ -95,6 +104,12 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
   }
 
   Future<void> _login(RosterEntry entry, {String? pin}) async {
+    // Same re-entrancy reasoning as `_tapName`: this must be the very first
+    // line, before the `setState` below, so a second concurrent call (from
+    // a two-finger mash, or `_tapPinSymbol` firing twice) is rejected
+    // synchronously instead of starting a second HTTP login that could
+    // overwrite `_loggedInName`/`_step` with the wrong child's response.
+    if (_busy) return;
     setState(() {
       _busy = true;
       _pendingStudentId = entry.id;
@@ -131,6 +146,11 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
   }
 
   void _tapPinSymbol(String token) {
+    // Already a synchronous re-entrancy guard (checked before any `await`),
+    // same reasoning as `_tapName`/`_login` above: a two-finger tap on the
+    // fourth and final symbol runs both calls back-to-back with no yield in
+    // between, so by the time the second one checks `_pinTokens.length` the
+    // first has already pushed it to `kPinLength`, and this returns.
     if (_busy || _pinTokens.length >= kPinLength) return;
     setState(() {
       _pinTokens.add(token);
@@ -386,6 +406,7 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Container(
+                  key: ValueKey('pin-dot-$i'),
                   width: 20,
                   height: 20,
                   decoration: BoxDecoration(

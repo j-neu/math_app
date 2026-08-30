@@ -123,6 +123,15 @@ void main() {
     expect(find.text('Klassencode'), findsOneWidget);
   });
 
+  /// Reads the fill colour of the four Bildfolge progress dots, in order,
+  /// via the `ValueKey('pin-dot-$i')` on each dot's Container.
+  List<Color?> pinDotColors(WidgetTester tester) => [
+        for (var i = 0; i < kPinLength; i++)
+          (tester.widget<Container>(find.byKey(ValueKey('pin-dot-$i'))).decoration
+                  as BoxDecoration)
+              .color,
+      ];
+
   // ---- Fix round 1: Bildfolge, empty roster, in-flight state, logout ----
 
   StudentAuthService serviceWithPin({int loginStatus = 200, String? capturePin}) =>
@@ -205,6 +214,9 @@ void main() {
     expect(find.text('Deine Bildfolge'), findsOneWidget);
     expect(find.text('Bildfolge stimmt nicht'), findsOneWidget);
     expect(find.text('Hallo Mia!'), findsNothing);
+    // The claim in the test name: the four progress dots actually reset to
+    // empty, not just "the child didn't get logged in".
+    expect(pinDotColors(tester), everyElement(Colors.transparent));
   });
 
   testWidgets('an empty class explains itself instead of showing a blank grid',
@@ -263,6 +275,52 @@ void main() {
     // A RenderFlex overflow reports itself through the error reporter; the
     // absence of exceptions here is the assertion.
     expect(tester.takeException(), isNull);
+  });
+
+  // ---- Fix round 2: two-finger mash on two different names ----
+
+  testWidgets(
+      'a two-finger tap on two different names logs in only the first child, exactly once',
+      (tester) async {
+    var loginCalls = 0;
+    final racyService = StudentAuthService(
+      client: MockClient((req) async {
+        if (req.url.path.endsWith('roster')) {
+          return http.Response(
+            jsonEncode({
+              'class_id': 'c1',
+              'require_pin': false,
+              'students': [
+                {'id': 's1', 'display_name': 'Mia', 'avatar': null},
+                {'id': 's2', 'display_name': 'Jonas', 'avatar': null},
+              ],
+            }),
+            200,
+          );
+        }
+        loginCalls++;
+        final studentId = jsonDecode(req.body)['student_id'] as String;
+        final displayName = studentId == 's1' ? 'Mia' : 'Jonas';
+        return http.Response(
+          jsonEncode({'token': 't', 'student_id': studentId, 'display_name': displayName}),
+          200,
+        );
+      }),
+    );
+
+    await reachRoster(tester, racyService);
+
+    // Two pointer-down events in the same frame, exactly like a child
+    // mashing the tablet with two fingers: no pump() between the two taps,
+    // so both onTap closures run against the widget tree built while
+    // `_busy` was still false.
+    await tester.tap(find.text('Mia'));
+    await tester.tap(find.text('Jonas'));
+    await tester.pumpAndSettle();
+
+    expect(loginCalls, 1);
+    expect(find.text('Hallo Mia!'), findsOneWidget);
+    expect(find.text('Hallo Jonas!'), findsNothing);
   });
 }
 

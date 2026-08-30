@@ -160,7 +160,10 @@ Deno.serve(async (req) => {
       const salt2 = Deno.env.get("PIN_HASH_SALT") ?? "unsalted";
       const supplied = body.pin ? await hashSecret(body.pin, salt2) : null;
       if (!supplied || !pinRow || supplied !== pinRow.pin_hash) {
-        return json({ error: "Bildfolge stimmt nicht" }, 401);
+        return json(
+          { error: "Diese Bilder passen noch nicht zusammen. Versuch es noch einmal." },
+          401,
+        );
       }
     }
 

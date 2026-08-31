@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:math_app/models/user_profile.dart';
 import 'package:math_app/screens/child_login_screen.dart';
+import 'package:math_app/screens/child_path_screen.dart';
 import 'package:math_app/screens/diagnostic_screen.dart';
 import 'package:math_app/screens/learning_path_screen.dart';
 import 'package:math_app/screens/settings_screen.dart';
@@ -50,6 +51,10 @@ final _router = GoRouter(
       path: '/lernen/:slug',
       builder: (context, state) =>
           ChildLoginScreen(schoolSlug: state.pathParameters['slug']!),
+    ),
+    GoRoute(
+      path: '/lernpfad',
+      builder: (context, state) => const ChildPathScreen(),
     ),
   ],
 );

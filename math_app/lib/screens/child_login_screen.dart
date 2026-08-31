@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../services/student_auth_service.dart';
 
 /// Steps, one decision each: type the class code, tap your name, optionally
@@ -617,6 +618,18 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
           style: TextStyle(fontSize: 18),
         ),
         const SizedBox(height: 32),
+        SizedBox(
+          width: double.infinity,
+          height: 56,
+          child: FilledButton(
+            onPressed: () => context.go('/lernpfad'),
+            child: const Text(
+              "Los geht's",
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
         SizedBox(
           height: 48,
           child: TextButton(

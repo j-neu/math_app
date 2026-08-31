@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -100,9 +101,45 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Hallo Mia!'), findsOneWidget);
+    // The welcome step hands off to the learning path with a primary action.
+    expect(find.text("Los geht's"), findsOneWidget);
     // No dead end: pumpAndSettle must terminate (no dangling spinner/timer)
     // and the widget tree must still be present.
     expect(find.byType(ChildLoginScreen), findsOneWidget);
+  });
+
+  testWidgets("after login, 'Los geht's' navigates to /lernpfad", (tester) async {
+    final router = GoRouter(
+      initialLocation: '/lernen/lindenschule',
+      routes: [
+        GoRoute(
+          path: '/lernen/:slug',
+          builder: (context, state) => ChildLoginScreen(
+            schoolSlug: state.pathParameters['slug']!,
+            authService: serviceReturningRoster(),
+          ),
+        ),
+        GoRoute(
+          path: '/lernpfad',
+          builder: (_, __) => const Scaffold(body: Text('lernpfad-stub')),
+        ),
+      ],
+    );
+
+    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+    await tester.enterText(find.byType(TextField), '7K2M');
+    await tester.tap(find.text('Weiter'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Mia'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Hallo Mia!'), findsOneWidget);
+
+    await tester.tap(find.text("Los geht's"));
+    await tester.pumpAndSettle();
+
+    expect(find.text('lernpfad-stub'), findsOneWidget);
+    expect(find.byType(ChildLoginScreen), findsNothing);
   });
 
   testWidgets('roster step has a way back to the code step', (tester) async {

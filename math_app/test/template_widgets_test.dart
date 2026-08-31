@@ -1,13 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:math_app/models/problem.dart';
+import 'package:math_app/widgets/manipulatives/fingerbild.dart';
+import 'package:math_app/widgets/manipulatives/stellenwerttafel.dart';
+import 'package:math_app/widgets/manipulatives/zehnerfeld.dart';
 import 'package:math_app/widgets/templates/answer_pad.dart';
+import 'package:math_app/widgets/templates/bundle_sticks_widget.dart';
 import 'package:math_app/widgets/templates/compare_symbols_widget.dart';
+import 'package:math_app/widgets/templates/drag_partition_widget.dart';
 import 'package:math_app/widgets/templates/equation_gap_widget.dart';
 import 'package:math_app/widgets/templates/equation_solve_widget.dart';
+import 'package:math_app/widgets/templates/fingerbild_read_widget.dart';
+import 'package:math_app/widgets/templates/numberline_locate_widget.dart';
+import 'package:math_app/widgets/templates/numberline_step_widget.dart';
+import 'package:math_app/widgets/templates/picture_compare_widget.dart';
+import 'package:math_app/widgets/templates/place_counters_widget.dart';
+import 'package:math_app/widgets/templates/rekenrek_set_widget.dart';
 import 'package:math_app/widgets/templates/sequence_gap_widget.dart';
+import 'package:math_app/widgets/templates/stellenwerttafel_read_widget.dart';
 import 'package:math_app/widgets/templates/strategy_choice_widget.dart';
 import 'package:math_app/widgets/templates/word_problem_widget.dart';
+import 'package:math_app/widgets/templates/zehnerfeld_read_widget.dart';
 
 Problem _problem({
   required String template,
@@ -639,6 +652,1255 @@ void main() {
       expect(values.last, '');
       await tester.enterText(find.byType(TextField), '4');
       expect(values.last, '4');
+    });
+  });
+
+  group('DragPartitionWidget', () {
+    Problem partitionProblem(int total, int parts, List<String> labels,
+            {String constraint = 'sum'}) =>
+        _problem(
+          template: 'drag_partition',
+          display: {
+            'total': total,
+            'parts': parts,
+            'split_constraint': constraint,
+            'box_labels': labels,
+          },
+        );
+
+    testWidgets('renders the stash and one box per part', (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        DragPartitionWidget(
+          problem: partitionProblem(7, 2, ['', '']),
+          onValueChanged: values.add,
+        ),
+      );
+
+      expect(find.text('0 von 7'), findsOneWidget);
+      expect(find.byKey(const ValueKey('box-add-0')), findsOneWidget);
+      expect(find.byKey(const ValueKey('box-add-1')), findsOneWidget);
+      expect(find.byKey(const ValueKey('box-add-2')), findsNothing);
+      expect(values, isEmpty);
+    });
+
+    testWidgets('box taps add counters and report the joined box counts',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        DragPartitionWidget(
+          problem: partitionProblem(6, 2, ['links', 'rechts']),
+          onValueChanged: values.add,
+        ),
+      );
+
+      expect(find.text('links'), findsOneWidget);
+      expect(find.text('rechts'), findsOneWidget);
+
+      await tester.tap(find.byKey(const ValueKey('box-add-0')));
+      expect(values.last, '1+0');
+      await tester.tap(find.byKey(const ValueKey('box-add-0')));
+      expect(values.last, '2+0');
+      await tester.tap(find.byKey(const ValueKey('box-add-1')));
+      expect(values.last, '2+1');
+      await tester.tap(find.byKey(const ValueKey('box-add-1')));
+      await tester.tap(find.byKey(const ValueKey('box-add-1')));
+      expect(values.last, '2+3');
+    });
+
+    testWidgets('tapping a box counter removes one, empty state reports ""',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        DragPartitionWidget(
+          problem: partitionProblem(5, 2, ['', '']),
+          onValueChanged: values.add,
+        ),
+      );
+
+      await tester.tap(find.byKey(const ValueKey('box-add-0')));
+      await tester.tap(find.byKey(const ValueKey('box-add-0')));
+      expect(values.last, '2+0');
+      await tester.tap(find.byKey(const ValueKey('box-counters-0')));
+      expect(values.last, '1+0');
+      await tester.tap(find.byKey(const ValueKey('box-counters-0')));
+      expect(values.last, '', reason: 'removing the last counter reports ""');
+    });
+
+    testWidgets('cannot place more counters than the stash holds',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        DragPartitionWidget(
+          problem: partitionProblem(5, 2, ['', '']),
+          onValueChanged: values.add,
+        ),
+      );
+
+      for (var i = 0; i < 6; i++) {
+        await tester.tap(find.byKey(const ValueKey('box-add-0')));
+        await tester.pump();
+      }
+      expect(values.last, '5+0', reason: 'the stash caps the placement');
+      expect(find.text('5 von 5'), findsOneWidget);
+    });
+
+    testWidgets('a new problem resets the boxes and reports ""', (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        DragPartitionWidget(
+          problem: partitionProblem(5, 2, ['', '']),
+          onValueChanged: values.add,
+        ),
+      );
+      await tester.tap(find.byKey(const ValueKey('box-add-0')));
+      expect(values.last, '1+0');
+
+      await _pumpApp(
+        tester,
+        DragPartitionWidget(
+          problem: partitionProblem(8, 3, ['', '', '']),
+          onValueChanged: values.add,
+        ),
+      );
+      expect(values.last, '');
+      expect(find.byKey(const ValueKey('box-add-2')), findsOneWidget);
+    });
+  });
+
+  group('PlaceCountersWidget', () {
+    testWidgets('fill renders a ten-frame and reports the filled count',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        PlaceCountersWidget(
+          problem: _problem(
+            template: 'place_counters',
+            display: {'count': 4, 'frame': 'zehnerfeld', 'action': 'fill'},
+            expected: ['4'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      expect(find.byKey(const ValueKey('pc-cell-0')), findsOneWidget);
+      expect(find.byKey(const ValueKey('pc-cell-9')), findsOneWidget);
+      expect(find.byKey(const ValueKey('pc-cell-10')), findsNothing);
+      expect(values, isEmpty, reason: 'nothing filled yet');
+
+      await tester.tap(find.byKey(const ValueKey('pc-cell-0')));
+      await tester.pump();
+      expect(values.last, '1');
+      await tester.tap(find.byKey(const ValueKey('pc-cell-1')));
+      await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('pc-cell-2')));
+      await tester.pump();
+      expect(values.last, '3');
+    });
+
+    testWidgets('tapping a filled cell unfills it and empty reports ""',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        PlaceCountersWidget(
+          problem: _problem(
+            template: 'place_counters',
+            display: {'count': 3, 'frame': 'zehnerfeld', 'action': 'fill'},
+            expected: ['3'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      await tester.tap(find.byKey(const ValueKey('pc-cell-0')));
+      await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('pc-cell-1')));
+      await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('pc-cell-2')));
+      await tester.pump();
+      expect(values.last, '3');
+
+      await tester.tap(find.byKey(const ValueKey('pc-cell-1')));
+      await tester.pump();
+      expect(values.last, '2');
+      await tester.tap(find.byKey(const ValueKey('pc-cell-2')));
+      await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('pc-cell-0')));
+      await tester.pump();
+      expect(values.last, '', reason: 'unfilling the last cell reports ""');
+    });
+
+    testWidgets('take_away starts full, reports remaining, all removed → 0',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        PlaceCountersWidget(
+          problem: _problem(
+            template: 'place_counters',
+            display: {
+              'count': 4,
+              'frame': 'zehnerfeld',
+              'action': 'take_away',
+              'total': 6,
+              'remaining': 2,
+            },
+            expected: ['2'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      expect(values, isEmpty, reason: 'nothing removed yet reports ""');
+      await tester.tap(find.byKey(const ValueKey('pc-cell-0')));
+      await tester.pump();
+      expect(values.last, '5', reason: 'one of six removed leaves five');
+      for (var i = 1; i < 6; i++) {
+        await tester.tap(find.byKey(ValueKey('pc-cell-$i')));
+        await tester.pump();
+      }
+      expect(values.last, '0', reason: 'all removed reports 0');
+    });
+
+    testWidgets('nonstandard mode reports the Z/E pair placed on the table',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        PlaceCountersWidget(
+          problem: _problem(
+            template: 'place_counters',
+            display: {
+              'count': 23,
+              'frame': 'stellenwerttafel',
+              'action': 'fill',
+              'mode': 'nonstandard',
+              'tens': 1,
+              'ones': 13,
+            },
+            expected: ['23'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      expect(find.text('Z'), findsOneWidget);
+      expect(find.text('E'), findsOneWidget);
+      expect(values, isEmpty);
+
+      await tester.tap(find.byKey(const ValueKey('swt-z-add')));
+      await tester.pump();
+      expect(values.last, '1 0');
+      await tester.tap(find.byKey(const ValueKey('swt-e-add')));
+      await tester.pump();
+      expect(values.last, '1 1');
+      await tester.tap(find.byKey(const ValueKey('swt-e-counters')));
+      await tester.pump();
+      expect(values.last, '1 0');
+      await tester.tap(find.byKey(const ValueKey('swt-z-counters')));
+      await tester.pump();
+      expect(values.last, '', reason: 'removing the last counter reports ""');
+    });
+
+    testWidgets('a new problem resets the frame and reports ""', (tester) async {
+      final values = <String>[];
+      final first = _problem(
+        template: 'place_counters',
+        display: {'count': 4, 'frame': 'zehnerfeld', 'action': 'fill'},
+        expected: ['4'],
+      );
+      final second = _problem(
+        template: 'place_counters',
+        display: {'count': 2, 'frame': 'rekenrek', 'action': 'fill'},
+        expected: ['2'],
+      );
+      await _pumpApp(
+        tester,
+        PlaceCountersWidget(problem: first, onValueChanged: values.add),
+      );
+      await tester.tap(find.byKey(const ValueKey('pc-cell-0')));
+      await tester.pump();
+      expect(values.last, '1');
+
+      await _pumpApp(
+        tester,
+        PlaceCountersWidget(problem: second, onValueChanged: values.add),
+      );
+      expect(values.last, '');
+      expect(find.byKey(const ValueKey('pc-cell-19')), findsOneWidget,
+          reason: 'the rekenrek frame has 20 cells');
+    });
+  });
+
+  group('BundleSticksWidget', () {
+    testWidgets('renders one tappable stick per count', (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        BundleSticksWidget(
+          problem: _problem(
+            template: 'bundle_sticks',
+            display: {'count': 15, 'bundles': 1, 'singles': 5},
+            expected: ['1 Zehner, 5 Einer'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      expect(find.byKey(const ValueKey('stick-0')), findsOneWidget);
+      expect(find.byKey(const ValueKey('stick-14')), findsOneWidget);
+      expect(find.byKey(const ValueKey('stick-15')), findsNothing);
+      expect(find.byKey(const ValueKey('bundle-0')), findsNothing);
+      expect(values, isEmpty, reason: 'nothing bundled yet');
+    });
+
+    testWidgets('tapping sticks bundles tens and reports the Z/E split',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        BundleSticksWidget(
+          problem: _problem(
+            template: 'bundle_sticks',
+            display: {'count': 25, 'bundles': 2, 'singles': 5},
+            expected: ['2 Zehner, 5 Einer'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      await tester.tap(find.byKey(const ValueKey('stick-0')));
+      await tester.pump();
+      expect(values.last, '1 Zehner, 15 Einer');
+      await tester.tap(find.byKey(const ValueKey('stick-0')));
+      await tester.pump();
+      expect(values.last, '2 Zehner, 5 Einer');
+    });
+
+    testWidgets('tapping a bundle unbundles it, empty state reports ""',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        BundleSticksWidget(
+          problem: _problem(
+            template: 'bundle_sticks',
+            display: {'count': 25, 'bundles': 2, 'singles': 5},
+            expected: ['2 Zehner, 5 Einer'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      await tester.tap(find.byKey(const ValueKey('stick-0')));
+      await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('stick-0')));
+      await tester.pump();
+      expect(values.last, '2 Zehner, 5 Einer');
+
+      await tester.tap(find.byKey(const ValueKey('bundle-0')));
+      await tester.pump();
+      expect(values.last, '1 Zehner, 15 Einer');
+      await tester.tap(find.byKey(const ValueKey('bundle-0')));
+      await tester.pump();
+      expect(values.last, '', reason: 'no bundles left reports ""');
+    });
+
+    testWidgets('boundary: 39 sticks bundle to 3 Zehner and 9 Einer',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        BundleSticksWidget(
+          problem: _problem(
+            template: 'bundle_sticks',
+            display: {'count': 39, 'bundles': 3, 'singles': 9},
+            expected: ['3 Zehner, 9 Einer'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      for (var i = 0; i < 4; i++) {
+        await tester.tap(find.byKey(const ValueKey('stick-0')));
+        await tester.pump();
+      }
+      expect(values.last, '3 Zehner, 9 Einer',
+          reason: 'a fourth bundle is impossible with only 9 singles left');
+    });
+
+    testWidgets('a new problem resets the bundles and reports ""',
+        (tester) async {
+      final values = <String>[];
+      final first = _problem(
+        template: 'bundle_sticks',
+        display: {'count': 15, 'bundles': 1, 'singles': 5},
+        expected: ['1 Zehner, 5 Einer'],
+      );
+      final second = _problem(
+        template: 'bundle_sticks',
+        display: {'count': 12, 'bundles': 1, 'singles': 2},
+        expected: ['1 Zehner, 2 Einer'],
+      );
+      await _pumpApp(
+        tester,
+        BundleSticksWidget(problem: first, onValueChanged: values.add),
+      );
+      await tester.tap(find.byKey(const ValueKey('stick-0')));
+      await tester.pump();
+      expect(values.last, '1 Zehner, 5 Einer');
+
+      await _pumpApp(
+        tester,
+        BundleSticksWidget(problem: second, onValueChanged: values.add),
+      );
+      expect(values.last, '');
+      expect(find.byKey(const ValueKey('bundle-0')), findsNothing);
+    });
+  });
+
+  group('RekenrekSetWidget', () {
+    testWidgets('renders two rods of ten beads and reports the moved count',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        RekenrekSetWidget(
+          problem: _problem(
+            template: 'rekenrek_set',
+            display: {'count': 8, 'rows': 2},
+            expected: ['8'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      expect(find.byKey(const ValueKey('bead-top-0')), findsOneWidget);
+      expect(find.byKey(const ValueKey('bead-top-9')), findsOneWidget);
+      expect(find.byKey(const ValueKey('bead-bottom-9')), findsOneWidget);
+      expect(values, isEmpty, reason: 'no bead moved yet');
+
+      await tester.tap(find.byKey(const ValueKey('bead-top-2')));
+      await tester.pump();
+      expect(values.last, '3');
+      await tester.tap(find.byKey(const ValueKey('bead-bottom-1')));
+      await tester.pump();
+      expect(values.last, '5');
+    });
+
+    testWidgets('tapping a moved bead slides it back', (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        RekenrekSetWidget(
+          problem: _problem(
+            template: 'rekenrek_set',
+            display: {'count': 6, 'rows': 2},
+            expected: ['6'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      await tester.tap(find.byKey(const ValueKey('bead-top-2')));
+      await tester.pump();
+      expect(values.last, '3');
+      await tester.tap(find.byKey(const ValueKey('bead-top-2')));
+      await tester.pump();
+      expect(values.last, '2', reason: 'beads 0..2 slide back to 0..1');
+
+      await tester.tap(find.byKey(const ValueKey('bead-top-1')));
+      await tester.pump();
+      expect(values.last, '1');
+      await tester.tap(find.byKey(const ValueKey('bead-top-0')));
+      await tester.pump();
+      expect(values.last, '', reason: 'the last moved bead returns reports ""');
+    });
+
+    testWidgets('boundary: all 20 beads moved reports 20/20', (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        RekenrekSetWidget(
+          problem: _problem(
+            template: 'rekenrek_set',
+            display: {'count': 20, 'rows': 2},
+            expected: ['20'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      for (var i = 0; i < 10; i++) {
+        await tester.tap(find.byKey(ValueKey('bead-top-$i')));
+        await tester.pump();
+      }
+      for (var i = 0; i < 10; i++) {
+        await tester.tap(find.byKey(ValueKey('bead-bottom-$i')));
+        await tester.pump();
+      }
+      expect(values.last, '20');
+    });
+
+    testWidgets('rows: 1 renders a single rod', (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        RekenrekSetWidget(
+          problem: _problem(
+            template: 'rekenrek_set',
+            display: {'count': 4, 'rows': 1},
+            expected: ['4'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      expect(find.byKey(const ValueKey('bead-top-9')), findsOneWidget);
+      expect(find.byKey(const ValueKey('bead-bottom-0')), findsNothing);
+      await tester.tap(find.byKey(const ValueKey('bead-top-3')));
+      await tester.pump();
+      expect(values.last, '4');
+    });
+
+    testWidgets('a new problem resets the beads and reports ""', (tester) async {
+      final values = <String>[];
+      final first = _problem(
+        template: 'rekenrek_set',
+        display: {'count': 6, 'rows': 2},
+        expected: ['6'],
+      );
+      final second = _problem(
+        template: 'rekenrek_set',
+        display: {'count': 9, 'rows': 2},
+        expected: ['9'],
+      );
+      await _pumpApp(
+        tester,
+        RekenrekSetWidget(problem: first, onValueChanged: values.add),
+      );
+      await tester.tap(find.byKey(const ValueKey('bead-top-2')));
+      await tester.pump();
+      expect(values.last, '3');
+
+      await _pumpApp(
+        tester,
+        RekenrekSetWidget(problem: second, onValueChanged: values.add),
+      );
+      expect(values.last, '');
+    });
+  });
+
+  group('NumberlineStepWidget', () {
+    double dxForValue(
+      WidgetTester tester,
+      int value,
+      int lo,
+      int hi,
+    ) {
+      final rect = tester.getRect(
+        find.byKey(const ValueKey('numberline-step-line')),
+      );
+      return rect.left +
+          16 +
+          (rect.width - 32) * (value - lo) / (hi - lo);
+    }
+
+    testWidgets('renders the line and reports the tapped run in order',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        NumberlineStepWidget(
+          problem: _problem(
+            template: 'numberline_step',
+            display: {
+              'range': [0, 20],
+              'start': 10,
+              'target': 13,
+              'step': 1,
+              'direction': 'up',
+            },
+            expected: ['11', '12', '13'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      final line = tester.getRect(
+        find.byKey(const ValueKey('numberline-step-line')),
+      );
+      expect(values, isEmpty, reason: 'no tick tapped yet');
+
+      await tester.tapAt(Offset(dxForValue(tester, 11, 0, 20), line.center.dy));
+      await tester.pump();
+      expect(values.last, '11');
+      await tester.tapAt(Offset(dxForValue(tester, 12, 0, 20), line.center.dy));
+      await tester.pump();
+      expect(values.last, '11,12');
+      await tester.tapAt(Offset(dxForValue(tester, 13, 0, 20), line.center.dy));
+      await tester.pump();
+      expect(values.last, '11,12,13', reason: 'full run once the target is hit');
+    });
+
+    testWidgets('only the next required tick registers; wrong taps are ignored',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        NumberlineStepWidget(
+          problem: _problem(
+            template: 'numberline_step',
+            display: {
+              'range': [0, 20],
+              'start': 10,
+              'target': 13,
+              'step': 1,
+              'direction': 'up',
+            },
+            expected: ['11', '12', '13'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      final line = tester.getRect(
+        find.byKey(const ValueKey('numberline-step-line')),
+      );
+      await tester.tapAt(Offset(dxForValue(tester, 15, 0, 20), line.center.dy));
+      await tester.pump();
+      expect(values, isEmpty, reason: 'tapping ahead of the run is ignored');
+      await tester.tapAt(Offset(dxForValue(tester, 13, 0, 20), line.center.dy));
+      await tester.pump();
+      expect(values, isEmpty, reason: 'tapping the target first is ignored');
+
+      await tester.tapAt(Offset(dxForValue(tester, 11, 0, 20), line.center.dy));
+      await tester.pump();
+      await tester.tapAt(Offset(dxForValue(tester, 11, 0, 20), line.center.dy));
+      await tester.pump();
+      expect(values.last, '11', reason: 're-tapping the same tick does nothing');
+      await tester.tapAt(Offset(dxForValue(tester, 13, 0, 20), line.center.dy));
+      await tester.pump();
+      expect(values.last, '11', reason: 'skipping 12 keeps the run at 11');
+    });
+
+    testWidgets('direction down reports the descending run', (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        NumberlineStepWidget(
+          problem: _problem(
+            template: 'numberline_step',
+            display: {
+              'range': [0, 20],
+              'start': 15,
+              'target': 12,
+              'step': 1,
+              'direction': 'down',
+            },
+            expected: ['14', '13', '12'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      final line = tester.getRect(
+        find.byKey(const ValueKey('numberline-step-line')),
+      );
+      await tester.tapAt(Offset(dxForValue(tester, 14, 0, 20), line.center.dy));
+      await tester.pump();
+      await tester.tapAt(Offset(dxForValue(tester, 13, 0, 20), line.center.dy));
+      await tester.pump();
+      await tester.tapAt(Offset(dxForValue(tester, 12, 0, 20), line.center.dy));
+      await tester.pump();
+      expect(values.last, '14,13,12');
+    });
+
+    testWidgets('step 2 taps every other number', (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        NumberlineStepWidget(
+          problem: _problem(
+            template: 'numberline_step',
+            display: {
+              'range': [0, 20],
+              'start': 6,
+              'target': 12,
+              'step': 2,
+              'direction': 'up',
+            },
+            expected: ['8', '10', '12'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      final line = tester.getRect(
+        find.byKey(const ValueKey('numberline-step-line')),
+      );
+      for (final v in [8, 10, 12]) {
+        await tester.tapAt(Offset(dxForValue(tester, v, 0, 20), line.center.dy));
+        await tester.pump();
+      }
+      expect(values.last, '8,10,12');
+    });
+
+    testWidgets('a new problem resets the run and reports ""', (tester) async {
+      final values = <String>[];
+      final first = _problem(
+        template: 'numberline_step',
+        display: {
+          'range': [0, 20],
+          'start': 10,
+          'target': 13,
+          'step': 1,
+          'direction': 'up',
+        },
+        expected: ['11', '12', '13'],
+      );
+      final second = _problem(
+        template: 'numberline_step',
+        display: {
+          'range': [0, 20],
+          'start': 5,
+          'target': 8,
+          'step': 1,
+          'direction': 'up',
+        },
+        expected: ['6', '7', '8'],
+      );
+      await _pumpApp(
+        tester,
+        NumberlineStepWidget(problem: first, onValueChanged: values.add),
+      );
+      final lineRect = tester.getRect(
+        find.byKey(const ValueKey('numberline-step-line')),
+      );
+      await tester.tapAt(
+        Offset(dxForValue(tester, 11, 0, 20), lineRect.center.dy),
+      );
+      await tester.pump();
+      expect(values.last, '11');
+
+      await _pumpApp(
+        tester,
+        NumberlineStepWidget(problem: second, onValueChanged: values.add),
+      );
+      expect(values.last, '');
+    });
+  });
+
+  group('ZehnerfeldReadWidget', () {
+    testWidgets('structured renders one filled frame and reports the typed count',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        ZehnerfeldReadWidget(
+          problem: _problem(
+            template: 'zehnerfeld_read',
+            display: {'count': 7, 'arrangement': 'structured'},
+            expected: ['7'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      expect(find.byType(ZehnerfeldWidget), findsOneWidget);
+      expect(values, isEmpty);
+
+      await tester.enterText(find.byType(TextField), '7');
+      expect(values.last, '7');
+    });
+
+    testWidgets('two_groups renders both frames and stays editable for retry',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        ZehnerfeldReadWidget(
+          problem: _problem(
+            template: 'zehnerfeld_read',
+            display: {
+              'count': 17,
+              'arrangement': 'two_groups',
+              'ask': 'total',
+              'split': [10, 7],
+            },
+            expected: ['17'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      expect(find.byType(ZehnerfeldWidget), findsNWidgets(2));
+      await tester.enterText(find.byType(TextField), '17');
+      expect(values.last, '17');
+      await tester.enterText(find.byType(TextField), '');
+      expect(values.last, '');
+      await tester.enterText(find.byType(TextField), '16');
+      expect(values.last, '16');
+    });
+
+    testWidgets('a new problem clears the field and reports ""', (tester) async {
+      final values = <String>[];
+      final first = _problem(
+        template: 'zehnerfeld_read',
+        display: {'count': 7, 'arrangement': 'structured'},
+        expected: ['7'],
+      );
+      final second = _problem(
+        template: 'zehnerfeld_read',
+        display: {'count': 4, 'arrangement': 'structured'},
+        expected: ['4'],
+      );
+      await _pumpApp(
+        tester,
+        ZehnerfeldReadWidget(problem: first, onValueChanged: values.add),
+      );
+      await tester.enterText(find.byType(TextField), '7');
+      expect(values.last, '7');
+
+      await _pumpApp(
+        tester,
+        ZehnerfeldReadWidget(problem: second, onValueChanged: values.add),
+      );
+      expect(values.last, '');
+    });
+  });
+
+  group('FingerbildReadWidget', () {
+    testWidgets('renders the fingers and reports the typed count',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        FingerbildReadWidget(
+          problem: _problem(
+            template: 'fingerbild_read',
+            display: {'count': 7, 'hands': 2},
+            expected: ['7'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      expect(find.byType(FingerBildWidget), findsOneWidget);
+      expect(values, isEmpty);
+
+      await tester.enterText(find.byType(TextField), '7');
+      expect(values.last, '7');
+    });
+
+    testWidgets('hands: 1 renders the count on a single hand', (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        FingerbildReadWidget(
+          problem: _problem(
+            template: 'fingerbild_read',
+            display: {'count': 4, 'hands': 1},
+            expected: ['4'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      final widget = tester.widget<FingerBildWidget>(
+        find.byType(FingerBildWidget),
+      );
+      expect(widget.leftCount, 4);
+      expect(widget.rightCount, 0);
+      await tester.enterText(find.byType(TextField), '4');
+      expect(values.last, '4');
+    });
+
+    testWidgets('a new problem clears the field and reports ""', (tester) async {
+      final values = <String>[];
+      final first = _problem(
+        template: 'fingerbild_read',
+        display: {'count': 7, 'hands': 2},
+        expected: ['7'],
+      );
+      final second = _problem(
+        template: 'fingerbild_read',
+        display: {'count': 3, 'hands': 1},
+        expected: ['3'],
+      );
+      await _pumpApp(
+        tester,
+        FingerbildReadWidget(problem: first, onValueChanged: values.add),
+      );
+      await tester.enterText(find.byType(TextField), '7');
+      expect(values.last, '7');
+
+      await _pumpApp(
+        tester,
+        FingerbildReadWidget(problem: second, onValueChanged: values.add),
+      );
+      expect(values.last, '');
+    });
+  });
+
+  group('StellenwerttafelReadWidget', () {
+    testWidgets('mode read renders the table and reports the typed number',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        StellenwerttafelReadWidget(
+          problem: _problem(
+            template: 'stellenwerttafel_read',
+            display: {
+              'mode': 'read',
+              'columns': ['Z', 'E'],
+              'number': 47,
+              'tens': 4,
+              'ones': 7,
+            },
+            expected: ['47'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      expect(find.byType(StellenwerttafelWidget), findsOneWidget);
+      final inTable = find.descendant(
+        of: find.byType(StellenwerttafelWidget),
+        matching: find.byType(Text),
+      );
+      expect(inTable, findsNWidgets(4));
+      expect(
+        find.descendant(
+          of: find.byType(StellenwerttafelWidget),
+          matching: find.text('4'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: find.byType(StellenwerttafelWidget),
+          matching: find.text('7'),
+        ),
+        findsOneWidget,
+      );
+      expect(values, isEmpty);
+
+      await tester.enterText(find.byType(TextField), '47');
+      expect(values.last, '47');
+    });
+
+    testWidgets('mode sum_rows renders two counter rows and a plus sign',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        StellenwerttafelReadWidget(
+          problem: _problem(
+            template: 'stellenwerttafel_read',
+            display: {
+              'mode': 'sum_rows',
+              'op': '+',
+              'columns': ['Z', 'E'],
+              'row1': [2, 4],
+              'row2': [1, 3],
+              'value': 37,
+            },
+            expected: ['37'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      expect(find.text('+'), findsOneWidget);
+      await tester.enterText(find.byType(TextField), '37');
+      expect(values.last, '37');
+    });
+
+    testWidgets('mode sum_rows with minus subtracts column-wise',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        StellenwerttafelReadWidget(
+          problem: _problem(
+            template: 'stellenwerttafel_read',
+            display: {
+              'mode': 'sum_rows',
+              'op': '-',
+              'columns': ['Z', 'E'],
+              'row1': [5, 6],
+              'row2': [2, 3],
+              'value': 33,
+            },
+            expected: ['33'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      expect(find.text('-'), findsOneWidget);
+      await tester.enterText(find.byType(TextField), '33');
+      expect(values.last, '33');
+      await tester.enterText(find.byType(TextField), '');
+      expect(values.last, '');
+      await tester.enterText(find.byType(TextField), '34');
+      expect(values.last, '34');
+    });
+
+    testWidgets('a new problem clears the field and reports ""', (tester) async {
+      final values = <String>[];
+      final first = _problem(
+        template: 'stellenwerttafel_read',
+        display: {
+          'mode': 'read',
+          'columns': ['Z', 'E'],
+          'number': 47,
+          'tens': 4,
+          'ones': 7,
+        },
+        expected: ['47'],
+      );
+      final second = _problem(
+        template: 'stellenwerttafel_read',
+        display: {
+          'mode': 'sum_rows',
+          'op': '+',
+          'columns': ['Z', 'E'],
+          'row1': [2, 4],
+          'row2': [1, 3],
+          'value': 37,
+        },
+        expected: ['37'],
+      );
+      await _pumpApp(
+        tester,
+        StellenwerttafelReadWidget(problem: first, onValueChanged: values.add),
+      );
+      await tester.enterText(find.byType(TextField), '47');
+      expect(values.last, '47');
+
+      await _pumpApp(
+        tester,
+        StellenwerttafelReadWidget(problem: second, onValueChanged: values.add),
+      );
+      expect(values.last, '');
+    });
+  });
+
+  group('NumberlineLocateWidget', () {
+    Offset pointFor(WidgetTester tester, int value, int lo, int hi) {
+      final rect = tester.getRect(
+        find.byKey(const ValueKey('numberline-locate-line')),
+      );
+      final dx =
+          rect.left + 16 + (rect.width - 32) * (value - lo) / (hi - lo);
+      return Offset(dx, rect.center.dy);
+    }
+
+    testWidgets('tapping snaps to the nearest tick and reports the value',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        NumberlineLocateWidget(
+          problem: _problem(
+            template: 'numberline_locate',
+            display: {
+              'range': [0, 100],
+              'value': 64,
+            },
+            expected: ['64'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      expect(values, isEmpty, reason: 'nothing tapped yet');
+
+      await tester.tapAt(pointFor(tester, 64, 0, 100));
+      await tester.pump();
+      expect(values.last, '64');
+
+      await tester.tapAt(pointFor(tester, 25, 0, 100));
+      await tester.pump();
+      expect(values.last, '25', reason: 're-tapping moves the marker');
+    });
+
+    testWidgets('boundary: tapping the very edge snaps to the clamped endpoint',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        NumberlineLocateWidget(
+          problem: _problem(
+            template: 'numberline_locate',
+            display: {
+              'range': [0, 100],
+              'value': 50,
+            },
+            expected: ['50'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      final rect = tester.getRect(
+        find.byKey(const ValueKey('numberline-locate-line')),
+      );
+      await tester.tapAt(Offset(rect.left, rect.center.dy));
+      await tester.pump();
+      expect(values.last, '0', reason: 'the left edge clamps to rangeLo');
+      await tester.tapAt(Offset(rect.right - 1, rect.center.dy));
+      await tester.pump();
+      expect(values.last, '100', reason: 'the right edge clamps to rangeHi');
+    });
+
+    testWidgets('a new problem clears the marker and reports ""',
+        (tester) async {
+      final values = <String>[];
+      final first = _problem(
+        template: 'numberline_locate',
+        display: {
+          'range': [0, 100],
+          'value': 64,
+        },
+        expected: ['64'],
+      );
+      final second = _problem(
+        template: 'numberline_locate',
+        display: {
+          'range': [0, 20],
+          'value': 8,
+        },
+        expected: ['8'],
+      );
+      await _pumpApp(
+        tester,
+        NumberlineLocateWidget(problem: first, onValueChanged: values.add),
+      );
+      await tester.tapAt(pointFor(tester, 64, 0, 100));
+      await tester.pump();
+      expect(values.last, '64');
+
+      await _pumpApp(
+        tester,
+        NumberlineLocateWidget(problem: second, onValueChanged: values.add),
+      );
+      expect(values.last, '');
+      expect(tester.getRect(find.byKey(const ValueKey('numberline-locate-line'))),
+          isNot(equals(Rect.zero)));
+    });
+  });
+
+  group('PictureCompareWidget', () {
+    testWidgets('question more renders both frames and reports the tapped side',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        PictureCompareWidget(
+          problem: _problem(
+            template: 'picture_compare',
+            display: {'left': 8, 'right': 5, 'question': 'more'},
+            expected: ['left'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      expect(find.byType(ZehnerfeldWidget), findsNWidgets(2));
+      expect(find.text('links'), findsOneWidget);
+      expect(find.text('rechts'), findsOneWidget);
+      expect(values, isEmpty, reason: 'nothing tapped yet');
+
+      await tester.tap(find.byKey(const ValueKey('compare-left')));
+      await tester.pump();
+      expect(values.last, 'left');
+      await tester.tap(find.byKey(const ValueKey('compare-right')));
+      await tester.pump();
+      expect(values.last, 'right', reason: 're-tapping the other side re-picks');
+    });
+
+    testWidgets('question less reports the smaller side', (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        PictureCompareWidget(
+          problem: _problem(
+            template: 'picture_compare',
+            display: {'left': 3, 'right': 9, 'question': 'less'},
+            expected: ['left'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      await tester.tap(find.byKey(const ValueKey('compare-left')));
+      await tester.pump();
+      expect(values.last, 'left');
+      expect(find.text('links ✓'), findsOneWidget,
+          reason: 'the selection is signalled with a check mark');
+    });
+
+    testWidgets('question difference types |left - right|', (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        PictureCompareWidget(
+          problem: _problem(
+            template: 'picture_compare',
+            display: {'left': 1, 'right': 10, 'question': 'difference'},
+            expected: ['9'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      expect(find.byType(ZehnerfeldWidget), findsNWidgets(2));
+      await tester.enterText(find.byType(TextField), '9');
+      expect(values.last, '9');
+      await tester.enterText(find.byType(TextField), '');
+      expect(values.last, '');
+      await tester.enterText(find.byType(TextField), '8');
+      expect(values.last, '8');
+    });
+
+    testWidgets('a new problem resets the selection and reports ""',
+        (tester) async {
+      final values = <String>[];
+      final first = _problem(
+        template: 'picture_compare',
+        display: {'left': 8, 'right': 5, 'question': 'more'},
+        expected: ['left'],
+      );
+      final second = _problem(
+        template: 'picture_compare',
+        display: {'left': 2, 'right': 7, 'question': 'less'},
+        expected: ['right'],
+      );
+      await _pumpApp(
+        tester,
+        PictureCompareWidget(problem: first, onValueChanged: values.add),
+      );
+      await tester.tap(find.byKey(const ValueKey('compare-left')));
+      await tester.pump();
+      expect(values.last, 'left');
+
+      await _pumpApp(
+        tester,
+        PictureCompareWidget(problem: second, onValueChanged: values.add),
+      );
+      expect(values.last, '');
+      expect(find.text('links ✓'), findsNothing);
     });
   });
 }

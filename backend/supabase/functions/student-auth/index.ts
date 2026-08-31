@@ -3,8 +3,10 @@
 // POST /student-auth/roster  { school_slug, class_code } → class roster
 // POST /student-auth/login   { student_id, pin? }        → student JWT
 //
-// Rate limited per hashed client IP. Never returns anything about a child
-// beyond display_name and avatar.
+// Rate limited per hashed client IP, AND per a second, IP-independent
+// dimension (class_code for /roster, student_id for /login) — see
+// checkRateLimit. Never returns anything about a child beyond
+// display_name and avatar.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { hashIp, hashSecret, isValidCodeShape, normaliseCode } from "../_shared/codes.ts";
@@ -32,32 +34,70 @@ const STUDENT_JWT_SECRET = requireEnv("STUDENT_JWT_SECRET");
 // deno-lint-ignore no-explicit-any
 type Db = any;
 
+// One of the two dimensions checkRateLimit throttles on, in addition to the
+// IP hash: the /roster class_code being guessed, or the /login student_id
+// being PIN-guessed. Absent when the request didn't supply enough to key on
+// (e.g. no class_code at all) — such requests still fail their own
+// validation moments later, so skipping the secondary check for them loses
+// nothing.
+type SecondaryKey = { column: "class_code" | "student_id"; value: string } | null;
+
+async function countFailures(
+  supabase: Db,
+  column: "ip_hash" | "class_code" | "student_id",
+  value: string,
+  since: string,
+): Promise<number> {
+  const { count } = await supabase
+    .from("login_attempts")
+    .select("id", { count: "exact", head: true })
+    .eq(column, value)
+    .eq("succeeded", false)
+    .gte("attempted_at", since);
+  return count ?? 0;
+}
+
 // Records this attempt as a provisional failure FIRST, then evaluates the
 // failure count against it — so a concurrent burst cannot all read a stale
 // count before any of them has recorded itself (the previous count-then-
 // insert order let parallel requests all observe the same stale zero).
 // Because this request's own row is already counted, the threshold compares
 // with `>` rather than `>=` to keep the same effective cap of 10.
+//
+// Checks TWO independent dimensions and blocks if either trips:
+//   - ip_hash, as before.
+//   - `secondary` (class_code or student_id), which does not depend on any
+//     client-supplied network header. The IP-hash check is correct today
+//     (see the doc comment on the x-forwarded-for line below) but that
+//     correctness rests entirely on undocumented gateway behaviour; this is
+//     the backstop for the day that assumption stops holding, or for a
+//     client that reaches this function by some other path entirely.
 async function checkRateLimit(
   supabase: Db,
   ipHash: string,
   schoolSlug: string | null,
+  secondary: SecondaryKey,
 ): Promise<{ blocked: true } | { blocked: false; markSucceeded: () => Promise<unknown> }> {
   const { data: attemptRow } = await supabase
     .from("login_attempts")
-    .insert({ ip_hash: ipHash, school_slug: schoolSlug, succeeded: false })
+    .insert({
+      ip_hash: ipHash,
+      school_slug: schoolSlug,
+      class_code: secondary?.column === "class_code" ? secondary.value : null,
+      student_id: secondary?.column === "student_id" ? secondary.value : null,
+      succeeded: false,
+    })
     .select("id")
     .single();
 
   const since = new Date(Date.now() - WINDOW_MINUTES * 60_000).toISOString();
-  const { count: failures } = await supabase
-    .from("login_attempts")
-    .select("id", { count: "exact", head: true })
-    .eq("ip_hash", ipHash)
-    .eq("succeeded", false)
-    .gte("attempted_at", since);
 
-  if ((failures ?? 0) > MAX_FAILURES_PER_WINDOW) {
+  const ipFailures = await countFailures(supabase, "ip_hash", ipHash, since);
+  const secondaryFailures = secondary
+    ? await countFailures(supabase, secondary.column, secondary.value, since)
+    : 0;
+
+  if (ipFailures > MAX_FAILURES_PER_WINDOW || secondaryFailures > MAX_FAILURES_PER_WINDOW) {
     return { blocked: true };
   }
 
@@ -91,6 +131,13 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
+  // The gateway in front of this function prepends its own trusted value as
+  // the FIRST hop of x-forwarded-for, so the leftmost entry is the genuine
+  // client IP, not attacker-controlled — verified empirically 2026-08-31 by
+  // forging x-forwarded-for (and omitting it) against the live deployed
+  // function: the rate limiter still tripped correctly in every case.
+  // Do NOT "fix" this to read the rightmost hop or add proxy-count logic;
+  // that would break the correct behaviour this comment is protecting.
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   const ipHash = await hashIp(ip, IP_HASH_SALT);
 
@@ -105,7 +152,14 @@ Deno.serve(async (req) => {
 
   // ── /roster ────────────────────────────────────────────────────────────────
   if (path === "roster") {
-    const limit = await checkRateLimit(supabase, ipHash, body.school_slug ?? null);
+    // Keyed on the class_code being attempted, not just the caller's IP —
+    // 31^4 = 923,521 possible codes makes this the actual brute-force
+    // target. Only set when a code was supplied at all; a request missing
+    // one fails validation two lines down regardless.
+    const classCode = body.class_code ? normaliseCode(body.class_code) : null;
+    const secondary: SecondaryKey = classCode ? { column: "class_code", value: classCode } : null;
+
+    const limit = await checkRateLimit(supabase, ipHash, body.school_slug ?? null, secondary);
     if (limit.blocked) {
       return json({ error: "Zu viele Versuche. Bitte später noch einmal probieren." }, 429);
     }
@@ -155,7 +209,18 @@ Deno.serve(async (req) => {
 
   // ── /login ─────────────────────────────────────────────────────────────────
   if (path === "login") {
-    const limit = await checkRateLimit(supabase, ipHash, null);
+    // Keyed on the student_id being PIN-guessed, not just the caller's IP —
+    // a 4-symbol picture PIN drawn from 8 glyphs is at most 4096
+    // combinations, so this is the actual brute-force target. student_id is
+    // an unguessable UUID obtainable only via the separately rate-limited
+    // /roster endpoint, so keying on it (even before we know it's real)
+    // correctly throttles guesses against one real, discovered student.
+    const studentIdKey = body.student_id ? String(body.student_id) : null;
+    const secondary: SecondaryKey = studentIdKey
+      ? { column: "student_id", value: studentIdKey }
+      : null;
+
+    const limit = await checkRateLimit(supabase, ipHash, null, secondary);
     if (limit.blocked) {
       return json({ error: "Zu viele Versuche. Bitte später noch einmal probieren." }, 429);
     }

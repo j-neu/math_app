@@ -21,6 +21,12 @@ const corsHeaders = {
 const MAX_FAILURES_PER_WINDOW = 10;
 const WINDOW_MINUTES = 15;
 
+// A generic, friendly, blame-free message shared by both /login failure
+// branches below (unknown student, wrong PIN) — the spec requires failures
+// to be indistinguishable, and this is the wording a real child actually
+// sees, so it stays friendly rather than technical.
+const LOGIN_FAILURE_MESSAGE = "Diese Bilder passen noch nicht zusammen. Versuch es noch einmal.";
+
 // ── Required secrets ─────────────────────────────────────────────────────
 // Read once at module scope. These are custom, developer-managed secrets
 // (via `supabase secrets set`) — unlike SUPABASE_URL/SUPABASE_*_KEY, the
@@ -235,8 +241,14 @@ Deno.serve(async (req) => {
       .eq("id", body.student_id)
       .maybeSingle();
 
+    // An unknown student and a wrong PIN must be indistinguishable to the
+    // caller (same status, same message) — student_id is an unguessable
+    // UUID reachable only through the rate-limited roster, so this branch
+    // is reached only by a stale/mistyped id, never a real guessing attack.
+    // Kept friendly and non-blaming since a real child does land here on an
+    // ordinary wrong-PIN attempt.
     if (!student) {
-      return json({ error: "Anmeldung nicht möglich" }, 404);
+      return json({ error: LOGIN_FAILURE_MESSAGE }, 401);
     }
 
     // deno-lint-ignore no-explicit-any
@@ -253,10 +265,7 @@ Deno.serve(async (req) => {
 
       const supplied = body.pin ? await hashSecret(body.pin, PIN_HASH_SALT) : null;
       if (!supplied || !pinRow || supplied !== pinRow.pin_hash) {
-        return json(
-          { error: "Diese Bilder passen noch nicht zusammen. Versuch es noch einmal." },
-          401,
-        );
+        return json({ error: LOGIN_FAILURE_MESSAGE }, 401);
       }
     }
 

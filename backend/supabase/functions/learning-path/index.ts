@@ -321,7 +321,7 @@ Deno.serve(async (req) => {
       });
       if (error) {
         console.error("learning-path/add_skill failed:", error);
-        return json({ error: "Skill konnte nicht ergänzt werden" }, 400);
+        return json({ error: "Kompetenz konnte nicht ergänzt werden" }, 400);
       }
       return json({ ok: true });
     }

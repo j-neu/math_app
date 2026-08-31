@@ -96,11 +96,26 @@ async function checkRateLimit(
     .select("id")
     .single();
   if (attemptErr) {
-    // Non-fatal: this row only backs rate-limit accounting, not the
-    // substantive roster/login response below. Logged so a systemic
-    // failure here (which would silently weaken the rate limiter) is
-    // still visible server-side, without breaking login for every child
-    // over an accounting write.
+    // An undefined-column error means the rate-limit schema migration
+    // (20260831000000_rate_limit_secondary_keys) has not been applied yet,
+    // i.e. this code was deployed ahead of its migration. That is systemic,
+    // never transient: the insert fails for EVERY request, so no attempt is
+    // ever recorded, every count stays zero, and the limiter silently stops
+    // limiting anything -- fail-open, and invisible to any caller. Refuse to
+    // serve instead; a brief outage is recoverable, an unthrottled roster and
+    // PIN endpoint is not.
+    const code = String(attemptErr.code ?? "");
+    if (code === "42703" || code === "PGRST204") {
+      console.error(
+        "student-auth: rate-limit columns missing (migration not applied) - failing closed:",
+        attemptErr,
+      );
+      return { blocked: true };
+    }
+    // Any other failure is treated as transient. This row only backs
+    // rate-limit accounting, not the substantive roster/login response
+    // below, so it is logged rather than allowed to break login for every
+    // child over a single accounting write.
     console.error("student-auth: login_attempts insert failed:", attemptErr);
   }
 

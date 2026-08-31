@@ -272,18 +272,43 @@ Deno.serve(async (req) => {
   }
 
   switch (action) {
-    case "activate":
-      await supabase.from("learning_paths")
+    case "activate": {
+      const { error } = await supabase.from("learning_paths")
         .update({ status: "active", activated_at: new Date().toISOString() })
         .eq("id", path_id);
+      if (error) {
+        // 23505 = unique_violation. The partial unique index added in
+        // 20260831000001_single_active_learning_path.sql allows at most one
+        // 'active' learning_paths row per student — a teacher trying to
+        // activate a second path for a child who already has one active is
+        // an expected, reachable condition, not an internal failure.
+        if (error.code === "23505") {
+          console.error("learning-path/activate: unique violation:", error);
+          return json(
+            {
+              error:
+                "Dieses Kind hat bereits einen aktiven Lernpfad. Bitte zuerst den aktiven Lernpfad abschließen oder deaktivieren, bevor ein neuer aktiviert wird.",
+            },
+            409,
+          );
+        }
+        console.error("learning-path/activate failed:", error);
+        return json({ error: "Lernpfad konnte nicht aktiviert werden" }, 500);
+      }
       return json({ ok: true });
+    }
 
     case "set_unlock_width": {
       const width = Number(body.unlock_width);
       if (!Number.isInteger(width) || width < 1 || width > 10) {
         return json({ error: "unlock_width muss zwischen 1 und 10 liegen" }, 400);
       }
-      await supabase.from("learning_paths").update({ unlock_width: width }).eq("id", path_id);
+      const { error } = await supabase.from("learning_paths")
+        .update({ unlock_width: width }).eq("id", path_id);
+      if (error) {
+        console.error("learning-path/set_unlock_width failed:", error);
+        return json({ error: "Freischaltbreite konnte nicht gespeichert werden" }, 500);
+      }
       return json({ ok: true });
     }
 
@@ -301,16 +326,26 @@ Deno.serve(async (req) => {
       return json({ ok: true });
     }
 
-    case "remove_skill":
-      await supabase.from("path_items").delete()
+    case "remove_skill": {
+      const { error } = await supabase.from("path_items").delete()
         .eq("path_id", path_id).eq("skill_id", body.skill_id);
+      if (error) {
+        console.error("learning-path/remove_skill failed:", error);
+        return json({ error: "Kompetenz konnte nicht entfernt werden" }, 500);
+      }
       return json({ ok: true });
+    }
 
-    case "set_state":
-      await supabase.from("path_items")
+    case "set_state": {
+      const { error } = await supabase.from("path_items")
         .update({ state: body.state, updated_at: new Date().toISOString() })
         .eq("path_id", path_id).eq("skill_id", body.skill_id);
+      if (error) {
+        console.error("learning-path/set_state failed:", error);
+        return json({ error: "Status konnte nicht gespeichert werden" }, 500);
+      }
       return json({ ok: true });
+    }
 
     case "reorder": {
       const order: string[] = body.skill_ids ?? [];
@@ -329,9 +364,19 @@ Deno.serve(async (req) => {
       const { data: p } = await supabase
         .from("learning_paths").select("student_id").eq("id", path_id).maybeSingle();
       if (p) {
-        await supabase.from("skill_progress").delete().eq("student_id", p.student_id);
+        const { error: spErr } = await supabase.from("skill_progress")
+          .delete().eq("student_id", p.student_id);
+        if (spErr) {
+          console.error("learning-path/reset_progress: skill_progress delete failed:", spErr);
+          return json({ error: "Fortschritt konnte nicht zurückgesetzt werden" }, 500);
+        }
       }
-      await supabase.from("path_items").update({ state: "locked" }).eq("path_id", path_id);
+      const { error: piErr } = await supabase.from("path_items")
+        .update({ state: "locked" }).eq("path_id", path_id);
+      if (piErr) {
+        console.error("learning-path/reset_progress: path_items update failed:", piErr);
+        return json({ error: "Fortschritt konnte nicht zurückgesetzt werden" }, 500);
+      }
       return json({ ok: true });
     }
 

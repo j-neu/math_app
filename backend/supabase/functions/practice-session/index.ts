@@ -82,9 +82,13 @@ Deno.serve(async (req) => {
 
     if (error || !ps) return json({ error: "Übung konnte nicht gestartet werden" }, 500);
 
-    await supabase.from("path_items")
+    const { error: stateErr } = await supabase.from("path_items")
       .update({ state: "in_progress", updated_at: new Date().toISOString() })
       .eq("id", item.id);
+    if (stateErr) {
+      console.error("practice-session/start: path_items update failed:", stateErr);
+      return json({ error: "Übung konnte nicht gestartet werden" }, 500);
+    }
 
     return json({ practice_session_id: ps.id, seed });
   }
@@ -147,12 +151,16 @@ Deno.serve(async (req) => {
     const mastered = isLevelMastered(correct, total);
     const slow = isSlow(median, Number(slow_band_ms) || 999_999);
 
-    await supabase.from("practice_sessions").update({
+    const { error: endErr } = await supabase.from("practice_sessions").update({
       ended_at: new Date().toISOString(),
       problems_total: total,
       problems_correct: correct,
       median_response_ms: median === null ? null : Math.round(median),
     }).eq("id", ps.id);
+    if (endErr) {
+      console.error("practice-session/end: practice_sessions update failed:", endErr);
+      return json({ error: "Übung konnte nicht abgeschlossen werden" }, 500);
+    }
 
     // Progress row per (student, skill, level)
     const { data: existing } = await supabase
@@ -171,8 +179,12 @@ Deno.serve(async (req) => {
       last_seen_at: new Date().toISOString(),
     };
 
-    await supabase.from("skill_progress")
+    const { error: progErr } = await supabase.from("skill_progress")
       .upsert(progressRow, { onConflict: "student_id,skill_id,level" });
+    if (progErr) {
+      console.error("practice-session/end: skill_progress upsert failed:", progErr);
+      return json({ error: "Fortschritt konnte nicht gespeichert werden" }, 500);
+    }
 
     // A skill is mastered when levels 1–3 all are.
     const { data: allLevels } = await supabase
@@ -185,9 +197,13 @@ Deno.serve(async (req) => {
 
     let unlocked: string[] = [];
     if (skillMastered && ps.path_item_id) {
-      await supabase.from("path_items")
+      const { error: masteredErr } = await supabase.from("path_items")
         .update({ state: "mastered", updated_at: new Date().toISOString() })
         .eq("id", ps.path_item_id);
+      if (masteredErr) {
+        console.error("practice-session/end: path_items mastered update failed:", masteredErr);
+        return json({ error: "Fortschritt konnte nicht gespeichert werden" }, 500);
+      }
 
       const { data: item } = await supabase
         .from("path_items").select("path_id").eq("id", ps.path_item_id).maybeSingle();
@@ -206,16 +222,24 @@ Deno.serve(async (req) => {
 
         for (const idx of indices) {
           const target = siblings![idx]!;
-          await supabase.from("path_items")
+          const { error: unlockErr } = await supabase.from("path_items")
             .update({ state: "available", updated_at: new Date().toISOString() })
             .eq("id", target.id);
+          if (unlockErr) {
+            console.error("practice-session/end: path_items unlock update failed:", unlockErr);
+            return json({ error: "Fortschritt konnte nicht gespeichert werden" }, 500);
+          }
           unlocked.push(target.skill_id);
         }
       }
     } else if (ps.path_item_id) {
-      await supabase.from("path_items")
+      const { error: availErr } = await supabase.from("path_items")
         .update({ state: "available", updated_at: new Date().toISOString() })
         .eq("id", ps.path_item_id);
+      if (availErr) {
+        console.error("practice-session/end: path_items available update failed:", availErr);
+        return json({ error: "Fortschritt konnte nicht gespeichert werden" }, 500);
+      }
     }
 
     return json({ mastered, skill_mastered: skillMastered, slow_flag: slow, unlocked_skill_ids: unlocked });

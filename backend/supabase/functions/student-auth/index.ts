@@ -84,7 +84,7 @@ async function checkRateLimit(
   schoolSlug: string | null,
   secondary: SecondaryKey,
 ): Promise<{ blocked: true } | { blocked: false; markSucceeded: () => Promise<unknown> }> {
-  const { data: attemptRow } = await supabase
+  const { data: attemptRow, error: attemptErr } = await supabase
     .from("login_attempts")
     .insert({
       ip_hash: ipHash,
@@ -95,6 +95,14 @@ async function checkRateLimit(
     })
     .select("id")
     .single();
+  if (attemptErr) {
+    // Non-fatal: this row only backs rate-limit accounting, not the
+    // substantive roster/login response below. Logged so a systemic
+    // failure here (which would silently weaken the rate limiter) is
+    // still visible server-side, without breaking login for every child
+    // over an accounting write.
+    console.error("student-auth: login_attempts insert failed:", attemptErr);
+  }
 
   const since = new Date(Date.now() - WINDOW_MINUTES * 60_000).toISOString();
 
@@ -109,9 +117,16 @@ async function checkRateLimit(
 
   return {
     blocked: false,
-    markSucceeded: () => {
-      if (!attemptRow) return Promise.resolve();
-      return supabase.from("login_attempts").update({ succeeded: true }).eq("id", attemptRow.id);
+    markSucceeded: async () => {
+      if (!attemptRow) return;
+      const { error } = await supabase
+        .from("login_attempts").update({ succeeded: true }).eq("id", attemptRow.id);
+      if (error) {
+        // Non-fatal for the same reason as the insert above: the
+        // roster/login response this backs has already succeeded by the
+        // time this runs.
+        console.error("student-auth: login_attempts markSucceeded update failed:", error);
+      }
     },
   };
 }

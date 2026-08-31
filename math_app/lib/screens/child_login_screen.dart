@@ -414,7 +414,9 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
   // contrast ratio against white is >= 4.5:1 for every entry here, well past
   // the 3:1 large-bold-text minimum). Two former swatches — an orange
   // (0xFFEF6C00, ratio ~3.1) and a custom brown (0xFF9E5700) — read visibly
-  // weaker than the rest and were replaced.
+  // weaker than the rest and were replaced. Cyan 800 (0xFF00838F, ratio
+  // ~4.52:1) was later swapped for cyan 900 (0xFF006064, ratio ~7.35:1): it
+  // cleared the 4.5:1 threshold by only 0.02, too fragile to rely on.
   static const List<Color> _avatarPalette = [
     Color(0xFFC62828), // red 800
     Color(0xFFB71C1C), // red 900
@@ -425,7 +427,7 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
     Color(0xFF2E7D32), // green 800
     Color(0xFF1B5E20), // green 900
     Color(0xFF00695C), // teal 800
-    Color(0xFF00838F), // cyan 800
+    Color(0xFF006064), // cyan 900
     Color(0xFF0277BD), // light blue 800
     Color(0xFF1565C0), // blue 800
     Color(0xFF283593), // indigo 800

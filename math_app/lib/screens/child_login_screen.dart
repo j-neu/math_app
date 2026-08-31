@@ -417,27 +417,43 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
   // weaker than the rest and were replaced. Cyan 800 (0xFF00838F, ratio
   // ~4.52:1) was later swapped for cyan 900 (0xFF006064, ratio ~7.35:1): it
   // cleared the 4.5:1 threshold by only 0.02, too fragile to rely on.
+  //
+  // The ORDER below is deliberate and is NOT a hue wheel — do not "tidy" it
+  // back into spectrum order. `_assignAvatarColours` resolves a same-initial
+  // collision by walking forward to the *next* index in this list, so
+  // whichever two entries end up adjacent are exactly the colours handed to
+  // the two children who most need to be able to tell each other apart. A
+  // hue-sorted list puts every red next to a red and every brown next to a
+  // brown, so a collision reliably hands near-identical colours (e.g. brown
+  // 700 vs. brown 900 — same hue, only lighter/darker) to exactly the
+  // same-initial pair the resolver exists to protect. Instead, neighbouring
+  // entries here are chosen to alternate between unrelated hue families
+  // (measured as HSL hue on a colour wheel, wrapping at 360°) so a collision
+  // always jumps to a colour a child can tell apart at a glance. Two entries
+  // are near-neutral (grey 800, blue grey 800: HSL saturation under 20%),
+  // where hue is not a meaningful signal; those are placed apart from each
+  // other by construction but are not part of the hue-alternation pattern.
   static const List<Color> _avatarPalette = [
-    Color(0xFFC62828), // red 800
-    Color(0xFFB71C1C), // red 900
-    Color(0xFFBF360C), // deep orange 900
-    Color(0xFF5D4037), // brown 700
-    Color(0xFF3E2723), // brown 900
-    Color(0xFF827717), // olive (lime 900)
-    Color(0xFF2E7D32), // green 800
-    Color(0xFF1B5E20), // green 900
-    Color(0xFF00695C), // teal 800
-    Color(0xFF006064), // cyan 900
-    Color(0xFF0277BD), // light blue 800
-    Color(0xFF1565C0), // blue 800
-    Color(0xFF283593), // indigo 800
-    Color(0xFF1A237E), // indigo 900 / navy
-    Color(0xFF4527A0), // deep purple 800
-    Color(0xFF6A1B9A), // purple 800
-    Color(0xFFAD1457), // pink 800
-    Color(0xFF880E4F), // pink 900 / wine
-    Color(0xFF37474F), // blue grey 800
     Color(0xFF424242), // grey 800
+    Color(0xFF006064), // cyan 900
+    Color(0xFFC62828), // red 800
+    Color(0xFF37474F), // blue grey 800
+    Color(0xFFB71C1C), // red 900
+    Color(0xFF0277BD), // light blue 800
+    Color(0xFF3E2723), // brown 900
+    Color(0xFF1565C0), // blue 800
+    Color(0xFFBF360C), // deep orange 900
+    Color(0xFF283593), // indigo 800
+    Color(0xFF5D4037), // brown 700
+    Color(0xFF1A237E), // indigo 900 / navy
+    Color(0xFF827717), // olive (lime 900)
+    Color(0xFF4527A0), // deep purple 800
+    Color(0xFF2E7D32), // green 800
+    Color(0xFF6A1B9A), // purple 800
+    Color(0xFF1B5E20), // green 900
+    Color(0xFF880E4F), // pink 900 / wine
+    Color(0xFF00695C), // teal 800
+    Color(0xFFAD1457), // pink 800
   ];
 
   /// The starting palette index for a child, before collision resolution.
@@ -613,3 +629,11 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
     );
   }
 }
+
+/// Exposes `_avatarPalette` to tests. Dart privacy is per-library (per
+/// file), not per-class, so a top-level function declared here — in the
+/// same file as `_ChildLoginScreenState` — can read its private static
+/// field even though a test file importing this library cannot reach it
+/// directly.
+@visibleForTesting
+List<Color> avatarPaletteForTesting() => _ChildLoginScreenState._avatarPalette;

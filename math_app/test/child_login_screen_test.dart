@@ -442,6 +442,50 @@ void main() {
     // Marlene vs. Max (both 'M').
     expect(avatars[2].backgroundColor, isNot(equals(avatars[3].backgroundColor)));
   });
+
+  // ---- Fix round 4: palette ordering must not put same-hue colours next
+  // to each other, since collision resolution always advances to the next
+  // adjacent index (see the doc comment on `_avatarPalette`). ----
+
+  test('no two adjacent palette entries belong to the same hue family', () {
+    final palette = avatarPaletteForTesting();
+    expect(palette.length, 20);
+
+    // Colours this desaturated (grey 800, blue grey 800) read as neutral;
+    // HSL hue is not a meaningful signal for them, so they are a documented
+    // special case rather than being forced through the hue check.
+    const neutralSaturationCutoff = 0.20;
+
+    // The reordering that fixed this (see the doc comment above
+    // `_avatarPalette`) separates every same-family neighbour by well over
+    // 130 degrees of hue. 90 degrees is a safe threshold well below that
+    // achieved minimum but far above any plausible same-family adjacency
+    // (e.g. the old brown 700/brown 900 pair sat about 5 degrees apart).
+    const minHueSeparation = 90.0;
+
+    double circularHueDistance(double a, double b) {
+      final diff = (a - b).abs() % 360.0;
+      return diff > 180.0 ? 360.0 - diff : diff;
+    }
+
+    for (var i = 0; i < palette.length; i++) {
+      final a = HSLColor.fromColor(palette[i]);
+      final b = HSLColor.fromColor(palette[(i + 1) % palette.length]);
+      if (a.saturation < neutralSaturationCutoff || b.saturation < neutralSaturationCutoff) {
+        continue;
+      }
+      final distance = circularHueDistance(a.hue, b.hue);
+      expect(
+        distance,
+        greaterThanOrEqualTo(minHueSeparation),
+        reason: 'Palette entries at index $i and ${(i + 1) % palette.length} '
+            '(${palette[i]} and ${palette[(i + 1) % palette.length]}) are only '
+            '$distance degrees apart in hue — too close to tell apart at a '
+            'glance if a collision hands them to the same-initial pair they '
+            'exist to protect.',
+      );
+    }
+  });
 }
 
 String? _lastLoginBody;

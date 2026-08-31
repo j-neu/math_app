@@ -12,11 +12,18 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { sortSkillIds } from "../_shared/ordering.ts";
 import { verifyStudentToken } from "../_shared/jwt.ts";
+import { requireEnv } from "../_shared/env.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+// Custom, developer-managed secret (unlike SUPABASE_URL/SUPABASE_*_KEY,
+// which the platform guarantees). Read once at module scope; the GET
+// handler below fails closed if this is missing rather than falling back
+// to a non-null assertion that guarantees nothing at runtime.
+const STUDENT_JWT_SECRET = requireEnv("STUDENT_JWT_SECRET");
 
 // deno-lint-ignore no-explicit-any
 type Db = any;
@@ -96,8 +103,17 @@ Deno.serve(async (req) => {
 
   // ── GET: the child's own active path ───────────────────────────────────────
   if (req.method === "GET") {
+    // Fail closed: a missing secret must stop this path from serving, never
+    // fall back to a non-null assertion that guarantees nothing at runtime.
+    if (STUDENT_JWT_SECRET === null) {
+      return json(
+        { error: "Das geht gerade nicht. Bitte versuch es später noch einmal." },
+        500,
+      );
+    }
+
     const token = req.headers.get("x-student-token") ?? "";
-    const studentId = await verifyStudentToken(token, Deno.env.get("STUDENT_JWT_SECRET")!);
+    const studentId = await verifyStudentToken(token, STUDENT_JWT_SECRET);
     if (!studentId) return json({ error: "Nicht angemeldet" }, 401);
 
     const { data: path } = await supabase

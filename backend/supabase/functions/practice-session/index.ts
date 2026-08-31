@@ -7,6 +7,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { verifyStudentToken } from "../_shared/jwt.ts";
 import { isLevelMastered, isSlow, medianMs, nextUnlock } from "../_shared/mastery.ts";
+import { requireEnv } from "../_shared/env.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -14,9 +15,23 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-student-token",
 };
 
+// Custom, developer-managed secret (unlike SUPABASE_URL/SUPABASE_*_KEY,
+// which the platform guarantees). Read once at module scope; every path
+// below needs a verified student token, so a missing secret fails the
+// whole function closed rather than falling back to a non-null assertion
+// that guarantees nothing at runtime.
+const STUDENT_JWT_SECRET = requireEnv("STUDENT_JWT_SECRET");
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "Methode nicht erlaubt" }, 405);
+
+  if (STUDENT_JWT_SECRET === null) {
+    return json(
+      { error: "Das geht gerade nicht. Bitte versuch es später noch einmal." },
+      500,
+    );
+  }
 
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
@@ -25,7 +40,7 @@ Deno.serve(async (req) => {
 
   const studentId = await verifyStudentToken(
     req.headers.get("x-student-token") ?? "",
-    Deno.env.get("STUDENT_JWT_SECRET")!,
+    STUDENT_JWT_SECRET,
   );
   if (!studentId) return json({ error: "Nicht angemeldet" }, 401);
 

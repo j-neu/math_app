@@ -9,6 +9,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { hashIp, hashSecret, isValidCodeShape, normaliseCode } from "../_shared/codes.ts";
 import { signStudentToken } from "../_shared/jwt.ts";
+import { requireEnv } from "../_shared/env.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,6 +18,16 @@ const corsHeaders = {
 
 const MAX_FAILURES_PER_WINDOW = 10;
 const WINDOW_MINUTES = 15;
+
+// ── Required secrets ─────────────────────────────────────────────────────
+// Read once at module scope. These are custom, developer-managed secrets
+// (via `supabase secrets set`) — unlike SUPABASE_URL/SUPABASE_*_KEY, the
+// platform does not guarantee they are set. A missing value must never
+// silently degrade (e.g. to a hardcoded salt); it must stop the endpoint
+// from serving. See _shared/env.ts and the guard at the top of Deno.serve.
+const IP_HASH_SALT = requireEnv("IP_HASH_SALT");
+const PIN_HASH_SALT = requireEnv("PIN_HASH_SALT");
+const STUDENT_JWT_SECRET = requireEnv("STUDENT_JWT_SECRET");
 
 // deno-lint-ignore no-explicit-any
 type Db = any;
@@ -63,14 +74,25 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "Methode nicht erlaubt" }, 405);
 
+  // Fail closed: a missing secret must stop this endpoint from serving,
+  // never fall back to a default. Checked on every request (cheap — these
+  // are already-resolved module-scope constants) rather than only at
+  // startup, since Deno.serve keeps the isolate running and we want every
+  // single request to be refused, not just the first.
+  if (IP_HASH_SALT === null || PIN_HASH_SALT === null || STUDENT_JWT_SECRET === null) {
+    return json(
+      { error: "Die Anmeldung ist gerade nicht möglich. Bitte sag es einem Erwachsenen." },
+      500,
+    );
+  }
+
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
-  const salt = Deno.env.get("IP_HASH_SALT") ?? "unsalted";
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-  const ipHash = await hashIp(ip, salt);
+  const ipHash = await hashIp(ip, IP_HASH_SALT);
 
   const path = new URL(req.url).pathname.split("/").pop();
 
@@ -164,8 +186,7 @@ Deno.serve(async (req) => {
         .eq("student_id", student.id)
         .maybeSingle();
 
-      const salt2 = Deno.env.get("PIN_HASH_SALT") ?? "unsalted";
-      const supplied = body.pin ? await hashSecret(body.pin, salt2) : null;
+      const supplied = body.pin ? await hashSecret(body.pin, PIN_HASH_SALT) : null;
       if (!supplied || !pinRow || supplied !== pinRow.pin_hash) {
         return json(
           { error: "Diese Bilder passen noch nicht zusammen. Versuch es noch einmal." },
@@ -174,7 +195,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    const token = await signStudentToken(student.id, Deno.env.get("STUDENT_JWT_SECRET")!);
+    const token = await signStudentToken(student.id, STUDENT_JWT_SECRET);
     await limit.markSucceeded();
     return json({ token, student_id: student.id, display_name: student.display_name });
   }

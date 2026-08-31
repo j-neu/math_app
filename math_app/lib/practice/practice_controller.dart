@@ -67,6 +67,12 @@ class PracticeController extends ChangeNotifier {
   String? _errorMessage;
   String? _sessionId;
 
+  /// Problem indices whose attempt has already been recorded this session.
+  /// One attempt per problem, ever: a wrong answer is recorded once, and a
+  /// retry (the child fixes the answer on the same problem) is evaluated for
+  /// feedback but never re-recorded — see [submit].
+  final Set<int> _recordedProblemIndices = <int>{};
+
   final Stopwatch _stopwatch = Stopwatch();
 
   PracticeController({
@@ -126,6 +132,7 @@ class PracticeController extends ChangeNotifier {
         seed: session.seed,
       );
       _problemIndex = 0;
+      _recordedProblemIndices.clear();
       _lastEvaluation = null;
       _stopwatch
         ..reset()
@@ -161,20 +168,28 @@ class PracticeController extends ChangeNotifier {
     final evaluation = _evaluator.evaluate(problem, value, spec: spec);
     _lastEvaluation = evaluation;
 
-    final attempt = PracticeAttempt(
-      problemIndex: _problemIndex,
-      problem: problem.toJson(),
-      answer: evaluation.canonicalAnswer,
-      wasCorrect: evaluation.isCorrect,
-      responseMs: responseMs,
-      errorCode: evaluation.isCorrect ? null : evaluation.errorCode,
-    );
+    // A retry of an already-answered problem (the child fixed the wrong
+    // answer and submitted again) must not create a second attempt: the
+    // first record for this problem_index already reached the queue. The
+    // retry still gets evaluated so the screen can show the correct
+    // feedback, but only the first submission counts.
+    final alreadyRecorded = !_recordedProblemIndices.add(_problemIndex);
+    if (!alreadyRecorded) {
+      final attempt = PracticeAttempt(
+        problemIndex: _problemIndex,
+        problem: problem.toJson(),
+        answer: evaluation.canonicalAnswer,
+        wasCorrect: evaluation.isCorrect,
+        responseMs: responseMs,
+        errorCode: evaluation.isCorrect ? null : evaluation.errorCode,
+      );
 
-    try {
-      await service.recordAttempt(token, _sessionId!, attempt);
-    } catch (_) {
-      // The attempt sits in the queue already; a dropped connection must
-      // never end the session.
+      try {
+        await service.recordAttempt(token, _sessionId!, attempt);
+      } catch (_) {
+        // The attempt sits in the queue already; a dropped connection must
+        // never end the session.
+      }
     }
 
     _state = evaluation.isCorrect

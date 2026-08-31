@@ -191,6 +191,13 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
       });
 
   Future<void> _backToCode() async {
+    // Same re-entrancy reasoning as `_loadRoster`/`_login` above: two
+    // pointer-downs on "Zurück" in the same frame both run against the
+    // widget tree built while `_busy` was still false, so this must be
+    // checked synchronously, before the `await` below, not left to the
+    // build-time `onPressed` guard alone.
+    if (_busy) return;
+    setState(() => _busy = true);
     // Backing out must not leave the previous child signed in on a shared tablet.
     await _auth.logout();
     if (!mounted) return;
@@ -202,6 +209,7 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
       _pinTokens.clear();
       _loggedInName = null;
       _navigating = false;
+      _busy = false;
     });
   }
 

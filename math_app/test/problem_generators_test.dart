@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:math_app/models/problem.dart';
@@ -91,6 +92,58 @@ SkillSpec _compareSpec() => SkillSpec.fromJson(
   ),
 );
 
+SkillSpec _wordSpec({
+  String op = '+',
+  int zr = 10,
+  bool askOperation = false,
+}) => SkillSpec.fromJson(
+  _baseSpec(
+    _level(2, 'symbolisch', 'word_problem', {
+      'contexts': [
+        {'setting_de': 'im Korb', 'object_de': 'Äpfel'},
+        {'setting_de': 'auf dem Tisch', 'object_de': 'Kekse'},
+        {'setting_de': 'im Garten', 'object_de': 'Tomaten'},
+        {'setting_de': 'am Teich', 'object_de': 'Enten'},
+      ],
+      'op': op,
+      'zr': zr,
+      'ask_operation': askOperation,
+    }, 7000),
+  ),
+);
+
+const List<Map<String, String>> _c41Strategies = [
+  {'id': 'verdoppeln', 'label_de': 'Verdoppeln'},
+  {'id': 'fast_verdoppeln', 'label_de': 'Fast verdoppeln'},
+  {'id': 'ueber_die_zehn', 'label_de': 'Über die Zehn'},
+];
+
+SkillSpec _strategySpec({
+  String correctStrategy = 'verdoppeln',
+  int zr = 20,
+  List<int> aRange = const [2, 10],
+  List<int> bRange = const [2, 10],
+  String op = '+',
+}) => SkillSpec.fromJson(
+  _baseSpec(
+    _level(2, 'symbolisch', 'strategy_choice', {
+      'op': op,
+      'zr': zr,
+      'a_range': aRange,
+      'b_range': bRange,
+      'strategies': _c41Strategies,
+      'correct_strategy': correctStrategy,
+    }, 7000),
+  ),
+);
+
+/// Loads a real skill spec straight from the clean-room source tree, so the
+/// generators are verified against exactly what the sync script ships.
+SkillSpec _realSpec(String id) => SkillSpec.fromJson(
+  jsonDecode(File('../docs/clean-room/skills/specs/$id.json').readAsStringSync())
+      as Map<String, dynamic>,
+);
+
 String _signature(List<Problem> problems) =>
     jsonEncode(problems.map((p) => p.toJson()).toList());
 
@@ -162,16 +215,10 @@ void main() {
     test('unimplemented templates throw UnimplementedError', () {
       final spec = SkillSpec.fromJson(
         _baseSpec(
-          _level(2, 'symbolisch', 'strategy_choice', {
-            'op': '+',
-            'zr': 20,
-            'a_range': [1, 5],
-            'b_range': [1, 5],
-            'strategies': [
-              {'id': 'double', 'label_de': 'verdoppeln'},
-              {'id': 'make_ten', 'label_de': 'zur vollen Zehn'},
-            ],
-            'correct_strategy': 'double',
+          _level(2, 'symbolisch', 'picture_compare', {
+            'left_range': [1, 10],
+            'right_range': [1, 10],
+            'question': 'more',
           }, 7000),
         ),
       );
@@ -915,6 +962,473 @@ void main() {
         expect(problems[i].promptDe, isNotEmpty);
         expect(problems[i].template, 'equation_gap');
       }
+    });
+  });
+
+  group('word_problem generator', () {
+    test('plus: result == a+b, both numbers >= 2, sum stays in ZR', () {
+      final s = _wordSpec(op: '+', zr: 10);
+      for (var seed = 0; seed < 100; seed++) {
+        final problems = generateProblems(spec: s, level: 2, seed: seed);
+        for (final p in problems) {
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          expect(p.display['op'], '+');
+          expect(a, greaterThanOrEqualTo(2));
+          expect(b, greaterThanOrEqualTo(2));
+          expect(a + b, lessThanOrEqualTo(10), reason: 'story stays in ZR10');
+          expect(p.expected, [(a + b).toString()], reason: 'expected == result');
+        }
+      }
+    });
+
+    test('minus: result == a-b >= 0 and a >= b', () {
+      final s = _wordSpec(op: '-', zr: 20);
+      for (var seed = 0; seed < 100; seed++) {
+        final problems = generateProblems(spec: s, level: 2, seed: seed);
+        for (final p in problems) {
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          expect(p.display['op'], '-');
+          expect(a, greaterThanOrEqualTo(b), reason: 'no negative result');
+          expect(a - b, greaterThanOrEqualTo(0));
+          expect(p.expected, [(a - b).toString()]);
+        }
+      }
+    });
+
+    test('prompt_de is a complete grammatical German story sentence', () {
+      final s = _wordSpec(op: '+', zr: 10);
+      for (var seed = 0; seed < 100; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final setting = p.display['setting_de'] as String;
+          final object = p.display['object_de'] as String;
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          final prompt = p.promptDe;
+          expect(prompt, isNotEmpty);
+          expect(prompt, startsWith(setting[0].toUpperCase()));
+          expect(prompt, contains('$a $object'));
+          expect(prompt, contains('$b kommen dazu'));
+          expect(prompt, endsWith('Wie viele sind es?'));
+        }
+      }
+      final minus = _wordSpec(op: '-', zr: 20);
+      final p = generateProblems(spec: minus, level: 2, seed: 3).first;
+      expect(p.promptDe, contains('weggenommen'));
+    });
+
+    test('op "+|-" re-rolls the operation per problem and honours its '
+        'constraints', () {
+      final s = _wordSpec(op: '+|-', zr: 10, askOperation: true);
+      for (var seed = 0; seed < 100; seed++) {
+        final problems = generateProblems(spec: s, level: 2, seed: seed);
+        for (final p in problems) {
+          final op = p.display['op'] as String;
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          expect(op, anyOf('+', '-'));
+          expect(p.display['ask_operation'], isTrue);
+          if (op == '-') {
+            expect(a, greaterThanOrEqualTo(b));
+            expect(a - b, greaterThanOrEqualTo(0));
+            expect(p.expected, [(a - b).toString()]);
+          } else {
+            expect(a + b, lessThanOrEqualTo(10));
+            expect(p.expected, [(a + b).toString()]);
+          }
+        }
+      }
+    });
+
+    test('op "+|-" actually produces both operations in one level', () {
+      final s = _wordSpec(op: '+|-', zr: 20);
+      var sawBoth = false;
+      for (var seed = 0; seed < 50 && !sawBoth; seed++) {
+        final ops = generateProblems(
+          spec: s,
+          level: 2,
+          seed: seed,
+        ).map((p) => p.display['op'] as String).toSet();
+        sawBoth = ops.contains('+') && ops.contains('-');
+      }
+      expect(sawBoth, isTrue,
+          reason: 'the operation must be re-rolled, not fixed');
+    });
+
+    test('no two problems share the same (setting, object, a, b, op) tuple', () {
+      for (final s in [_wordSpec(op: '+', zr: 10), _wordSpec(op: '+|-', zr: 20)]) {
+        for (var seed = 0; seed < 50; seed++) {
+          final problems = generateProblems(spec: s, level: 2, seed: seed);
+          final keys = problems.map((p) => jsonEncode(p.display)).toSet();
+          expect(keys.length, problems.length, reason: 'seed $seed');
+        }
+      }
+    });
+
+    test('is deterministic and yields exactly problem_count problems', () {
+      for (final s in [_wordSpec(op: '+', zr: 10), _wordSpec(op: '-', zr: 20)]) {
+        for (var seed = 0; seed < 50; seed++) {
+          final first = generateProblems(spec: s, level: 2, seed: seed);
+          final second = generateProblems(spec: s, level: 2, seed: seed);
+          expect(_signature(first), _signature(second));
+          expect(first, hasLength(8));
+        }
+      }
+    });
+
+    test('real D1.1 levels 1-3 generate valid stories in their ZR', () {
+      final spec = _realSpec('D1.1');
+      final expectedOp = ['+', '-', '+'];
+      final zr = [10, 20, 100];
+      for (var level = 1; level <= 3; level++) {
+        for (var seed = 0; seed < 20; seed++) {
+          final problems = generateProblems(spec: spec, level: level, seed: seed);
+          for (final p in problems) {
+            final a = p.display['a'] as int;
+            final b = p.display['b'] as int;
+            final op = p.display['op'] as String;
+            expect(op, expectedOp[level - 1]);
+            if (op == '-') {
+              expect(a, greaterThanOrEqualTo(b));
+              expect(p.expected, [(a - b).toString()]);
+            } else {
+              expect(a + b, lessThanOrEqualTo(zr[level - 1]));
+              expect(p.expected, [(a + b).toString()]);
+            }
+            expect(p.promptDe, contains('Wie viele sind es?'));
+          }
+        }
+      }
+    });
+
+    test('real D1.2 levels re-roll the operation and ask for it first', () {
+      final spec = _realSpec('D1.2');
+      final zr = [10, 20, 100];
+      for (var level = 1; level <= 3; level++) {
+        final levelSpec = spec.levelSpec(level);
+        expect(levelSpec.boolParam('ask_operation'), isTrue,
+            reason: 'D1.2 L$level asks for the operation');
+        for (var seed = 0; seed < 20; seed++) {
+          final problems = generateProblems(spec: spec, level: level, seed: seed);
+          for (final p in problems) {
+            final op = p.display['op'] as String;
+            final a = p.display['a'] as int;
+            final b = p.display['b'] as int;
+            expect(op, anyOf('+', '-'));
+            expect(p.display['ask_operation'], isTrue);
+            if (op == '-') {
+              expect(a, greaterThanOrEqualTo(b), reason: 'minus never negative');
+              expect(p.expected, [(a - b).toString()]);
+            } else {
+              expect(a + b, lessThanOrEqualTo(zr[level - 1]));
+              expect(p.expected, [(a + b).toString()]);
+            }
+          }
+        }
+      }
+    });
+
+    test('hand-computed minus story keeps result >= 0 (here exactly 0)', () {
+      final spec = _realSpec('D1.1');
+      final problems = generateProblems(spec: spec, level: 2, seed: 5);
+      final p = problems[5];
+      expect(p.display['a'], 17);
+      expect(p.display['b'], 17);
+      expect(p.display['op'], '-');
+      expect(p.expected, ['0'], reason: '17 - 17 = 0, non-negative');
+      expect(
+        p.promptDe,
+        'In der Pausentasche sind 17 Mandarinen. 17 werden weggenommen. '
+        'Wie viele sind es?',
+      );
+    });
+
+    test('hand-computed op "+|-" re-rolls the sign within one level', () {
+      final spec = _realSpec('D1.2');
+      final problems = generateProblems(spec: spec, level: 1, seed: 7);
+      final ops = problems.map((p) => p.display['op']).toList();
+      expect(ops, ['+', '+', '-', '+', '-', '+', '+', '-']);
+      for (var i = 0; i < problems.length; i++) {
+        final p = problems[i];
+        final a = p.display['a'] as int;
+        final b = p.display['b'] as int;
+        expect(p.expected, [(p.display['op'] == '-' ? a - b : a + b).toString()]);
+      }
+      expect(int.parse(problems[2].expected.single), 7, reason: '10 - 3 = 7');
+      expect(int.parse(problems[4].expected.single), 2, reason: '5 - 3 = 2');
+      expect(int.parse(problems[7].expected.single), 2, reason: '4 - 2 = 2');
+    });
+  });
+
+  group('strategy_choice generator', () {
+    test('verdoppeln: a == b and expected == 2a within ZR20', () {
+      final s = _strategySpec(correctStrategy: 'verdoppeln', zr: 20);
+      for (var seed = 0; seed < 100; seed++) {
+        final problems = generateProblems(spec: s, level: 2, seed: seed);
+        for (final p in problems) {
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          expect(a, b, reason: 'verdoppeln must use equal addends');
+          expect(2 * a, lessThanOrEqualTo(20), reason: 'ZR20');
+          expect(p.expected, [(2 * a).toString()]);
+          expect(p.display['correct_strategy'], 'verdoppeln');
+        }
+      }
+    });
+
+    test('fast_verdoppeln: |a - b| == 1 (near-doubles)', () {
+      final s = _strategySpec(
+        correctStrategy: 'fast_verdoppeln',
+        zr: 20,
+      );
+      for (var seed = 0; seed < 100; seed++) {
+        final problems = generateProblems(spec: s, level: 2, seed: seed);
+        for (final p in problems) {
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          expect((a - b).abs(), 1, reason: 'fast_verdoppeln needs neighbours');
+          expect(a + b, lessThanOrEqualTo(20), reason: 'ZR20');
+          expect(p.expected, [(a + b).toString()]);
+        }
+      }
+    });
+
+    test('ueber_die_zehn: ones cross a ten and it is not a double', () {
+      final s = _strategySpec(
+        correctStrategy: 'ueber_die_zehn',
+        zr: 100,
+        aRange: [21, 48],
+        bRange: [12, 39],
+      );
+      for (var seed = 0; seed < 100; seed++) {
+        final problems = generateProblems(spec: s, level: 2, seed: seed);
+        for (final p in problems) {
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          expect(
+            (a % 10) + (b % 10),
+            greaterThanOrEqualTo(10),
+            reason: 'ones must cross the ten (a=$a b=$b)',
+          );
+          expect(a, isNot(b), reason: 'not a plain double');
+          expect((a - b).abs(), greaterThan(1), reason: 'not a near-double');
+          expect(a + b, lessThanOrEqualTo(100), reason: 'ZR100');
+          expect(p.expected, [(a + b).toString()]);
+        }
+      }
+    });
+
+    test('mixed: strategies vary and every problem exemplifies its own', () {
+      final s = _strategySpec(
+        correctStrategy: 'mixed',
+        zr: 100,
+        aRange: [12, 48],
+        bRange: [12, 48],
+      );
+      for (var seed = 0; seed < 100; seed++) {
+        final problems = generateProblems(spec: s, level: 2, seed: seed);
+        final used = problems
+            .map((p) => p.display['correct_strategy'] as String)
+            .toSet();
+        expect(
+          used.length,
+          greaterThanOrEqualTo(2),
+          reason: 'a mixed level must vary its strategy',
+        );
+        for (final p in problems) {
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          final strategy = p.display['correct_strategy'] as String;
+          switch (strategy) {
+            case 'verdoppeln':
+              expect(a, b, reason: 'verdoppeln problem must use a == b');
+            case 'fast_verdoppeln':
+              expect((a - b).abs(), 1);
+            case 'ueber_die_zehn':
+              expect((a % 10) + (b % 10), greaterThanOrEqualTo(10));
+              expect((a - b).abs(), greaterThan(1));
+            default:
+              fail('unknown strategy "$strategy"');
+          }
+          expect(a + b, lessThanOrEqualTo(100), reason: 'ZR100');
+          expect(p.expected, [(a + b).toString()]);
+        }
+      }
+    });
+
+    test('display carries op, a, b, strategies with labels and the correct '
+        'strategy', () {
+      final s = _strategySpec(correctStrategy: 'verdoppeln', zr: 20);
+      final p = generateProblems(spec: s, level: 2, seed: 1).first;
+      expect(p.display['op'], '+');
+      expect(p.display['a'], isA<int>());
+      expect(p.display['b'], isA<int>());
+      final strategies = p.display['strategies'] as List;
+      expect(strategies, hasLength(3));
+      for (final entry in strategies) {
+        final map = entry as Map;
+        expect(map['id'], isA<String>());
+        expect(map['label_de'], isA<String>());
+        expect((map['label_de'] as String).isNotEmpty, isTrue);
+      }
+      expect(p.display['correct_strategy'], 'verdoppeln');
+      expect(p.expected, isNotEmpty);
+      expect(p.promptDe, isNotEmpty);
+    });
+
+    test('expected == a op b for every strategy', () {
+      for (final strategy in ['verdoppeln', 'fast_verdoppeln', 'ueber_die_zehn']) {
+        final s = _strategySpec(
+          correctStrategy: strategy,
+          zr: 100,
+          aRange: [12, 48],
+          bRange: [12, 48],
+        );
+        for (var seed = 0; seed < 50; seed++) {
+          for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+            final a = p.display['a'] as int;
+            final b = p.display['b'] as int;
+            expect(p.expected, [(a + b).toString()], reason: strategy);
+          }
+        }
+      }
+    });
+
+    test('is deterministic and unique within a level', () {
+      for (final strategy in ['verdoppeln', 'mixed']) {
+        final s = _strategySpec(correctStrategy: strategy, zr: 20);
+        for (var seed = 0; seed < 50; seed++) {
+          final first = generateProblems(spec: s, level: 2, seed: seed);
+          final second = generateProblems(spec: s, level: 2, seed: seed);
+          expect(_signature(first), _signature(second), reason: strategy);
+          final keys = first.map((p) => jsonEncode(p.display)).toSet();
+          expect(keys.length, first.length, reason: '$strategy seed $seed');
+        }
+      }
+    });
+
+    test('real C4.1 levels: ZR20 L1, ZR100 L2/L3 with strategy constraints', () {
+      final spec = _realSpec('C4.1');
+      final expectations = [
+        ('verdoppeln', 20),
+        ('ueber_die_zehn', 100),
+        ('mixed', 100),
+      ];
+      for (var level = 1; level <= 3; level++) {
+        final (expectedDirective, zr) = expectations[level - 1];
+        final levelSpec = spec.levelSpec(level);
+        expect(levelSpec.stringParam('correct_strategy'), expectedDirective,
+            reason: 'C4.1 L$level directive');
+        for (var seed = 0; seed < 20; seed++) {
+          final problems = generateProblems(spec: spec, level: level, seed: seed);
+          for (final p in problems) {
+            final a = p.display['a'] as int;
+            final b = p.display['b'] as int;
+            final strategy = p.display['correct_strategy'] as String;
+            final ids = (p.display['strategies'] as List)
+                .map((e) => (e as Map)['id'])
+                .toSet();
+            expect(ids, contains(strategy));
+            expect(a + b, lessThanOrEqualTo(zr), reason: 'C4.1 L$level ZR');
+            expect(p.expected, [(a + b).toString()]);
+            switch (strategy) {
+              case 'verdoppeln':
+                expect(a, b);
+              case 'fast_verdoppeln':
+                expect((a - b).abs(), 1);
+              case 'ueber_die_zehn':
+                expect((a % 10) + (b % 10), greaterThanOrEqualTo(10));
+                expect((a - b).abs(), greaterThan(1));
+              default:
+                fail('unknown strategy "$strategy"');
+            }
+          }
+        }
+        if (expectedDirective == 'mixed') {
+          final ops = generateProblems(spec: spec, level: 3, seed: 1)
+              .map((p) => p.display['correct_strategy'] as String)
+              .toSet();
+          expect(ops.length, greaterThanOrEqualTo(2),
+              reason: 'C4.1 L3 must vary its strategies');
+        }
+      }
+    });
+
+    test('an unknown correct_strategy is a spec error', () {
+      final s = _strategySpec(correctStrategy: 'bogus');
+      expect(
+        () => generateProblems(spec: s, level: 2, seed: 1),
+        throwsA(isA<SpecFormatException>()),
+      );
+    });
+
+    test('hand-computed C4.1 L1: every problem is a genuine double', () {
+      final spec = _realSpec('C4.1');
+      final problems = generateProblems(spec: spec, level: 1, seed: 7);
+      // i0: 9 + 9 -> 18 (verdoppeln)      i1: 10 + 10 -> 20
+      // i2: 7 + 7 -> 14                   i3: 2 + 2 -> 4
+      final expected = [
+        (9, 9, 18),
+        (10, 10, 20),
+        (7, 7, 14),
+        (2, 2, 4),
+      ];
+      for (var i = 0; i < expected.length; i++) {
+        final p = problems[i];
+        expect(p.display['a'], expected[i].$1, reason: 'i$i a');
+        expect(p.display['b'], expected[i].$2, reason: 'i$i b');
+        expect(p.display['correct_strategy'], 'verdoppeln');
+        expect(p.expected, [expected[i].$3.toString()], reason: 'i$i result');
+      }
+      for (final p in problems) {
+        expect(p.display['a'], p.display['b'], reason: 'all doubles');
+        expect((p.display['a'] as int) * 2, int.parse(p.expected.single));
+      }
+    });
+
+    test('hand-computed C4.1 L2: ones cross a ten on every problem', () {
+      final spec = _realSpec('C4.1');
+      final problems = generateProblems(spec: spec, level: 2, seed: 7);
+      // i0: 47 + 38 -> 85 (ones 7 + 8 = 15 > 10)
+      // i1: 35 + 39 -> 74 (ones 5 + 9 = 14 > 10)
+      // i3: 44 + 38 -> 82 (ones 4 + 8 = 12 > 10)
+      final p0 = problems[0];
+      expect(p0.display['a'], 47);
+      expect(p0.display['b'], 38);
+      expect(p0.display['correct_strategy'], 'ueber_die_zehn');
+      expect(p0.expected, ['85']);
+      for (final p in problems) {
+        final a = p.display['a'] as int;
+        final b = p.display['b'] as int;
+        expect((a % 10) + (b % 10), greaterThanOrEqualTo(10));
+        expect(a + b, int.parse(p.expected.single));
+      }
+    });
+
+    test('hand-computed C4.1 L3 mixed: strategies rotate and fit the numbers',
+        () {
+      final spec = _realSpec('C4.1');
+      final problems = generateProblems(spec: spec, level: 3, seed: 7);
+      // Rotation index % 3: 0 verdoppeln, 1 fast_verdoppeln, 2 ueber_die_zehn.
+      // i0: 47+47=94 (verdoppeln)  i1: 29+30=59 (fast)  i2: 19+27=46 (ueber)
+      final p0 = problems[0];
+      expect(p0.display['a'], 47);
+      expect(p0.display['b'], 47);
+      expect(p0.display['correct_strategy'], 'verdoppeln');
+      expect(p0.expected, ['94']);
+      final p1 = problems[1];
+      expect(p1.display['a'], 29);
+      expect(p1.display['b'], 30);
+      expect(p1.display['correct_strategy'], 'fast_verdoppeln');
+      expect(p1.expected, ['59']);
+      final p2 = problems[2];
+      expect(p2.display['a'], 19);
+      expect(p2.display['b'], 27);
+      expect(p2.display['correct_strategy'], 'ueber_die_zehn');
+      expect(p2.expected, ['46']);
+      final strategies = problems.map((p) => p.display['correct_strategy']).toSet();
+      expect(strategies, {'verdoppeln', 'fast_verdoppeln', 'ueber_die_zehn'});
     });
   });
 

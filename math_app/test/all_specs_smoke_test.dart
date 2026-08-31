@@ -119,6 +119,63 @@ bool equationHolds(Problem p) {
   return false;
 }
 
+/// True when a word_problem / strategy_choice Problem is well-formed: the
+/// result is the arithmetic value shown in the story/equation, subtraction is
+/// never negative, ZR is respected, and (for strategy_choice) the chosen
+/// strategy genuinely fits the numbers.
+bool problemValid(Problem p) {
+  if (p.expected.isEmpty) return false;
+  final expected = int.tryParse(p.expected.single);
+  if (expected == null) return false;
+  final a = p.display['a'] as int?;
+  final b = p.display['b'] as int?;
+  if (a == null || b == null) return false;
+  if (a < 1 || b < 1) return false;
+
+  if (p.template == 'word_problem') {
+    final op = p.display['op'] as String?;
+    final setting = p.display['setting_de'] as String?;
+    final object = p.display['object_de'] as String?;
+    if (op == null || setting == null || object == null) return false;
+    if (setting.isEmpty || object.isEmpty) return false;
+    if (!p.promptDe.contains('Wie viele sind es?')) return false;
+    if (!p.promptDe.contains('$a $object')) return false;
+    if (op == '-') {
+      if (a < b) return false;
+      return expected == a - b;
+    }
+    if (op == '+') {
+      if (a + b > 100) return false;
+      return expected == a + b;
+    }
+    return false;
+  }
+
+  if (p.template == 'strategy_choice') {
+    final op = p.display['op'] as String?;
+    final strategy = p.display['correct_strategy'] as String?;
+    final strategies = p.display['strategies'] as List?;
+    if (op == null || strategy == null || strategies == null) return false;
+    final ids = strategies.map((e) => (e as Map)['id']).toSet();
+    if (!ids.contains(strategy)) return false;
+    final result = op == '-' ? a - b : a + b;
+    if (result != expected) return false;
+    if (result > 100 || result < 0) return false;
+    if (op == '-') return true;
+    switch (strategy) {
+      case 'verdoppeln':
+        return a == b;
+      case 'fast_verdoppeln':
+        return (a - b).abs() == 1;
+      case 'ueber_die_zehn':
+        return (a % 10) + (b % 10) >= 10 && (a - b).abs() > 1;
+    }
+    return false;
+  }
+
+  return false;
+}
+
 void main() {
   group('real specs: equation_solve / equation_gap levels generate', () {
     final dir = Directory(_specsDir);
@@ -184,6 +241,109 @@ void main() {
           final levelSpec = spec.levelSpec(level);
           if (levelSpec.template != 'equation_solve' &&
               levelSpec.template != 'equation_gap') {
+            continue;
+          }
+          final a = generateProblems(spec: spec, level: level, seed: 7);
+          final b = generateProblems(spec: spec, level: level, seed: 7);
+          expect(
+            jsonEncode(a.map((p) => p.toJson()).toList()),
+            jsonEncode(b.map((p) => p.toJson()).toList()),
+            reason: '${spec.skillId} L$level',
+          );
+        }
+      }
+    });
+  });
+
+  group('real specs: word_problem / strategy_choice levels generate', () {
+    final dir = Directory(_specsDir);
+    if (!dir.existsSync()) {
+      fail('real spec tree must exist at $_specsDir');
+    }
+    final files =
+        dir
+            .listSync()
+            .whereType<File>()
+            .where((f) => f.path.endsWith('.json'))
+            .toList()
+          ..sort((a, b) => a.path.compareTo(b.path));
+    final specs = [
+      for (final file in files)
+        SkillSpec.fromJson(
+          jsonDecode(file.readAsStringSync()) as Map<String, dynamic>,
+        ),
+    ];
+
+    test('every word_problem and strategy_choice level yields valid problems',
+        () {
+      var checkedLevels = 0;
+      for (final spec in specs) {
+        for (var level = 1; level <= 3; level++) {
+          final levelSpec = spec.levelSpec(level);
+          if (levelSpec.template != 'word_problem' &&
+              levelSpec.template != 'strategy_choice') {
+            continue;
+          }
+          checkedLevels++;
+          for (var seed = 0; seed < 3; seed++) {
+            final problems = generateProblems(
+              spec: spec,
+              level: level,
+              seed: seed,
+            );
+            expect(
+              problems,
+              hasLength(levelSpec.problemCount),
+              reason: '${spec.skillId} L$level seed $seed',
+            );
+            for (var i = 0; i < problems.length; i++) {
+              final p = problems[i];
+              expect(p.index, i, reason: '${spec.skillId} L$level');
+              expect(p.expected, isNotEmpty);
+              expect(p.promptDe, isNotEmpty);
+              expect(
+                problemValid(p),
+                isTrue,
+                reason: '${spec.skillId} L$level seed $seed: '
+                    '${jsonEncode(p.toJson())}',
+              );
+            }
+          }
+        }
+      }
+      expect(checkedLevels, greaterThan(0));
+    });
+
+    test('word_problem op "+|-" levels really mix operations', () {
+      var levelsChecked = 0;
+      for (final spec in specs) {
+        for (var level = 1; level <= 3; level++) {
+          final levelSpec = spec.levelSpec(level);
+          if (levelSpec.template != 'word_problem') continue;
+          if (levelSpec.stringParam('op') != '+|-') continue;
+          levelsChecked++;
+          for (var seed = 0; seed < 10; seed++) {
+            final ops = generateProblems(spec: spec, level: level, seed: seed)
+                .map((p) => p.display['op'] as String)
+                .toSet();
+            expect(
+              ops,
+              {'+', '-'},
+              reason: '${spec.skillId} L$level seed $seed must mix ops',
+            );
+          }
+        }
+      }
+      expect(levelsChecked, greaterThan(0),
+          reason: 'D1.2 levels must be covered');
+    });
+
+    test('generation is deterministic on these real specs too', () {
+      for (final spec in specs) {
+        for (var level = 1; level <= 3; level++) {
+          final levelSpec = spec.levelSpec(level);
+          if (levelSpec.template != 'word_problem' &&
+              levelSpec.template != 'strategy_choice') {
             continue;
           }
           final a = generateProblems(spec: spec, level: level, seed: 7);

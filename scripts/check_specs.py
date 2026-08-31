@@ -304,7 +304,9 @@ def check_level(level: dict, spec_label: str) -> list[str]:
             problems.append(f"{label}: strategy_choice \"strategies\" must be a non-empty list")
         else:
             ids = [s.get("id") for s in strategies if isinstance(s, dict)]
-            if correct not in ids:
+            # "mixed" is a level directive (C4.1 L3): the generator rotates
+            # through the strategies, so it need not be one of the ids.
+            if correct != "mixed" and correct not in ids:
                 problems.append(
                     f"{label}: strategy_choice correct_strategy {correct!r} not among {ids}"
                 )

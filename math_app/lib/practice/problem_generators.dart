@@ -126,6 +126,24 @@ Problem _generateForTemplate(
         index,
         gen,
       );
+    case 'word_problem':
+      return _generateWordProblem(
+        spec,
+        level,
+        levelNumber,
+        seed,
+        index,
+        gen,
+      );
+    case 'strategy_choice':
+      return _generateStrategyChoice(
+        spec,
+        level,
+        levelNumber,
+        seed,
+        index,
+        gen,
+      );
     default:
       throw UnimplementedError(
         'Generator for template "${level.template}" is declared but not yet '
@@ -642,5 +660,303 @@ Problem _generateEquationGap(
 
     default:
       throw SpecFormatException('equation_gap: unknown form "$form"');
+  }
+}
+
+/// `word_problem` generator (P2 plan §5 rule 16, P3 §4.5b): picks a context
+/// and two numbers, then builds a complete German story sentence. `op: "+|-"`
+/// re-rolls the operation per problem (D1.2). `display` carries
+/// `setting_de`/`object_de`/`a`/`b`/`op` (plus `ask_operation`); `expected`
+/// is the numeric result, which is never negative (minus stories keep
+/// `a >= b`). Numbers are always `>= 2` so plural object nouns stay
+/// grammatical ("sind 4 Äpfel", "3 kommen dazu").
+Problem _generateWordProblem(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final rawContexts = level.params['contexts'];
+  if (rawContexts is! List || rawContexts.isEmpty) {
+    throw SpecFormatException(
+      'word_problem: "contexts" must be a non-empty list',
+    );
+  }
+  final contexts = <Map<String, String>>[];
+  for (final raw in rawContexts) {
+    if (raw is! Map) {
+      throw SpecFormatException(
+        'word_problem: each context must be an object with setting_de/object_de',
+      );
+    }
+    final setting = raw['setting_de'];
+    final object = raw['object_de'];
+    if (setting is! String ||
+        setting.isEmpty ||
+        object is! String ||
+        object.isEmpty) {
+      throw SpecFormatException(
+        'word_problem: each context needs non-empty "setting_de" and '
+        '"object_de"',
+      );
+    }
+    contexts.add({'setting_de': setting, 'object_de': object});
+  }
+
+  final opParam = level.stringParam('op', fallback: '+');
+  final mixedOp = opParam.contains('|');
+  final op = mixedOp ? (gen.nextInt(2) == 0 ? '+' : '-') : opParam;
+  final zr = level.intParam('zr', fallback: _maxZR);
+  final askOperation = level.boolParam('ask_operation');
+
+  final aRange = level.intListParam('a_range');
+  final bRange = level.intListParam('b_range');
+
+  int a, b;
+  if (op == '-') {
+    final aLo = aRange.isEmpty ? 2 : max(aRange[0], 2);
+    final aHi = aRange.isEmpty ? zr : aRange[1];
+    final bLo = min(bRange.isEmpty ? 2 : max(bRange[0], 2), aHi);
+    a = gen.nextIntInRange(aLo, aHi);
+    final bHi = min(bRange.isEmpty ? a : bRange[1], a);
+    b = gen.nextIntInRange(bLo, bHi);
+  } else {
+    final aLo = aRange.isEmpty ? 2 : max(aRange[0], 2);
+    final aHi = aRange.isEmpty ? zr ~/ 2 : aRange[1];
+    final bLo = bRange.isEmpty ? 2 : max(bRange[0], 2);
+    final bHi = bRange.isEmpty ? zr ~/ 2 : bRange[1];
+    a = gen.nextIntInRange(aLo, aHi);
+    b = gen.nextIntInRange(bLo, bHi);
+    var attempts = 0;
+    while (a + b > zr && attempts++ < 100) {
+      a = gen.nextIntInRange(aLo, aHi);
+      b = gen.nextIntInRange(bLo, bHi);
+    }
+    if (a + b > zr) b = max(bLo, zr - a);
+  }
+
+  final context = contexts[gen.nextInt(contexts.length)];
+  final settingDe = context['setting_de']!;
+  final objectDe = context['object_de']!;
+  final result = op == '-' ? a - b : a + b;
+
+  return Problem(
+    template: 'word_problem',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: _wordSentence(settingDe, objectDe, a, b, op),
+    display: {
+      'setting_de': settingDe,
+      'object_de': objectDe,
+      'a': a,
+      'b': b,
+      'op': op,
+      'ask_operation': askOperation,
+    },
+    expected: [result.toString()],
+  );
+}
+
+/// Builds the complete German story sentence (P2 §5 rule 16): a setting
+/// sentence, a second sentence that adds or takes away, and the standard
+/// question. Every object noun in the specs is plural, and the generator
+/// keeps both numbers `>= 2`, so the plural forms always agree.
+String _wordSentence(
+  String settingDe,
+  String objectDe,
+  int a,
+  int b,
+  String op,
+) {
+  final setting =
+      settingDe.isEmpty ? settingDe : settingDe[0].toUpperCase() + settingDe.substring(1);
+  final second =
+      op == '-' ? '$b werden weggenommen' : '$b kommen dazu';
+  return '$setting sind $a $objectDe. $second. Wie viele sind es?';
+}
+
+/// `strategy_choice` generator (P2 plan §5 rule 15, P3 §3): the child solves
+/// `a op b` and then picks the strategy that was used. `display` carries
+/// `a`, `b`, `op`, the full `strategies` list (with `label_de`) and the
+/// `correct_strategy` for this problem; `expected` is the numeric result.
+///
+/// The numbers are chosen so they genuinely exemplify the strategy:
+/// `verdoppeln` -> `a == b`, `fast_verdoppeln` -> `|a - b| == 1`,
+/// `ueber_die_zehn` -> the ones cross a tens boundary (and the pair is not a
+/// double/near-double). `correct_strategy: "mixed"` (C4.1 L3) rotates through
+/// the spec's strategies across the problems of the level, so a mixed level
+/// varies its strategies.
+Problem _generateStrategyChoice(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final op = level.stringParam('op', fallback: '+');
+  final zr = level.intParam('zr', fallback: _maxZR);
+  final aRange = level.intListParam('a_range');
+  final bRange = level.intListParam('b_range');
+  final aLo = aRange.isEmpty ? 1 : aRange[0];
+  final aHi = aRange.isEmpty ? zr : aRange[1];
+  final bLo = bRange.isEmpty ? 1 : bRange[0];
+  final bHi = bRange.isEmpty ? zr : bRange[1];
+
+  final rawStrategies = level.params['strategies'];
+  if (rawStrategies is! List || rawStrategies.isEmpty) {
+    throw SpecFormatException(
+      'strategy_choice: "strategies" must be a non-empty list',
+    );
+  }
+  final strategies = <Map<String, String>>[];
+  for (final raw in rawStrategies) {
+    if (raw is! Map) {
+      throw SpecFormatException(
+        'strategy_choice: each strategy must be an object with id/label_de',
+      );
+    }
+    final id = raw['id'];
+    final label = raw['label_de'];
+    if (id is! String || id.isEmpty || label is! String || label.isEmpty) {
+      throw SpecFormatException(
+        'strategy_choice: each strategy needs a non-empty "id" and "label_de"',
+      );
+    }
+    strategies.add({'id': id, 'label_de': label});
+  }
+
+  final correctDirective = level.stringParam('correct_strategy');
+  final mixed = correctDirective == 'mixed';
+  if (!mixed && strategies.every((s) => s['id'] != correctDirective)) {
+    throw SpecFormatException(
+      'strategy_choice: correct_strategy "$correctDirective" is not among '
+      '[${strategies.map((s) => s['id']).join(', ')}]',
+    );
+  }
+
+  final strategyId =
+      mixed ? strategies[index % strategies.length]['id']! : correctDirective;
+
+  final numbers = _strategyNumbers(
+    gen,
+    strategyId,
+    aLo,
+    aHi,
+    bLo,
+    bHi,
+    zr,
+    op,
+  );
+  final a = numbers.$1;
+  final b = numbers.$2;
+  final result = op == '-' ? a - b : a + b;
+
+  return Problem(
+    template: 'strategy_choice',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: {
+      'op': op,
+      'a': a,
+      'b': b,
+      'strategies': strategies,
+      'correct_strategy': strategyId,
+    },
+    expected: [result.toString()],
+  );
+}
+
+/// Draws `(a, b)` that genuinely exemplify [strategy] within the parameterised
+/// ranges and ZR. Subtraction stays non-negative. Unknown strategies are a
+/// spec-authoring error and fail loudly rather than silently producing
+/// numbers that do not exemplify anything.
+(int, int) _strategyNumbers(
+  SeededGenerator gen,
+  String strategy,
+  int aLo,
+  int aHi,
+  int bLo,
+  int bHi,
+  int zr,
+  String op,
+) {
+  if (op == '-') {
+    final a = gen.nextIntInRange(max(aLo, bLo), aHi);
+    final b = _clampedDraw(gen, bLo, bHi, a);
+    return (a, b);
+  }
+
+  switch (strategy) {
+    case 'verdoppeln':
+      final lo = max(max(aLo, bLo), 1);
+      final hi = min(min(aHi, bHi), zr ~/ 2);
+      if (hi < lo) {
+        throw SpecFormatException(
+          'strategy_choice: "verdoppeln" ranges cannot produce a == b inside '
+          'zr $zr',
+        );
+      }
+      final n = gen.nextIntInRange(lo, hi);
+      return (n, n);
+
+    case 'fast_verdoppeln':
+      // Near-double (m, m+1) in either order, with 2m+1 <= zr.
+      final m0Lo = max(max(aLo, bLo - 1), 1);
+      final m0Hi = min(min(aHi, bHi - 1), (zr - 1) ~/ 2);
+      final m1Lo = max(max(aLo - 1, bLo), 1);
+      final m1Hi = min(min(aHi - 1, bHi), (zr - 1) ~/ 2);
+      final can0 = m0Lo <= m0Hi;
+      final can1 = m1Lo <= m1Hi;
+      if (!can0 && !can1) {
+        throw SpecFormatException(
+          'strategy_choice: "fast_verdoppeln" ranges cannot produce a '
+          'near-double inside zr $zr',
+        );
+      }
+      final int m;
+      final int orient;
+      if (can0 && can1) {
+        m = gen.nextIntInRange(min(m0Lo, m1Lo), max(m0Hi, m1Hi));
+        final in0 = m >= m0Lo && m <= m0Hi;
+        final in1 = m >= m1Lo && m <= m1Hi;
+        orient = in0 && in1 ? gen.nextInt(2) : (in0 ? 0 : 1);
+      } else if (can0) {
+        m = gen.nextIntInRange(m0Lo, m0Hi);
+        orient = 0;
+      } else {
+        m = gen.nextIntInRange(m1Lo, m1Hi);
+        orient = 1;
+      }
+      return orient == 0 ? (m, m + 1) : (m + 1, m);
+
+    case 'ueber_die_zehn':
+      // Ones cross a tens boundary; exclude doubles/near-doubles so the
+      // "Über die Zehn" strategy is the genuinely indicated one.
+      for (var attempts = 0; attempts < 300; attempts++) {
+        final a = gen.nextIntInRange(aLo, aHi);
+        final b = gen.nextIntInRange(bLo, bHi);
+        if (a + b <= zr &&
+            (a % 10) + (b % 10) >= 10 &&
+            a != b &&
+            (a - b).abs() > 1) {
+          return (a, b);
+        }
+      }
+      final fallbackA = gen.nextIntInRange(aLo, aHi);
+      final fallbackB = _clampedDraw(gen, bLo, bHi, zr - fallbackA);
+      return (fallbackA, fallbackB);
+
+    default:
+      throw SpecFormatException(
+        'strategy_choice: unsupported strategy "$strategy"',
+      );
   }
 }

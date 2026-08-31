@@ -66,7 +66,7 @@
           { "id": "fast_verdoppeln", "label_de": "Fast verdoppeln" },
           { "id": "ueber_die_zehn", "label_de": "Über die Zehn" }
         ],
-        "correct_strategy": "fast_verdoppeln"
+        "correct_strategy": "mixed"
       },
       "problem_count": 8,
       "prompt_de": "Rechne die Aufgabe auf deine Art und wähle die passende Strategie.",

@@ -46,6 +46,17 @@ Numeris — diagnostic + Förderplan + (new) adaptive learning path and practice
 - Live DB still holds the 60-item cleanroom bank + the legacy 92-item bank; blueprint (Jakob's R2.9 edits, uncommitted) says 59 core (A1.5-01 removed). Runtime CSV + live `cleanroom-v1` row still 60. **Open decision** — gauntlet treats the live 60-item bank as the diagnostic under test until Jakob's review completes; delta tracked.
 - The P1 deployment-order note in the ledger ("NOTHING DEPLOYED") is now historical; keep docs honest.
 
+### 2026-08-31 — P2 runtime + P3 specs (branch `gauntlet/p2-p3-p4`)
+
+Committed evidence (all on `gauntlet/p2-p3-p4`):
+- `bc3133f` — P2-A: extracted all 6 manipulative visual families out of `diagnostic_screen.dart` into `lib/widgets/manipulatives/`; `visual_display_test.dart` unchanged green; suite 109/109.
+- `5bdd891` — P3: 36 skill specs authored (`docs/clean-room/skills/specs/*.json`) with provenance rows in `_provenance_specs_new.csv` (main `provenance.csv` left untouched — Jakob's R2.9 edits). Authoring agents for large batches returned empty twice; split to 2–4-skill batches → all landed.
+- `271d70d` — P2-B: `SkillSpec` model + strict parser, `SkillSpecStore`, `Problem`/`AnswerRecord`, `answer_normalization`, `SeededGenerator` harness, `scripts/check_specs.py` (all 36 pass), `scripts/sync_skill_specs.py`, bundled assets. 165 tests.
+- `6cd1977` — P3 independent critic (fresh context) reviewed the actual JSONs: 18 findings (2 Critical, 9 Important, 7 Minor), all fixed. Biggest gap caught: drag_partition needed split constraints (C2.1 make_ten / C3.3 near_double / C3.4a+b tens_ones) so a wrong split is rejected — added to P2 §5 + specs + validator. 3 rulings recorded in `.superpowers/gauntlet/p3-fixes-report.md`.
+- `7160fbf` `c4f1793` `a7bb56f` `6d8b883` `e83fcb5` — P2-C: all 16 template generators + custom registry (bundling/unbundling/numberline_mark/flash_subitize) + B2.3 nonstandard forms. **Full-bank smoke: 36 specs × 3 levels × 8 problems × 5 seeds = 4320 problems, all pass.** Suite now 298 tests, analyzer 0 errors.
+
+Deferred/flagged for P2 tasks 6-8: evaluator must handle arrangement-aware rules (C1.1b/C1.3 L2 two_groups derived quantity), flash_subitize repeats counts by design (≤5), A1.5 L1 only 2 unique problems (plan-allowed duplicate fill), B1.3/B2.3 L2 gained `ones_range` [10,18].
+
 ### 2026-08-31 — Live data snapshot (pilot)
 `schools` → Pilotschule (`pilotschule`). `classes` → 2b (`22WW`, repaired), 3a (`4A35`), Klasse 2a (`3CD7`). `students` → SCH01 (2b), S01 (Klasse 2a). `diagnostics` → cleanroom-v1 (60), imint-grundschule-zr20 (92).
 

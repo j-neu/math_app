@@ -1507,6 +1507,14 @@ Problem _generateNumberlineStep(
 /// counters (up to 20 across two frames) and the display carries the
 /// `split` (a + b == count, each 1..10) the widget fills; `five_pattern`
 /// keeps the count <= 10 so it fits one structured ten-frame.
+///
+/// For `two_groups` the spec may declare what the prompt actually asks for
+/// via the `ask` param ("total" | "difference" | "part", default "total"):
+/// `expected` is the derived quantity, not the total. C1.1b L2
+/// ("Wie viele Punkte bleiben übrig?") uses `difference` (|a−b|, groups
+/// forced unequal so the difference is >= 1); C1.3 L2 ("Wie viele Punkte
+/// sind in einer Gruppe?") uses `part` (equal groups, expected == one part
+/// == count / 2).
 Problem _generateZehnerfeldRead(
   SkillSpec spec,
   LevelSpec level,
@@ -1528,18 +1536,102 @@ Problem _generateZehnerfeldRead(
       'counters but count_range starts at $countLo',
     );
   }
-  final count = gen.nextIntInRange(countLo, countHi);
 
-  final display = <String, dynamic>{'count': count, 'arrangement': arrangement};
   if (twoGroups) {
-    // Split into two frames: each part in [1, 10], both >= 1, summing to
-    // count (e.g. 17 -> [10, 7]).
+    final ask = level.stringParam('ask', fallback: 'total');
+
+    if (ask == 'part') {
+      // Equal groups: the child reports one part, so the count must be
+      // even and expected == count / 2.
+      final evenLo = countLo.isEven ? countLo : countLo + 1;
+      final evenHi = countHi.isEven ? countHi : countHi - 1;
+      if (evenHi < evenLo) {
+        throw SpecFormatException(
+          'zehnerfeld_read: two_groups ask "part" needs an even count in '
+          '[$countLo, $countHi] so the two groups are equal',
+        );
+      }
+      final count = evenLo + 2 * gen.nextInt((evenHi - evenLo) ~/ 2 + 1);
+      final half = count ~/ 2;
+      return Problem(
+        template: 'zehnerfeld_read',
+        skillId: spec.skillId,
+        level: levelNumber,
+        seed: seed,
+        index: index,
+        promptDe: level.promptDe,
+        display: {
+          'count': count,
+          'arrangement': arrangement,
+          'ask': ask,
+          'split': [half, half],
+        },
+        expected: [half.toString()],
+      );
+    }
+
+    if (ask == 'difference') {
+      // The two groups must differ (|a−b| >= 1) and each frame holds at
+      // most 10 counters, so counts below 3 (only 1+1) or above 19 (only
+      // 10+10) can never produce an unequal split.
+      final lo = countLo < 3 ? 3 : countLo;
+      final hi = countHi > 19 ? 19 : countHi;
+      if (hi < lo) {
+        throw SpecFormatException(
+          'zehnerfeld_read: two_groups ask "difference" needs counts in '
+          '[3, 19] so the two groups differ, got [$countLo, $countHi]',
+        );
+      }
+      final count = gen.nextIntInRange(lo, hi);
+      final aLo = max(1, count - 10);
+      final aHi = min(10, count - 1);
+      var a = gen.nextIntInRange(aLo, aHi);
+      var attempts = 0;
+      while (a == count - a && attempts++ < 100) {
+        a = gen.nextIntInRange(aLo, aHi);
+      }
+      final diff = (a - (count - a)).abs();
+      return Problem(
+        template: 'zehnerfeld_read',
+        skillId: spec.skillId,
+        level: levelNumber,
+        seed: seed,
+        index: index,
+        promptDe: level.promptDe,
+        display: {
+          'count': count,
+          'arrangement': arrangement,
+          'ask': ask,
+          'split': [a, count - a],
+        },
+        expected: [diff.toString()],
+      );
+    }
+
+    // total (default): split into two frames, each part in [1, 10], both
+    // >= 1, summing to count (e.g. 17 -> [10, 7]).
+    final count = gen.nextIntInRange(countLo, countHi);
     final aLo = max(1, count - 10);
     final aHi = min(10, count - 1);
     final a = gen.nextIntInRange(aLo, aHi);
-    display['split'] = [a, count - a];
+    return Problem(
+      template: 'zehnerfeld_read',
+      skillId: spec.skillId,
+      level: levelNumber,
+      seed: seed,
+      index: index,
+      promptDe: level.promptDe,
+      display: {
+        'count': count,
+        'arrangement': arrangement,
+        'ask': ask,
+        'split': [a, count - a],
+      },
+      expected: [count.toString()],
+    );
   }
 
+  final count = gen.nextIntInRange(countLo, countHi);
   return Problem(
     template: 'zehnerfeld_read',
     skillId: spec.skillId,
@@ -1547,7 +1639,7 @@ Problem _generateZehnerfeldRead(
     seed: seed,
     index: index,
     promptDe: level.promptDe,
-    display: display,
+    display: {'count': count, 'arrangement': arrangement},
     expected: [count.toString()],
   );
 }

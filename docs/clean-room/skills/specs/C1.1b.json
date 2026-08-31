@@ -31,7 +31,8 @@
       "custom_widget": null,
       "params": {
         "count_range": [2, 10],
-        "arrangement": "two_groups"
+        "arrangement": "two_groups",
+        "ask": "difference"
       },
       "problem_count": 8,
       "prompt_de": "Die grauen Punkte werden weggenommen. Wie viele Punkte bleiben übrig? Tippe die Zahl ein.",

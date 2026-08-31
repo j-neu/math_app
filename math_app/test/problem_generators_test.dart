@@ -2158,10 +2158,111 @@ void main() {
       }
     });
 
+    test('two_groups ask difference: |a-b| >= 1, expected == difference', () {
+      final s = spec({
+        'count_range': [3, 10],
+        'arrangement': 'two_groups',
+        'ask': 'difference',
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final split = (p.display['split'] as List).cast<int>();
+          expect(p.display['ask'], 'difference');
+          final diff = (split[0] - split[1]).abs();
+          expect(diff, greaterThanOrEqualTo(1), reason: 'groups must differ');
+          expect(p.expected, [diff.toString()],
+              reason: 'expected is the difference, not the total');
+          expect(split[0] + split[1], p.display['count']);
+        }
+      }
+    });
+
+    test('two_groups ask part: equal groups, expected == count/2', () {
+      final s = spec({
+        'count_range': [2, 20],
+        'arrangement': 'two_groups',
+        'ask': 'part',
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final count = p.display['count'] as int;
+          final split = (p.display['split'] as List).cast<int>();
+          expect(p.display['ask'], 'part');
+          expect(count.isEven, isTrue, reason: 'equal groups need even counts');
+          expect(split, [count ~/ 2, count ~/ 2]);
+          expect(p.expected, ['${count ~/ 2}'],
+              reason: 'expected is one part (the half), not the total');
+        }
+      }
+    });
+
+    test('two_groups ask part with a range of only odd counts is a spec '
+        'error', () {
+      final s = spec({
+        'count_range': [5, 5],
+        'arrangement': 'two_groups',
+        'ask': 'part',
+      });
+      expect(
+        () => generateProblems(spec: s, level: 2, seed: 1),
+        throwsA(isA<SpecFormatException>()),
+      );
+    });
+
+    test('real C1.1b L2: ask difference, expected == |a-b| >= 1', () {
+      final spec = _realSpec('C1.1b');
+      for (var seed = 0; seed < 50; seed++) {
+        for (final p in generateProblems(spec: spec, level: 2, seed: seed)) {
+          expect(p.display['arrangement'], 'two_groups');
+          expect(p.display['ask'], 'difference');
+          final split = (p.display['split'] as List).cast<int>();
+          final diff = (split[0] - split[1]).abs();
+          expect(diff, greaterThanOrEqualTo(1));
+          expect(p.expected, [diff.toString()],
+              reason: 'C1.1b L2 asks "Wie viele Punkte bleiben übrig?"');
+        }
+      }
+    });
+
+    test('real C1.3 L2: ask part, equal groups, expected == count/2', () {
+      final spec = _realSpec('C1.3');
+      for (var seed = 0; seed < 50; seed++) {
+        for (final p in generateProblems(spec: spec, level: 2, seed: seed)) {
+          expect(p.display['arrangement'], 'two_groups');
+          expect(p.display['ask'], 'part');
+          final count = p.display['count'] as int;
+          final split = (p.display['split'] as List).cast<int>();
+          expect(count.isEven, isTrue);
+          expect(split, [count ~/ 2, count ~/ 2]);
+          expect(p.expected, ['${count ~/ 2}'],
+              reason: 'C1.3 L2 asks "Wie viele Punkte sind in einer Gruppe?"');
+        }
+      }
+    });
+
+    test('hand-computed C1.1b L2: problem 0 derives the difference', () {
+      final spec = _realSpec('C1.1b');
+      final p = generateProblems(spec: spec, level: 2, seed: 7).first;
+      expect(p.display['ask'], 'difference');
+      final split = (p.display['split'] as List).cast<int>();
+      expect(p.expected, ['${(split[0] - split[1]).abs()}']);
+      expect(int.parse(p.expected.single), greaterThanOrEqualTo(1));
+    });
+
     test('is deterministic and unique within a level', () {
       for (final s in [
         spec({'count_range': [1, 10], 'arrangement': 'five_pattern'}),
         spec({'count_range': [2, 20], 'arrangement': 'two_groups'}),
+        spec({
+          'count_range': [3, 10],
+          'arrangement': 'two_groups',
+          'ask': 'difference',
+        }),
+        spec({
+          'count_range': [2, 20],
+          'arrangement': 'two_groups',
+          'ask': 'part',
+        }),
       ]) {
         for (var seed = 0; seed < 50; seed++) {
           final first = generateProblems(spec: s, level: 2, seed: seed);

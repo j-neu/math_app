@@ -325,11 +325,26 @@ bool visualReadingValid(Problem p) {
         if (count > 20) return false;
         if (a < 1 || b < 1 || a > 10 || b > 10) return false;
         if (a + b != count) return false;
-      } else {
-        if (count > 10) return false;
-        if (arrangement != 'structured' && arrangement != 'five_pattern') {
-          return false;
+        final ask = p.display['ask'];
+        if (ask is! String) return false;
+        switch (ask) {
+          case 'total':
+            return p.expected.length == 1 && p.expected.single == '$count';
+          case 'difference':
+            final diff = (a - b).abs();
+            return diff >= 1 &&
+                p.expected.length == 1 &&
+                p.expected.single == '$diff';
+          case 'part':
+            return a == b &&
+                p.expected.length == 1 &&
+                p.expected.single == '${count ~/ 2}';
         }
+        return false;
+      }
+      if (count > 10) return false;
+      if (arrangement != 'structured' && arrangement != 'five_pattern') {
+        return false;
       }
       return p.expected.length == 1 && p.expected.single == '$count';
 

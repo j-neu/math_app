@@ -33,9 +33,35 @@ Author the 36 machine-readable skill specs (`docs/clean-room/skills/specs/<skill
 - `word_problem`: `ask_operation: false|true` (true → child first picks `+`/`−`, then answers).
 - `equation_solve`: `mode: "standard"|"place_value"` (place_value prompt: "4 Zehner 3 Einer = ?").
 
+## 4.5 Params vocabulary (authoritative — authors and P2 generators share this)
+
+Only these keys per template, with these meanings. Values must be chosen so the §2 math gates hold.
+
+| template | params keys |
+|---|---|
+| `drag_partition` | `total_range:[min,max]`, `parts:int(2..3)`, `equal:bool`, `box_labels:[string]` (length == parts) |
+| `place_counters` | `count_range:[min,max]`, `frame:"zehnerfeld"\|"rekenrek"\|"stellenwerttafel"`, `action:"fill"\|"take_away"` |
+| `bundle_sticks` | `count_range:[min,max]` (min ≥ 12 for bundling) |
+| `rekenrek_set` | `count_range:[min,max]`, `rows:2` |
+| `numberline_step` | `range:[lo,hi]`, `start_range:[min,max]` (inside range), `target:int`, `step:int(1,2,5,10)`, `direction:"up"\|"down"` |
+| `zehnerfeld_read` | `count_range:[min,max]`, `arrangement:"structured"\|"two_groups"\|"five_pattern"` |
+| `fingerbild_read` | `count_range:[min,max]`, `hands:1\|2` |
+| `stellenwerttafel_read` | `mode:"read"\|"sum_rows"`, `columns:["Z","E"]\|["H","Z","E"]`, `number_range:[lo,hi]` (mode read), `rows:"two_rows"` (mode sum_rows) |
+| `numberline_locate` | `range:[lo,hi]`, `value_range:[min,max]` (inside range, min ≥ 1, max ≤ hi−1) |
+| `picture_compare` | `left_range:[min,max]`, `right_range:[min,max]`, `question:"more"\|"less"\|"difference"` |
+| `equation_solve` | `op:"+"\|"-"`, `unknown:"result"\|"addend"\|"subtrahend"\|"minuend"`, `zr:int`, `a_range:[min,max]`, `b_range:[min,max]`, `mode:"standard"\|"place_value"` (place_value uses tens/ones ranges instead) |
+| `equation_gap` | `op:"+"\|"-"`, `form:"gap"\|"helper"\|"missing_addend"\|"place_value"\|"half"\|"double"\|"neighbor"\|"helper_double"`, `zr:int` (+ form-specific ranges: `a_range`, `b_range`, `tens_range`, `ones_range`, `start_range`, `step`) |
+| `sequence_gap` | `direction:"up"\|"down"`, `step:int`, `start_range:[min,max]`, `length:int`, `gap_indices:[int...]` |
+| `compare_symbols` | `a_range:[min,max]`, `b_range:[min,max]`, `zr:int` |
+| `strategy_choice` | `op:"+"\|"-"`, `zr:int`, `a_range`, `b_range`, `strategies:[{id,label_de}]`, `correct_strategy:id` |
+| `word_problem` | `contexts:[{setting_de,object_de}]` (≥2 entries), `op:"+"\|"-"`, `zr:int`, `ask_operation:bool` |
+| custom | `bundling`/`unbundling`: `number_range:[12,39]`; `flash_subitize`: `count_range:[min,max]` (max ≤ 5), `flash_ms:800`, `display:"dots"\|"rekenrek"`; `numberline_mark`: `range`, `value_range` |
+
 ## 4. Authoritative level mapping (skill → L1/L2/L3 template: params)
 
 Representation order within each skill: L1 enaktiv, L2 ikonisch, L3 symbolisch. Where a construct has no natural enaktiv form, the mapping substitutes the nearest concrete form; rationale recorded in the spec's provenance `notes`.
+
+**Hard rule on the `representation` field:** it must record the ACTUAL template category, never the ordinal slot. Template categories are fixed: enaktiv = `drag_partition, place_counters, bundle_sticks, rekenrek_set, numberline_step`; ikonisch = `zehnerfeld_read, fingerbild_read, stellenwerttafel_read, numberline_locate, picture_compare`; symbolisch = `equation_solve, equation_gap, sequence_gap, compare_symbols, strategy_choice, word_problem`; custom widgets: `bundling`/`unbundling` = enaktiv, `flash_subitize`/`numberline_mark` = ikonisch. Consequence for the table below: A1.1a/b, A1.2a/b, A1.3, A1.4, A1.5, A2.3, A3.2 (L2), A3.3 (L2), C2.1 (L2), C2.3, C3.2, C3.3, C3.4a/b, C4.1, C4.2, D1.1, D1.2 may end up with a symbolic level in the L1 or L2 slot when no enaktiv/ikonisch template fits the construct — that is correct and expected; the level's `representation` is set accordingly, and the row's rationale goes into the spec's provenance `notes`.
 
 ### Domain A — Zahlbegriff (12)
 | Skill | L1 | L2 | L3 |

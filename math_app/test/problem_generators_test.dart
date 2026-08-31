@@ -215,11 +215,11 @@ void main() {
     test('unimplemented templates throw UnimplementedError', () {
       final spec = SkillSpec.fromJson(
         _baseSpec(
-          _level(2, 'symbolisch', 'picture_compare', {
-            'left_range': [1, 10],
-            'right_range': [1, 10],
-            'question': 'more',
-          }, 7000),
+          _level(2, 'ikonisch', 'custom_widget', {
+            'count_range': [1, 5],
+            'flash_ms': 800,
+            'display': 'dots',
+          }, 9000, customWidget: 'flash_subitize'),
         ),
       );
       expect(
@@ -1845,6 +1845,644 @@ void main() {
         expect(_signature(first), _signature(second));
         final keys = first.map((p) => jsonEncode(p.display)).toSet();
         expect(keys.length, first.length, reason: 'seed $seed');
+      }
+    });
+  });
+
+  group('numberline_step generator', () {
+    SkillSpec spec(Map<String, dynamic> params) => SkillSpec.fromJson(
+      _baseSpec(_level(2, 'enaktiv', 'numberline_step', params, 9000)),
+    );
+
+    List<int> tapped(Problem p) => p.expected.map(int.parse).toList();
+
+    test('up step 1 (A1.1a): start in start_range, run reaches target 20', () {
+      final s = spec({
+        'range': [0, 20],
+        'start_range': [10, 12],
+        'target': 20,
+        'step': 1,
+        'direction': 'up',
+      });
+      for (var seed = 0; seed < 100; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final start = p.display['start'] as int;
+          final values = tapped(p);
+          expect(start, inInclusiveRange(10, 12));
+          expect(p.display['range'], [0, 20]);
+          expect(p.display['target'], 20);
+          expect(p.display['step'], 1);
+          expect(p.display['direction'], 'up');
+          expect(values, hasLength(20 - start));
+          expect(values.first, start + 1);
+          expect(values.last, 20, reason: 'run reaches the target');
+          expect(
+            values,
+            [for (var v = start + 1; v <= 20; v++) v],
+            reason: 'exact sequence the child taps',
+          );
+          expect(values.every((v) => v <= 20), isTrue);
+          expect(values.every((v) => v >= 0), isTrue);
+        }
+      }
+    });
+
+    test('down step 1 (A1.2a): run descends to target 12', () {
+      final s = spec({
+        'range': [0, 20],
+        'start_range': [18, 20],
+        'target': 12,
+        'step': 1,
+        'direction': 'down',
+      });
+      for (var seed = 0; seed < 100; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final start = p.display['start'] as int;
+          final values = tapped(p);
+          expect(start, inInclusiveRange(18, 20));
+          expect(p.display['direction'], 'down');
+          expect(values.first, start - 1);
+          expect(values.last, 12);
+          for (var i = 0; i < values.length - 1; i++) {
+            expect(values[i] - values[i + 1], 1, reason: 'down by one');
+          }
+          expect(values.every((v) => v >= 0), isTrue);
+        }
+      }
+    });
+
+    test('A1.3 step 2: start_range [2,10] filtered to even starts only', () {
+      final s = spec({
+        'range': [0, 30],
+        'start_range': [2, 10],
+        'target': 20,
+        'step': 2,
+        'direction': 'up',
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final start = p.display['start'] as int;
+          expect(start.isEven, isTrue,
+              reason: 'start must be congruent to 20 mod 2');
+          final values = tapped(p);
+          expect(values.every((v) => v.isEven), isTrue);
+          expect(values.last, 20);
+          for (var i = 0; i < values.length - 1; i++) {
+            expect(values[i + 1] - values[i], 2, reason: 'step 2');
+          }
+        }
+      }
+    });
+
+    test('A1.5 window crossing 30: run crosses the tens boundary', () {
+      final s = spec({
+        'range': [28, 32],
+        'start_range': [28, 29],
+        'target': 30,
+        'step': 1,
+        'direction': 'up',
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final start = p.display['start'] as int;
+          final values = tapped(p);
+          expect(start, inInclusiveRange(28, 29));
+          expect(values.contains(30), isTrue, reason: 'crosses the window');
+          expect(values.last, 30);
+          expect(values.every((v) => v >= 28 && v <= 32), isTrue);
+        }
+      }
+    });
+
+    test('C3.2 step 5: start congruent to 45 mod 5, run to 45', () {
+      final s = spec({
+        'range': [0, 50],
+        'start_range': [25, 35],
+        'target': 45,
+        'step': 5,
+        'direction': 'up',
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final start = p.display['start'] as int;
+          expect(start % 5, 0, reason: 'congruent to 45 mod 5');
+          final values = tapped(p);
+          expect(values.last, 45);
+          for (var i = 0; i < values.length - 1; i++) {
+            expect(values[i + 1] - values[i], 5, reason: 'step 5');
+          }
+        }
+      }
+    });
+
+    test('hand-computed: A1.1a seed 3 starts at 11 and taps 12..20', () {
+      final s = spec({
+        'range': [0, 20],
+        'start_range': [10, 12],
+        'target': 20,
+        'step': 1,
+        'direction': 'up',
+      });
+      final p = generateProblems(spec: s, level: 2, seed: 3).first;
+      expect(p.display['start'], 11);
+      expect(p.expected, [for (var v = 12; v <= 20; v++) '$v']);
+    });
+
+    test('a start_range that cannot reach the target is a spec error', () {
+      final s = spec({
+        'range': [0, 20],
+        'start_range': [19, 19],
+        'target': 20,
+        'step': 2,
+        'direction': 'up',
+      });
+      expect(
+        () => generateProblems(spec: s, level: 2, seed: 1),
+        throwsA(isA<SpecFormatException>()),
+      );
+    });
+
+    test('real A1.3 L1 and A1.5 L1 stay inside their windows', () {
+      for (final id in ['A1.3', 'A1.5']) {
+        final real = _realSpec(id);
+        for (var seed = 0; seed < 30; seed++) {
+          for (final p in generateProblems(spec: real, level: 1, seed: seed)) {
+            final range = (p.display['range'] as List).cast<int>();
+            expect(range, hasLength(2));
+            for (final v in tapped(p)) {
+              expect(v, inInclusiveRange(range[0], range[1]),
+                  reason: '$id L1 seed $seed');
+            }
+          }
+        }
+      }
+    });
+
+    test('is deterministic, unique within a level and carries all fields', () {
+      final s = spec({
+        'range': [0, 20],
+        'start_range': [2, 18],
+        'target': 20,
+        'step': 2,
+        'direction': 'up',
+      });
+      for (var seed = 0; seed < 50; seed++) {
+        final first = generateProblems(spec: s, level: 2, seed: seed);
+        final second = generateProblems(spec: s, level: 2, seed: seed);
+        expect(_signature(first), _signature(second));
+        final keys = first.map((p) => jsonEncode(p.display)).toSet();
+        expect(keys.length, first.length, reason: 'unique seed $seed');
+      }
+      final problems = generateProblems(spec: s, level: 2, seed: 7);
+      for (var i = 0; i < problems.length; i++) {
+        expect(problems[i].index, i);
+        expect(problems[i].expected, isNotEmpty);
+        expect(problems[i].promptDe, isNotEmpty);
+        expect(problems[i].template, 'numberline_step');
+      }
+    });
+  });
+
+  group('zehnerfeld_read generator', () {
+    SkillSpec spec(Map<String, dynamic> params) => SkillSpec.fromJson(
+      _baseSpec(_level(2, 'ikonisch', 'zehnerfeld_read', params, 7000)),
+    );
+
+    test('structured: count in range, expected == count', () {
+      final s = spec({'count_range': [1, 10], 'arrangement': 'structured'});
+      for (var seed = 0; seed < 100; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final count = p.display['count'] as int;
+          expect(count, inInclusiveRange(1, 10));
+          expect(p.display['arrangement'], 'structured');
+          expect(p.expected, [count.toString()]);
+        }
+      }
+    });
+
+    test('five_pattern: count <= 10 (A2.2 L2)', () {
+      final s = spec({'count_range': [1, 10], 'arrangement': 'five_pattern'});
+      for (var seed = 0; seed < 100; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          expect(p.display['count'] as int, inInclusiveRange(1, 10));
+          expect(p.display['arrangement'], 'five_pattern');
+          expect(p.expected, ['${p.display['count']}']);
+        }
+      }
+    });
+
+    test('two_groups: count up to 20 split across two frames (each <= 10)', () {
+      final s = spec({'count_range': [2, 20], 'arrangement': 'two_groups'});
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final count = p.display['count'] as int;
+          final split = (p.display['split'] as List).cast<int>();
+          expect(count, inInclusiveRange(2, 20));
+          expect(split, hasLength(2));
+          expect(split[0] + split[1], count, reason: 'a + b == count');
+          expect(split[0], inInclusiveRange(1, 10));
+          expect(split[1], inInclusiveRange(1, 10));
+          expect(p.expected, [count.toString()], reason: 'expected == count');
+          expect(p.display['arrangement'], 'two_groups');
+        }
+      }
+    });
+
+    test('two_groups 17 splits as 10 + 7 (C1.2 range, each <= 10)', () {
+      final s = spec({'count_range': [17, 17], 'arrangement': 'two_groups'});
+      final p = generateProblems(spec: s, level: 2, seed: 1).first;
+      expect(p.display['count'], 17);
+      final split = (p.display['split'] as List).cast<int>();
+      expect(split, [10, 7], reason: '17 = 10 + 7 across two frames');
+      expect(split[0] + split[1], 17);
+      expect(split[0], inInclusiveRange(1, 10));
+      expect(split[1], inInclusiveRange(1, 10));
+      expect(p.expected, ['17']);
+    });
+
+    test('two_groups count 20 splits as 10 + 10', () {
+      final s = spec({'count_range': [20, 20], 'arrangement': 'two_groups'});
+      for (final p in generateProblems(spec: s, level: 2, seed: 1)) {
+        expect((p.display['split'] as List).cast<int>(), [10, 10]);
+        expect(p.expected, ['20']);
+      }
+    });
+
+    test('is deterministic and unique within a level', () {
+      for (final s in [
+        spec({'count_range': [1, 10], 'arrangement': 'five_pattern'}),
+        spec({'count_range': [2, 20], 'arrangement': 'two_groups'}),
+      ]) {
+        for (var seed = 0; seed < 50; seed++) {
+          final first = generateProblems(spec: s, level: 2, seed: seed);
+          final second = generateProblems(spec: s, level: 2, seed: seed);
+          expect(_signature(first), _signature(second));
+          final keys = first.map((p) => jsonEncode(p.display)).toSet();
+          expect(keys.length, first.length, reason: 'unique seed $seed');
+        }
+      }
+    });
+  });
+
+  group('fingerbild_read generator', () {
+    SkillSpec spec(Map<String, dynamic> params) => SkillSpec.fromJson(
+      _baseSpec(_level(2, 'ikonisch', 'fingerbild_read', params, 7000)),
+    );
+
+    test('hands 2: count up to 10 (both hands may be used)', () {
+      final s = spec({'count_range': [1, 10], 'hands': 2});
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final count = p.display['count'] as int;
+          expect(count, inInclusiveRange(1, 10));
+          expect(p.display['hands'], 2);
+          expect(p.expected, [count.toString()]);
+        }
+      }
+    });
+
+    test('hands 1: count capped at 5 (single hand)', () {
+      final s = spec({'count_range': [1, 10], 'hands': 1});
+      for (var seed = 0; seed < 100; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          expect(p.display['count'] as int, inInclusiveRange(1, 5));
+          expect(p.display['hands'], 1);
+          expect(p.expected, ['${p.display['count']}']);
+        }
+      }
+    });
+
+    test('hands 2 with count 10 reproduces 10 (A2.2 L3)', () {
+      final s = spec({'count_range': [10, 10], 'hands': 2});
+      for (final p in generateProblems(spec: s, level: 2, seed: 1)) {
+        expect(p.display['count'], 10);
+        expect(p.expected, ['10']);
+      }
+    });
+
+    test('is deterministic and unique within a level', () {
+      final s = spec({'count_range': [1, 10], 'hands': 2});
+      for (var seed = 0; seed < 50; seed++) {
+        final first = generateProblems(spec: s, level: 2, seed: seed);
+        final second = generateProblems(spec: s, level: 2, seed: seed);
+        expect(_signature(first), _signature(second));
+        final keys = first.map((p) => jsonEncode(p.display)).toSet();
+        expect(keys.length, first.length, reason: 'unique seed $seed');
+      }
+    });
+  });
+
+  group('stellenwerttafel_read generator', () {
+    SkillSpec spec(Map<String, dynamic> params) => SkillSpec.fromJson(
+      _baseSpec(_level(2, 'ikonisch', 'stellenwerttafel_read', params, 7000)),
+    );
+
+    test('mode read: number in 11..99 with Z/E digit breakdown', () {
+      final s = spec({
+        'mode': 'read',
+        'columns': ['Z', 'E'],
+        'number_range': [11, 99],
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final number = p.display['number'] as int;
+          final tens = p.display['tens'] as int;
+          final ones = p.display['ones'] as int;
+          expect(number, inInclusiveRange(11, 99));
+          expect(tens, number ~/ 10);
+          expect(ones, number % 10);
+          expect(tens, inInclusiveRange(1, 9));
+          expect(ones, inInclusiveRange(0, 9));
+          expect(p.display['mode'], 'read');
+          expect(p.display['columns'], ['Z', 'E']);
+          expect(p.expected, [number.toString()], reason: 'expected == number');
+        }
+      }
+    });
+
+    test('mode read 99 -> tens 9, ones 9', () {
+      final s = spec({
+        'mode': 'read',
+        'columns': ['Z', 'E'],
+        'number_range': [99, 99],
+      });
+      for (final p in generateProblems(spec: s, level: 2, seed: 1)) {
+        expect(p.display['number'], 99);
+        expect(p.display['tens'], 9);
+        expect(p.display['ones'], 9);
+        expect(p.expected, ['99']);
+      }
+    });
+
+    test('mode sum_rows op +: expected == row1 + row2 column-wise <= 99', () {
+      final s = spec({
+        'mode': 'sum_rows',
+        'columns': ['Z', 'E'],
+        'rows': 'two_rows',
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final row1 = (p.display['row1'] as List).cast<int>();
+          final row2 = (p.display['row2'] as List).cast<int>();
+          final op = p.display['op'] as String;
+          expect(op, '+');
+          expect(row1, hasLength(2));
+          expect(row2, hasLength(2));
+          expect(row1[0], inInclusiveRange(1, 9));
+          expect(row2[0], inInclusiveRange(1, 9));
+          expect(row1[1], inInclusiveRange(0, 9));
+          expect(row2[1], inInclusiveRange(0, 9));
+          expect(row1[0] + row2[0], lessThanOrEqualTo(9),
+              reason: 'no tens carry');
+          expect(row1[1] + row2[1], lessThanOrEqualTo(9),
+              reason: 'no ones carry');
+          final value = (row1[0] + row2[0]) * 10 + (row1[1] + row2[1]);
+          expect(value, lessThanOrEqualTo(99), reason: 'ZR100');
+          expect(p.expected, [value.toString()]);
+          expect(p.display['value'], value);
+        }
+      }
+    });
+
+    test('mode sum_rows op -: result >= 0, column-wise no borrow', () {
+      final s = spec({
+        'mode': 'sum_rows',
+        'columns': ['Z', 'E'],
+        'rows': 'two_rows',
+        'op': '-',
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final row1 = (p.display['row1'] as List).cast<int>();
+          final row2 = (p.display['row2'] as List).cast<int>();
+          expect(p.display['op'], '-');
+          expect(row1[0], greaterThan(row2[0]), reason: 'tens strictly larger');
+          expect(row1[1], greaterThanOrEqualTo(row2[1]),
+              reason: 'no borrow in the ones column');
+          final value = (row1[0] - row2[0]) * 10 + (row1[1] - row2[1]);
+          expect(value, greaterThanOrEqualTo(0), reason: 'result >= 0');
+          expect(value, greaterThanOrEqualTo(10), reason: 'two-digit result');
+          expect(p.expected, [value.toString()]);
+          expect(p.display['value'], value);
+        }
+      }
+    });
+
+    test('sum_rows minus keeps row1 >= row2 as numbers', () {
+      final s = spec({
+        'mode': 'sum_rows',
+        'columns': ['Z', 'E'],
+        'rows': 'two_rows',
+        'op': '-',
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final row1 = (p.display['row1'] as List).cast<int>();
+          final row2 = (p.display['row2'] as List).cast<int>();
+          final v1 = row1[0] * 10 + row1[1];
+          final v2 = row2[0] * 10 + row2[1];
+          expect(v1, greaterThan(v2), reason: 'row1 >= row2');
+        }
+      }
+    });
+
+    test('is deterministic and unique within a level', () {
+      for (final s in [
+        spec({
+          'mode': 'read',
+          'columns': ['Z', 'E'],
+          'number_range': [11, 99],
+        }),
+        spec({
+          'mode': 'sum_rows',
+          'columns': ['Z', 'E'],
+          'rows': 'two_rows',
+        }),
+        spec({
+          'mode': 'sum_rows',
+          'columns': ['Z', 'E'],
+          'rows': 'two_rows',
+          'op': '-',
+        }),
+      ]) {
+        for (var seed = 0; seed < 50; seed++) {
+          final first = generateProblems(spec: s, level: 2, seed: seed);
+          final second = generateProblems(spec: s, level: 2, seed: seed);
+          expect(_signature(first), _signature(second));
+          final keys = first.map((p) => jsonEncode(p.display)).toSet();
+          expect(keys.length, first.length, reason: 'unique seed $seed');
+        }
+      }
+    });
+  });
+
+  group('numberline_locate generator', () {
+    SkillSpec spec(Map<String, dynamic> params) => SkillSpec.fromJson(
+      _baseSpec(_level(2, 'ikonisch', 'numberline_locate', params, 7000)),
+    );
+
+    test('value inside value_range and never an endpoint (B2.2 L2)', () {
+      final s = spec({'range': [0, 20], 'value_range': [1, 19]});
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final value = p.display['value'] as int;
+          expect(value, inInclusiveRange(1, 19));
+          expect(value, greaterThan(0), reason: 'not the lo endpoint');
+          expect(value, lessThan(20), reason: 'not the hi endpoint');
+          expect(p.display['range'], [0, 20]);
+          expect(p.expected, [value.toString()], reason: 'expected == value');
+        }
+      }
+    });
+
+    test('ZR100 locates within 1..99 (B2.2 L3)', () {
+      final s = spec({'range': [0, 100], 'value_range': [1, 99]});
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final value = p.display['value'] as int;
+          expect(value, inInclusiveRange(1, 99));
+          expect(value, isNot(0));
+          expect(value, isNot(100));
+        }
+      }
+    });
+
+    test('a degenerate value_range covering the endpoints is clamped', () {
+      final s = spec({'range': [0, 20], 'value_range': [0, 20]});
+      for (var seed = 0; seed < 100; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          expect(p.display['value'] as int, inInclusiveRange(1, 19));
+        }
+      }
+    });
+
+    test('is deterministic and unique within a level', () {
+      final s = spec({'range': [0, 100], 'value_range': [1, 99]});
+      for (var seed = 0; seed < 50; seed++) {
+        final first = generateProblems(spec: s, level: 2, seed: seed);
+        final second = generateProblems(spec: s, level: 2, seed: seed);
+        expect(_signature(first), _signature(second));
+        final keys = first.map((p) => jsonEncode(p.display)).toSet();
+        expect(keys.length, first.length, reason: 'unique seed $seed');
+      }
+    });
+  });
+
+  group('picture_compare generator', () {
+    SkillSpec spec(Map<String, dynamic> params) => SkillSpec.fromJson(
+      _baseSpec(_level(2, 'ikonisch', 'picture_compare', params, 7000)),
+    );
+
+    test('more: |left-right| >= 1 and expected is the larger side', () {
+      final s = spec({
+        'left_range': [1, 10],
+        'right_range': [1, 10],
+        'question': 'more',
+        'difference_min': 1,
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final left = p.display['left'] as int;
+          final right = p.display['right'] as int;
+          expect(left, inInclusiveRange(1, 10));
+          expect(right, inInclusiveRange(1, 10));
+          expect((left - right).abs(), greaterThanOrEqualTo(1),
+              reason: 'never equal');
+          final expected = left > right ? 'left' : 'right';
+          expect(p.expected, [expected]);
+          expect(p.display['question'], 'more');
+        }
+      }
+    });
+
+    test('less: expected is the smaller side', () {
+      final s = spec({
+        'left_range': [1, 10],
+        'right_range': [1, 10],
+        'question': 'less',
+        'difference_min': 1,
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final left = p.display['left'] as int;
+          final right = p.display['right'] as int;
+          final expected = left < right ? 'left' : 'right';
+          expect(p.expected, [expected]);
+        }
+      }
+    });
+
+    test('difference: expected == |left-right| >= 1', () {
+      final s = spec({
+        'left_range': [1, 10],
+        'right_range': [1, 10],
+        'question': 'difference',
+        'difference_min': 1,
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final left = p.display['left'] as int;
+          final right = p.display['right'] as int;
+          final diff = (left - right).abs();
+          expect(diff, greaterThanOrEqualTo(1));
+          expect(p.expected, [diff.toString()]);
+        }
+      }
+    });
+
+    test('difference_min is honoured', () {
+      final s = spec({
+        'left_range': [1, 10],
+        'right_range': [1, 10],
+        'question': 'more',
+        'difference_min': 3,
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final left = p.display['left'] as int;
+          final right = p.display['right'] as int;
+          expect((left - right).abs(), greaterThanOrEqualTo(3));
+        }
+      }
+    });
+
+    test('display carries left, right, question', () {
+      final s = spec({
+        'left_range': [3, 3],
+        'right_range': [5, 5],
+        'question': 'more',
+        'difference_min': 1,
+      });
+      for (final p in generateProblems(spec: s, level: 2, seed: 1)) {
+        expect(p.display['left'], 3);
+        expect(p.display['right'], 5);
+        expect(p.display['question'], 'more');
+        expect(p.expected, ['right'], reason: '5 is more than 3');
+      }
+    });
+
+    test('is deterministic and unique within a level', () {
+      for (final s in [
+        spec({
+          'left_range': [1, 10],
+          'right_range': [1, 10],
+          'question': 'more',
+          'difference_min': 1,
+        }),
+        spec({
+          'left_range': [1, 10],
+          'right_range': [1, 10],
+          'question': 'difference',
+          'difference_min': 1,
+        }),
+      ]) {
+        for (var seed = 0; seed < 50; seed++) {
+          final first = generateProblems(spec: s, level: 2, seed: seed);
+          final second = generateProblems(spec: s, level: 2, seed: seed);
+          expect(_signature(first), _signature(second));
+          final keys = first.map((p) => jsonEncode(p.display)).toSet();
+          expect(keys.length, first.length, reason: 'unique seed $seed');
+        }
       }
     });
   });

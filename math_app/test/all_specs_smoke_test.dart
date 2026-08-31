@@ -262,6 +262,148 @@ bool manipulativeValid(Problem p) {
   return false;
 }
 
+/// True when a visual/reading-template Problem (numberline_step,
+/// zehnerfeld_read, fingerbild_read, stellenwerttafel_read,
+/// numberline_locate, picture_compare) is well-formed: the tapped number-line
+/// run is the exact congruent sequence to the target, counts respect their
+/// frame, the Stellenwerttafel arithmetic holds with a non-negative minus
+/// result, locate values are never endpoints, and comparison questions always
+/// have a definite answer.
+bool visualReadingValid(Problem p) {
+  if (p.expected.isEmpty) return false;
+  switch (p.template) {
+    case 'numberline_step':
+      final range = p.display['range'];
+      final start = p.display['start'];
+      final target = p.display['target'];
+      final step = p.display['step'];
+      final direction = p.display['direction'];
+      if (range is! List || range.length != 2) return false;
+      if (start is! int || target is! int || step is! int) return false;
+      if (direction is! String) return false;
+      final lo = (range[0] as num).toInt();
+      final hi = (range[1] as num).toInt();
+      if (start < lo || start > hi || target < lo || target > hi) return false;
+      if (!const {1, 2, 5, 10}.contains(step)) return false;
+      if (direction != 'up' && direction != 'down') return false;
+      if (start % step != target % step) return false;
+      if (direction == 'up' && start >= target) return false;
+      if (direction == 'down' && start <= target) return false;
+      final dir = direction == 'up' ? 1 : -1;
+      final expectedRun = <int>[];
+      for (var v = start + dir * step;
+          direction == 'up' ? v <= target : v >= target;
+          v += dir * step) {
+        expectedRun.add(v);
+      }
+      final values = p.expected.map(int.tryParse).toList();
+      if (values.any((v) => v == null)) return false;
+      if (values.length != expectedRun.length) return false;
+      for (var i = 0; i < values.length; i++) {
+        if (values[i] != expectedRun[i]) return false;
+        if (values[i]! < lo || values[i]! > hi) return false;
+      }
+      return true;
+
+    case 'zehnerfeld_read':
+      final count = p.display['count'];
+      final arrangement = p.display['arrangement'];
+      if (count is! int || arrangement is! String || count < 1) return false;
+      if (arrangement == 'two_groups') {
+        final split = p.display['split'];
+        if (split is! List || split.length != 2) return false;
+        final a = (split[0] as num).toInt();
+        final b = (split[1] as num).toInt();
+        if (count > 20) return false;
+        if (a < 1 || b < 1 || a > 10 || b > 10) return false;
+        if (a + b != count) return false;
+      } else {
+        if (count > 10) return false;
+        if (arrangement != 'structured' && arrangement != 'five_pattern') {
+          return false;
+        }
+      }
+      return p.expected.length == 1 && p.expected.single == '$count';
+
+    case 'fingerbild_read':
+      final count = p.display['count'];
+      final hands = p.display['hands'];
+      if (count is! int || hands is! int || count < 1) return false;
+      if (hands == 1 && count > 5) return false;
+      if (hands == 2 && count > 10) return false;
+      if (hands != 1 && hands != 2) return false;
+      return p.expected.length == 1 && p.expected.single == '$count';
+
+    case 'stellenwerttafel_read':
+      final mode = p.display['mode'];
+      if (mode == 'read') {
+        final number = p.display['number'];
+        final tens = p.display['tens'];
+        final ones = p.display['ones'];
+        if (number is! int || tens is! int || ones is! int) return false;
+        if (number < 11 || number > 99) return false;
+        if (tens != number ~/ 10 || ones != number % 10) return false;
+        return p.expected.length == 1 && p.expected.single == '$number';
+      }
+      if (mode == 'sum_rows') {
+        final op = p.display['op'];
+        final row1 = p.display['row1'];
+        final row2 = p.display['row2'];
+        if (op is! String || row1 is! List || row2 is! List) return false;
+        if (row1.length != 2 || row2.length != 2) return false;
+        final t1 = (row1[0] as num).toInt();
+        final o1 = (row1[1] as num).toInt();
+        final t2 = (row2[0] as num).toInt();
+        final o2 = (row2[1] as num).toInt();
+        for (final d in [t1, o1, t2, o2]) {
+          if (d < 0 || d > 9) return false;
+        }
+        final int value;
+        if (op == '+') {
+          value = (t1 + t2) * 10 + (o1 + o2);
+          if (value > 99) return false;
+        } else if (op == '-') {
+          value = (t1 - t2) * 10 + (o1 - o2);
+          if (value < 0) return false;
+        } else {
+          return false;
+        }
+        return p.expected.length == 1 && p.expected.single == '$value';
+      }
+      return false;
+
+    case 'numberline_locate':
+      final range = p.display['range'];
+      final value = p.display['value'];
+      if (range is! List || range.length != 2 || value is! int) return false;
+      final lo = (range[0] as num).toInt();
+      final hi = (range[1] as num).toInt();
+      if (value <= lo || value >= hi) return false;
+      return p.expected.length == 1 && p.expected.single == '$value';
+
+    case 'picture_compare':
+      final left = p.display['left'];
+      final right = p.display['right'];
+      final question = p.display['question'];
+      if (left is! int || right is! int || question is! String) return false;
+      if (left < 1 || right < 1) return false;
+      final diff = (left - right).abs();
+      if (diff < 1) return false;
+      switch (question) {
+        case 'more':
+          return p.expected.length == 1 &&
+              p.expected.single == (left > right ? 'left' : 'right');
+        case 'less':
+          return p.expected.length == 1 &&
+              p.expected.single == (left < right ? 'left' : 'right');
+        case 'difference':
+          return p.expected.length == 1 && p.expected.single == '$diff';
+      }
+      return false;
+  }
+  return false;
+}
+
 void main() {
   group('real specs: equation_solve / equation_gap levels generate', () {
     final dir = Directory(_specsDir);
@@ -542,6 +684,132 @@ void main() {
                 'place_counters',
                 'bundle_sticks',
                 'rekenrek_set',
+              }.contains(levelSpec.template)) {
+            continue;
+          }
+          final a = generateProblems(spec: spec, level: level, seed: 7);
+          final b = generateProblems(spec: spec, level: level, seed: 7);
+          expect(
+            jsonEncode(a.map((p) => p.toJson()).toList()),
+            jsonEncode(b.map((p) => p.toJson()).toList()),
+            reason: '${spec.skillId} L$level',
+          );
+        }
+      }
+    });
+  });
+
+  group('real specs: visual/reading levels generate (P2 task 5)', () {
+    final dir = Directory(_specsDir);
+    if (!dir.existsSync()) {
+      fail('real spec tree must exist at $_specsDir');
+    }
+    final files =
+        dir
+            .listSync()
+            .whereType<File>()
+            .where((f) => f.path.endsWith('.json'))
+            .toList()
+          ..sort((a, b) => a.path.compareTo(b.path));
+    final specs = [
+      for (final file in files)
+        SkillSpec.fromJson(
+          jsonDecode(file.readAsStringSync()) as Map<String, dynamic>,
+        ),
+    ];
+
+    test('every numberline_step/zehnerfeld_read/fingerbild_read/'
+        'stellenwerttafel_read/numberline_locate/picture_compare level yields '
+        'valid problems', () {
+      var checkedLevels = 0;
+      for (final spec in specs) {
+        for (var level = 1; level <= 3; level++) {
+          final levelSpec = spec.levelSpec(level);
+          if (!const {
+                'numberline_step',
+                'zehnerfeld_read',
+                'fingerbild_read',
+                'stellenwerttafel_read',
+                'numberline_locate',
+                'picture_compare',
+              }.contains(levelSpec.template)) {
+            continue;
+          }
+          checkedLevels++;
+          for (var seed = 0; seed < 3; seed++) {
+            final problems = generateProblems(
+              spec: spec,
+              level: level,
+              seed: seed,
+            );
+            expect(
+              problems,
+              hasLength(levelSpec.problemCount),
+              reason: '${spec.skillId} L$level seed $seed',
+            );
+            for (var i = 0; i < problems.length; i++) {
+              final p = problems[i];
+              expect(p.index, i, reason: '${spec.skillId} L$level');
+              expect(p.promptDe, isNotEmpty);
+              expect(p.promptDe, isNotEmpty, reason: 'German prompt');
+              expect(
+                visualReadingValid(p),
+                isTrue,
+                reason: '${spec.skillId} L$level seed $seed: '
+                    '${jsonEncode(p.toJson())}',
+              );
+            }
+          }
+        }
+      }
+      expect(checkedLevels, greaterThan(0));
+    });
+
+    test('the template-specific gates hold per skill', () {
+      final gate = <String, (String, int)>{
+        'A1.3': ('numberline_step', 1),
+        'A1.5': ('numberline_step', 1),
+        'A2.3': ('picture_compare', 2),
+        'B2.2': ('numberline_locate', 3),
+      };
+      for (final spec in specs) {
+        final (template, level) = gate[spec.skillId] ?? ('', 0);
+        if (template.isEmpty) continue;
+        final levelSpec = spec.levelSpec(level);
+        expect(levelSpec.template, template,
+            reason: '${spec.skillId} L$level template');
+        for (var seed = 0; seed < 20; seed++) {
+          for (final p in generateProblems(
+            spec: spec,
+            level: level,
+            seed: seed,
+          )) {
+            expect(
+              visualReadingValid(p),
+              isTrue,
+              reason: '${spec.skillId} L$level seed $seed',
+            );
+            if (template == 'numberline_step') {
+              expect((p.display['direction'] as String), isNotEmpty);
+              expect(p.expected.last, '${p.display['target']}',
+                  reason: 'the run ends on the target');
+            }
+          }
+        }
+      }
+    });
+
+    test('generation is deterministic on the visual/reading levels', () {
+      for (final spec in specs) {
+        for (var level = 1; level <= 3; level++) {
+          final levelSpec = spec.levelSpec(level);
+          if (!const {
+                'numberline_step',
+                'zehnerfeld_read',
+                'fingerbild_read',
+                'stellenwerttafel_read',
+                'numberline_locate',
+                'picture_compare',
               }.contains(levelSpec.template)) {
             continue;
           }

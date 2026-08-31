@@ -180,6 +180,60 @@ Problem _generateForTemplate(
         index,
         gen,
       );
+    case 'numberline_step':
+      return _generateNumberlineStep(
+        spec,
+        level,
+        levelNumber,
+        seed,
+        index,
+        gen,
+      );
+    case 'zehnerfeld_read':
+      return _generateZehnerfeldRead(
+        spec,
+        level,
+        levelNumber,
+        seed,
+        index,
+        gen,
+      );
+    case 'fingerbild_read':
+      return _generateFingerbildRead(
+        spec,
+        level,
+        levelNumber,
+        seed,
+        index,
+        gen,
+      );
+    case 'stellenwerttafel_read':
+      return _generateStellenwerttafelRead(
+        spec,
+        level,
+        levelNumber,
+        seed,
+        index,
+        gen,
+      );
+    case 'numberline_locate':
+      return _generateNumberlineLocate(
+        spec,
+        level,
+        levelNumber,
+        seed,
+        index,
+        gen,
+      );
+    case 'picture_compare':
+      return _generatePictureCompare(
+        spec,
+        level,
+        levelNumber,
+        seed,
+        index,
+        gen,
+      );
     default:
       throw UnimplementedError(
         'Generator for template "${level.template}" is declared but not yet '
@@ -1300,5 +1354,388 @@ Problem _generateRekenrekSet(
     promptDe: level.promptDe,
     display: {'count': count, 'rows': rows},
     expected: [count.toString()],
+  );
+}
+
+/// `numberline_step` generator (P2 plan §5 rule 5, P3 §4.5b): the child taps
+/// successive numbers from `start` to `target` in the given direction and
+/// step. `start` is sampled from `start_range` filtered to values congruent
+/// to `target` mod `step` (A1.3 L1 step 2 keeps only even starts), strictly
+/// before the target (up) / after it (down) so the tapped run is never
+/// empty. `expected` is the exact run `start+step … target` (or
+/// `start−step … target` for down) that the widget must accept.
+Problem _generateNumberlineStep(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final range = level.intListParam('range');
+  final rangeLo = range.isEmpty ? 0 : range[0];
+  final rangeHi = range.isEmpty ? 20 : range[1];
+  final startRange = level.intListParam('start_range');
+  final startLo = startRange.isEmpty ? rangeLo : startRange[0];
+  final startHi = startRange.isEmpty ? rangeHi : startRange[1];
+  final target = level.intParam('target', fallback: rangeHi);
+  final step = level.intParam('step', fallback: 1);
+  final direction = level.stringParam('direction', fallback: 'up');
+
+  if (target < rangeLo || target > rangeHi) {
+    throw SpecFormatException(
+      'numberline_step: target $target lies outside the line range '
+      '[$rangeLo, $rangeHi]',
+    );
+  }
+  if (step < 1) {
+    throw SpecFormatException(
+      'numberline_step: step must be >= 1, got $step',
+    );
+  }
+  if (!const {1, 2, 5, 10}.contains(step)) {
+    throw SpecFormatException(
+      'numberline_step: step must be one of 1, 2, 5, 10 (P3 §4.5), got $step',
+    );
+  }
+
+  // Start candidates: inside start_range, on the same residue class as the
+  // target mod step, ordered strictly before/after the target, and on the
+  // line. A congruent start guarantees the stepped run lands exactly on the
+  // target.
+  final candidates = <int>[];
+  for (var s = startLo; s <= startHi; s++) {
+    final congruent = s % step == target % step;
+    final ordered = direction == 'up' ? s < target : s > target;
+    final onLine = s >= rangeLo && s <= rangeHi;
+    if (congruent && ordered && onLine) candidates.add(s);
+  }
+  if (candidates.isEmpty) {
+    throw SpecFormatException(
+      'numberline_step: no start in [$startLo, $startHi] congruent to '
+      '$target mod $step with direction $direction can reach the target',
+    );
+  }
+  final start = candidates[gen.nextInt(candidates.length)];
+
+  final dir = direction == 'up' ? 1 : -1;
+  final tapped = <String>[];
+  for (var v = start + dir * step;
+      direction == 'up' ? v <= target : v >= target;
+      v += dir * step) {
+    tapped.add(v.toString());
+  }
+  if (tapped.isEmpty || tapped.last != target.toString()) {
+    throw SpecFormatException(
+      'numberline_step: congruence violation — start $start step $step '
+      'cannot reach target $target',
+    );
+  }
+
+  return Problem(
+    template: 'numberline_step',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: {
+      'range': [rangeLo, rangeHi],
+      'start': start,
+      'target': target,
+      'step': step,
+      'direction': direction,
+    },
+    expected: tapped,
+  );
+}
+
+/// `zehnerfeld_read` generator (P2 plan §5 rule 6, P3 §3): show a filled
+/// ten-frame pattern and type the count. `two_groups` renders two groups of
+/// counters (up to 20 across two frames) and the display carries the
+/// `split` (a + b == count, each 1..10) the widget fills; `five_pattern`
+/// keeps the count <= 10 so it fits one structured ten-frame.
+Problem _generateZehnerfeldRead(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final countRange = level.intListParam('count_range');
+  final arrangement = level.stringParam('arrangement', fallback: 'structured');
+  final twoGroups = arrangement == 'two_groups';
+  final cap = twoGroups ? 20 : 10;
+  final countLo = countRange.isEmpty ? 1 : max(countRange[0], 1);
+  final countHiRaw = countRange.isEmpty ? cap : countRange[1];
+  final countHi = min(countHiRaw, cap);
+  if (countHi < countLo) {
+    throw SpecFormatException(
+      'zehnerfeld_read: arrangement "$arrangement" holds at most $cap '
+      'counters but count_range starts at $countLo',
+    );
+  }
+  final count = gen.nextIntInRange(countLo, countHi);
+
+  final display = <String, dynamic>{'count': count, 'arrangement': arrangement};
+  if (twoGroups) {
+    // Split into two frames: each part in [1, 10], both >= 1, summing to
+    // count (e.g. 17 -> [10, 7]).
+    final aLo = max(1, count - 10);
+    final aHi = min(10, count - 1);
+    final a = gen.nextIntInRange(aLo, aHi);
+    display['split'] = [a, count - a];
+  }
+
+  return Problem(
+    template: 'zehnerfeld_read',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: display,
+    expected: [count.toString()],
+  );
+}
+
+/// `fingerbild_read` generator (P2 plan §5 rule 7): show a
+/// [FingerDisplayWidget] and type the count. `hands: 1` caps the count at 5
+/// (one hand); `hands: 2` allows up to 10 (both hands may be used).
+Problem _generateFingerbildRead(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final countRange = level.intListParam('count_range');
+  final hands = level.intParam('hands', fallback: 2);
+  final cap = hands == 1 ? 5 : 10;
+  final countLo = countRange.isEmpty ? 1 : max(countRange[0], 1);
+  final countHiRaw = countRange.isEmpty ? cap : countRange[1];
+  final countHi = min(countHiRaw, cap);
+  if (countHi < countLo) {
+    throw SpecFormatException(
+      'fingerbild_read: $hands hand(s) show at most $cap fingers but '
+      'count_range starts at $countLo',
+    );
+  }
+  final count = gen.nextIntInRange(countLo, countHi);
+
+  return Problem(
+    template: 'fingerbild_read',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: {'count': count, 'hands': hands},
+    expected: [count.toString()],
+  );
+}
+
+/// `stellenwerttafel_read` generator (P2 plan §5 rule 8, P3 §3): read a
+/// Stellenwerttafel. Mode `read` shows counters in the Z/E columns of a
+/// number in [11, 99]; mode `sum_rows` shows two rows of column counters
+/// (each 0..9) that the child adds (or subtracts column-wise) — the `op`
+/// param is authoritative and the generator guarantees a non-negative
+/// result (`row1 >= row2`; for `-` the columns never need a borrow and the
+/// result stays two-digit).
+Problem _generateStellenwerttafelRead(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final mode = level.stringParam('mode', fallback: 'read');
+  final columns =
+      ((level.params['columns'] as List?) ?? const ['Z', 'E']).cast<String>();
+  if (columns.isEmpty) {
+    throw SpecFormatException('stellenwerttafel_read: "columns" is empty');
+  }
+
+  if (mode == 'sum_rows') {
+    final op = level.stringParam('op', fallback: '+');
+    if (op != '+' && op != '-') {
+      throw SpecFormatException(
+        'stellenwerttafel_read: sum_rows op must be "+" or "-", got "$op"',
+      );
+    }
+    final int t1, o1, t2, o2, value;
+    if (op == '+') {
+      // Column sums stay <= 9 so the result never exceeds ZR100 and no
+      // carry is needed.
+      t1 = gen.nextIntInRange(1, 8);
+      t2 = gen.nextIntInRange(1, 9 - t1);
+      o1 = gen.nextIntInRange(0, 9);
+      o2 = gen.nextIntInRange(0, 9 - o1);
+      value = (t1 + t2) * 10 + (o1 + o2);
+    } else {
+      // row1 > row2 (two-digit result, never negative); each subtrahend
+      // column <= the minuend column so the child never has to borrow.
+      t1 = gen.nextIntInRange(2, 9);
+      t2 = gen.nextIntInRange(1, t1 - 1);
+      o1 = gen.nextIntInRange(0, 9);
+      o2 = gen.nextIntInRange(0, o1);
+      value = (t1 - t2) * 10 + (o1 - o2);
+    }
+    return Problem(
+      template: 'stellenwerttafel_read',
+      skillId: spec.skillId,
+      level: levelNumber,
+      seed: seed,
+      index: index,
+      promptDe: level.promptDe,
+      display: {
+        'mode': 'sum_rows',
+        'op': op,
+        'columns': columns,
+        'row1': [t1, o1],
+        'row2': [t2, o2],
+        'value': value,
+      },
+      expected: [value.toString()],
+    );
+  }
+
+  final numberRange = level.intListParam('number_range');
+  final nLo = numberRange.isEmpty ? 11 : numberRange[0];
+  final nHi = numberRange.isEmpty ? 99 : numberRange[1];
+  final lo = max(nLo, 11);
+  final hi = min(nHi, 99);
+  if (hi < lo) {
+    throw SpecFormatException(
+      'stellenwerttafel_read: number_range [$nLo, $nHi] has no value in '
+      '[11, 99] for mode read',
+    );
+  }
+  final number = gen.nextIntInRange(lo, hi);
+  final tens = number ~/ 10;
+  final ones = number % 10;
+
+  return Problem(
+    template: 'stellenwerttafel_read',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: {
+      'mode': 'read',
+      'columns': columns,
+      'number': number,
+      'tens': tens,
+      'ones': ones,
+    },
+    expected: [number.toString()],
+  );
+}
+
+/// `numberline_locate` generator (P2 plan §5 rule 9): tap where `value`
+/// sits on the line. `value` is drawn from `value_range` clamped inside
+/// `range` and never equals an endpoint (the endpoints would be
+/// indistinguishable from the boundary of the widget).
+Problem _generateNumberlineLocate(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final range = level.intListParam('range');
+  final rangeLo = range.isEmpty ? 0 : range[0];
+  final rangeHi = range.isEmpty ? 20 : range[1];
+  final valueRange = level.intListParam('value_range');
+  final vLo = valueRange.isEmpty ? rangeLo + 1 : valueRange[0];
+  final vHi = valueRange.isEmpty ? rangeHi - 1 : valueRange[1];
+  final lo = max(vLo, rangeLo + 1);
+  final hi = min(vHi, rangeHi - 1);
+  if (hi < lo) {
+    throw SpecFormatException(
+      'numberline_locate: value_range [$vLo, $vHi] leaves no interior point '
+      'in [$rangeLo, $rangeHi]',
+    );
+  }
+  final value = gen.nextIntInRange(lo, hi);
+
+  return Problem(
+    template: 'numberline_locate',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: {'range': [rangeLo, rangeHi], 'value': value},
+    expected: [value.toString()],
+  );
+}
+
+/// `picture_compare` generator (P2 plan §5 rule 10): two ten-frame counts,
+/// re-rolled until |left − right| >= `difference_min` (default 1) so a
+/// `more`/`less` question always has a definite larger/smaller side and a
+/// `difference` question always has a positive answer. `expected` is the
+/// tapped side id (`"left"`/`"right"`) or the difference.
+Problem _generatePictureCompare(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final leftRange = level.intListParam('left_range');
+  final rightRange = level.intListParam('right_range');
+  final leftLo = leftRange.isEmpty ? 1 : leftRange[0];
+  final leftHi = leftRange.isEmpty ? 10 : leftRange[1];
+  final rightLo = rightRange.isEmpty ? 1 : rightRange[0];
+  final rightHi = rightRange.isEmpty ? 10 : rightRange[1];
+  final question = level.stringParam('question', fallback: 'more');
+  final differenceMin = level.intParam('difference_min', fallback: 1);
+  if (differenceMin < 1) {
+    throw SpecFormatException(
+      'picture_compare: difference_min must be >= 1, got $differenceMin',
+    );
+  }
+
+  var left = gen.nextIntInRange(leftLo, leftHi);
+  var right = gen.nextIntInRange(rightLo, rightHi);
+  var attempts = 0;
+  while ((left - right).abs() < differenceMin && attempts++ < 300) {
+    left = gen.nextIntInRange(leftLo, leftHi);
+    right = gen.nextIntInRange(rightLo, rightHi);
+  }
+  if ((left - right).abs() < differenceMin) {
+    throw SpecFormatException(
+      'picture_compare: left_range [$leftLo, $leftHi] and right_range '
+      '[$rightLo, $rightHi] cannot differ by $differenceMin',
+    );
+  }
+
+  final diff = (left - right).abs();
+  final expected = switch (question) {
+    'more' => left > right ? 'left' : 'right',
+    'less' => left < right ? 'left' : 'right',
+    'difference' => diff.toString(),
+    _ => throw SpecFormatException(
+      'picture_compare: unknown question "$question" '
+      '(expected more, less or difference)',
+    ),
+  };
+
+  return Problem(
+    template: 'picture_compare',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: {'left': left, 'right': right, 'question': question},
+    expected: [expected],
   );
 }

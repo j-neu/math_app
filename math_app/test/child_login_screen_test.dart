@@ -322,6 +322,91 @@ void main() {
     expect(find.text('Hallo Mia!'), findsOneWidget);
     expect(find.text('Hallo Jonas!'), findsNothing);
   });
+
+  // ---- Fix round 3: remaining concurrency gaps ("Weiter" and Bildfolge) ----
+
+  testWidgets('a two-finger tap on "Weiter" sends only one roster request', (tester) async {
+    var rosterCalls = 0;
+    final countingService = StudentAuthService(
+      client: MockClient((req) async {
+        if (req.url.path.endsWith('roster')) {
+          rosterCalls++;
+          // A real (fake-clock) delay so the first request is still
+          // in flight when the second tap lands: without it, the whole
+          // async round trip for this endpoint resolves within a single
+          // `tester.tap()` (no SharedPreferences hop after the network
+          // call, unlike `login`), so a second, later tap would be a
+          // legitimate second request rather than the concurrent one this
+          // test means to exercise.
+          await Future.delayed(const Duration(milliseconds: 50));
+          return http.Response(
+            jsonEncode({
+              'class_id': 'c1',
+              'require_pin': false,
+              'students': [
+                {'id': 's1', 'display_name': 'Mia', 'avatar': null},
+              ],
+            }),
+            200,
+          );
+        }
+        return http.Response(
+            jsonEncode({'token': 't', 'student_id': 's1', 'display_name': 'Mia'}), 200);
+      }),
+    );
+
+    await tester.pumpWidget(MaterialApp(
+      home: ChildLoginScreen(schoolSlug: 'lindenschule', authService: countingService),
+    ));
+    await tester.enterText(find.byType(TextField), '7K2M');
+
+    // Two pointer-down events on "Weiter" in the same frame: no pump()
+    // between the two taps, so both onPressed closures run against the
+    // widget tree built while `_busy` was still false, exactly like the
+    // two-finger name-tile mash above.
+    await tester.tap(find.text('Weiter'));
+    await tester.tap(find.text('Weiter'));
+    await tester.pumpAndSettle();
+
+    expect(rosterCalls, 1);
+  });
+
+  testWidgets(
+      'a two-finger tap on two different names opens the Bildfolge for the first child tapped',
+      (tester) async {
+    final racyPinService = StudentAuthService(
+      client: MockClient((req) async {
+        if (req.url.path.endsWith('roster')) {
+          return http.Response(
+            jsonEncode({
+              'class_id': 'c1',
+              'require_pin': true,
+              'students': [
+                {'id': 's1', 'display_name': 'Mia', 'avatar': null},
+                {'id': 's2', 'display_name': 'Jonas', 'avatar': null},
+              ],
+            }),
+            200,
+          );
+        }
+        return http.Response(
+            jsonEncode({'token': 't', 'student_id': 's1', 'display_name': 'Mia'}), 200);
+      }),
+    );
+
+    await reachRoster(tester, racyPinService);
+
+    // Two pointer-down events in the same frame, same reasoning as above:
+    // this branch of `_tapName` never touches `_busy` (no network call yet),
+    // so only the synchronous `_navigating` latch can reject the second tap.
+    await tester.tap(find.text('Mia'));
+    await tester.tap(find.text('Jonas'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Deine Bildfolge'), findsOneWidget);
+    expect(find.text('Hallo Mia! Tippe deine vier Bilder an.'), findsOneWidget);
+    expect(find.text('Hallo Jonas! Tippe deine vier Bilder an.'), findsNothing);
+  });
 }
 
 String? _lastLoginBody;

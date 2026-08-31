@@ -49,6 +49,17 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
   RosterEntry? _pinFor;
   final List<String> _pinTokens = [];
 
+  /// Synchronous re-entrancy latch for the requirePin branch of `_tapName`,
+  /// which never touches `_busy` (it does no network call, so `_busy`'s
+  /// "request in flight" meaning doesn't fit — and setting `_busy` there
+  /// would also disable the picture-step's own symbol tiles once shown).
+  /// Two fingers on two different name tiles in the same frame both run
+  /// `_tapName` before either sees the rebuilt, disabled tile, so this must
+  /// be checked and set synchronously, before the first `setState`. Reset
+  /// on the way back out to the roster or code step, wherever a name tile
+  /// becomes tappable again.
+  bool _navigating = false;
+
   @override
   void dispose() {
     _codeController.dispose();
@@ -56,6 +67,12 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
   }
 
   Future<void> _loadRoster() async {
+    // Same re-entrancy reasoning as `_login` below: two pointer-downs on
+    // "Weiter" in the same frame both run against the widget tree built
+    // while `_busy` was still false, so this must be checked synchronously,
+    // before the first `await`, not left to the build-time `onPressed`
+    // guard alone.
+    if (_busy) return;
     setState(() {
       _busy = true;
       _error = null;
@@ -90,8 +107,15 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
   /// of the same frame is rejected even though the build-time guard let it
   /// through.
   void _tapName(RosterEntry entry) {
-    if (_busy) return;
+    if (_busy || _navigating) return;
     if (_roster?.requirePin ?? false) {
+      // This branch never awaits and never sets `_busy` (there is no
+      // network call yet — the request only happens once the four
+      // pictures are entered) so `_navigating` is the guard here: set
+      // synchronously before `setState`, so a second tap on a different
+      // tile in the same frame is rejected instead of silently overwriting
+      // `_pinFor`/`_pinTokens`/`_step` with the second child's tap.
+      _navigating = true;
       setState(() {
         _pinFor = entry;
         _pinTokens.clear();
@@ -177,6 +201,7 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
       _pinFor = null;
       _pinTokens.clear();
       _loggedInName = null;
+      _navigating = false;
     });
   }
 
@@ -185,6 +210,7 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
         _pinFor = null;
         _pinTokens.clear();
         _error = null;
+        _navigating = false;
       });
 
   @override

@@ -142,16 +142,21 @@ class _FlashSubitizeWidgetState extends State<FlashSubitizeWidget> {
           child: _visual(),
         ),
         const SizedBox(height: 12),
-        TextButton(
-          key: const ValueKey('flash-reshow'),
-          onPressed: _reshow,
-          // Explicit touch target: the Material 3 TextButton default (40 px
-          // high) is below the >= 44 px ADHD/a11y minimum.
-          style: TextButton.styleFrom(
-            minimumSize: const Size(160, 48),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        Semantics(
+          button: true,
+          label: 'Nochmal sehen',
+          excludeSemantics: true,
+          child: TextButton(
+            key: const ValueKey('flash-reshow'),
+            onPressed: _reshow,
+            // Explicit touch target: the Material 3 TextButton default (40 px
+            // high) is below the >= 44 px ADHD/a11y minimum.
+            style: TextButton.styleFrom(
+              minimumSize: const Size(160, 48),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            ),
+            child: const Text('Nochmal sehen'),
           ),
-          child: const Text('Nochmal sehen'),
         ),
         const SizedBox(height: 8),
         BigAnswerField(

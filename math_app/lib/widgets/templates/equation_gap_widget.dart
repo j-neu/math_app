@@ -86,9 +86,12 @@ class _EquationGapWidgetState extends State<EquationGapWidget> {
         }
         return '';
       case 'neighbor':
-        if (texts.isEmpty) return '';
-        if (texts[0].isNotEmpty) return texts[0];
-        return texts.length > 1 && texts[1].isNotEmpty ? texts[1] : '';
+        // Both neighbours must be filled: report "n-1,n+1" so the evaluator
+        // can validate each side. A single filled gap stays incomplete.
+        if (texts.length == 2 && texts[0].isNotEmpty && texts[1].isNotEmpty) {
+          return '${texts[0]},${texts[1]}';
+        }
+        return '';
       default:
         return texts.isEmpty ? '' : texts[0];
     }

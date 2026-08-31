@@ -388,12 +388,19 @@ class _PracticeScreenState extends State<PracticeScreen> {
   }
 
   List<Widget> _buildFeedbackArea(BuildContext context, PracticeState state) {
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
     switch (state) {
       case PracticeState.correct:
+        // A correct retry of an already-recorded problem gets honest
+        // feedback; "Super!" is reserved for first-attempt-correct answers.
+        final praise = _controller.isRetryCorrect
+            ? 'Jetzt stimmt es!'
+            : _praise[_controller.problemIndex % _praise.length];
         return [
           _CorrectFeedback(
             key: ValueKey('correct-${_controller.problemIndex}'),
-            praise: _praise[_controller.problemIndex % _praise.length],
+            praise: praise,
+            animate: !reduceMotion,
           ),
         ];
       case PracticeState.incorrect:
@@ -401,6 +408,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
           _IncorrectFeedback(
             key: ValueKey('incorrect-$_incorrectCount'),
             hint: _controller.hintDe ?? 'Schau noch einmal genau hin.',
+            animate: !reduceMotion,
           ),
         ];
       default:
@@ -581,49 +589,77 @@ class _PracticeScreenState extends State<PracticeScreen> {
 }
 
 /// Green check with a one-shot scale pulse and the deterministic praise text.
+/// Under reduced motion the pulse is skipped but the feedback stays visible.
 class _CorrectFeedback extends StatelessWidget {
   final String praise;
+  final bool animate;
 
-  const _CorrectFeedback({super.key, required this.praise});
+  const _CorrectFeedback({
+    super.key,
+    required this.praise,
+    this.animate = true,
+  });
 
   @override
   Widget build(BuildContext context) {
     final green = Colors.green.shade700;
+    final content = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(Icons.check_circle, size: 72, color: green),
+        const SizedBox(height: 8),
+        Text(
+          praise,
+          style: TextStyle(
+            fontSize: 34,
+            fontWeight: FontWeight.bold,
+            color: green,
+          ),
+        ),
+      ],
+    );
+    if (!animate) return content;
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.6, end: 1),
       duration: const Duration(milliseconds: 450),
       curve: Curves.easeOutBack,
       builder: (context, scale, child) =>
           Transform.scale(scale: scale, child: child),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.check_circle, size: 72, color: green),
-          const SizedBox(height: 8),
-          Text(
-            praise,
-            style: TextStyle(
-              fontSize: 34,
-              fontWeight: FontWeight.bold,
-              color: green,
-            ),
-          ),
-        ],
-      ),
+      child: content,
     );
   }
 }
 
 /// Gentle horizontal shake (decaying) plus the taxonomy hint. The widget is
 /// keyed per wrong answer so a second wrong attempt re-plays the shake.
+/// Under reduced motion the shake is skipped but the hint stays visible.
 class _IncorrectFeedback extends StatelessWidget {
   final String hint;
+  final bool animate;
 
-  const _IncorrectFeedback({super.key, required this.hint});
+  const _IncorrectFeedback({
+    super.key,
+    required this.hint,
+    this.animate = true,
+  });
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final content = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(Icons.refresh, size: 28, color: scheme.primary),
+        const SizedBox(width: 12),
+        Flexible(
+          child: Text(
+            hint,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+          ),
+        ),
+      ],
+    );
+    if (!animate) return content;
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
       duration: const Duration(milliseconds: 500),
@@ -632,19 +668,7 @@ class _IncorrectFeedback extends StatelessWidget {
         final dx = math.sin(t * 6 * math.pi) * (1 - t) * 12;
         return Transform.translate(offset: Offset(dx, 0), child: child);
       },
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.refresh, size: 28, color: scheme.primary),
-          const SizedBox(width: 12),
-          Flexible(
-            child: Text(
-              hint,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
-      ),
+      child: content,
     );
   }
 }

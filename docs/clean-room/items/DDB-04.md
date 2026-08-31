@@ -16,7 +16,9 @@
 
 **Distinct from any known legacy item:** Eigene Zahlenwahl (Z: 5, E: 8) und eigene Leserichtung: Während die Kern-Items das Eintragen einer Zahl in die Tafel prüfen, wird hier die Zahl aus der Tafel gelesen. Spaltenlayout, Zahlen und Fragesatz sind eigenständig.
 
-**Wording (German):** „In dieser Stellenwerttafel stehen die Zehner und die Einer. Die Tafel zeigt links die Zehner und rechts die Einer. Wie heißt die Zahl?“
+**Wording (German):** „Wie heißt die Zahl?“
+
+**Hilfetext (optional, z. B. Hilfe-Button):** „In dieser Stellenwerttafel stehen die Zehner und die Einer. Die Tafel zeigt links die Zehner und rechts die Einer.“
 
 **Expected correct answer:** 58.
 

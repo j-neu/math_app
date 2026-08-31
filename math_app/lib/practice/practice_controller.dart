@@ -73,6 +73,12 @@ class PracticeController extends ChangeNotifier {
   /// feedback but never re-recorded — see [submit].
   final Set<int> _recordedProblemIndices = <int>{};
 
+  /// True when the last submission was a CORRECT answer on a problem whose
+  /// attempt was already recorded (i.e. the child fixed a first-attempt
+  /// mistake). The screen uses this to show honest "Jetzt stimmt es!"
+  /// feedback instead of the first-attempt-only "Super!" praise.
+  bool _lastWasRetryCorrect = false;
+
   final Stopwatch _stopwatch = Stopwatch();
 
   PracticeController({
@@ -96,6 +102,11 @@ class PracticeController extends ChangeNotifier {
   int get problemCount => _problems.length;
 
   AnswerEvaluation? get lastEvaluation => _lastEvaluation;
+
+  /// True when the last submission was a correct retry of an already-recorded
+  /// problem (first attempt was wrong, the fix is right). Distinct from a
+  /// first-attempt-correct answer, which keeps the "Super!" praise.
+  bool get isRetryCorrect => _lastWasRetryCorrect;
 
   MasteryResult? get masteryResult => _masteryResult;
 
@@ -134,6 +145,7 @@ class PracticeController extends ChangeNotifier {
       _problemIndex = 0;
       _recordedProblemIndices.clear();
       _lastEvaluation = null;
+      _lastWasRetryCorrect = false;
       _stopwatch
         ..reset()
         ..start();
@@ -172,8 +184,11 @@ class PracticeController extends ChangeNotifier {
     // answer and submitted again) must not create a second attempt: the
     // first record for this problem_index already reached the queue. The
     // retry still gets evaluated so the screen can show the correct
-    // feedback, but only the first submission counts.
+    // feedback, but only the first submission counts. A correct retry is
+    // reported via [isRetryCorrect] so the screen can say "Jetzt stimmt es!"
+    // instead of the first-attempt "Super!".
     final alreadyRecorded = !_recordedProblemIndices.add(_problemIndex);
+    _lastWasRetryCorrect = alreadyRecorded && evaluation.isCorrect;
     if (!alreadyRecorded) {
       final attempt = PracticeAttempt(
         problemIndex: _problemIndex,
@@ -205,6 +220,7 @@ class PracticeController extends ChangeNotifier {
     if (_problemIndex + 1 < _problems.length) {
       _problemIndex++;
       _lastEvaluation = null;
+      _lastWasRetryCorrect = false;
       _stopwatch
         ..reset()
         ..start();

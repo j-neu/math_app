@@ -16,7 +16,9 @@
 
 **Distinct from any known legacy item:** Eigene Mengen (8 gegen 5) und eigene Darstellung (zwei Rekenrek mit getrennter 5+3- und 5-Belegung); die Aufgabenform verlangt die Nennung der Differenz zusätzlich zur Vergleichsentscheidung. Keine Würfelbilder, kein Vorgängerformat.
 
-**Wording (German):** „Hier liegen zwei Rechenbretter. Auf welchem Brett sind mehr Perlen? Wie viele mehr?“
+**Wording (German):** „Auf welchem Brett sind mehr Perlen? Wie viele mehr?“
+
+**Hilfetext (optional, z. B. Hilfe-Button):** „Hier liegen zwei Rechenbretter nebeneinander.“
 
 **Expected correct answer:** Links sind mehr Perlen; es sind 3 mehr.
 

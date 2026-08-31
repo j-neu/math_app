@@ -91,22 +91,27 @@ class _NumberlineStepWidgetState extends State<NumberlineStepWidget> {
       children: [
         LayoutBuilder(
           builder: (context, constraints) {
-            return GestureDetector(
-              key: const ValueKey('numberline-step-line'),
-              behavior: HitTestBehavior.opaque,
-              onTapUp: (details) =>
-                  _handleTap(details.localPosition.dx, constraints.maxWidth),
-              child: SizedBox(
-                height: 72,
-                width: double.infinity,
-                child: CustomPaint(
-                  painter: ScaledNumberLinePainter(
-                    lo: _lo,
-                    hi: _hi,
-                    highlighted: _tapped.toSet(),
-                    majorTicks: ticks.major,
-                    minorTicks: ticks.minor,
-                    labels: numberLineLabels(_lo, _hi),
+            return Semantics(
+              button: true,
+              label: 'Zahlenstrahl',
+              excludeSemantics: true,
+              child: GestureDetector(
+                key: const ValueKey('numberline-step-line'),
+                behavior: HitTestBehavior.opaque,
+                onTapUp: (details) =>
+                    _handleTap(details.localPosition.dx, constraints.maxWidth),
+                child: SizedBox(
+                  height: 72,
+                  width: double.infinity,
+                  child: CustomPaint(
+                    painter: ScaledNumberLinePainter(
+                      lo: _lo,
+                      hi: _hi,
+                      highlighted: _tapped.toSet(),
+                      majorTicks: ticks.major,
+                      minorTicks: ticks.minor,
+                      labels: numberLineLabels(_lo, _hi),
+                    ),
                   ),
                 ),
               ),

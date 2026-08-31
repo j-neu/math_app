@@ -1319,9 +1319,23 @@ Problem _generatePlaceCounters(
     'action': action,
   };
   if (action == 'take_away') {
+    // The child removes `count` cells from `total` and reports what is left:
+    // expected is the REMAINING total − count (the evaluator grades the
+    // remaining count), and `op` lets the widget render "total − count = ?".
     final total = gen.nextIntInRange(count, top);
     display['total'] = total;
     display['remaining'] = total - count;
+    display['op'] = '-';
+    return Problem(
+      template: 'place_counters',
+      skillId: spec.skillId,
+      level: levelNumber,
+      seed: seed,
+      index: index,
+      promptDe: level.promptDe,
+      display: display,
+      expected: [(total - count).toString()],
+    );
   }
 
   return Problem(
@@ -1590,7 +1604,11 @@ Problem _generateZehnerfeldRead(
       while (a == count - a && attempts++ < 100) {
         a = gen.nextIntInRange(aLo, aHi);
       }
-      final diff = (a - (count - a)).abs();
+      // Ordered big-first so the subtracted (gray, index 1) group is always
+      // the smaller one: "die grauen Punkte werden weggenommen" then leaves
+      // exactly the difference, matching the expected value.
+      final big = a > count - a ? a : count - a;
+      final small = count - big;
       return Problem(
         template: 'zehnerfeld_read',
         skillId: spec.skillId,
@@ -1602,9 +1620,12 @@ Problem _generateZehnerfeldRead(
           'count': count,
           'arrangement': arrangement,
           'ask': ask,
-          'split': [a, count - a],
+          'split': [big, small],
+          // C1.1b L2: the widget grays (lighter opacity) this group to show
+          // which one is taken away.
+          'subtract_group': 1,
         },
-        expected: [diff.toString()],
+        expected: [(big - small).toString()],
       );
     }
 

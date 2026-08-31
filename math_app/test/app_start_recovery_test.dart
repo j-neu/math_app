@@ -105,14 +105,23 @@ void main() {
       );
 
       expect(backend.endCalls, 1);
-      expect(await service.pendingEndSessions(), ['ps-offline'],
-          reason: 'an unrecoverable session stays pending for the next run');
+      expect(
+        (await service.pendingEndSessions()).map((s) => s.practiceSessionId),
+        ['ps-offline'],
+        reason: 'an unrecoverable session stays pending for the next run',
+      );
     });
 
-    test('uses the provided slow band for the /end call', () async {
+    test('uses the band stored with the pending session for the /end call',
+        () async {
       SharedPreferences.setMockInitialValues({
         'student_token': 'tok',
-        _pendingKey: ['ps-band'],
+        _pendingKey: [
+          jsonEncode({
+            'practice_session_id': 'ps-band',
+            'slow_band_ms': 9000,
+          }),
+        ],
       });
       int? sentSlowBandMs;
       final client = MockClient((request) async {
@@ -138,10 +147,45 @@ void main() {
       await maybeRecoverPendingSessions(
         StudentAuthService(client: client),
         LearningPathService(client: client),
-        slowBandMs: 9000,
       );
 
-      expect(sentSlowBandMs, 9000);
+      expect(sentSlowBandMs, 9000,
+          reason: 'the stored level band, not a hard-coded constant, is used');
+    });
+
+    test('a legacy pending entry without a band falls back to 7000 ms',
+        () async {
+      SharedPreferences.setMockInitialValues({
+        'student_token': 'tok',
+        _pendingKey: ['ps-legacy'],
+      });
+      int? sentSlowBandMs;
+      final client = MockClient((request) async {
+        if (request.url.path.endsWith('/practice-session/sync')) {
+          return http.Response(jsonEncode({}), 200);
+        }
+        if (request.url.path.endsWith('/practice-session/end')) {
+          sentSlowBandMs =
+              (jsonDecode(request.body) as Map<String, dynamic>)['slow_band_ms']
+                  as int?;
+          return http.Response(
+            jsonEncode({
+              'skill_mastered': true,
+              'slow_flag': false,
+              'unlocked_skill_ids': <String>[],
+            }),
+            200,
+          );
+        }
+        return http.Response('not found', 404);
+      });
+
+      await maybeRecoverPendingSessions(
+        StudentAuthService(client: client),
+        LearningPathService(client: client),
+      );
+
+      expect(sentSlowBandMs, LearningPathService.defaultSlowBandMs);
     });
   });
 

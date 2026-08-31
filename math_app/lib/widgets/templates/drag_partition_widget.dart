@@ -119,6 +119,7 @@ class _DragPartitionWidgetState extends State<DragPartitionWidget> {
 
   Widget _box(int index) {
     final label = _boxLabels.length > index ? _boxLabels[index] : '';
+    final labelDe = label.isNotEmpty ? label : 'Kasten ${index + 1}';
     final count = _counts[index];
     return Container(
       width: 110,
@@ -140,38 +141,48 @@ class _DragPartitionWidgetState extends State<DragPartitionWidget> {
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
-          GestureDetector(
-            key: ValueKey('box-counters-$index'),
-            behavior: HitTestBehavior.opaque,
-            onTap: () => _removeFromBox(index),
-            child: SizedBox(
-              height: 44,
-              width: double.infinity,
-              child: Center(
-                child: Text(
-                  '$count',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: count > 0 ? Colors.indigo.shade800 : Colors.black38,
+          Semantics(
+            button: true,
+            label: '$labelDe zählt $count',
+            excludeSemantics: true,
+            child: GestureDetector(
+              key: ValueKey('box-counters-$index'),
+              behavior: HitTestBehavior.opaque,
+              onTap: () => _removeFromBox(index),
+              child: SizedBox(
+                height: 44,
+                width: double.infinity,
+                child: Center(
+                  child: Text(
+                    '$count',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: count > 0 ? Colors.indigo.shade800 : Colors.black38,
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-          GestureDetector(
-            key: ValueKey('box-add-$index'),
-            behavior: HitTestBehavior.opaque,
-            onTap: () => _addToBox(index),
-            child: Container(
-              height: 44,
-              width: double.infinity,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: Colors.indigo.shade100,
-                borderRadius: BorderRadius.circular(8),
+          Semantics(
+            button: true,
+            label: '$labelDe hinzufügen',
+            excludeSemantics: true,
+            child: GestureDetector(
+              key: ValueKey('box-add-$index'),
+              behavior: HitTestBehavior.opaque,
+              onTap: () => _addToBox(index),
+              child: Container(
+                height: 44,
+                width: double.infinity,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: Colors.indigo.shade100,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.add, size: 28, color: Colors.indigo),
               ),
-              child: const Icon(Icons.add, size: 28, color: Colors.indigo),
             ),
           ),
         ],

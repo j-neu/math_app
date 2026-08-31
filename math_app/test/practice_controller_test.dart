@@ -241,6 +241,49 @@ void main() {
     expect(backend.startBodies.single['level'], 2);
   });
 
+  test('a correct retry is flagged (isRetryCorrect) and not re-recorded',
+      () async {
+    final backend = _Backend();
+    final service = LearningPathService(client: backend.client);
+    final spec = _spec(2, 'equation_solve', {
+      'op': '+',
+      'unknown': 'result',
+      'zr': 20,
+      'a_range': [2, 9],
+      'b_range': [2, 9],
+      'mode': 'standard',
+    });
+    final controller = PracticeController(
+      token: 'tok',
+      spec: spec,
+      level: 2,
+      service: service,
+    );
+
+    await controller.start();
+    final expected = controller.currentProblem!.expected.single;
+
+    // First attempt wrong: not a retry, recorded once.
+    await controller.submit('${int.parse(expected) + 1}');
+    expect(controller.state, PracticeState.incorrect);
+    expect(controller.isRetryCorrect, isFalse);
+
+    // Correct retry: flagged as a retry, still only one record.
+    await controller.submit(expected);
+    expect(controller.state, PracticeState.correct);
+    expect(controller.isRetryCorrect, isTrue,
+        reason: 'the screen must say "Jetzt stimmt es!" instead of "Super!"');
+    expect(backend.receivedAttempts, hasLength(1));
+    expect(backend.receivedAttempts.single['was_correct'], isFalse);
+
+    // Advancing clears the flag for the next problem.
+    controller.advance();
+    await controller.submit(controller.currentProblem!.expected.single);
+    expect(controller.state, PracticeState.correct);
+    expect(controller.isRetryCorrect, isFalse,
+        reason: 'a fresh problem is not a retry');
+  });
+
   test('a slow answer still evaluates and the record carries response_ms',
       () async {
     final backend = _Backend();

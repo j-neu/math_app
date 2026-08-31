@@ -70,26 +70,32 @@ class _StrategyChoiceWidgetState extends State<StrategyChoiceWidget> {
     final id = strategy['id']!;
     final selected = _strategy == id;
     final colors = Theme.of(context).colorScheme;
+    final label = strategy['label_de']!;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: SizedBox(
         width: double.infinity,
         height: 56,
-        child: FilledButton.tonal(
-          onPressed: () {
-            setState(() => _strategy = id);
-            _report();
-          },
-          style: FilledButton.styleFrom(
-            backgroundColor: selected ? colors.primaryContainer : null,
-            foregroundColor: selected ? colors.onPrimaryContainer : null,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
+        child: Semantics(
+          button: true,
+          label: 'Strategie: $label',
+          excludeSemantics: true,
+          child: FilledButton.tonal(
+            onPressed: () {
+              setState(() => _strategy = id);
+              _report();
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: selected ? colors.primaryContainer : null,
+              foregroundColor: selected ? colors.onPrimaryContainer : null,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
-          ),
-          child: Text(
-            strategy['label_de']!,
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+            child: Text(
+              label,
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+            ),
           ),
         ),
       ),

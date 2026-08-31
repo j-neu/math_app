@@ -70,23 +70,28 @@ class _RekenrekSetWidgetState extends State<RekenrekSetWidget> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         for (var i = 0; i < 10; i++)
-          GestureDetector(
-            key: ValueKey(top ? 'bead-top-$i' : 'bead-bottom-$i'),
-            behavior: HitTestBehavior.opaque,
-            onTap: () => _tapBead(top, i),
-            child: Container(
-              width: 44,
-              height: 44,
-              margin: const EdgeInsets.all(2),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: i < filled
-                    ? Colors.red.shade700
-                    : Colors.white,
-                border: Border.all(
-                  color: i < filled ? Colors.red.shade700 : Colors.black26,
-                  width: 2,
+          Semantics(
+            button: true,
+            label: top ? 'Perle ${i + 1}' : 'Perle ${i + 1} unten',
+            excludeSemantics: true,
+            child: GestureDetector(
+              key: ValueKey(top ? 'bead-top-$i' : 'bead-bottom-$i'),
+              behavior: HitTestBehavior.opaque,
+              onTap: () => _tapBead(top, i),
+              child: Container(
+                width: 44,
+                height: 44,
+                margin: const EdgeInsets.all(2),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: i < filled
+                      ? Colors.red.shade700
+                      : Colors.white,
+                  border: Border.all(
+                    color: i < filled ? Colors.red.shade700 : Colors.black26,
+                    width: 2,
+                  ),
                 ),
               ),
             ),

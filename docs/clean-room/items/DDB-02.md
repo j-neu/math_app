@@ -16,7 +16,9 @@
 
 **Distinct from any known legacy item:** Eigene Zahl (25) und eigene Darstellung: Die Entbündelung wird als Umformung in eine nicht-standardisierte Bündelung (1 Z + 15 E) abgefragt, nicht als Tausch an Einzelobjekten. Bündelzahl, Zahlen und Antwortformat sind eigenständig gewählt.
 
-**Wording (German):** „Die Zahl 25 ist gelegt als 2 Zehner und 5 Einer. Tausche einen Zehner in zehn einzelne Stäbchen. Wie viele Zehner und wie viele Einer hast du jetzt? Trage es ein.“
+**Wording (German):** „Tausche einen Zehner in zehn einzelne Stäbchen. Wie viele Zehner und wie viele Einer hast du jetzt?“
+
+**Hilfetext (optional, z. B. Hilfe-Button):** „Die Zahl 25 ist hier gelegt als 2 Zehner und 5 Einer.“
 
 **Expected correct answer:** 1 Zehner und 15 Einer.
 

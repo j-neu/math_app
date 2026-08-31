@@ -13,23 +13,12 @@ library;
 import 'learning_path_service.dart';
 import 'student_auth_service.dart';
 
-/// Conservative slow-band fallback used when a stranded session is recovered
-/// at app start.
-///
-/// A session ends with its spec's own `slow_band_ms`, but pending sessions
-/// persist only their id (`learning_path_pending_end_sessions` is a list of
-/// session ids) — the spec is not available at app start, so the band cannot
-/// be recovered from it. 7000 ms is the middle of the band values the real
-/// specs use (6000–9000 ms) and is deliberately conservative: too low would
-/// flag a child as "slow" too eagerly, too high merely postpones the flag.
-/// `PracticeController.finish` still uses the exact spec value during the
-/// live session.
-const int kRecoverySlowBandMs = 7000;
-
 /// Best-effort, non-blocking recovery of pending practice sessions.
 ///
 /// * Reads the stored student token; with no token it is a no-op.
-/// * Otherwise calls [LearningPathService.recoverPendingSessions].
+/// * Otherwise calls [LearningPathService.recoverPendingSessions], which
+///   re-ends each stranded session with the level band stored on it (the
+///   service falls back to 7000 ms only when a legacy entry carries no band).
 /// * Never throws: recovery must be silent on failure — a session that
 ///   still cannot complete simply stays pending for the next app run
 ///   (recovery is idempotent, so retrying it later neither duplicates nor
@@ -38,13 +27,12 @@ const int kRecoverySlowBandMs = 7000;
 /// [auth] and [service] are injectable for tests.
 Future<void> maybeRecoverPendingSessions(
   StudentAuthService auth,
-  LearningPathService service, {
-  int slowBandMs = kRecoverySlowBandMs,
-}) async {
+  LearningPathService service,
+) async {
   try {
     final token = await auth.storedToken();
     if (token == null) return;
-    await service.recoverPendingSessions(token, slowBandMs: slowBandMs);
+    await service.recoverPendingSessions(token);
   } catch (_) {
     // Silent by design (P2 plan §8 task 11): a failed recovery must never
     // reach the child, and recoverPendingSessions is idempotent — the

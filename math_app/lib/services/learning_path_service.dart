@@ -29,10 +29,16 @@ class LearningPathService {
 
   // Practice sessions whose final flush and/or /end call did not succeed
   // yet, stored durably so a later app run can find and retry them — see
-  // recoverPendingSessions(). One shared key/lock is fine: this list is
-  // small (a handful of stranded sessions at most) and writes to it are
-  // rare compared to attempt_queue traffic.
+  // recoverPendingSessions(). Each entry is a JSON object
+  // {"practice_session_id": …, "slow_band_ms": …} so recovery can re-end the
+  // session with the level band it originally used. One shared key/lock is
+  // fine: this list is small (a handful of stranded sessions at most) and
+  // writes to it are rare compared to attempt_queue traffic.
   static const _pendingEndSessionsKey = 'learning_path_pending_end_sessions';
+
+  /// Slow band used when a pending session has no stored band (legacy entries
+  /// persisted before the band was recorded, or malformed ones).
+  static const int defaultSlowBandMs = 7000;
   static final Lock _pendingSessionsLock = Lock();
 
   final http.Client _client;
@@ -212,7 +218,7 @@ class LearningPathService {
       // The flush above didn't fully succeed. Never call /end on
       // incomplete data — keep the session open and remember it for
       // recovery instead.
-      await _markSessionPending(practiceSessionId);
+      await _markSessionPending(practiceSessionId, slowBandMs);
       throw const LearningPathException(_sessionNotFinishedMessage);
     }
 
@@ -224,7 +230,7 @@ class LearningPathService {
       // The flush succeeded but /end itself failed (network error or bad
       // status) — the server was never told to close the session. Keep it
       // pending so recoverPendingSessions retries the /end call later.
-      await _markSessionPending(practiceSessionId);
+      await _markSessionPending(practiceSessionId, slowBandMs);
       rethrow;
     }
   }
@@ -261,12 +267,19 @@ class LearningPathService {
     }
   }
 
-  Future<void> _markSessionPending(String practiceSessionId) async {
+  Future<void> _markSessionPending(
+    String practiceSessionId,
+    int slowBandMs,
+  ) async {
     await _pendingSessionsLock.synchronized(() async {
       final prefs = await SharedPreferences.getInstance();
       final list = prefs.getStringList(_pendingEndSessionsKey) ?? <String>[];
-      if (!list.contains(practiceSessionId)) {
-        await prefs.setStringList(_pendingEndSessionsKey, [...list, practiceSessionId]);
+      final entry = jsonEncode({
+        'practice_session_id': practiceSessionId,
+        'slow_band_ms': slowBandMs,
+      });
+      if (!list.any((e) => _sessionIdOf(e) == practiceSessionId)) {
+        await prefs.setStringList(_pendingEndSessionsKey, [...list, entry]);
       }
     });
   }
@@ -275,21 +288,55 @@ class LearningPathService {
     await _pendingSessionsLock.synchronized(() async {
       final prefs = await SharedPreferences.getInstance();
       final list = prefs.getStringList(_pendingEndSessionsKey) ?? <String>[];
-      if (list.contains(practiceSessionId)) {
-        await prefs.setStringList(
-          _pendingEndSessionsKey,
-          list.where((id) => id != practiceSessionId).toList(),
-        );
-      }
+      await prefs.setStringList(
+        _pendingEndSessionsKey,
+        list.where((e) => _sessionIdOf(e) != practiceSessionId).toList(),
+      );
     });
+  }
+
+  /// The session id of one pending entry, tolerant of the legacy plain-id
+  /// form ("ps-…") that predates the JSON shape.
+  static String _sessionIdOf(String entry) {
+    try {
+      final decoded = jsonDecode(entry);
+      if (decoded is Map<String, dynamic> &&
+          decoded['practice_session_id'] is String) {
+        return decoded['practice_session_id'] as String;
+      }
+    } catch (_) {
+      // fall through to the legacy form
+    }
+    return entry;
+  }
+
+  /// The slow band of one pending entry: the stored band when present,
+  /// [defaultSlowBandMs] for legacy/malformed entries (the band was not
+  /// persisted back then).
+  static int _slowBandOf(String entry) {
+    try {
+      final decoded = jsonDecode(entry);
+      if (decoded is Map<String, dynamic> &&
+          decoded['slow_band_ms'] is int) {
+        return decoded['slow_band_ms'] as int;
+      }
+    } catch (_) {
+      // fall through
+    }
+    return defaultSlowBandMs;
   }
 
   /// Practice sessions that were flushed but never confirmed closed with
   /// the server. Exposed for diagnostics/tests and for a "wird noch
   /// gespeichert" indicator, should P2 want one.
-  Future<List<String>> pendingEndSessions() async {
+  Future<List<({String practiceSessionId, int slowBandMs})>>
+  pendingEndSessions() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getStringList(_pendingEndSessionsKey) ?? <String>[];
+    final entries = prefs.getStringList(_pendingEndSessionsKey) ?? <String>[];
+    return [
+      for (final entry in entries)
+        (practiceSessionId: _sessionIdOf(entry), slowBandMs: _slowBandOf(entry)),
+    ];
   }
 
   /// Retries every practice session left pending by a previous run — most
@@ -298,23 +345,25 @@ class LearningPathService {
   /// [endPractice]). For each one this re-attempts the flush (a harmless
   /// no-op if everything already synced, since `/sync` is an idempotent
   /// upsert on (practice_session_id, problem_index)) and then calls
-  /// `/end`. A session is removed from the pending list only once `/end`
-  /// actually succeeds, so this is safe to call as often as needed —
-  /// repeated calls neither duplicate nor lose anything, and a session
-  /// that still can't complete (offline, server down, ...) simply stays
-  /// pending for the next call.
+  /// `/end` — with the session's own stored level band, so the recovered
+  /// session keeps the same "slow" threshold it was ended under. A session
+  /// is removed from the pending list only once `/end` actually succeeds,
+  /// so this is safe to call as often as needed — repeated calls neither
+  /// duplicate nor lose anything, and a session that still can't complete
+  /// (offline, server down, ...) simply stays pending for the next call.
   ///
   /// P2 MUST call this — at app start, and ideally again on reconnect.
   /// Nothing else ever revisits an old practiceSessionId, so a session
   /// left pending here stays stranded until something calls this.
-  Future<void> recoverPendingSessions(
-    String token, {
-    required int slowBandMs,
-  }) async {
+  Future<void> recoverPendingSessions(String token) async {
     final sessions = await pendingEndSessions();
-    for (final sessionId in sessions) {
+    for (final session in sessions) {
       try {
-        await endPractice(token, sessionId, slowBandMs: slowBandMs);
+        await endPractice(
+          token,
+          session.practiceSessionId,
+          slowBandMs: session.slowBandMs,
+        );
       } catch (_) {
         // Still not recoverable this run; stays in the pending list so the
         // next call retries it.

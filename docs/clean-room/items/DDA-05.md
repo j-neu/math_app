@@ -16,7 +16,9 @@
 
 **Distinct from any known legacy item:** Die Erfassung wird am Rekenrek mit der frei gewählten Belegung 5 oben und 4 unten geprüft; Stabanordnung und Perlenzahl sind eine eigene Konfiguration. Es werden keine Würfelbilder oder Punktmuster verwendet.
 
-**Wording (German):** „Hier siehst du ein Rechenbrett mit zwei Stäben. Einige Perlen sind nach links geschoben. Wie viele Perlen sind links?“
+**Wording (German):** „Wie viele Perlen sind links?“
+
+**Hilfetext (optional, z. B. Hilfe-Button):** „Hier siehst du ein Rechenbrett mit zwei Stäben. Einige Perlen sind nach links geschoben.“
 
 **Expected correct answer:** 9
 

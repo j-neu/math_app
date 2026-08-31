@@ -340,8 +340,11 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Nochmal'));
     await tester.pump();
     await tester.pump();
-    expect(find.text('Super!'), findsOneWidget,
-        reason: 'a successful retry shows the correct feedback');
+    expect(find.text('Jetzt stimmt es!'), findsOneWidget,
+        reason: 'a successful retry gets honest feedback, not first-attempt '
+            '"Super!"');
+    expect(find.text('Super!'), findsNothing,
+        reason: '"Super!" is reserved for first-attempt-correct answers');
     expect(backend.receivedAttempts, hasLength(1));
     expect(backend.receivedAttempts.single['problem_index'], 0);
     expect(backend.receivedAttempts.single['was_correct'], isFalse,
@@ -378,6 +381,56 @@ void main() {
     }
 
     await tester.pump(const Duration(seconds: 2));
+  });
+
+  testWidgets(
+      'reduced motion: correct feedback stays visible without the pulse and '
+      'the incorrect shake is skipped', (tester) async {
+    tester.platformDispatcher.accessibilityFeaturesTestValue =
+        const FakeAccessibilityFeatures(disableAnimations: true);
+    addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+
+    final backend = _Backend();
+    final service = LearningPathService(client: backend.client);
+    final spec = _spec(3, 'equation_solve', {
+      'op': '+',
+      'unknown': 'result',
+      'zr': 10,
+      'a_range': [1, 5],
+      'b_range': [1, 5],
+      'mode': 'standard',
+    });
+    final controller = PracticeController(
+      token: 'tok',
+      spec: spec,
+      level: 3,
+      service: service,
+    );
+    await _pumpScreen(tester, controller, spec);
+
+    // A correct answer still shows the check + praise (no animation widget).
+    await _answerCorrect(tester, controller);
+    expect(find.text('Super!'), findsOneWidget,
+        reason: 'the feedback is shown even without animations');
+    expect(find.byIcon(Icons.check_circle), findsOneWidget);
+    expect(find.byType(TweenAnimationBuilder<double>), findsNothing,
+        reason: 'the scale pulse is skipped under reduced motion');
+
+    // A wrong answer still shows the taxonomy hint (no shake).
+    await tester.tap(find.widgetWithText(FilledButton, 'Weiter'));
+    await tester.pump();
+    await tester.pump();
+    final expected = controller.currentProblem!.expected.single;
+    await tester.enterText(find.byType(TextField), '${int.parse(expected) + 1}');
+    await tester.pump();
+    await tester.tap(find.widgetWithText(FilledButton, 'Weiter'));
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('Zähle noch einmal langsam.'), findsOneWidget,
+        reason: 'the hint is shown without the shake');
+    expect(find.byType(TweenAnimationBuilder<double>), findsNothing);
+
+    await tester.pump(const Duration(seconds: 2)); // flush the auto-advance timer
   });
 
   testWidgets('exit dialog: Beenden pops the screen, Weiterüben stays',

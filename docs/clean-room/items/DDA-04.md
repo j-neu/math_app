@@ -16,7 +16,9 @@
 
 **Distinct from any known legacy item:** Die Erfassung wird am Zehnerfeld mit der frei gewählten Belegung 5+2 geprüft (erste Zeile voll, zweite Zeile Felder 1–2); Belegung und Anordnung sind eine eigene Konfiguration, es werden weder Würfelbilder noch eine Alt-Konfiguration verwendet.
 
-**Wording (German):** „Hier ist ein Zehnerfeld. Einige Felder sind gefüllt. Du darfst so lange schauen, wie du möchtest. Wie viele Felder sind gefüllt?“
+**Wording (German):** „Wie viele Felder sind gefüllt?“
+
+**Hilfetext (optional, z. B. Hilfe-Button):** „Hier ist ein Zehnerfeld. Einige Felder sind gefüllt. Du darfst so lange schauen, wie du möchtest.“
 
 **Expected correct answer:** 7
 

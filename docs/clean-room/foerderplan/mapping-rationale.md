@@ -32,7 +32,7 @@ Diese Datei ist die Item→Skill-Zuordnung (tasks.md, R4.1): Für jedes der 92 I
 **If wrong → most likely cause:** Die Dekadenübergänge im Hunderterraum (49 → 50, 59 → 60) sind nicht automatisiert.
 **Skill gap:** Vorwärtszählen bis 100 (A1.1b) fehlt; zusätzlich ist das Zählen über die Zehnergrenze (A1.5) unsicher.
 **Recommended (priority order):** A1.1b, A1.5
-**Reasoning:** ZR100-Start 48 über zwei Dekadenwechsel → A1.1b. Auflösung: „A1.1" → A1.1b. Der dokumentierte Fehler „Dreht bei 59 auf 40/50 zurück" zeigt zugleich die Zehnergrenzen-Hürde (A1.5); deshalb wird erst die flüssige Zahlwortreihe (A1.1b), dann der Übergang (A1.5) gefördert. Break-off-relevant: scheitert dieses Item zusammen mit A1.3-01/02 und A1.5-01, wird Domäne C übersprungen (§Break-off).
+**Reasoning:** ZR100-Start 48 über zwei Dekadenwechsel → A1.1b. Auflösung: „A1.1" → A1.1b. Der dokumentierte Fehler „Dreht bei 59 auf 40/50 zurück" zeigt zugleich die Zehnergrenzen-Hürde (A1.5); deshalb wird erst die flüssige Zahlwortreihe (A1.1b), dann der Übergang (A1.5) gefördert. Break-off-relevant: scheitert dieses Item zusammen mit A1.3-01/02, wird Domäne C übersprungen (§Break-off). A1.5-01 wurde am 2026-08-30 als eigenständiges Item entfernt (redundant — dieses Item deckt den Zehnerübergang bereits ab); dieses Item ist seither die alleinige Quelle des A1.5-Signals.
 
 ### A1.2-01 — Rückwärtszählen ZR20
 **If wrong → most likely cause:** Die rückwärtige Zahlwortreihe ist nicht stabil oder der Richtungswechsel (21 → 20) misslingt.
@@ -50,7 +50,7 @@ Diese Datei ist die Item→Skill-Zuordnung (tasks.md, R4.1): Für jedes der 92 I
 **If wrong → most likely cause:** Schrittweises Zählen ist nicht entwickelt (zählt in Einserschritten) oder die Schrittweite wird nicht konstant gehalten.
 **Skill gap:** Zählen in Schritten (A1.3) fehlt.
 **Recommended (priority order):** A1.3
-**Reasoning:** Das Item misst genau A1.3 (2er-Schritte, Start 26 im ZR100; Padberg/Benz 2021). Fehler „27, 28, …" bzw. „28, 31, 34" zeigen die fehlende rhythmisierte Zahlenreihe. Break-off-relevant: A1.3-01/02 falsch plus A1.5-01 falsch überspringen Domäne C (§Break-off) — der Fehler hier hat Vorhersagekraft, daher hohe Förderpriorität.
+**Reasoning:** Das Item misst genau A1.3 (2er-Schritte, Start 26 im ZR100; Padberg/Benz 2021). Fehler „27, 28, …" bzw. „28, 31, 34" zeigen die fehlende rhythmisierte Zahlenreihe. Break-off-relevant: A1.3-01/02 falsch plus A1.5 falsch (gemessen über A1.1-02, seit A1.5-01 am 2026-08-30 entfernt wurde) überspringen Domäne C (§Break-off) — der Fehler hier hat Vorhersagekraft, daher hohe Förderpriorität.
 
 ### A1.3-02 — Zählen in Fünferschritten rückwärts
 **If wrong → most likely cause:** Die Kombination aus Schrittweite und Rückwärtsrichtung ist nicht verfügbar; die Zehnerstruktur der Fünferreihe wird nicht genutzt.
@@ -63,12 +63,6 @@ Diese Datei ist die Item→Skill-Zuordnung (tasks.md, R4.1): Für jedes der 92 I
 **Skill gap:** Vorgänger/Nachfolger (A1.4); bei fehlender Ordnungsvorstellung zusätzlich die Zahlwortreihe im ZR100 (A1.1b).
 **Recommended (priority order):** A1.4, A1.1b
 **Reasoning:** Item zur Zahl 37 prüft A1.4 (Wartha 2019). Auflösung: sekundär genannter Skill „A1.1" → A1.1b (ZR100-Zahl). Die Fehlerdiagnostik „Keine Antwort: Zahlreihe als Ordnung nicht verfügbar" begründet den Anschluss-Skill. Priorität: erst das Nachbarzahlen-Konzept (A1.4), dann die zugrunde liegende Zahlwortreihe (A1.1b).
-
-### A1.5-01 — Zählen über den Zehnerübergang
-**If wrong → most likely cause:** Der Zehnerübergang beim Zählen ist nicht flüssig — das Kind reißt an der Stelle 19 → 20 ab oder springt auf 30.
-**Skill gap:** Zählen über den Zehnerübergang (A1.5); sekundär die Zahlwortreihe im ZR20 (A1.1a).
-**Recommended (priority order):** A1.5, A1.1a
-**Reasoning:** Kernindikator des Break-off: A1.3 (beide Items) und A1.5-01 falsch überspringen Domäne C (§Break-off; Wartha 2019). Auflösung: „A1.1" → A1.1a (ZR20). Priorität A1.5 vor A1.1a, weil der Übergang die eigentliche Hürde ist; die stabile Folge innerhalb der 20er ist die Basis.
 
 ### A2.1-01 — Simultanerfassung (Subitizing)
 **If wrong → most likely cause:** Die Anzahl wird geschätzt statt erfasst (Unterschätzung/Überschätzung), oder das Abzählen ist noch die tragende Strategie.

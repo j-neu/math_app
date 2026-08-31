@@ -16,7 +16,9 @@
 
 **Distinct from any known legacy item:** Eigene Zahlenstrahl-Konfiguration (Skala 0–100, Teilstriche bei 25/50/75, zu markierende Zahl 75); die Markieraufgabe mit dieser Skala ist eine eigene Anordnung. Keine Würfelbilder, kein Vorgängerformat.
 
-**Wording (German):** „Hier ist ein Zahlenstrahl von 0 bis 100. Markiere die Zahl 75 auf dem Zahlenstrahl.“
+**Wording (German):** „Markiere die Zahl 75 auf dem Zahlenstrahl.“
+
+**Hilfetext (optional, z. B. Hilfe-Button):** „Der Zahlenstrahl reicht von 0 bis 100.“
 
 **Expected correct answer:** Markierung am Teilstrich 75.
 

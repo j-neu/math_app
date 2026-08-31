@@ -246,6 +246,10 @@ bool manipulativeValid(Problem p) {
         if (total < count || remaining != total - count || remaining < 0) {
           return false;
         }
+        if (p.display['op'] != '-') return false;
+        // The evaluator grades the REMAINING count (total − count), not the
+        // number of cells removed, so `expected` must carry the remainder.
+        return p.expected.length == 1 && p.expected.single == '$remaining';
       }
       return p.expected.length == 1 && p.expected.single == '$count';
 

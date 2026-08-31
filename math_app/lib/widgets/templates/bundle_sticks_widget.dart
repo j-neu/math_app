@@ -78,20 +78,28 @@ class _BundleSticksWidgetState extends State<BundleSticksWidget> {
             spacing: 8,
             children: [
               for (var i = 0; i < _bundles; i++)
-                GestureDetector(
-                  key: ValueKey('bundle-$i'),
-                  behavior: HitTestBehavior.opaque,
-                  onTap: _unbundle,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 7,
+                Semantics(
+                  button: true,
+                  label: 'Bündel ${i + 1} öffnen',
+                  excludeSemantics: true,
+                  child: GestureDetector(
+                    key: ValueKey('bundle-$i'),
+                    behavior: HitTestBehavior.opaque,
+                    onTap: _unbundle,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 7,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.brown.shade400,
+                          width: 2,
+                        ),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: const StaebchenBundelWidget(),
                     ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.brown.shade400, width: 2),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: const StaebchenBundelWidget(),
                   ),
                 ),
             ],
@@ -102,14 +110,19 @@ class _BundleSticksWidgetState extends State<BundleSticksWidget> {
           alignment: WrapAlignment.center,
           children: [
             for (var i = 0; i < _singles; i++)
-              GestureDetector(
-                key: ValueKey('stick-$i'),
-                behavior: HitTestBehavior.opaque,
-                onTap: _bundle,
-                child: const SizedBox(
-                  width: 44,
-                  height: 44,
-                  child: Center(child: StaebchenEinzelWidget()),
+              Semantics(
+                button: true,
+                label: 'Stäbchen ${i + 1} bündeln',
+                excludeSemantics: true,
+                child: GestureDetector(
+                  key: ValueKey('stick-$i'),
+                  behavior: HitTestBehavior.opaque,
+                  onTap: _bundle,
+                  child: const SizedBox(
+                    width: 44,
+                    height: 44,
+                    child: Center(child: StaebchenEinzelWidget()),
+                  ),
                 ),
               ),
           ],

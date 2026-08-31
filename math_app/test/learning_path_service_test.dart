@@ -252,7 +252,17 @@ void main() {
     final stillPending = await queue.pending(sessionId);
     expect(stillPending, hasLength(1));
     expect(stillPending.first.problemIndex, 0);
-    expect(await service.pendingEndSessions(), contains(sessionId));
+    final pendingSessions = await service.pendingEndSessions();
+    expect(
+      pendingSessions.map((s) => s.practiceSessionId),
+      contains(sessionId),
+    );
+    expect(
+      pendingSessions.firstWhere((s) => s.practiceSessionId == sessionId).slowBandMs,
+      5000,
+      reason: 'the level band is persisted with the pending session so '
+          'recovery re-ends it with the right slow threshold',
+    );
 
     // Calling it again (e.g. the child retries) must not double-record the
     // session as pending.
@@ -260,8 +270,11 @@ void main() {
       () => service.endPractice('tok', sessionId, slowBandMs: 5000),
       throwsA(isA<LearningPathException>()),
     );
-    final pendingSessions = await service.pendingEndSessions();
-    expect(pendingSessions.where((id) => id == sessionId), hasLength(1));
+    final pendingSessions2 = await service.pendingEndSessions();
+    expect(
+      pendingSessions2.where((s) => s.practiceSessionId == sessionId),
+      hasLength(1),
+    );
   });
 
   test(
@@ -288,11 +301,14 @@ void main() {
     );
 
     var endCalls = 0;
+    int? sentBand;
     final client = MockClient((req) async {
       if (req.url.path.endsWith('/practice-session/sync')) {
         return http.Response(jsonEncode({}), 200);
       }
       endCalls++;
+      sentBand =
+          (jsonDecode(req.body) as Map<String, dynamic>)['slow_band_ms'] as int?;
       return http.Response(
         jsonEncode({
           'skill_mastered': true,
@@ -304,14 +320,68 @@ void main() {
     });
 
     final service = LearningPathService(client: client, queue: queue);
-    await service.recoverPendingSessions('tok', slowBandMs: 5000);
+    await service.recoverPendingSessions('tok');
 
     expect(endCalls, 1);
+    // The legacy plain-id entry carries no band, so the 7000 ms fallback
+    // is used.
+    expect(sentBand, LearningPathService.defaultSlowBandMs);
     expect(await queue.pending('ps-stranded'), isEmpty);
     expect(await service.pendingEndSessions(), isEmpty);
 
     // Idempotent: nothing left pending, so calling it again does nothing.
-    await service.recoverPendingSessions('tok', slowBandMs: 5000);
+    await service.recoverPendingSessions('tok');
     expect(endCalls, 1);
+  });
+
+  test('recoverPendingSessions uses the band stored on each pending session',
+      () async {
+    SharedPreferences.setMockInitialValues({
+      'learning_path_pending_end_sessions': [
+        jsonEncode({
+          'practice_session_id': 'ps-band',
+          'slow_band_ms': 9000,
+        }),
+      ],
+    });
+    final queue = AttemptQueue();
+    await queue.add(
+      'ps-band',
+      const PracticeAttempt(
+        problemIndex: 0,
+        problem: {'a': 1, 'b': 1},
+        answer: '2',
+        wasCorrect: true,
+        responseMs: 900,
+        errorCode: null,
+      ),
+    );
+
+    var endCalls = 0;
+    int? sentBand;
+    final client = MockClient((req) async {
+      if (req.url.path.endsWith('/practice-session/sync')) {
+        return http.Response(jsonEncode({}), 200);
+      }
+      endCalls++;
+      sentBand =
+          (jsonDecode(req.body) as Map<String, dynamic>)['slow_band_ms'] as int?;
+      return http.Response(
+        jsonEncode({
+          'skill_mastered': true,
+          'slow_flag': false,
+          'unlocked_skill_ids': <String>[],
+        }),
+        200,
+      );
+    });
+
+    final service = LearningPathService(client: client, queue: queue);
+    await service.recoverPendingSessions('tok');
+
+    expect(endCalls, 1);
+    expect(sentBand, 9000,
+        reason: 'the session is re-ended with its own stored level band');
+    expect(await service.pendingEndSessions(), isEmpty);
   });
 }

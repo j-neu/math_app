@@ -52,22 +52,27 @@ class _NumberlineLocateWidgetState extends State<NumberlineLocateWidget> {
     final ticks = numberLineTicks(_lo, _hi);
     return LayoutBuilder(
       builder: (context, constraints) {
-        return GestureDetector(
-          key: const ValueKey('numberline-locate-line'),
-          behavior: HitTestBehavior.opaque,
-          onTapUp: (details) =>
-              _handleTap(details.localPosition.dx, constraints.maxWidth),
-          child: SizedBox(
-            height: 72,
-            width: double.infinity,
-            child: CustomPaint(
-              painter: ScaledNumberLinePainter(
-                lo: _lo,
-                hi: _hi,
-                markAt: _mark?.toDouble(),
-                majorTicks: ticks.major,
-                minorTicks: ticks.minor,
-                labels: numberLineLabels(_lo, _hi),
+        return Semantics(
+          button: true,
+          label: 'Zahlenstrahl',
+          excludeSemantics: true,
+          child: GestureDetector(
+            key: const ValueKey('numberline-locate-line'),
+            behavior: HitTestBehavior.opaque,
+            onTapUp: (details) =>
+                _handleTap(details.localPosition.dx, constraints.maxWidth),
+            child: SizedBox(
+              height: 72,
+              width: double.infinity,
+              child: CustomPaint(
+                painter: ScaledNumberLinePainter(
+                  lo: _lo,
+                  hi: _hi,
+                  markAt: _mark?.toDouble(),
+                  majorTicks: ticks.major,
+                  minorTicks: ticks.minor,
+                  labels: numberLineLabels(_lo, _hi),
+                ),
               ),
             ),
           ),

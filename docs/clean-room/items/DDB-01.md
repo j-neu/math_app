@@ -16,7 +16,9 @@
 
 **Distinct from any known legacy item:** Eigene Zahlenwahl (56) und eigene Anordnung (5 Zehnerbündel + 6 Einer, räumlich getrennt mit Lücke). Antwortformat ist rein produktiv (Zahl nennen); Bündelzahl, Reststückzahl und Fragesatz stammen aus keiner Vorgängervorlage.
 
-**Wording (German):** „Hier liegen Stäbchen. Einige sind zu Zehnern gebündelt. Zähle zuerst die Bündel, dann die einzelnen Stäbchen. Wie heißt die Zahl, die hier dargestellt ist?“
+**Wording (German):** „Wie heißt die Zahl, die hier dargestellt ist?“
+
+**Hilfetext (optional, z. B. Hilfe-Button):** „Hier liegen Stäbchen. Einige sind zu Zehnern gebündelt. Zähle zuerst die Bündel, dann die einzelnen Stäbchen.“
 
 **Expected correct answer:** 56.
 

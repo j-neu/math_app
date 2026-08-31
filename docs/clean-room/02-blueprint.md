@@ -23,7 +23,7 @@ Die Entscheidung, ob ein Deep-Dive-Block vorgelegt wird, trifft die Lehrkraft pr
 
 | Konstrukt | Items | Verteilung auf Teilkonstrukte | Begründung |
 |---|---|---|---|
-| A1 Zählkompetenz | 8 | A1.1×2, A1.2×2, A1.3×2, A1.4×1, A1.5×1 | Zählkompetenz ist der diagnostisch wirkungsvollste Einzelbereich und trägt alle späteren Zahl- und Operationsvorstellungen (Wartha 2019; Padberg/Benz 2021). Acht Items erlauben, alle fünf Teilkonstrukte abzudecken und die kritischen Richtungen (vorwärts/rückwärts) sowie den Zehnerübergang mit je zwei Items zu prüfen. |
+| A1 Zählkompetenz | 7 | A1.1×2, A1.2×2, A1.3×2, A1.4×1 | Zählkompetenz ist der diagnostisch wirkungsvollste Einzelbereich und trägt alle späteren Zahl- und Operationsvorstellungen (Wartha 2019; Padberg/Benz 2021). Sieben Items decken alle fünf Teilkonstrukte ab; A1.5 (Zehnerübergang) wird nicht durch ein eigenes Item geprüft, sondern durch A1.1-02 (ZR100-Zählfolge über zwei Dekadenwechsel), das den Übergang bereits misst — ein separates A1.5-Item (ehem. A1.5-01) erwies sich bei der R2.9-Durchsicht (2026-08-30) als redundant dazu und wurde entfernt. |
 | A2 Anzahlerfassung | 4 | A2.1×1, A2.2×2, A2.3×1 | Die frühe Mengenerfassung ist ein Prädiktor für die weitere Zahlentwicklung (Krajewski 2003/2008). Vier Items genügen, um zu unterscheiden, ob ein Kind Mengen strukturell erfasst oder noch abzählt. |
 | A3 Zahlzerlegung | 8 | A3.1×3, A3.2×3, A3.3×2 | Die Zerlegung ist die Grundlage jeder nicht-zählenden Strategie (Padberg/Benz 2021; Karner, Open Access). Acht Items decken beide Richtungen ab — Zerlegen und Zusammensetzen — und die Zahlbeziehungen als Stütze. |
 | B1 Bündelung/Entbündelung | 4 | B1.1×1, B1.2×2, B1.3×1 | Stellenwertprobleme zeigen sich empirisch am deutlichsten beim Bündeln und Entbündeln (Moser Opitz 2013). Vier Items decken die drei Teilkonstrukte mit einem Schwerpunkt auf der Bündelung selbst ab. |
@@ -33,7 +33,7 @@ Die Entscheidung, ob ein Deep-Dive-Block vorgelegt wird, trifft die Lehrkraft pr
 | C3 Strategien ZR100 | 10 | C3.1×3, C3.2×3, C3.3×2, C3.4×2 | Der Hunderterraum ist der größte Zahlraum und bietet mehrere Strategien in beiden Operationen (Selter/Spiegel 1997). Zehn Items sind nötig, um stellenweises und schrittweises Rechnen, Hilfsaufgaben und Zerlegung getrennt beurteilen zu können. |
 | C4 Flexibles Rechnen | 4 | C4.1×2, C4.2×2 | Flexibles Rechnen zeigt sich in der Strategiewahl. Vier Items sind so gestaltet, dass die gewählte Strategie sichtbar wird (u. a. über Reaktionszeiterfassung), statt nur die Richtigkeit zu prüfen (Selter/Spiegel 1997). |
 | D1 Sachsituationen | 2 | D1.1×1, D1.2×1 | Sachsituationen sind in vielen bestehenden Instrumenten bereits abgedeckt (KMK 2022). Im Kerntest genügen zwei Items als Indikator; vertieft wird der Bereich im Deep-Dive-D-Block. |
-| **Gesamt** | **60** | | Die Summe der Teilkonstrukte je Zeile ergibt die Items-Zahl; die Zeilensummen ergeben exakt 60. |
+| **Gesamt** | **59** | | Die Summe der Teilkonstrukte je Zeile ergibt die Items-Zahl. Ursprünglich 60 (siehe `decisions/0003-why-60-core-items.md`); seit der A1.5-01-Streichung (R2.9, 2026-08-30) 59 — die Zielgröße war eine Ausgangsschätzung, keine harte Vorgabe, und eine Domäne durch ein redundantes Item künstlich auf 60 aufzufüllen wäre der falsche Trade-off. |
 
 ## Item-Ebene
 

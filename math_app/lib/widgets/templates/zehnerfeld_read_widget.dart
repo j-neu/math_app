@@ -49,6 +49,21 @@ class _ZehnerfeldReadWidgetState extends State<ZehnerfeldReadWidget> {
   Widget _singleFrame(int count) =>
       ZehnerfeldWidget(filled: {for (var i = 0; i < count; i++) i});
 
+  /// The ten-frame for one two_groups group, dimmed when it is the subtracted
+  /// group (`display.subtract_group`), so the child sees which group's dots
+  /// are taken away (C1.1b L2: "Die grauen Punkte werden weggenommen").
+  Widget _groupFrame(int index, int count) {
+    final subtractGroup = widget.problem.display['subtract_group'];
+    final dimmed = subtractGroup is int && subtractGroup == index;
+    final frame = _singleFrame(count);
+    if (!dimmed) return frame;
+    return Opacity(
+      key: ValueKey('zf-group-dimmer-$index'),
+      opacity: 0.35,
+      child: frame,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final d = widget.problem.display;
@@ -64,9 +79,9 @@ class _ZehnerfeldReadWidgetState extends State<ZehnerfeldReadWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _singleFrame(a),
+            _groupFrame(0, a),
             const SizedBox(width: 24),
-            _singleFrame(b),
+            _groupFrame(1, b),
           ],
         );
       } else {

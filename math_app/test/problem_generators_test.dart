@@ -1659,7 +1659,8 @@ void main() {
       }
     });
 
-    test('take_away: total >= count and remaining >= 0', () {
+    test('take_away: total >= count, remaining >= 0 and expected is the '
+        'REMAINING count (not the removed one)', () {
       final s = spec({
         'count_range': [2, 10],
         'frame': 'zehnerfeld',
@@ -1675,7 +1676,10 @@ void main() {
           expect(remaining, total - count);
           expect(remaining, greaterThanOrEqualTo(0));
           expect(p.display['action'], 'take_away');
-          expect(p.expected, [count.toString()]);
+          expect(p.display['op'], '-',
+              reason: 'the widget renders "total − count = ?"');
+          expect(p.expected, [remaining.toString()],
+              reason: 'the evaluator grades the remaining total − count');
         }
       }
     });
@@ -2177,6 +2181,26 @@ void main() {
       }
     });
 
+    test('two_groups ask difference: split is big-first and the subtracted '
+        'group is flagged so the widget can gray it (C1.1b L2)', () {
+      final s = spec({
+        'count_range': [3, 10],
+        'arrangement': 'two_groups',
+        'ask': 'difference',
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final split = (p.display['split'] as List).cast<int>();
+          expect(p.display['subtract_group'], 1,
+              reason: 'the gray (taken-away) group is the second frame');
+          expect(split[0], greaterThan(split[1]),
+              reason: 'big first, so subtracting group 1 leaves the '
+                  'difference (big − small == expected)');
+          expect(p.expected, ['${split[0] - split[1]}']);
+        }
+      }
+    });
+
     test('two_groups ask part: equal groups, expected == count/2', () {
       final s = spec({
         'count_range': [2, 20],
@@ -2220,6 +2244,8 @@ void main() {
           expect(diff, greaterThanOrEqualTo(1));
           expect(p.expected, [diff.toString()],
               reason: 'C1.1b L2 asks "Wie viele Punkte bleiben übrig?"');
+          expect(p.display['subtract_group'], 1,
+              reason: 'the taken-away (gray) group is flagged for the widget');
         }
       }
     });

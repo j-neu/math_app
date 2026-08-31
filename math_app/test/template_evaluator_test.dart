@@ -189,6 +189,35 @@ void main() {
     });
   });
 
+  group('equation_gap neighbor', () {
+    Problem neighbor() => _problem(
+          template: 'equation_gap',
+          display: {'form': 'neighbor', 'op': '+', 'n': 6, 'gap_after': 'both'},
+          expected: ['5', '7'],
+        );
+
+    test('correct only when BOTH neighbours are submitted', () {
+      final p = neighbor();
+      expect(evaluator.evaluate(p, '5,7', spec: spec).isCorrect, isTrue);
+      expect(evaluator.evaluate(p, '7,5', spec: spec).isCorrect, isTrue,
+          reason: 'the two gaps are unordered');
+      expect(evaluator.evaluate(p, '5', spec: spec).isCorrect, isFalse,
+          reason: 'a single filled gap is rejected');
+      expect(evaluator.evaluate(p, '7', spec: spec).isCorrect, isFalse);
+      expect(evaluator.evaluate(p, '5,6', spec: spec).isCorrect, isFalse,
+          reason: 'one wrong side fails');
+      expect(evaluator.evaluate(p, '5,5', spec: spec).isCorrect, isFalse,
+          reason: 'a duplicated value cannot stand in for both neighbours');
+      expect(evaluator.evaluate(p, '', spec: spec).isCorrect, isFalse);
+    });
+
+    test('canonical answer is the joined neighbour pair', () {
+      final result = evaluator.evaluate(neighbor(), ' 5 , 7 ', spec: spec);
+      expect(result.isCorrect, isTrue);
+      expect(result.canonicalAnswer, '5,7');
+    });
+  });
+
   group('drag_partition', () {
     test('sum: any split that totals the target is correct', () {
       final p = _problem(

@@ -422,6 +422,31 @@ void main() {
       await tester.enterText(find.byType(TextField).at(1), '4');
       expect(values.last, '4');
     });
+
+    testWidgets('form neighbor requires BOTH gaps and reports "n-1,n+1"',
+        (tester) async {
+      final values = <String>[];
+      final problem = _problem(
+        template: 'equation_gap',
+        display: {'form': 'neighbor', 'op': '+', 'n': 6, 'gap_after': 'both'},
+        expected: ['5', '7'],
+      );
+      await _pumpApp(
+        tester,
+        EquationGapWidget(problem: problem, onValueChanged: values.add),
+      );
+
+      expect(find.text('6'), findsOneWidget, reason: 'n sits between the gaps');
+      await tester.enterText(find.byType(TextField).at(0), '5');
+      expect(values.last, '', reason: 'one filled gap stays incomplete');
+      await tester.enterText(find.byType(TextField).at(1), '7');
+      expect(values.last, '5,7',
+          reason: 'both neighbours reported so the evaluator can check each');
+      await tester.enterText(find.byType(TextField).at(1), '');
+      expect(values.last, '', reason: 'clearing one gap makes it incomplete');
+      await tester.enterText(find.byType(TextField).at(1), '7');
+      expect(values.last, '5,7', reason: 're-filling works for retry');
+    });
   });
 
   group('SequenceGapWidget', () {
@@ -856,6 +881,7 @@ void main() {
               'action': 'take_away',
               'total': 6,
               'remaining': 2,
+              'op': '-',
             },
             expected: ['2'],
           ),
@@ -872,6 +898,95 @@ void main() {
         await tester.pump();
       }
       expect(values.last, '0', reason: 'all removed reports 0');
+    });
+
+    testWidgets(
+        'take_away renders "total − count = ?", removing exactly count '
+        'reports the remaining, and over-removing shows a friendly hint',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        PlaceCountersWidget(
+          problem: _problem(
+            template: 'place_counters',
+            display: {
+              'count': 3,
+              'frame': 'zehnerfeld',
+              'action': 'take_away',
+              'total': 8,
+              'remaining': 5,
+              'op': '-',
+            },
+            expected: ['5'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      // The Minusaufgabe is rendered prominently above the frame.
+      expect(find.text('8 − 3 = ?'), findsOneWidget);
+      expect(find.text('Nimm nur 3 Plättchen weg.'), findsNothing);
+
+      // Removing exactly 3 of the 8 pre-filled cells reports the REMAINING 5.
+      for (var i = 0; i < 3; i++) {
+        await tester.tap(find.byKey(ValueKey('pc-cell-$i')));
+        await tester.pump();
+      }
+      expect(values.last, '5',
+          reason: '8 − 3 leaves 5; the evaluator grades the remaining count');
+
+      // Removing a fourth cell exceeds the task: a friendly inline hint
+      // appears and the child can re-tap to put a cell back.
+      await tester.tap(find.byKey(const ValueKey('pc-cell-3')));
+      await tester.pump();
+      expect(values.last, '4', reason: 'too many removed still reports live');
+      expect(find.text('Nimm nur 3 Plättchen weg.'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('pc-cell-3')));
+      await tester.pump();
+      expect(find.text('Nimm nur 3 Plättchen weg.'), findsNothing,
+          reason: 'putting a cell back clears the hint');
+      expect(values.last, '5');
+    });
+
+    testWidgets('tappable cells carry semantic labels for assistive tech',
+        (tester) async {
+      await _pumpApp(
+        tester,
+        PlaceCountersWidget(
+          problem: _problem(
+            template: 'place_counters',
+            display: {
+              'count': 3,
+              'frame': 'zehnerfeld',
+              'action': 'take_away',
+              'total': 8,
+              'remaining': 5,
+              'op': '-',
+            },
+            expected: ['5'],
+          ),
+          onValueChanged: (_) {},
+        ),
+      );
+
+      final handle = tester.ensureSemantics();
+      try {
+        // The interactive cells are announced as buttons with a German label
+        // (filled cells can be removed in the take_away task).
+        expect(find.bySemanticsLabel('Plättchen 1 wegnehmen'), findsOneWidget);
+        expect(find.bySemanticsLabel('Plättchen 8 wegnehmen'), findsOneWidget);
+        expect(
+          find.byWidgetPredicate((w) =>
+              w is Semantics &&
+              w.properties.label != null &&
+              w.properties.label!.startsWith('Plättchen')),
+          findsNWidgets(10),
+          reason: 'every frame cell (filled or not) is a labelled tap target',
+        );
+      } finally {
+        handle.dispose();
+      }
     });
 
     testWidgets('nonstandard mode reports the Z/E pair placed on the table',
@@ -1453,6 +1568,69 @@ void main() {
       expect(values.last, '');
       await tester.enterText(find.byType(TextField), '16');
       expect(values.last, '16');
+    });
+
+    testWidgets(
+        'two_groups difference (C1.1b L2): the subtracted group is rendered '
+        'with reduced opacity so the child sees which dots are taken away',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        ZehnerfeldReadWidget(
+          problem: _problem(
+            template: 'zehnerfeld_read',
+            display: {
+              'count': 12,
+              'arrangement': 'two_groups',
+              'ask': 'difference',
+              'split': [7, 5],
+              'subtract_group': 1,
+            },
+            expected: ['2'],
+          ),
+          onValueChanged: values.add,
+        ),
+      );
+
+      expect(find.byType(ZehnerfeldWidget), findsNWidgets(2));
+      final dimmer = tester.widget<Opacity>(
+        find.byKey(const ValueKey('zf-group-dimmer-1')),
+      );
+      expect(dimmer.opacity, lessThan(1),
+          reason: 'the taken-away group is grayed (lighter opacity)');
+      expect(
+        find.byKey(const ValueKey('zf-group-dimmer-0')),
+        findsNothing,
+        reason: 'the remaining group is not dimmed',
+      );
+
+      // The task is still answerable: typing the difference works.
+      await tester.enterText(find.byType(TextField), '2');
+      expect(values.last, '2');
+    });
+
+    testWidgets('no subtract_group means neither frame is dimmed',
+        (tester) async {
+      await _pumpApp(
+        tester,
+        ZehnerfeldReadWidget(
+          problem: _problem(
+            template: 'zehnerfeld_read',
+            display: {
+              'count': 17,
+              'arrangement': 'two_groups',
+              'ask': 'total',
+              'split': [10, 7],
+            },
+            expected: ['17'],
+          ),
+          onValueChanged: (_) {},
+        ),
+      );
+
+      expect(find.byKey(const ValueKey('zf-group-dimmer-0')), findsNothing);
+      expect(find.byKey(const ValueKey('zf-group-dimmer-1')), findsNothing);
     });
 
     testWidgets('a new problem clears the field and reports ""', (tester) async {

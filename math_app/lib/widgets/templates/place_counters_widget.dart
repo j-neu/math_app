@@ -35,12 +35,18 @@ class _PlaceCountersWidgetState extends State<PlaceCountersWidget> {
   late bool _changed;
   late int _z;
   late int _e;
+  bool _tooManyRemoved = false;
 
   String get _action => (widget.problem.display['action'] as String?) ?? 'fill';
   String get _mode => (widget.problem.display['mode'] as String?) ?? 'standard';
   String get _frame =>
       (widget.problem.display['frame'] as String?) ?? 'zehnerfeld';
   int get _total => (widget.problem.display['total'] as int?) ?? 0;
+
+  /// How many cells the child must remove in `take_away` tasks — the operand
+  /// of the rendered equation, not the expected answer.
+  int get _removeCount => (widget.problem.display['count'] as int?) ?? 0;
+  String get _op => (widget.problem.display['op'] as String?) ?? '-';
 
   bool get _isNonstandard => _mode == 'nonstandard';
 
@@ -58,6 +64,7 @@ class _PlaceCountersWidgetState extends State<PlaceCountersWidget> {
     _changed = false;
     _z = 0;
     _e = 0;
+    _tooManyRemoved = false;
   }
 
   void _reset() {
@@ -71,6 +78,7 @@ class _PlaceCountersWidgetState extends State<PlaceCountersWidget> {
     _changed = false;
     _z = 0;
     _e = 0;
+    _tooManyRemoved = false;
   }
 
   @override
@@ -115,6 +123,14 @@ class _PlaceCountersWidgetState extends State<PlaceCountersWidget> {
       _filledCells.add(index);
     }
     _changed = true;
+    // The child may remove at most `count` cells: removing more leaves fewer
+    // than the intended remainder, so flag it with a friendly inline hint.
+    if (_action == 'take_away') {
+      final removed = _total - _filledCells.length;
+      _tooManyRemoved = _removeCount > 0 && removed > _removeCount;
+    } else {
+      _tooManyRemoved = false;
+    }
     setState(() {});
     _report();
   }
@@ -148,9 +164,19 @@ class _PlaceCountersWidgetState extends State<PlaceCountersWidget> {
     if (_isNonstandard) {
       return _buildStellenwerttafel();
     }
+    final takeAway = _action == 'take_away';
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
+        if (takeAway) ...[
+          Text(
+            '$_total ${_op == '-' ? '\u2212' : _op} $_removeCount = ?',
+            key: const ValueKey('pc-equation'),
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+        ],
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -166,26 +192,46 @@ class _PlaceCountersWidgetState extends State<PlaceCountersWidget> {
             ],
           ),
         ],
+        if (takeAway && _tooManyRemoved) ...[
+          const SizedBox(height: 6),
+          Text(
+            'Nimm nur $_removeCount Plättchen weg.',
+            key: const ValueKey('pc-takeaway-hint'),
+            style: const TextStyle(fontSize: 15, color: Color(0xFFE65100)),
+          ),
+        ],
       ],
     );
   }
 
   Widget _cell(int index) {
     final isFilled = _filledCells.contains(index);
-    return GestureDetector(
-      key: ValueKey('pc-cell-$index'),
-      behavior: HitTestBehavior.opaque,
-      onTap: () => _toggleCell(index),
-      child: Container(
-        width: 44,
-        height: 44,
-        margin: const EdgeInsets.all(3),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: isFilled ? Colors.indigo : Colors.transparent,
-          border: Border.all(
-            color: isFilled ? Colors.indigo : Colors.blueGrey,
-            width: 2,
+    final label = _action == 'take_away'
+        ? (isFilled
+            ? 'Plättchen ${index + 1} wegnehmen'
+            : 'Plättchen ${index + 1} zurücklegen')
+        : (isFilled
+            ? 'Plättchen ${index + 1} weglegen'
+            : 'Plättchen ${index + 1} hinlegen');
+    return Semantics(
+      button: true,
+      label: label,
+      excludeSemantics: true,
+      child: GestureDetector(
+        key: ValueKey('pc-cell-$index'),
+        behavior: HitTestBehavior.opaque,
+        onTap: () => _toggleCell(index),
+        child: Container(
+          width: 44,
+          height: 44,
+          margin: const EdgeInsets.all(3),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isFilled ? Colors.indigo : Colors.transparent,
+            border: Border.all(
+              color: isFilled ? Colors.indigo : Colors.blueGrey,
+              width: 2,
+            ),
           ),
         ),
       ),
@@ -225,33 +271,43 @@ class _PlaceCountersWidgetState extends State<PlaceCountersWidget> {
             key: ValueKey(isTens ? 'swt-z-counters' : 'swt-e-counters'),
             behavior: HitTestBehavior.opaque,
             onTap: () => _removeFromColumn(isTens),
-            child: SizedBox(
-              height: 44,
-              width: double.infinity,
-              child: Center(
-                child: Text(
-                  '$value',
-                  style: const TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
+            child: Semantics(
+              button: true,
+              label: isTens ? 'Zehner zählt $value' : 'Einer zählt $value',
+              excludeSemantics: true,
+              child: SizedBox(
+                height: 44,
+                width: double.infinity,
+                child: Center(
+                  child: Text(
+                    '$value',
+                    style: const TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-          GestureDetector(
-            key: ValueKey(isTens ? 'swt-z-add' : 'swt-e-add'),
-            behavior: HitTestBehavior.opaque,
-            onTap: () => _addToColumn(isTens),
-            child: Container(
-              height: 44,
-              width: double.infinity,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: Colors.indigo.shade100,
-                borderRadius: BorderRadius.circular(8),
+          Semantics(
+            button: true,
+            label: isTens ? 'Zehner hinzufügen' : 'Einer hinzufügen',
+            excludeSemantics: true,
+            child: GestureDetector(
+              key: ValueKey(isTens ? 'swt-z-add' : 'swt-e-add'),
+              behavior: HitTestBehavior.opaque,
+              onTap: () => _addToColumn(isTens),
+              child: Container(
+                height: 44,
+                width: double.infinity,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: Colors.indigo.shade100,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.add, size: 28, color: Colors.indigo),
               ),
-              child: const Icon(Icons.add, size: 28, color: Colors.indigo),
             ),
           ),
         ],

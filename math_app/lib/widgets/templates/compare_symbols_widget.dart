@@ -39,27 +39,37 @@ class _CompareSymbolsWidgetState extends State<CompareSymbolsWidget> {
   Widget _operatorButton(String op) {
     final selected = _selected == op;
     final colors = Theme.of(context).colorScheme;
+    final spoken = switch (op) {
+      '<' => 'kleiner als',
+      '>' => 'größer als',
+      _ => 'gleich',
+    };
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: SizedBox(
         width: 84,
         height: 64,
-        child: Material(
-          color: selected ? colors.primary : colors.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(14),
-          child: InkWell(
+        child: Semantics(
+          button: true,
+          label: spoken,
+          excludeSemantics: true,
+          child: Material(
+            color: selected ? colors.primary : colors.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(14),
-            onTap: () {
-              setState(() => _selected = op);
-              widget.onValueChanged(op);
-            },
-            child: Center(
-              child: Text(
-                op,
-                style: TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                  color: selected ? colors.onPrimary : colors.onSurface,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(14),
+              onTap: () {
+                setState(() => _selected = op);
+                widget.onValueChanged(op);
+              },
+              child: Center(
+                child: Text(
+                  op,
+                  style: TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                    color: selected ? colors.onPrimary : colors.onSurface,
+                  ),
                 ),
               ),
             ),

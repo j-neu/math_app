@@ -77,20 +77,25 @@ class _PictureCompareWidgetState extends State<PictureCompareWidget> {
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 6),
-        GestureDetector(
-          key: ValueKey('compare-$id'),
-          behavior: HitTestBehavior.opaque,
-          onTap: _question == 'difference' ? null : () => _tapSide(id),
-          child: Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: isSelected ? Colors.indigo : Colors.transparent,
-                width: 3,
+        Semantics(
+          button: true,
+          label: isSelected ? '$label gewählt' : label,
+          excludeSemantics: true,
+          child: GestureDetector(
+            key: ValueKey('compare-$id'),
+            behavior: HitTestBehavior.opaque,
+            onTap: _question == 'difference' ? null : () => _tapSide(id),
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: isSelected ? Colors.indigo : Colors.transparent,
+                  width: 3,
+                ),
+                borderRadius: BorderRadius.circular(8),
               ),
-              borderRadius: BorderRadius.circular(8),
+              child: _frame(count),
             ),
-            child: _frame(count),
           ),
         ),
       ],

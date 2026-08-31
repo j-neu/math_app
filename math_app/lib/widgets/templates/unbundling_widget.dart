@@ -68,11 +68,16 @@ class _UnbundlingWidgetState extends State<UnbundlingWidget> {
         children: [
           for (var i = 0; i < _remainingBundles; i++) ...[
             if (i > 0) const SizedBox(width: 6),
-            GestureDetector(
-              key: ValueKey('ub-bundle-$i'),
-              behavior: HitTestBehavior.opaque,
-              onTap: _openBundle,
-              child: const StaebchenBundelWidget(),
+            Semantics(
+              button: true,
+              label: 'Bündel ${i + 1} öffnen',
+              excludeSemantics: true,
+              child: GestureDetector(
+                key: ValueKey('ub-bundle-$i'),
+                behavior: HitTestBehavior.opaque,
+                onTap: _openBundle,
+                child: const StaebchenBundelWidget(),
+              ),
             ),
           ],
           if (_remainingBundles > 0 && _visibleSingles > 0)

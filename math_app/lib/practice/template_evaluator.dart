@@ -55,8 +55,16 @@ class TemplateEvaluator {
         return _evaluateStrategyChoice(problem, submitted, spec);
       case 'custom_widget':
         return _evaluateCustomWidget(problem, submitted, spec);
+      case 'equation_gap':
+        // `neighbor` shows TWO gaps ("_, n, _") whose expected values are
+        // [n-1, n+1]; both must be filled, so it cannot use the plain
+        // single-candidate string match below.
+        if (problem.display['form'] == 'neighbor') {
+          return _evaluateNeighbor(problem, submitted, spec);
+        }
+        return _evaluateStringMatch(problem, submitted, spec);
       default:
-        // Every other template (equation_solve, equation_gap, sequence_gap,
+        // Every other template (equation_solve, sequence_gap,
         // compare_symbols, zehnerfeld_read, fingerbild_read,
         // stellenwerttafel_read, numberline_locate, picture_compare,
         // word_problem, flash_subitize, numberline_mark) is a plain string
@@ -64,6 +72,29 @@ class TemplateEvaluator {
         // expected answers.
         return _evaluateStringMatch(problem, submitted, spec);
     }
+  }
+
+  /// `equation_gap` form `neighbor`: correct iff BOTH expected neighbours
+  /// ([n-1, n+1]) are present in the submission. The widget reports them as
+  /// `"n-1,n+1"`; the check is set-based so the order does not matter, but a
+  /// single filled gap (or a wrong second value) is rejected.
+  AnswerEvaluation _evaluateNeighbor(
+    Problem problem,
+    String submitted,
+    SkillSpec spec,
+  ) {
+    final normalized = normalizeAnswer(submitted);
+    final parts = normalized.split(',').map((s) => s.trim()).toList();
+    final expected = problem.expected.map(normalizeAnswer).toList();
+    final isCorrect = expected.length == 2 &&
+        parts.length == 2 &&
+        parts.toSet().length == 2 &&
+        expected.toSet().containsAll(parts.toSet());
+    return AnswerEvaluation(
+      isCorrect: isCorrect,
+      errorCode: isCorrect ? null : _errorCodeFor(problem, submitted, spec),
+      canonicalAnswer: isCorrect ? parts.join(',') : normalized,
+    );
   }
 
   /// Correct iff the normalised submission equals one of `expected`.

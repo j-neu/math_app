@@ -18,7 +18,9 @@
 
 **Distinct from any known legacy item:** {State the independent basis: how the construct is tested here differs from any legacy version of the same construct — different numbers, framing, format. If the construct forces an operand range, say so and record why the specific expression is still our own.}
 
-**Wording (German):** {The exact German stimulus the child receives}
+**Wording (German):** {The brief on-screen prompt the child reads/hears by default — e.g. "Wie viele Felder sind gefüllt?", "Was ist die Antwort?", "Welche Zahl fehlt?". For items with a rendered visual, don't re-narrate the visual here — the picture already shows it. Exception: Sachaufgaben/word-problem items (Domain D and DDD), where extracting the situation from a full text *is* the construct being measured — the complete story stays here.}
+
+**Hilfetext (optional, z. B. Hilfe-Button):** {Only for items whose Wording above is deliberately brief. The fuller explanation/narration of the stimulus — what an adult would say if asked "was soll ich tun?" — surfaced on demand, not by default. Omit this field entirely for word-problem items and for items where Wording already is the full instruction (e.g. plain spoken counting tasks with no visual).}
 
 **Expected correct answer:** {Exact expected response; for multi-part items, the full accepted response}
 

@@ -56,7 +56,7 @@ insert into auth.users (
   '33333333-3333-3333-3333-333333333333',
   'authenticated', 'authenticated',
   'rls-test-teacher-a@example.invalid',
-  crypt('not-used-not-logged-in-with', gen_salt('bf')),
+  'not-used-not-logged-in-with',
   now(), now(), now(),
   '{"provider":"email","providers":["email"]}', '{}',
   now(), now(),

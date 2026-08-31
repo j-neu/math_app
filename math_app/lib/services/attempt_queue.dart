@@ -61,18 +61,20 @@ class AttemptQueue {
 
   Lock _lockFor(String key) => _locks.putIfAbsent(key, () => Lock());
 
-  /// Reads and decodes the attempts stored under [key]. A corrupted or
-  /// unparsable entry is treated as an empty queue rather than thrown —
-  /// losing one bad batch is far better than bricking the queue forever,
-  /// since every other queue operation funnels through this read.
+  /// Reads and decodes the attempts stored under [key]. If the stored value
+  /// isn't even a JSON list, the whole entry is treated as an empty queue —
+  /// there's nothing to salvage. Otherwise each element is decoded
+  /// individually: a single malformed element (schema drift, a partial
+  /// write) is dropped and logged, but every sibling that does parse is
+  /// kept. A corrupt entry must never cost a child their other completed
+  /// work, since every other queue operation funnels through this read.
   List<PracticeAttempt> _readAttempts(SharedPreferences prefs, String key) {
     final raw = prefs.getString(key);
     if (raw == null || raw.isEmpty) return [];
+
+    List<dynamic> list;
     try {
-      final list = jsonDecode(raw) as List;
-      return list
-          .map((e) => PracticeAttempt.fromJson((e as Map).cast<String, dynamic>()))
-          .toList();
+      list = jsonDecode(raw) as List;
     } catch (e, st) {
       developer.log(
         'AttemptQueue: corrupt data under "$key", treating as empty.',
@@ -82,6 +84,24 @@ class AttemptQueue {
       );
       return [];
     }
+
+    final attempts = <PracticeAttempt>[];
+    var dropped = 0;
+    for (final e in list) {
+      try {
+        attempts.add(PracticeAttempt.fromJson((e as Map).cast<String, dynamic>()));
+      } catch (_) {
+        dropped++;
+      }
+    }
+    if (dropped > 0) {
+      developer.log(
+        'AttemptQueue: dropped $dropped corrupt element(s) under "$key", '
+        'kept ${attempts.length}.',
+        name: 'AttemptQueue',
+      );
+    }
+    return attempts;
   }
 
   Future<void> add(String practiceSessionId, PracticeAttempt attempt) async {

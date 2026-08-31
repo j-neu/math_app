@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:math_app/services/attempt_queue.dart';
@@ -85,5 +86,25 @@ void main() {
     expect(await q.pending('ps1'), isEmpty);
     await q.add('ps1', attempt(0));
     expect((await q.pending('ps1')).length, 1);
+  });
+
+  test(
+      'one malformed element among several does not discard its siblings',
+      () async {
+    // Only the middle element is bad (missing every required field, so
+    // PracticeAttempt.fromJson throws on it). The decode must happen
+    // element-by-element: the two good attempts must survive even though
+    // one entry in the same stored list is corrupt.
+    SharedPreferences.setMockInitialValues({
+      'attempt_queue_ps1': jsonEncode([
+        attempt(0).toJson(),
+        {'not': 'a valid attempt'},
+        attempt(2).toJson(),
+      ]),
+    });
+    final q = AttemptQueue();
+    final pending = await q.pending('ps1');
+    expect(pending.length, 2);
+    expect(pending.map((a) => a.problemIndex), containsAll([0, 2]));
   });
 }

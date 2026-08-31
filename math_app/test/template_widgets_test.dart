@@ -5,13 +5,17 @@ import 'package:math_app/widgets/manipulatives/fingerbild.dart';
 import 'package:math_app/widgets/manipulatives/stellenwerttafel.dart';
 import 'package:math_app/widgets/manipulatives/zehnerfeld.dart';
 import 'package:math_app/widgets/templates/answer_pad.dart';
+import 'package:math_app/widgets/manipulatives/rekenrek.dart';
 import 'package:math_app/widgets/templates/bundle_sticks_widget.dart';
+import 'package:math_app/widgets/templates/bundling_widget.dart';
 import 'package:math_app/widgets/templates/compare_symbols_widget.dart';
 import 'package:math_app/widgets/templates/drag_partition_widget.dart';
 import 'package:math_app/widgets/templates/equation_gap_widget.dart';
 import 'package:math_app/widgets/templates/equation_solve_widget.dart';
 import 'package:math_app/widgets/templates/fingerbild_read_widget.dart';
+import 'package:math_app/widgets/templates/flash_subitize_widget.dart';
 import 'package:math_app/widgets/templates/numberline_locate_widget.dart';
+import 'package:math_app/widgets/templates/numberline_mark_widget.dart';
 import 'package:math_app/widgets/templates/numberline_step_widget.dart';
 import 'package:math_app/widgets/templates/picture_compare_widget.dart';
 import 'package:math_app/widgets/templates/place_counters_widget.dart';
@@ -19,6 +23,7 @@ import 'package:math_app/widgets/templates/rekenrek_set_widget.dart';
 import 'package:math_app/widgets/templates/sequence_gap_widget.dart';
 import 'package:math_app/widgets/templates/stellenwerttafel_read_widget.dart';
 import 'package:math_app/widgets/templates/strategy_choice_widget.dart';
+import 'package:math_app/widgets/templates/unbundling_widget.dart';
 import 'package:math_app/widgets/templates/word_problem_widget.dart';
 import 'package:math_app/widgets/templates/zehnerfeld_read_widget.dart';
 
@@ -1901,6 +1906,481 @@ void main() {
       );
       expect(values.last, '');
       expect(find.text('links ✓'), findsNothing);
+    });
+  });
+
+  group('FlashSubitizeWidget', () {
+    Problem flashProblem(int count, {String pattern = 'dots', int flashMs = 800}) =>
+        _problem(
+          template: 'custom_widget',
+          display: {
+            'custom_widget': 'flash_subitize',
+            'count': count,
+            'flash_ms': flashMs,
+            'display': pattern,
+          },
+          expected: [count.toString()],
+        );
+
+    double flashOpacity(WidgetTester tester) => tester
+        .widget<AnimatedOpacity>(find.byKey(const ValueKey('flash-visual')))
+        .opacity;
+
+    testWidgets('renders the dot pattern, the field and the re-show button',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        FlashSubitizeWidget(problem: flashProblem(4), onValueChanged: values.add),
+      );
+
+      expect(find.byKey(const ValueKey('flash-dot-0')), findsOneWidget);
+      expect(find.byKey(const ValueKey('flash-dot-3')), findsOneWidget);
+      expect(find.byKey(const ValueKey('flash-dot-4')), findsNothing);
+      expect(find.byType(TextField), findsOneWidget);
+      expect(find.byKey(const ValueKey('flash-reshow')), findsOneWidget);
+      expect(values, isEmpty);
+    });
+
+    testWidgets('fades out after the flash duration and the typed count is '
+        'reported', (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        FlashSubitizeWidget(problem: flashProblem(3), onValueChanged: values.add),
+      );
+
+      expect(flashOpacity(tester), 1, reason: 'the pattern is visible on mount');
+
+      await tester.pump(const Duration(milliseconds: 800));
+      await tester.pump(const Duration(milliseconds: 250));
+      expect(flashOpacity(tester), 0, reason: 'the pattern is gone after the flash');
+
+      await tester.enterText(find.byType(TextField), '3');
+      expect(values.last, '3');
+    });
+
+    testWidgets('Nochmal sehen re-shows the pattern briefly', (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        FlashSubitizeWidget(problem: flashProblem(4), onValueChanged: values.add),
+      );
+
+      await tester.pump(const Duration(milliseconds: 800));
+      await tester.pump(const Duration(milliseconds: 250));
+      expect(flashOpacity(tester), 0);
+
+      await tester.tap(find.byKey(const ValueKey('flash-reshow')));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(flashOpacity(tester), 1, reason: 'the button re-shows the pattern');
+
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pump(const Duration(milliseconds: 250));
+      expect(flashOpacity(tester), 0,
+          reason: 'the re-shown pattern fades again after its own duration');
+    });
+
+    testWidgets('rekenrek display renders the Rekenrek and reports the count',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        FlashSubitizeWidget(
+          problem: flashProblem(5, pattern: 'rekenrek'),
+          onValueChanged: values.add,
+        ),
+      );
+
+      expect(find.byType(RekenrekWidget), findsOneWidget);
+      await tester.pump(const Duration(milliseconds: 800));
+      await tester.pump(const Duration(milliseconds: 250));
+      await tester.enterText(find.byType(TextField), '5');
+      expect(values.last, '5');
+    });
+
+    testWidgets('cancels the flash timer when disposed', (tester) async {
+      await _pumpApp(
+        tester,
+        FlashSubitizeWidget(problem: flashProblem(2), onValueChanged: (_) {}),
+      );
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(milliseconds: 900));
+    });
+
+    testWidgets('a new problem clears the field, reports "" and re-flashes',
+        (tester) async {
+      final values = <String>[];
+      final first = flashProblem(3);
+      final second = flashProblem(5, pattern: 'rekenrek');
+      await _pumpApp(
+        tester,
+        FlashSubitizeWidget(problem: first, onValueChanged: values.add),
+      );
+      await tester.enterText(find.byType(TextField), '3');
+      expect(values.last, '3');
+
+      await _pumpApp(
+        tester,
+        FlashSubitizeWidget(problem: second, onValueChanged: values.add),
+      );
+      expect(values.last, '');
+      expect(find.byType(RekenrekWidget), findsOneWidget);
+      expect(flashOpacity(tester), 1, reason: 'a new problem flashes its pattern');
+    });
+
+    testWidgets('boundary: counts 1 and 5 render exactly that many dots',
+        (tester) async {
+      await _pumpApp(
+        tester,
+        FlashSubitizeWidget(problem: flashProblem(1), onValueChanged: (_) {}),
+      );
+      expect(find.byKey(const ValueKey('flash-dot-0')), findsOneWidget);
+      expect(find.byKey(const ValueKey('flash-dot-1')), findsNothing);
+
+      await _pumpApp(
+        tester,
+        FlashSubitizeWidget(problem: flashProblem(5), onValueChanged: (_) {}),
+      );
+      expect(find.byKey(const ValueKey('flash-dot-4')), findsOneWidget);
+      expect(find.byKey(const ValueKey('flash-dot-5')), findsNothing);
+    });
+  });
+
+  group('BundlingWidget', () {
+    Problem bundlingProblem(int count) => _problem(
+          template: 'custom_widget',
+          display: {
+            'custom_widget': 'bundling',
+            'count': count,
+            'bundles': count ~/ 10,
+            'singles': count % 10,
+          },
+        );
+
+    testWidgets('renders one tappable stick per count', (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        BundlingWidget(problem: bundlingProblem(15), onValueChanged: values.add),
+      );
+
+      expect(find.byKey(const ValueKey('stick-0')), findsOneWidget);
+      expect(find.byKey(const ValueKey('stick-14')), findsOneWidget);
+      expect(find.byKey(const ValueKey('stick-15')), findsNothing);
+      expect(find.byKey(const ValueKey('bundle-0')), findsNothing);
+      expect(values, isEmpty, reason: 'nothing bundled yet');
+    });
+
+    testWidgets('tapping sticks bundles tens and reports the Z/E split',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        BundlingWidget(problem: bundlingProblem(25), onValueChanged: values.add),
+      );
+
+      await tester.tap(find.byKey(const ValueKey('stick-0')));
+      await tester.pump();
+      expect(values.last, '1 Zehner, 15 Einer');
+      await tester.tap(find.byKey(const ValueKey('stick-0')));
+      await tester.pump();
+      expect(values.last, '2 Zehner, 5 Einer');
+    });
+
+    testWidgets('bundles render grouped and open again, empty reports ""',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        BundlingWidget(problem: bundlingProblem(25), onValueChanged: values.add),
+      );
+
+      await tester.tap(find.byKey(const ValueKey('stick-0')));
+      await tester.pump();
+      expect(find.byKey(const ValueKey('bundle-0')), findsOneWidget,
+          reason: 'the bundle is grouped and highlighted');
+
+      await tester.tap(find.byKey(const ValueKey('bundle-0')));
+      await tester.pump();
+      expect(values.last, '', reason: 'no bundles left reports ""');
+      expect(find.byKey(const ValueKey('bundle-0')), findsNothing);
+    });
+
+    testWidgets('boundary: 39 sticks bundle to 3 Zehner and 9 Einer',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        BundlingWidget(problem: bundlingProblem(39), onValueChanged: values.add),
+      );
+
+      for (var i = 0; i < 4; i++) {
+        await tester.tap(find.byKey(const ValueKey('stick-0')));
+        await tester.pump();
+      }
+      expect(values.last, '3 Zehner, 9 Einer',
+          reason: 'a fourth bundle is impossible with only 9 singles left');
+      expect(find.byKey(const ValueKey('bundle-2')), findsOneWidget);
+      expect(find.byKey(const ValueKey('bundle-3')), findsNothing);
+    });
+
+    testWidgets('a new problem resets the bundles and reports ""',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        BundlingWidget(problem: bundlingProblem(15), onValueChanged: values.add),
+      );
+      await tester.tap(find.byKey(const ValueKey('stick-0')));
+      await tester.pump();
+      expect(values.last, '1 Zehner, 5 Einer');
+
+      await _pumpApp(
+        tester,
+        BundlingWidget(problem: bundlingProblem(12), onValueChanged: values.add),
+      );
+      expect(values.last, '');
+      expect(find.byKey(const ValueKey('bundle-0')), findsNothing);
+    });
+  });
+
+  group('UnbundlingWidget', () {
+    Problem unbundlingProblem(int tens, int ones) => _problem(
+          template: 'custom_widget',
+          display: {
+            'custom_widget': 'unbundling',
+            'tens': tens,
+            'ones': ones,
+            'count': 10 * tens + ones,
+          },
+          expected: [(10 * tens + ones).toString()],
+        );
+
+    testWidgets('renders the bundled picture and the open hint', (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        UnbundlingWidget(
+          problem: unbundlingProblem(2, 4),
+          onValueChanged: values.add,
+        ),
+      );
+
+      expect(find.byKey(const ValueKey('ub-bundle-0')), findsOneWidget);
+      expect(find.byKey(const ValueKey('ub-bundle-1')), findsOneWidget);
+      expect(find.byKey(const ValueKey('ub-bundle-2')), findsNothing);
+      expect(find.byType(TextField), findsNothing,
+          reason: 'the answer field appears only after opening a bundle');
+      expect(
+        find.text('Tippe auf ein Bündel, um es zu öffnen.'),
+        findsOneWidget,
+      );
+      expect(values, isEmpty);
+    });
+
+    testWidgets('tapping a bundle opens it and the typed total is reported',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        UnbundlingWidget(
+          problem: unbundlingProblem(1, 3),
+          onValueChanged: values.add,
+        ),
+      );
+
+      await tester.tap(find.byKey(const ValueKey('ub-bundle-0')));
+      await tester.pump();
+      expect(find.byKey(const ValueKey('ub-bundle-0')), findsNothing,
+          reason: 'the opened bundle is gone');
+      expect(find.byType(TextField), findsOneWidget);
+      expect(find.text('Wie viele Einer sind es jetzt?'), findsOneWidget);
+
+      await tester.enterText(find.byType(TextField), '13');
+      expect(values.last, '13');
+      await tester.enterText(find.byType(TextField), '');
+      expect(values.last, '');
+      await tester.enterText(find.byType(TextField), '12');
+      expect(values.last, '12', reason: 'the field stays editable for retry');
+    });
+
+    testWidgets('opening one of two bundles keeps the other bundled',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        UnbundlingWidget(
+          problem: unbundlingProblem(2, 5),
+          onValueChanged: values.add,
+        ),
+      );
+
+      await tester.tap(find.byKey(const ValueKey('ub-bundle-0')));
+      await tester.pump();
+      expect(find.byKey(const ValueKey('ub-bundle-0')), findsOneWidget,
+          reason: 'one bundle stays closed');
+      await tester.enterText(find.byType(TextField), '25');
+      expect(values.last, '25');
+    });
+
+    testWidgets('empty and reset: "" until opened, "" on a new problem',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        UnbundlingWidget(
+          problem: unbundlingProblem(1, 3),
+          onValueChanged: values.add,
+        ),
+      );
+      expect(values, isEmpty);
+
+      await tester.tap(find.byKey(const ValueKey('ub-bundle-0')));
+      await tester.pump();
+      await tester.enterText(find.byType(TextField), '13');
+      expect(values.last, '13');
+
+      await _pumpApp(
+        tester,
+        UnbundlingWidget(
+          problem: unbundlingProblem(2, 5),
+          onValueChanged: values.add,
+        ),
+      );
+      expect(values.last, '');
+      expect(find.byKey(const ValueKey('ub-bundle-0')), findsOneWidget,
+          reason: 'the new problem is closed again');
+      expect(find.byType(TextField), findsNothing);
+    });
+
+    testWidgets('boundary: 1 Zehner and 13 Einer open to 23 Einer',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        UnbundlingWidget(
+          problem: unbundlingProblem(1, 13),
+          onValueChanged: values.add,
+        ),
+      );
+
+      await tester.tap(find.byKey(const ValueKey('ub-bundle-0')));
+      await tester.pump();
+      await tester.enterText(find.byType(TextField), '23');
+      expect(values.last, '23');
+    });
+  });
+
+  group('NumberlineMarkWidget', () {
+    Offset markPointFor(WidgetTester tester, int value, int lo, int hi) {
+      final rect = tester.getRect(
+        find.byKey(const ValueKey('numberline-mark-line')),
+      );
+      final dx =
+          rect.left + 16 + (rect.width - 32) * (value - lo) / (hi - lo);
+      return Offset(dx, rect.center.dy);
+    }
+
+    Problem markProblem(int value, {List<int> range = const [0, 100]}) =>
+        _problem(
+          template: 'custom_widget',
+          display: {
+            'custom_widget': 'numberline_mark',
+            'range': range,
+            'value': value,
+          },
+          expected: [value.toString()],
+        );
+
+    testWidgets('renders the line and the tap snaps to the nearest tick',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        NumberlineMarkWidget(
+          problem: markProblem(64),
+          onValueChanged: values.add,
+        ),
+      );
+
+      expect(find.byKey(const ValueKey('numberline-mark-line')), findsOneWidget);
+      expect(values, isEmpty, reason: 'nothing tapped yet');
+
+      await tester.tapAt(markPointFor(tester, 64, 0, 100));
+      await tester.pump();
+      expect(values.last, '64');
+    });
+
+    testWidgets('re-tapping moves the marker and re-reports the value',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        NumberlineMarkWidget(
+          problem: markProblem(50),
+          onValueChanged: values.add,
+        ),
+      );
+
+      await tester.tapAt(markPointFor(tester, 64, 0, 100));
+      await tester.pump();
+      expect(values.last, '64');
+      await tester.tapAt(markPointFor(tester, 25, 0, 100));
+      await tester.pump();
+      expect(values.last, '25', reason: 're-tapping moves the marker');
+    });
+
+    testWidgets('boundary: the target is interior, edges clamp to the endpoint',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        NumberlineMarkWidget(
+          problem: markProblem(50),
+          onValueChanged: values.add,
+        ),
+      );
+
+      expect(values, isEmpty, reason: 'no tap before the line is touched');
+
+      final rect = tester.getRect(
+        find.byKey(const ValueKey('numberline-mark-line')),
+      );
+      await tester.tapAt(Offset(rect.left, rect.center.dy));
+      await tester.pump();
+      expect(values.last, '0', reason: 'the left edge clamps to rangeLo');
+      await tester.tapAt(Offset(rect.right - 1, rect.center.dy));
+      await tester.pump();
+      expect(values.last, '100', reason: 'the right edge clamps to rangeHi');
+    });
+
+    testWidgets('a new problem clears the marker and reports ""',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        NumberlineMarkWidget(
+          problem: markProblem(64),
+          onValueChanged: values.add,
+        ),
+      );
+      await tester.tapAt(markPointFor(tester, 64, 0, 100));
+      await tester.pump();
+      expect(values.last, '64');
+
+      await _pumpApp(
+        tester,
+        NumberlineMarkWidget(
+          problem: markProblem(8, range: const [0, 20]),
+          onValueChanged: values.add,
+        ),
+      );
+      expect(values.last, '');
+      expect(
+        tester.getRect(find.byKey(const ValueKey('numberline-mark-line'))),
+        isNot(equals(Rect.zero)),
+      );
     });
   });
 }

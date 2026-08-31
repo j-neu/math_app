@@ -407,6 +407,41 @@ void main() {
     expect(find.text('Hallo Mia! Tippe deine vier Bilder an.'), findsOneWidget);
     expect(find.text('Hallo Jonas! Tippe deine vier Bilder an.'), findsNothing);
   });
+
+  // ---- Fix round 3: avatar colour collisions on same-initial names ----
+
+  testWidgets('same-initial children get different avatar colours', (tester) async {
+    // These ids are chosen so their id hashes land on the same palette index
+    // (verified offline against the same hash the widget uses): without
+    // collision resolution, each pair below would render an identical
+    // colour behind the shared initial, exactly the bug a visual review
+    // found with real names like Franziska/Finn and Marlene/Max.
+    final sameInitialService = StudentAuthService(
+      client: MockClient((req) async => http.Response(
+            jsonEncode({
+              'class_id': 'c1',
+              'require_pin': false,
+              'students': [
+                {'id': 'f-student-1', 'display_name': 'Franziska', 'avatar': null},
+                {'id': 'f-student-25', 'display_name': 'Finn', 'avatar': null},
+                {'id': 'm-student-1', 'display_name': 'Marlene', 'avatar': null},
+                {'id': 'm-student-16', 'display_name': 'Max', 'avatar': null},
+              ],
+            }),
+            200,
+          )),
+    );
+
+    await reachRoster(tester, sameInitialService);
+
+    final avatars = tester.widgetList<CircleAvatar>(find.byType(CircleAvatar)).toList();
+    expect(avatars.length, 4);
+
+    // Franziska vs. Finn (both 'F').
+    expect(avatars[0].backgroundColor, isNot(equals(avatars[1].backgroundColor)));
+    // Marlene vs. Max (both 'M').
+    expect(avatars[2].backgroundColor, isNot(equals(avatars[3].backgroundColor)));
+  });
 }
 
 String? _lastLoginBody;

@@ -289,6 +289,10 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
 
   Widget _buildRosterStep(BuildContext context) {
     final students = _roster?.students ?? const <RosterEntry>[];
+    // Computed once per build over the whole roster (not per tile) so that
+    // same-initial collisions can be resolved against each other — see
+    // `_assignAvatarColours`.
+    final avatarColours = _assignAvatarColours(students);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -319,7 +323,9 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
             childAspectRatio: 0.85,
-            children: [for (final entry in students) _nameTile(context, entry)],
+            children: [
+              for (final entry in students) _nameTile(context, entry, avatarColours[entry.id]!),
+            ],
           ),
         const SizedBox(height: 16),
         SizedBox(
@@ -333,7 +339,7 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
     );
   }
 
-  Widget _nameTile(BuildContext context, RosterEntry entry) {
+  Widget _nameTile(BuildContext context, RosterEntry entry, Color avatarColour) {
     final scheme = Theme.of(context).colorScheme;
     final waiting = _pendingStudentId == entry.id;
 
@@ -358,7 +364,7 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
                       padding: EdgeInsets.all(8),
                       child: CircularProgressIndicator(strokeWidth: 3),
                     )
-                  : _initialAvatar(context, entry),
+                  : _initialAvatar(context, entry, avatarColour),
             ),
             const SizedBox(height: 6),
             // Flexible so a long or hyphenated name shrinks instead of
@@ -378,14 +384,13 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
     );
   }
 
-  /// A circle carrying the child's initial, coloured deterministically from
-  /// their id. Renders on every platform (no emoji font needed) and stays
-  /// distinct across a class of 28, which a fixed glyph set cannot.
-  Widget _initialAvatar(BuildContext context, RosterEntry entry) {
+  /// A circle carrying the child's initial, coloured per `_assignAvatarColours`.
+  /// Renders on every platform (no emoji font needed).
+  Widget _initialAvatar(BuildContext context, RosterEntry entry, Color avatarColour) {
     final initial =
         entry.displayName.isNotEmpty ? entry.displayName.substring(0, 1).toUpperCase() : '?';
     return CircleAvatar(
-      backgroundColor: _avatarColour(entry.id),
+      backgroundColor: avatarColour,
       child: Text(
         initial,
         style: const TextStyle(
@@ -397,18 +402,75 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
     );
   }
 
+  // All 20 swatches are dark enough to carry white bold text legibly (WCAG
+  // contrast ratio against white is >= 4.5:1 for every entry here, well past
+  // the 3:1 large-bold-text minimum). Two former swatches — an orange
+  // (0xFFEF6C00, ratio ~3.1) and a custom brown (0xFF9E5700) — read visibly
+  // weaker than the rest and were replaced.
   static const List<Color> _avatarPalette = [
-    Color(0xFF00695C), Color(0xFF283593), Color(0xFFAD1457), Color(0xFF4527A0),
-    Color(0xFF00838F), Color(0xFFC62828), Color(0xFF2E7D32), Color(0xFF6A1B9A),
-    Color(0xFFEF6C00), Color(0xFF37474F), Color(0xFF0277BD), Color(0xFF9E5700),
+    Color(0xFFC62828), // red 800
+    Color(0xFFB71C1C), // red 900
+    Color(0xFFBF360C), // deep orange 900
+    Color(0xFF5D4037), // brown 700
+    Color(0xFF3E2723), // brown 900
+    Color(0xFF827717), // olive (lime 900)
+    Color(0xFF2E7D32), // green 800
+    Color(0xFF1B5E20), // green 900
+    Color(0xFF00695C), // teal 800
+    Color(0xFF00838F), // cyan 800
+    Color(0xFF0277BD), // light blue 800
+    Color(0xFF1565C0), // blue 800
+    Color(0xFF283593), // indigo 800
+    Color(0xFF1A237E), // indigo 900 / navy
+    Color(0xFF4527A0), // deep purple 800
+    Color(0xFF6A1B9A), // purple 800
+    Color(0xFFAD1457), // pink 800
+    Color(0xFF880E4F), // pink 900 / wine
+    Color(0xFF37474F), // blue grey 800
+    Color(0xFF424242), // grey 800
   ];
 
-  Color _avatarColour(String id) {
+  /// The starting palette index for a child, before collision resolution.
+  /// Deterministic on `id` alone.
+  int _preferredColourIndex(String id) {
     var hash = 0;
     for (final unit in id.codeUnits) {
       hash = (hash * 31 + unit) & 0x7fffffff;
     }
-    return _avatarPalette[hash % _avatarPalette.length];
+    return hash % _avatarPalette.length;
+  }
+
+  /// Assigns each student in [students] a colour from `_avatarPalette`.
+  ///
+  /// A pure per-id hash cannot guarantee two children with the same first
+  /// initial get different colours — same-initial pairs are the norm in a
+  /// German class list (Franziska/Finn, Marlene/Max, ...), not an edge case,
+  /// and a child hunting for "my purple F" among two identical purple F's is
+  /// exactly the failure this avoids. So: walk the roster in the stable
+  /// order it is given, and whenever a child's hashed colour is already
+  /// taken by an earlier child sharing their initial, advance to the next
+  /// free colour in the palette for that initial.
+  ///
+  /// Deterministic: the same roster, in the same order, always produces the
+  /// same colours, so a child's tile does not change between sessions.
+  Map<String, Color> _assignAvatarColours(List<RosterEntry> students) {
+    final colours = <String, Color>{};
+    final usedByInitial = <String, Set<int>>{};
+    for (final entry in students) {
+      final initial =
+          entry.displayName.isNotEmpty ? entry.displayName.substring(0, 1).toUpperCase() : '?';
+      final used = usedByInitial.putIfAbsent(initial, () => <int>{});
+      var index = _preferredColourIndex(entry.id);
+      // Advance deterministically to the next free slot for this initial.
+      // Since `used.length < _avatarPalette.length` here, an unused index
+      // is guaranteed to exist and this always terminates.
+      while (used.contains(index) && used.length < _avatarPalette.length) {
+        index = (index + 1) % _avatarPalette.length;
+      }
+      used.add(index);
+      colours[entry.id] = _avatarPalette[index];
+    }
+    return colours;
   }
 
   Widget _buildPinStep(BuildContext context) {

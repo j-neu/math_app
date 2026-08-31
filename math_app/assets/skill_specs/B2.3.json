@@ -1,0 +1,71 @@
+{
+  "spec_version": 1,
+  "skill_id": "B2.3",
+  "construct_id": "B2.3",
+  "domain": "B",
+  "title_de": "Zahlen in ungewohnter Schreibweise lesen",
+  "level_titles_de": [
+    "Viele Einer in der Stellenwerttafel",
+    "Zahlen mit vielen Einern lesen",
+    "Zehner und viele Einer als Zahl schreiben"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "place_counters",
+      "custom_widget": null,
+      "params": {
+        "count_range": [20, 99],
+        "frame": "stellenwerttafel",
+        "action": "fill"
+      },
+      "problem_count": 8,
+      "prompt_de": "Stelle die Zahl mit den vielen Einern in der Stellenwerttafel dar.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "stellenwerttafel_read",
+      "custom_widget": null,
+      "params": {
+        "mode": "sum_rows",
+        "columns": ["Z", "E"],
+        "rows": "two_rows"
+      },
+      "problem_count": 8,
+      "prompt_de": "Lies die beiden Reihen zusammen und tippe die Zahl ein.",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "equation_gap",
+      "custom_widget": null,
+      "params": {
+        "op": "+",
+        "form": "place_value",
+        "zr": 99,
+        "tens_range": [1, 8],
+        "ones_range": [10, 19]
+      },
+      "problem_count": 8,
+      "prompt_de": "Wie viel sind die Zehner und die vielen Einer zusammen? Tippe die Zahl ein.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "place_error", "label_de": "Zehner und Einer vertauscht", "hint_de": "Zehner gehören in die Zehnerspalte, Einer in die Einerspalte." },
+    { "code": "digit_string_error", "label_de": "alle Ziffern hintereinandergeschrieben", "hint_de": "Denke daran: Zehn Einer sind ein Zehner. Zum Beispiel sind 14 Einer ein Zehner und vier Einer." },
+    { "code": "miscount", "label_de": "verzählt", "hint_de": "Zähle die Zehner und die Einer noch einmal langsam." },
+    { "code": "incomplete", "label_de": "nur die Zehner benutzt", "hint_de": "Vergiss die Einer nicht, sie gehören zur Zahl dazu." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau noch einmal genau hin und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["Moser Opitz 2013; Padberg & Benz 2021"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

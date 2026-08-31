@@ -1,0 +1,71 @@
+{
+  "spec_version": 1,
+  "skill_id": "C1.1a",
+  "construct_id": "C1.1",
+  "domain": "C",
+  "title_de": "Additionsaufgaben bis 10 sicher lösen",
+  "level_titles_de": [
+    "Plättchen ins Zehnerfeld legen",
+    "Zwei Gruppen zusammen",
+    "Plusaufgaben rechnen"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "place_counters",
+      "custom_widget": null,
+      "params": {
+        "count_range": [2, 10],
+        "frame": "zehnerfeld",
+        "action": "fill"
+      },
+      "problem_count": 8,
+      "prompt_de": "Rechne die Plusaufgabe. Lege die Antwort mit Plättchen in das Zehnerfeld.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "zehnerfeld_read",
+      "custom_widget": null,
+      "params": {
+        "count_range": [2, 10],
+        "arrangement": "two_groups"
+      },
+      "problem_count": 8,
+      "prompt_de": "Zwei Gruppen zeigen die Plusaufgabe. Wie viele Punkte sind es zusammen? Tippe die Zahl ein.",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "equation_solve",
+      "custom_widget": null,
+      "params": {
+        "op": "+",
+        "unknown": "result",
+        "zr": 10,
+        "a_range": [1, 9],
+        "b_range": [1, 9],
+        "mode": "standard"
+      },
+      "problem_count": 8,
+      "prompt_de": "Rechne im Kopf und tippe das Ergebnis ein.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "miscount", "label_de": "verzählt", "hint_de": "Zähle die Punkte noch einmal langsam und in Ruhe." },
+    { "code": "incomplete", "label_de": "nur einen Teil der Menge gezählt", "hint_de": "Beide Gruppen gehören zur Aufgabe. Zähle alles." },
+    { "code": "overstep_error", "label_de": "über die Zehn hinausgezählt", "hint_de": "Die Aufgabe bleibt bis 10. Zähle die Punkte beider Gruppen zusammen." },
+    { "code": "addend_repeated", "label_de": "einen Summanden als Ergebnis genannt", "hint_de": "Bei 3 + 4 kommt zu der 3 noch die 4 dazu. Zähle alle Punkte zusammen." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau noch einmal genau hin und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["Gaidoschik 2010; Padberg & Benz 2021"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

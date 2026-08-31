@@ -1,0 +1,91 @@
+{
+  "spec_version": 1,
+  "skill_id": "C4.1",
+  "construct_id": "C4.1",
+  "domain": "C",
+  "title_de": "Rechenstrategien bewusst auswählen",
+  "level_titles_de": [
+    "Verdoppeln und Fast-Verdoppeln bis 20",
+    "Strategien im Hunderterraum",
+    "Die passende Strategie"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "symbolisch",
+      "template": "strategy_choice",
+      "custom_widget": null,
+      "params": {
+        "op": "+",
+        "zr": 20,
+        "a_range": [2, 10],
+        "b_range": [2, 10],
+        "strategies": [
+          { "id": "verdoppeln", "label_de": "Verdoppeln" },
+          { "id": "fast_verdoppeln", "label_de": "Fast verdoppeln" }
+        ],
+        "correct_strategy": "verdoppeln"
+      },
+      "problem_count": 8,
+      "prompt_de": "Rechne die Aufgabe und wähle dann die Strategie, die du benutzt hast.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "symbolisch",
+      "template": "strategy_choice",
+      "custom_widget": null,
+      "params": {
+        "op": "+",
+        "zr": 100,
+        "a_range": [21, 48],
+        "b_range": [12, 39],
+        "strategies": [
+          { "id": "verdoppeln", "label_de": "Verdoppeln" },
+          { "id": "fast_verdoppeln", "label_de": "Fast verdoppeln" },
+          { "id": "ueber_die_zehn", "label_de": "Über die Zehn" }
+        ],
+        "correct_strategy": "ueber_die_zehn"
+      },
+      "problem_count": 8,
+      "prompt_de": "Rechne geschickt und wähle die Strategie, die du benutzt hast.",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "strategy_choice",
+      "custom_widget": null,
+      "params": {
+        "op": "+",
+        "zr": 100,
+        "a_range": [12, 48],
+        "b_range": [12, 48],
+        "strategies": [
+          { "id": "verdoppeln", "label_de": "Verdoppeln" },
+          { "id": "fast_verdoppeln", "label_de": "Fast verdoppeln" },
+          { "id": "ueber_die_zehn", "label_de": "Über die Zehn" }
+        ],
+        "correct_strategy": "fast_verdoppeln"
+      },
+      "problem_count": 8,
+      "prompt_de": "Rechne die Aufgabe auf deine Art und wähle die passende Strategie.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": {
+    "correct_of": 8
+  },
+  "error_taxonomy": [
+    { "code": "strategy_miss", "label_de": "andere Strategie gewählt", "hint_de": "Schau auf die Zahlen: Sind sie gleich groß, Nachbarn oder führen sie über die Zehn?" },
+    { "code": "overstep_error", "label_de": "Zehnerübergang übersehen", "hint_de": "Zerlege den zweiten Summanden in Zehner und Einer." },
+    { "code": "rechenfehler", "label_de": "das Ergebnis ist falsch", "hint_de": "Rechne die Aufgabe noch einmal langsam." },
+    { "code": "incomplete", "label_de": "nur das Ergebnis, nicht die Strategie", "hint_de": "Nenne auch die Strategie, die du benutzt hast." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau noch einmal genau hin und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["Selter & Spiegel 1997; Gaidoschik 2010"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

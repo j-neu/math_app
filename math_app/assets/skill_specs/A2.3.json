@@ -1,0 +1,68 @@
+{
+  "spec_version": 1,
+  "skill_id": "A2.3",
+  "construct_id": "A2.3",
+  "domain": "A",
+  "title_de": "Mengen vergleichen",
+  "level_titles_de": [
+    "Was ist mehr?",
+    "Was ist weniger?",
+    "Größer, kleiner oder gleich?"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "ikonisch",
+      "template": "picture_compare",
+      "custom_widget": null,
+      "params": {
+        "left_range": [1, 10],
+        "right_range": [1, 10],
+        "question": "more"
+      },
+      "problem_count": 8,
+      "prompt_de": "Welche Seite hat mehr Punkte? Tippe die Seite an.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "picture_compare",
+      "custom_widget": null,
+      "params": {
+        "left_range": [1, 10],
+        "right_range": [1, 10],
+        "question": "less"
+      },
+      "problem_count": 8,
+      "prompt_de": "Welche Seite hat weniger Punkte? Tippe die Seite an.",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "compare_symbols",
+      "custom_widget": null,
+      "params": {
+        "a_range": [1, 10],
+        "b_range": [1, 10],
+        "zr": 10
+      },
+      "problem_count": 8,
+      "prompt_de": "Vergleiche die beiden Zahlen. Tippe das richtige Zeichen an.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "comparison_error", "label_de": "die Seiten verwechselt", "hint_de": "Schau genau hin: Welche Seite hat mehr Punkte?" },
+    { "code": "miscount", "label_de": "verzählt", "hint_de": "Zähle die Punkte auf beiden Seiten noch einmal langsam." },
+    { "code": "sign_error", "label_de": "das Zeichen falsch gewählt", "hint_de": "Überlege: Ist die Zahl links größer, kleiner oder gleich der Zahl rechts?" },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau noch einmal genau hin und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["Krajewski 2003/2008; KMK 2022"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

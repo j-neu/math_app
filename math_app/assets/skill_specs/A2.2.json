@@ -1,0 +1,65 @@
+{
+  "spec_version": 1,
+  "skill_id": "A2.2",
+  "construct_id": "A2.2",
+  "domain": "A",
+  "title_de": "Mengen über Strukturen erkennen",
+  "level_titles_de": [
+    "Kugeln auf dem Rekenrek",
+    "Fünfergruppen erkennen",
+    "Fingerbilder lesen"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "rekenrek_set",
+      "custom_widget": null,
+      "params": {
+        "count_range": [1, 10],
+        "rows": 2
+      },
+      "problem_count": 8,
+      "prompt_de": "Stelle die Zahl mit den Kugeln dar. Mache genau so viele Kugeln sichtbar, wie die Zahl zeigt.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "zehnerfeld_read",
+      "custom_widget": null,
+      "params": {
+        "count_range": [1, 10],
+        "arrangement": "five_pattern"
+      },
+      "problem_count": 8,
+      "prompt_de": "Wie viele Punkte siehst du? Die Fünfergruppen helfen dir. Tippe die Zahl ein.",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "ikonisch",
+      "template": "fingerbild_read",
+      "custom_widget": null,
+      "params": {
+        "count_range": [1, 10],
+        "hands": 2
+      },
+      "problem_count": 8,
+      "prompt_de": "Wie viele Finger siehst du? Tippe die Zahl ein.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "miscount", "label_de": "verzählt", "hint_de": "Zähle die Punkte noch einmal langsam und in Ruhe." },
+    { "code": "five_pattern_error", "label_de": "das Fünfermuster übersehen", "hint_de": "Sieh die fünf Punkte als eine Gruppe. Dann ist der Rest leicht zu zählen." },
+    { "code": "incomplete", "label_de": "nur einen Teil der Menge gezählt", "hint_de": "Die Gruppe und die einzelnen Punkte gehören zusammen. Zähle alles." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau noch einmal genau hin und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["Padberg & Benz 2021; Rahmenlehrplan BE/BB 2023"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

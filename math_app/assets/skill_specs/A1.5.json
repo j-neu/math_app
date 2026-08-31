@@ -1,0 +1,76 @@
+{
+  "spec_version": 1,
+  "skill_id": "A1.5",
+  "construct_id": "A1.5",
+  "domain": "A",
+  "title_de": "Zählen über den Zehnerübergang",
+  "level_titles_de": [
+    "Über die Zehnergrenze gehen",
+    "Die Lücke an der Zehnergrenze",
+    "Lücken über die Zehnergrenze"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "numberline_step",
+      "custom_widget": null,
+      "params": {
+        "range": [28, 32],
+        "start_range": [28, 29],
+        "target": 30,
+        "step": 1,
+        "direction": "up"
+      },
+      "problem_count": 8,
+      "prompt_de": "Tippe auf dem Zahlenstrahl weiter bis zur 30.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "symbolisch",
+      "template": "sequence_gap",
+      "custom_widget": null,
+      "params": {
+        "direction": "up",
+        "step": 1,
+        "start_range": [28, 29],
+        "length": 5,
+        "gap_indices": [1]
+      },
+      "problem_count": 8,
+      "prompt_de": "Zähle über die Zehnergrenze und tippe die fehlende Zahl ein.",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "sequence_gap",
+      "custom_widget": null,
+      "params": {
+        "direction": "up",
+        "step": 1,
+        "start_range": [48, 49],
+        "length": 5,
+        "gap_indices": [1]
+      },
+      "problem_count": 8,
+      "prompt_de": "Zähle über die Zehnergrenze und tippe die fehlende Zahl ein.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": {
+    "correct_of": 8
+  },
+  "error_taxonomy": [
+    { "code": "miscount", "label_de": "verzählt", "hint_de": "Zähle noch einmal langsam und in Ruhe." },
+    { "code": "tens_boundary", "label_de": "an der Zehnergrenze gestockt", "hint_de": "An der Zehnergrenze genau aufpassen: Nach der 29 kommt die 30." },
+    { "code": "skip", "label_de": "eine Zahl übersprungen", "hint_de": "Überspringe keine Zahl, auch nicht an der Zehnergrenze." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau noch einmal genau hin und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["Gaidoschik 2010; Wartha & Schulz 2019"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

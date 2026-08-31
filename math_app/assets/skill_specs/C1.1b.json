@@ -1,0 +1,71 @@
+{
+  "spec_version": 1,
+  "skill_id": "C1.1b",
+  "construct_id": "C1.1",
+  "domain": "C",
+  "title_de": "Subtraktionsaufgaben bis 10 sicher lösen",
+  "level_titles_de": [
+    "Plättchen wegnehmen",
+    "Was bleibt übrig?",
+    "Minusaufgaben rechnen"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "place_counters",
+      "custom_widget": null,
+      "params": {
+        "count_range": [2, 10],
+        "frame": "zehnerfeld",
+        "action": "take_away"
+      },
+      "problem_count": 8,
+      "prompt_de": "Rechne die Minusaufgabe. Nimm die Plättchen weg und zähle, was übrig bleibt.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "zehnerfeld_read",
+      "custom_widget": null,
+      "params": {
+        "count_range": [2, 10],
+        "arrangement": "two_groups"
+      },
+      "problem_count": 8,
+      "prompt_de": "Die grauen Punkte werden weggenommen. Wie viele Punkte bleiben übrig? Tippe die Zahl ein.",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "equation_solve",
+      "custom_widget": null,
+      "params": {
+        "op": "-",
+        "unknown": "result",
+        "zr": 20,
+        "a_range": [2, 20],
+        "b_range": [1, 10],
+        "mode": "standard"
+      },
+      "problem_count": 8,
+      "prompt_de": "Rechne im Kopf und tippe das Ergebnis ein.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "miscount", "label_de": "verzählt", "hint_de": "Zähle noch einmal langsam und in Ruhe." },
+    { "code": "incomplete", "label_de": "nur einen Teil abgezogen", "hint_de": "Nimm alle Plättchen weg, die zur Aufgabe gehören." },
+    { "code": "sign_error", "label_de": "plus statt minus gerechnet", "hint_de": "Bei einer Minusaufgabe wird etwas weggenommen." },
+    { "code": "count_back_error", "label_de": "rückwärts nachgezählt", "hint_de": "Denk an die Plusaufgabe dazu: 3 + 4 = 7, also ist 7 − 3 = 4." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau noch einmal genau hin und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["Gaidoschik 2010; Padberg & Benz 2021"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

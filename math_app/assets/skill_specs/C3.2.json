@@ -1,0 +1,76 @@
+{
+  "spec_version": 1,
+  "skill_id": "C3.2",
+  "construct_id": "C3.2",
+  "domain": "C",
+  "title_de": "Im Hunderterraum in Schritten rechnen",
+  "level_titles_de": [
+    "In Schritten zum vollen Zehner",
+    "Stützaufgabe zur vollen Zehn",
+    "Schrittweise rechnen"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "numberline_step",
+      "custom_widget": null,
+      "params": {
+        "range": [0, 50],
+        "start_range": [25, 35],
+        "target": 45,
+        "step": 5,
+        "direction": "up"
+      },
+      "problem_count": 8,
+      "prompt_de": "Rechne in Fünferschritten bis zur vollen Zehn und weiter. Tippe nacheinander die nächsten Zahlen auf dem Zahlenstrahl an.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "symbolisch",
+      "template": "equation_gap",
+      "custom_widget": null,
+      "params": {
+        "op": "-",
+        "form": "helper",
+        "zr": 100,
+        "a_range": [23, 98],
+        "b_range": [3, 9]
+      },
+      "problem_count": 8,
+      "prompt_de": "Rechne schrittweise: Zuerst ziehst du die Einer ab, dann den Rest. So erreichst du zuerst die volle Zehn. Tippe die fehlende Zahl ein.",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "equation_solve",
+      "custom_widget": null,
+      "params": {
+        "op": "-",
+        "unknown": "result",
+        "zr": 100,
+        "a_range": [23, 98],
+        "b_range": [2, 9],
+        "mode": "standard"
+      },
+      "problem_count": 8,
+      "prompt_de": "Rechne schrittweise im Kopf: Erst zur vollen Zehn, dann weiter. Tippe das Ergebnis ein.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "step_error", "label_de": "falsche Schrittweite", "hint_de": "Rechne in gleich großen Schritten: 45, dann 40, dann 35." },
+    { "code": "overstep_error", "label_de": "die volle Zehn nicht erreicht", "hint_de": "Ziehe zuerst die Einer ab, dann kommst du sicher zur vollen Zehn." },
+    { "code": "miscount", "label_de": "verzählt", "hint_de": "Zähle noch einmal langsam und in Ruhe." },
+    { "code": "incomplete", "label_de": "ein Schritt fehlt", "hint_de": "Rechne beide Schritte: Erst zur vollen Zehn, dann den Rest." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau noch einmal genau hin und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["Selter & Spiegel 1997; Schipper 2009"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

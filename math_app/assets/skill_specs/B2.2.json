@@ -1,0 +1,68 @@
+{
+  "spec_version": 1,
+  "skill_id": "B2.2",
+  "construct_id": "B2.2",
+  "domain": "B",
+  "title_de": "Zahlen am Zahlenstrahl verorten",
+  "level_titles_de": [
+    "Schritt für Schritt auf dem Zahlenstrahl",
+    "Zahlen bis 20 auf dem Zahlenstrahl",
+    "Zahlen bis 100 auf dem Zahlenstrahl"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "numberline_step",
+      "custom_widget": null,
+      "params": {
+        "range": [0, 20],
+        "start_range": [10, 12],
+        "target": 20,
+        "step": 1,
+        "direction": "up"
+      },
+      "problem_count": 8,
+      "prompt_de": "Tippe auf dem Zahlenstrahl Schritt für Schritt weiter bis zur 20.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "numberline_locate",
+      "custom_widget": null,
+      "params": {
+        "range": [0, 20],
+        "value_range": [1, 19]
+      },
+      "problem_count": 8,
+      "prompt_de": "Tippe die Stelle an, an der die Zahl steht.",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "ikonisch",
+      "template": "numberline_locate",
+      "custom_widget": null,
+      "params": {
+        "range": [0, 100],
+        "value_range": [1, 99]
+      },
+      "problem_count": 8,
+      "prompt_de": "Tippe die Stelle an, an der die Zahl steht.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "mislocate", "label_de": "neben der richtigen Stelle getippt", "hint_de": "Jeder Strich ist eine Zahl. Zähle die Striche und tippe genau auf die gesuchte Zahl." },
+    { "code": "distance_error", "label_de": "den Abstand falsch eingeschätzt", "hint_de": "Zwischen zwei Strichen ist immer derselbe Schritt. Zähle die Schritte von einer sicheren Zahl aus." },
+    { "code": "miscount", "label_de": "verzählt", "hint_de": "Zähle auf dem Zahlenstrahl noch einmal Schritt für Schritt." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau noch einmal genau hin und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["Schipper 2009; KMK 2022"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

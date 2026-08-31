@@ -1,0 +1,102 @@
+{
+  "spec_version": 1,
+  "skill_id": "A3.2",
+  "construct_id": "A3.2",
+  "domain": "A",
+  "title_de": "Zerlegungen einer Zahl finden",
+  "level_titles_de": [
+    "Zahlen frei zerlegen",
+    "Verschiedene Zerlegungen finden",
+    "Zahlen auf viele Arten zerlegen"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "place_counters",
+      "custom_widget": null,
+      "params": {
+        "count_range": [
+          5,
+          10
+        ],
+        "frame": "zehnerfeld",
+        "action": "fill"
+      },
+      "problem_count": 8,
+      "prompt_de": "Stelle die Zahl mit Plättchen im Zehnerfeld dar. Du darfst die Plättchen frei verteilen.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "enaktiv",
+      "template": "drag_partition",
+      "custom_widget": null,
+      "params": {
+        "total_range": [
+          7,
+          10
+        ],
+        "parts": 2,
+        "equal": false,
+        "box_labels": [
+          "Teil 1",
+          "Teil 2"
+        ]
+      },
+      "problem_count": 8,
+      "prompt_de": "Verteile die Plättchen auf die zwei Kästen. Jede Zerlegung ist richtig, wenn sie zusammen die Zahl ergibt.",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "equation_gap",
+      "custom_widget": null,
+      "params": {
+        "op": "+",
+        "form": "any_split",
+        "zr": 10,
+        "total_range": [
+          6,
+          10
+        ]
+      },
+      "problem_count": 8,
+      "prompt_de": "Zerlege die Zahl in zwei Teile. Tippe beide Zahlen ein.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": {
+    "correct_of": 8
+  },
+  "error_taxonomy": [
+    {
+      "code": "invalid_split",
+      "label_de": "die Zerlegung passt nicht zur Zahl",
+      "hint_de": "Zähle die Teile zusammen: Ergeben sie genau die Zahl?"
+    },
+    {
+      "code": "miscount",
+      "label_de": "verzählt",
+      "hint_de": "Zähle die Plättchen noch einmal langsam."
+    },
+    {
+      "code": "incomplete",
+      "label_de": "ein Teil fehlt",
+      "hint_de": "Vergiss keinen Teil. Alle Teile zusammen ergeben die Zahl."
+    },
+    {
+      "code": "other",
+      "label_de": "noch einmal probieren",
+      "hint_de": "Schau noch einmal genau hin und probiere es noch einmal."
+    }
+  ],
+  "provenance": {
+    "sources": [
+      "Karner, Zahlzerlegungen im ZR10 (OA); Padberg & Benz 2021"
+    ],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

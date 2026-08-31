@@ -83,6 +83,7 @@ flutter:
     # nothing rendered them. New visual items are specified in the item files
     # and drawn as widgets — see tasks.md R5.2.
     - assets/images/fingers/
+    - assets/skill_specs/
     - Research/zahlen_diktat.mp3
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

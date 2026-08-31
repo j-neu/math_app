@@ -1,0 +1,69 @@
+{
+  "spec_version": 1,
+  "skill_id": "B1.2",
+  "construct_id": "B1.2",
+  "domain": "B",
+  "title_de": "Einzelstücke zu Zehnern bündeln",
+  "level_titles_de": [
+    "Stäbchen zu Zehnern bündeln",
+    "Zahlen in der Stellenwerttafel lesen",
+    "Zehner und Einer als Zahl schreiben"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "bundle_sticks",
+      "custom_widget": null,
+      "params": {
+        "count_range": [12, 39]
+      },
+      "problem_count": 8,
+      "prompt_de": "Bündle immer zehn Stäbchen zu einem Zehner. Wie viele Stäbchen sind es?",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "stellenwerttafel_read",
+      "custom_widget": null,
+      "params": {
+        "mode": "read",
+        "columns": ["Z", "E"],
+        "number_range": [11, 99]
+      },
+      "problem_count": 8,
+      "prompt_de": "Lies die Zahl in der Stellenwerttafel und tippe sie ein.",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "equation_gap",
+      "custom_widget": null,
+      "params": {
+        "op": "+",
+        "form": "place_value",
+        "zr": 99,
+        "tens_range": [1, 9],
+        "ones_range": [1, 9]
+      },
+      "problem_count": 8,
+      "prompt_de": "Wie viele Zehner und Einer sind das zusammen? Tippe die Zahl ein.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "bundling_error", "label_de": "ein Bündel hat nicht genau zehn Stäbchen", "hint_de": "Zähle beim Bündeln immer genau zehn Stäbchen zusammen." },
+    { "code": "miscount", "label_de": "verzählt", "hint_de": "Zähle die Stäbchen noch einmal langsam." },
+    { "code": "place_error", "label_de": "Zehner und Einer verwechselt", "hint_de": "Ein Bündel ist ein Zehner, jedes lose Stäbchen ist ein Einer." },
+    { "code": "incomplete", "label_de": "Stäbchen vergessen", "hint_de": "Jedes Stäbchen gehört entweder zu einem Bündel oder zu den losen Einern." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau noch einmal genau hin und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["Schipper 2009; Moser Opitz 2013"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

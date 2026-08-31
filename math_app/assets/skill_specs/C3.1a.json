@@ -1,0 +1,71 @@
+{
+  "spec_version": 1,
+  "skill_id": "C3.1a",
+  "construct_id": "C3.1",
+  "domain": "C",
+  "title_de": "Im Hunderterraum stellenweise addieren",
+  "level_titles_de": [
+    "Plättchen in die Stellenwerttafel legen",
+    "Zwei Reihen zusammen",
+    "Stellenweise addieren"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "place_counters",
+      "custom_widget": null,
+      "params": {
+        "count_range": [22, 88],
+        "frame": "stellenwerttafel",
+        "action": "fill"
+      },
+      "problem_count": 8,
+      "prompt_de": "Rechne die Plusaufgabe: Rechne zuerst die Zehner, dann die Einer. Stelle das Ergebnis in der Stellenwerttafel dar.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "stellenwerttafel_read",
+      "custom_widget": null,
+      "params": {
+        "mode": "sum_rows",
+        "columns": ["Z", "E"],
+        "rows": "two_rows"
+      },
+      "problem_count": 8,
+      "prompt_de": "Zwei Reihen zeigen die Plusaufgabe. Wie viele Zehner und wie viele Einer sind es zusammen? Tippe die Zahl ein.",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "equation_solve",
+      "custom_widget": null,
+      "params": {
+        "op": "+",
+        "unknown": "result",
+        "zr": 100,
+        "mode": "place_value",
+        "tens_range": [1, 4],
+        "ones_range": [1, 4]
+      },
+      "problem_count": 8,
+      "prompt_de": "Rechne stellenweise: Erst die Zehner, dann die Einer. Tippe das Ergebnis ein.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "place_error", "label_de": "Zehner und Einer vertauscht", "hint_de": "Rechne zuerst die Zehner, dann die Einer. Die Zehner gehören in die Zehnerspalte." },
+    { "code": "miscount", "label_de": "verzählt", "hint_de": "Zähle die Plättchen in jeder Spalte noch einmal langsam." },
+    { "code": "incomplete", "label_de": "ein Teilschritt fehlt", "hint_de": "Rechne beide Spalten: Erst die Zehner, dann die Einer." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau noch einmal genau hin und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["Padberg & Benz 2021; Rahmenlehrplan BE/BB 2023"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

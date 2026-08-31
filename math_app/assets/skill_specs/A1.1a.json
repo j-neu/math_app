@@ -1,0 +1,76 @@
+{
+  "spec_version": 1,
+  "skill_id": "A1.1a",
+  "construct_id": "A1.1",
+  "domain": "A",
+  "title_de": "Vorwärtszählen bis 20",
+  "level_titles_de": [
+    "Zählen auf dem Zahlenstrahl",
+    "Zahlenfolge fortsetzen",
+    "Lückentext"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "numberline_step",
+      "custom_widget": null,
+      "params": {
+        "range": [0, 20],
+        "start_range": [10, 12],
+        "target": 20,
+        "step": 1,
+        "direction": "up"
+      },
+      "problem_count": 8,
+      "prompt_de": "Tippe auf dem Zahlenstrahl Schritt für Schritt weiter bis zur 20.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "symbolisch",
+      "template": "sequence_gap",
+      "custom_widget": null,
+      "params": {
+        "direction": "up",
+        "step": 1,
+        "start_range": [5, 14],
+        "length": 5,
+        "gap_indices": [2]
+      },
+      "problem_count": 8,
+      "prompt_de": "Zähle weiter und tippe die fehlende Zahl ein.",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "sequence_gap",
+      "custom_widget": null,
+      "params": {
+        "direction": "up",
+        "step": 1,
+        "start_range": [5, 13],
+        "length": 8,
+        "gap_indices": [2, 5]
+      },
+      "problem_count": 8,
+      "prompt_de": "Zähle weiter und tippe die fehlenden Zahlen ein.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": {
+    "correct_of": 8
+  },
+  "error_taxonomy": [
+    { "code": "miscount", "label_de": "verzählt", "hint_de": "Zähle noch einmal langsam und in Ruhe." },
+    { "code": "skip", "label_de": "eine Zahl übersprungen", "hint_de": "Überspringe keine Zahl: Auf die 13 folgt die 14." },
+    { "code": "incomplete", "label_de": "nicht bis zum Ziel gezählt", "hint_de": "Zähle weiter, bis du bei der 20 ankommst." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau noch einmal genau hin und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["Padberg & Benz 2021; KMK 2022"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

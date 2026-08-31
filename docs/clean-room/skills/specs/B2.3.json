@@ -18,7 +18,8 @@
       "params": {
         "count_range": [20, 99],
         "frame": "stellenwerttafel",
-        "action": "fill"
+        "action": "fill",
+        "mode": "nonstandard"
       },
       "problem_count": 8,
       "prompt_de": "Stelle die Zahl mit den vielen Einern in der Stellenwerttafel dar.",

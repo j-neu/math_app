@@ -18,7 +18,8 @@
       "params": {
         "left_range": [1, 10],
         "right_range": [1, 10],
-        "question": "more"
+        "question": "more",
+        "difference_min": 1
       },
       "problem_count": 8,
       "prompt_de": "Welche Seite hat mehr Punkte? Tippe die Seite an.",
@@ -32,7 +33,8 @@
       "params": {
         "left_range": [1, 10],
         "right_range": [1, 10],
-        "question": "less"
+        "question": "less",
+        "difference_min": 1
       },
       "problem_count": 8,
       "prompt_de": "Welche Seite hat weniger Punkte? Tippe die Seite an.",

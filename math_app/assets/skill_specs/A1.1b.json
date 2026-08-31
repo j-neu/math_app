@@ -7,7 +7,7 @@
   "level_titles_de": [
     "Weiterzählen bis 60",
     "Über die Zehnergrenze zählen",
-    "Lückentext bis 100"
+    "Lückentext im Hunderterraum"
   ],
   "levels": [
     {
@@ -41,8 +41,8 @@
         "direction": "up",
         "step": 1,
         "start_range": [
-          46,
-          49
+          47,
+          48
         ],
         "length": 5,
         "gap_indices": [
@@ -62,8 +62,8 @@
         "direction": "up",
         "step": 1,
         "start_range": [
-          40,
-          50
+          47,
+          48
         ],
         "length": 8,
         "gap_indices": [
@@ -72,7 +72,7 @@
         ]
       },
       "problem_count": 8,
-      "prompt_de": "Zähle bis zur 100 weiter und tippe die fehlenden Zahlen ein.",
+      "prompt_de": "Zähle weiter und tippe die fehlenden Zahlen ein.",
       "slow_band_ms": 6000
     }
   ],

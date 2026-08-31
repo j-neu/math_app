@@ -46,7 +46,7 @@
         "op": "-",
         "unknown": "result",
         "zr": 20,
-        "a_range": [2, 20],
+        "a_range": [11, 20],
         "b_range": [1, 10],
         "mode": "standard"
       },

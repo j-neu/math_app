@@ -39,19 +39,19 @@ Only these keys per template, with these meanings. Values must be chosen so the 
 
 | template | params keys |
 |---|---|
-| `drag_partition` | `total_range:[min,max]`, `parts:int(2..3)`, `equal:bool`, `box_labels:[string]` (length == parts) |
-| `place_counters` | `count_range:[min,max]`, `frame:"zehnerfeld"\|"rekenrek"\|"stellenwerttafel"`, `action:"fill"\|"take_away"` |
+| `drag_partition` | `total_range:[min,max]`, `parts:int(2..3)`, `split_constraint:"sum"\|"equal"\|"make_ten"\|"near_double"\|"tens_ones"` (see P2 §5 item 1; REQUIRED for C2.1 L1 `make_ten`, C3.3 L1 `near_double`, C3.4a/b L1 `tens_ones`), `box_labels:[string]` (length == parts) |
+| `place_counters` | `count_range:[min,max]`, `frame:"zehnerfeld"\|"rekenrek"\|"stellenwerttafel"`, `action:"fill"\|"take_away"`, `mode:"standard"\|"nonstandard"` (nonstandard = B2.3 L1: Einer-Spalte > 9, Zerlegung z = n div 10 − 1, o = 10 + n mod 10) |
 | `bundle_sticks` | `count_range:[min,max]` (min ≥ 12 for bundling) |
 | `rekenrek_set` | `count_range:[min,max]`, `rows:2` |
 | `numberline_step` | `range:[lo,hi]`, `start_range:[min,max]` (inside range), `target:int`, `step:int(1,2,5,10)`, `direction:"up"\|"down"` |
 | `zehnerfeld_read` | `count_range:[min,max]`, `arrangement:"structured"\|"two_groups"\|"five_pattern"` |
 | `fingerbild_read` | `count_range:[min,max]`, `hands:1\|2` |
-| `stellenwerttafel_read` | `mode:"read"\|"sum_rows"`, `columns:["Z","E"]\|["H","Z","E"]`, `number_range:[lo,hi]` (mode read), `rows:"two_rows"` (mode sum_rows) |
+| `stellenwerttafel_read` | `mode:"read"\|"sum_rows"`, `columns:["Z","E"]\|["H","Z","E"]`, `number_range:[lo,hi]` (mode read), `rows:"two_rows"` (mode sum_rows), `op:"+"\|"-"` (mode sum_rows, C3.1b L2) |
 | `numberline_locate` | `range:[lo,hi]`, `value_range:[min,max]` (inside range, min ≥ 1, max ≤ hi−1) |
-| `picture_compare` | `left_range:[min,max]`, `right_range:[min,max]`, `question:"more"\|"less"\|"difference"` |
-| `equation_solve` | `op:"+"\|"-"`, `unknown:"result"\|"addend"\|"subtrahend"\|"minuend"`, `zr:int`, `a_range:[min,max]`, `b_range:[min,max]`, `mode:"standard"\|"place_value"` (place_value uses tens/ones ranges instead) |
+| `picture_compare` | `left_range:[min,max]`, `right_range:[min,max]`, `question:"more"\|"less"\|"difference"`, `difference_min:int (≥1)` (more/less: generator guarantees \|left−right\| ≥ difference_min) |
+| `equation_solve` | `op:"+"\|"-"`, `unknown:"result"\|"addend"\|"subtrahend"\|"minuend"`, `zr:int`, `a_range:[min,max]`, `b_range:[min,max]`, `mode:"standard"\|"place_value"` (place_value uses tens/ones ranges instead; `rows:"two_rows"` + `column_constraint:"no_carry"\|"no_borrow"` = two-operand column-wise form, C3.1a/b L3) |
 | `equation_gap` | `op:"+"\|"-"`, `form:"gap"\|"helper"\|"missing_addend"\|"place_value"\|"half"\|"double"\|"neighbor"\|"helper_double"`, `zr:int` (+ form-specific ranges: `a_range`, `b_range`, `tens_range`, `ones_range`, `start_range`, `step`) |
-| `sequence_gap` | `direction:"up"\|"down"`, `step:int`, `start_range:[min,max]`, `length:int`, `gap_indices:[int...]` |
+| `sequence_gap` | `direction:"up"\|"down"`, `step:int`, `start_range:[min,max]`, `length:int (4..8)`, `gap_indices:[int...]` |
 | `compare_symbols` | `a_range:[min,max]`, `b_range:[min,max]`, `zr:int` |
 | `strategy_choice` | `op:"+"\|"-"`, `zr:int`, `a_range`, `b_range`, `strategies:[{id,label_de}]`, `correct_strategy:id` |
 | `word_problem` | `contexts:[{setting_de,object_de}]` (≥2 entries), `op:"+"\|"-"`, `zr:int`, `ask_operation:bool` |
@@ -65,6 +65,10 @@ Only these keys per template, with these meanings. Values must be chosen so the 
 - `equation_solve` `equal: true` (A3.3 L3): force a == b.
 - `sequence_gap` `progression: "double"` (A3.3 L2): geometric doubling sequence; `step` is then ignored.
 - `drag_partition` `equal: true`: correctness requires equal box counts AND sum == total.
+- `drag_partition` `split_constraint`: `make_ten` one box == 10 and the other == total−10; `near_double` (parts==3) two boxes == n, third == 1; `tens_ones` (parts==3) box1 == first operand, box2 == 10·floor(second/10), box3 == second mod 10 — the evaluator marks every other split incorrect (P2 §5 item 1).
+- `picture_compare` `question: "more"/"less"`: the generator re-rolls until |left−right| ≥ `difference_min` (P2 Task 5 gate).
+- `equation_solve` place_value `rows: "two_rows"`: renders two two-digit operands (both drawn from `tens_range`/`ones_range`) in column-wise Stellenwerttafel form. With `column_constraint: "no_carry"` the ranges must satisfy tens_range.hi + tens_range.hi ≤ 9 and ones_range.hi + ones_range.hi ≤ 9 (C3.1a L3: [1,4] → 8 ≤ 9); with `"no_borrow"` the generator draws each subtrahend column ≤ the minuend column so no column is ever negative (C3.1b L3).
+- `sequence_gap`: `length` must be in [4, 8] (Längen-Gate).
 - `equation_gap` `form: "any_split"` (A3.2 L3): two blanks, every pair summing to the total is correct; `expected` lists all pairs.
 - `equation_gap` `helper`/`helper_double`/`half`: the gap value is `a+b−10` (helper), `1` (helper_double near-doubles), `total/2` (half) — arithmetic must hold.
 

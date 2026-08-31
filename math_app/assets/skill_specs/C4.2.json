@@ -34,7 +34,7 @@
         "op": "-",
         "form": "gap",
         "zr": 20,
-        "a_range": [5, 18],
+        "a_range": [11, 18],
         "b_range": [2, 9]
       },
       "problem_count": 8,

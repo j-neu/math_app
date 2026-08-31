@@ -18,7 +18,7 @@
       "params": {
         "total_range": [30, 99],
         "parts": 3,
-        "equal": false,
+        "split_constraint": "tens_ones",
         "box_labels": ["Rest", "Zehner", "Einer"]
       },
       "problem_count": 8,

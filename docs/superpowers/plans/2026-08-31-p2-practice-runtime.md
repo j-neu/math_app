@@ -83,7 +83,13 @@ General generation contract: `List<Problem> generate(spec, level, seed)` returns
 
 Per-template rules (params keys; generation rule; correctness rule; DB answer string):
 
-1. **drag_partition** — params `{total_range:[6,10], parts:2}`. Split `total` into `parts` positive integers (no zero part). Widget: stash of counters, drop into labelled boxes. Correct iff sum of box counts == total. DB answer `"3+4"` (box counts joined by `+`).
+1. **drag_partition** — params `{total_range:[6,10], parts:2, split_constraint:"sum"|"equal"|"make_ten"|"near_double"|"tens_ones", box_labels:[string]}`. Split `total` into `parts` positive integers. Correctness rules (the evaluator AND the generator must honour `split_constraint`):
+   - `"sum"` (default): box counts sum to `total` (any split — A3.1, A3.2 L2, C4.2 L1).
+   - `"equal"`: all boxes equal AND sum == total (A3.3 L1, C1.2 L1, C1.3 L1 — doubling/halving; generator must pick even totals).
+   - `"make_ten"`: one box is exactly `10`, the other is `total−10` (C2.1 L1, total 11–19 — split-to-ten; a wrong split like 15=9+6 must be marked incorrect).
+   - `"near_double"`: parts==3, two boxes equal `n`, third box is `1` (C3.3 L1 — 7+8 via 7+7+1; total is odd, generator must pick odd totals in [11,19]).
+   - `"tens_ones"`: parts==3, box1==a, box2==10·floor(b/10), box3==b%10 (C3.4a/b L1 — 35+27 via 35+20+7).
+   Widget: stash of counters, drop into labelled boxes. DB answer `"3+4"` (box counts joined by `+`).
 2. **place_counters** — params `{count_range:[1,10], frame:"zehnerfeld"|"rekenrek"}`. Widget: tap cells to fill. Correct iff filled == chosen count. DB answer = filled count.
 3. **bundle_sticks** — params `{count_range:[12,39]}`. Widget: sticks, tap to bundle into 10s; leftovers counted. Correct iff `10*bundles + singles == count` AND `(count >= 10 → bundles >= 1)`. DB answer `"2 Zehner, 3 Einer"`.
 4. **rekenrek_set** — params `{count_range:[1,20], rows:2}`. Widget: tap beads to slide. Correct iff visible == count. DB answer = visible count.

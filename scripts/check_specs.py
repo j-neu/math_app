@@ -71,8 +71,8 @@ CUSTOM_WIDGETS = {"bundling", "unbundling", "numberline_mark", "flash_subitize"}
 # Per-template allowed params keys (P3 plan §4.5 + the §4.5b extensions and
 # the additive variants actually authored into the specs).
 PARAMS_BY_TEMPLATE = {
-    "drag_partition": {"total_range", "parts", "equal", "box_labels", "multi_valid"},
-    "place_counters": {"count_range", "frame", "action"},
+    "drag_partition": {"total_range", "parts", "equal", "box_labels", "multi_valid", "split_constraint"},
+    "place_counters": {"count_range", "frame", "action", "mode"},
     "bundle_sticks": {"count_range"},
     "rekenrek_set": {"count_range", "rows"},
     "numberline_step": {"range", "start_range", "target", "step", "direction"},
@@ -80,10 +80,11 @@ PARAMS_BY_TEMPLATE = {
     "fingerbild_read": {"count_range", "hands"},
     "stellenwerttafel_read": {"mode", "columns", "number_range", "rows", "op"},
     "numberline_locate": {"range", "value_range"},
-    "picture_compare": {"left_range", "right_range", "question"},
+    "picture_compare": {"left_range", "right_range", "question", "difference_min"},
     "equation_solve": {
         "op", "unknown", "zr", "a_range", "b_range", "mode",
         "equal", "tens_range", "ones_range", "multi_valid",
+        "rows", "column_constraint",
     },
     "equation_gap": {
         "op", "form", "zr", "a_range", "b_range", "total_range",
@@ -116,13 +117,17 @@ ENUM_BY_TEMPLATE_AND_KEY = {
     ("zehnerfeld_read", "arrangement"): {"structured", "two_groups", "five_pattern"},
     ("stellenwerttafel_read", "mode"): {"read", "sum_rows"},
     ("stellenwerttafel_read", "rows"): {"two_rows"},
-    ("stellenwerttafel_read", "op"): {"+", "-", "+|-"},
+    ("stellenwerttafel_read", "op"): {"+", "-"},
     ("picture_compare", "question"): {"more", "less", "difference"},
     ("place_counters", "frame"): {"zehnerfeld", "rekenrek", "stellenwerttafel"},
     ("place_counters", "action"): {"fill", "take_away"},
+    ("place_counters", "mode"): {"standard", "nonstandard"},
     ("fingerbild_read", "hands"): {1, 2},
     ("rekenrek_set", "rows"): {2},
     ("drag_partition", "parts"): {2, 3},
+    ("drag_partition", "split_constraint"): {"sum", "equal", "make_ten", "near_double", "tens_ones"},
+    ("equation_solve", "rows"): {"two_rows"},
+    ("equation_solve", "column_constraint"): {"no_carry", "no_borrow"},
     ("custom_widget", "display"): {"dots", "rekenrek"},
 }
 
@@ -134,6 +139,11 @@ BOOL_PARAMS = {
     ("equation_solve", "multi_valid"),
     ("equation_gap", "multi_valid"),
     ("word_problem", "ask_operation"),
+}
+
+# Params keys that must hold an int >= 1 when present.
+MIN_INT_PARAMS = {
+    ("picture_compare", "difference_min"),
 }
 
 # Params keys that must hold a [lo, hi] pair of ints when present.
@@ -229,6 +239,11 @@ def check_level(level: dict, spec_label: str) -> list[str]:
         if (template, key) in BOOL_PARAMS and not isinstance(value, bool):
             problems.append(f"{label}: params.{key} must be a boolean, found {value!r}")
 
+        if (template, key) in MIN_INT_PARAMS and not (
+            isinstance(value, int) and not isinstance(value, bool) and value >= 1
+        ):
+            problems.append(f"{label}: params.{key} must be an int >= 1, found {value!r}")
+
         if key in RANGE_PARAMS:
             if not (
                 isinstance(value, list)
@@ -251,6 +266,31 @@ def check_level(level: dict, spec_label: str) -> list[str]:
                     problems.append(
                         f"{label}: gap index {index} outside [0, {length - 1}] for length {length}"
                     )
+
+    if template == "sequence_gap":
+        length = params.get("length")
+        if not isinstance(length, int) or isinstance(length, bool) or not (4 <= length <= 8):
+            problems.append(
+                f"{label}: sequence_gap length must be in [4, 8], found {length!r}"
+            )
+
+    if template == "drag_partition":
+        parts = params.get("parts")
+        labels = params.get("box_labels")
+        split_constraint = params.get("split_constraint")
+        if isinstance(parts, int) and not isinstance(parts, bool):
+            if not isinstance(labels, list) or len(labels) != parts:
+                problems.append(
+                    f"{label}: drag_partition box_labels length {len(labels) if isinstance(labels, list) else '?'} != parts {parts}"
+                )
+            if split_constraint == "make_ten" and parts != 2:
+                problems.append(
+                    f"{label}: drag_partition split_constraint 'make_ten' requires parts == 2"
+                )
+            if split_constraint in ("near_double", "tens_ones") and parts != 3:
+                problems.append(
+                    f"{label}: drag_partition split_constraint {split_constraint!r} requires parts == 3"
+                )
 
     if template == "word_problem":
         contexts = params.get("contexts")

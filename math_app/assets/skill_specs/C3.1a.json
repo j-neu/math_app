@@ -48,6 +48,8 @@
         "unknown": "result",
         "zr": 100,
         "mode": "place_value",
+        "rows": "two_rows",
+        "column_constraint": "no_carry",
         "tens_range": [1, 4],
         "ones_range": [1, 4]
       },
@@ -58,7 +60,7 @@
   ],
   "mastery": { "correct_of": 8 },
   "error_taxonomy": [
-    { "code": "place_error", "label_de": "Zehner und Einer vertauscht", "hint_de": "Rechne zuerst die Zehner, dann die Einer. Die Zehner gehören in die Zehnerspalte." },
+    { "code": "column_swap", "label_de": "Zehner und Einer vertauscht", "hint_de": "Rechne zuerst die Zehner, dann die Einer. Die Zehner gehören in die Zehnerspalte." },
     { "code": "miscount", "label_de": "verzählt", "hint_de": "Zähle die Plättchen in jeder Spalte noch einmal langsam." },
     { "code": "incomplete", "label_de": "ein Teilschritt fehlt", "hint_de": "Rechne beide Spalten: Erst die Zehner, dann die Einer." },
     { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau noch einmal genau hin und probiere es noch einmal." }

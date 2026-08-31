@@ -17,12 +17,12 @@
       "custom_widget": null,
       "params": {
         "total_range": [11, 19],
-        "parts": 2,
-        "equal": false,
-        "box_labels": ["Verdopplung", "1 dazu"]
+        "parts": 3,
+        "split_constraint": "near_double",
+        "box_labels": ["Verdopplung", "Verdopplung", "1 dazu"]
       },
       "problem_count": 8,
-      "prompt_de": "Lege die Plättchen in zwei Kästen: Erst die Verdopplung, dann eins dazu. So hilft dir die Verdopplung beim Rechnen.",
+      "prompt_de": "Lege die Plättchen in drei Kästen: Erst die Verdopplung, dann eins dazu. So hilft dir die Verdopplung beim Rechnen.",
       "slow_band_ms": 9000
     },
     {

@@ -49,6 +49,8 @@
         "unknown": "result",
         "zr": 100,
         "mode": "place_value",
+        "rows": "two_rows",
+        "column_constraint": "no_borrow",
         "tens_range": [1, 9],
         "ones_range": [1, 9]
       },
@@ -61,6 +63,7 @@
   "error_taxonomy": [
     { "code": "place_error", "label_de": "Zehner und Einer vertauscht", "hint_de": "Rechne zuerst die Zehner, dann die Einer." },
     { "code": "sign_error", "label_de": "plus statt minus gerechnet", "hint_de": "Bei einer Minusaufgabe wird etwas weggenommen." },
+    { "code": "borrow_error", "label_de": "unnötig einen Zehner geöffnet", "hint_de": "Du brauchst hier keinen Zehner zu öffnen: Ziehe erst die Einer ab und dann die Zehner." },
     { "code": "miscount", "label_de": "verzählt", "hint_de": "Zähle die Plättchen in jeder Spalte noch einmal langsam." },
     { "code": "incomplete", "label_de": "ein Teilschritt fehlt", "hint_de": "Rechne beide Spalten: Erst die Zehner, dann die Einer." },
     { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau noch einmal genau hin und probiere es noch einmal." }

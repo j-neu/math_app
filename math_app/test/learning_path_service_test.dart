@@ -58,6 +58,27 @@ void main() {
     );
   });
 
+  test('fetchPath failure message never leaks the raw HTTP status code to the child',
+      () async {
+    // A raw status code (500, 502, ...) must never reach a 6-year-old.
+    final client = MockClient((req) async =>
+        http.Response(jsonEncode({'error': 'nicht gefunden'}), 500));
+
+    late Object caught;
+    try {
+      await LearningPathService(client: client).fetchPath('tok');
+      fail('expected fetchPath to throw');
+    } catch (e) {
+      caught = e;
+    }
+
+    expect(caught, isA<LearningPathException>());
+    final message = (caught as LearningPathException).message;
+    expect(message, isNot(contains('500')));
+    expect(RegExp(r'\d').hasMatch(message), isFalse,
+        reason: 'child-facing message "$message" must contain no digits/codes');
+  });
+
   test('fetchPath raises a clean, typed exception on malformed data instead of a raw TypeError', () async {
     // skill_id is a number here, not a String — LearningPath.fromJson /
     // PathItem.fromJson would otherwise throw a raw TypeError deep inside

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;
 import '../models/learning_path.dart';
 import 'attempt_queue.dart';
@@ -20,6 +21,7 @@ class LearningPathService {
       'Verbindung zum Server nicht möglich. Bitte Internetverbindung prüfen.';
   static const _unreadableResponseMessage =
       'Antwort vom Server konnte nicht gelesen werden.';
+  static const _pathLoadFailedMessage = 'Lernpfad konnte nicht geladen werden.';
 
   final http.Client _client;
   final AttemptQueue _queue;
@@ -75,7 +77,13 @@ class LearningPathService {
     }
 
     if (res.statusCode != 200) {
-      throw LearningPathException('Lernpfad konnte nicht geladen werden (${res.statusCode})');
+      // The raw HTTP status code must never reach the child. It's only
+      // useful for diagnostics, so it goes to the log, not the message.
+      developer.log(
+        'LearningPathService.fetchPath failed with status ${res.statusCode}',
+        name: 'LearningPathService',
+      );
+      throw const LearningPathException(_pathLoadFailedMessage);
     }
 
     // LearningPath.fromJson/PathItem.fromJson throw a raw TypeError on a

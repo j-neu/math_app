@@ -1,0 +1,72 @@
+{
+  "spec_version": 1,
+  "skill_id": "C1.2",
+  "construct_id": "C1.2",
+  "domain": "C",
+  "title_de": "Verdopplungsaufgaben sicher beherrschen",
+  "level_titles_de": [
+    "Gleich viele in zwei Kästen",
+    "Das Doppelte sehen",
+    "Verdoppeln rechnen"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "drag_partition",
+      "custom_widget": null,
+      "params": {
+        "total_range": [2, 20],
+        "parts": 2,
+        "equal": true,
+        "box_labels": ["Teil 1", "Teil 2"]
+      },
+      "problem_count": 8,
+      "prompt_de": "Verdopple die Plättchen: Lege auf beide Kästen gleich viele.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "zehnerfeld_read",
+      "custom_widget": null,
+      "params": {
+        "count_range": [2, 20],
+        "arrangement": "two_groups"
+      },
+      "problem_count": 8,
+      "prompt_de": "In beiden Gruppen liegt gleich viel. Wie viele Punkte sind es zusammen? Tippe die Zahl ein.",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "equation_solve",
+      "custom_widget": null,
+      "params": {
+        "op": "+",
+        "unknown": "result",
+        "zr": 20,
+        "a_range": [2, 10],
+        "b_range": [2, 10],
+        "equal": true,
+        "mode": "standard"
+      },
+      "problem_count": 8,
+      "prompt_de": "Verdopple die Zahl und tippe das Ergebnis ein.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "miscount", "label_de": "verzählt", "hint_de": "Zähle die Plättchen in jedem Kästchen noch einmal langsam." },
+    { "code": "incomplete", "label_de": "nur ein Teil benutzt", "hint_de": "Beide Teile gehören zur Aufgabe. Benutze beide." },
+    { "code": "double_error", "label_de": "das Doppelte falsch bestimmt", "hint_de": "Verdoppeln heißt: Zu einer Zahl kommt noch einmal dieselbe Zahl dazu." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau noch einmal genau hin und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["Padberg & Benz 2021; Gaidoschik 2010"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

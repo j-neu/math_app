@@ -1,0 +1,171 @@
+{
+  "spec_version": 1,
+  "skill_id": "D1.2",
+  "construct_id": "D1.2",
+  "domain": "D",
+  "title_de": "Die passende Rechenoperation erkennen",
+  "level_titles_de": [
+    "Plus oder Minus? Geschichten bis 10",
+    "Plus oder Minus? Geschichten bis 20",
+    "Plus oder Minus? Geschichten bis 100"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "symbolisch",
+      "template": "word_problem",
+      "custom_widget": null,
+      "params": {
+        "contexts": [
+          {
+            "setting_de": "im Korb",
+            "object_de": "Äpfel"
+          },
+          {
+            "setting_de": "auf dem Tisch",
+            "object_de": "Kekse"
+          },
+          {
+            "setting_de": "auf dem Schulhof",
+            "object_de": "Kinder"
+          },
+          {
+            "setting_de": "im Aquarium",
+            "object_de": "Fische"
+          },
+          {
+            "setting_de": "in der Dose",
+            "object_de": "Murmeln"
+          },
+          {
+            "setting_de": "am Teich",
+            "object_de": "Enten"
+          }
+        ],
+        "op": "+|-",
+        "zr": 10,
+        "ask_operation": true
+      },
+      "problem_count": 8,
+      "prompt_de": "Lies die Geschichte. Wähle zuerst das richtige Rechenzeichen und tippe dann das Ergebnis ein.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "symbolisch",
+      "template": "word_problem",
+      "custom_widget": null,
+      "params": {
+        "contexts": [
+          {
+            "setting_de": "in der Bücherei",
+            "object_de": "Bücher"
+          },
+          {
+            "setting_de": "auf dem Spielplatz",
+            "object_de": "Kinder"
+          },
+          {
+            "setting_de": "im Garten",
+            "object_de": "Äpfel"
+          },
+          {
+            "setting_de": "in der Klasse",
+            "object_de": "Bleistifte"
+          },
+          {
+            "setting_de": "auf dem Teller",
+            "object_de": "Kekse"
+          },
+          {
+            "setting_de": "am Teich",
+            "object_de": "Enten"
+          }
+        ],
+        "op": "+|-",
+        "zr": 20,
+        "ask_operation": true
+      },
+      "problem_count": 8,
+      "prompt_de": "Lies die Geschichte. Wähle zuerst das richtige Rechenzeichen und tippe dann das Ergebnis ein.",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "word_problem",
+      "custom_widget": null,
+      "params": {
+        "contexts": [
+          {
+            "setting_de": "im Supermarkt",
+            "object_de": "Flaschen"
+          },
+          {
+            "setting_de": "in der Schule",
+            "object_de": "Schüler"
+          },
+          {
+            "setting_de": "in der Turnhalle",
+            "object_de": "Kinder"
+          },
+          {
+            "setting_de": "auf dem Sportplatz",
+            "object_de": "Zuschauer"
+          },
+          {
+            "setting_de": "in der Bibliothek",
+            "object_de": "Bücher"
+          },
+          {
+            "setting_de": "im Laden",
+            "object_de": "Luftballons"
+          }
+        ],
+        "op": "+|-",
+        "zr": 100,
+        "ask_operation": true
+      },
+      "problem_count": 8,
+      "prompt_de": "Lies die Geschichte. Wähle zuerst das richtige Rechenzeichen und tippe dann das Ergebnis ein.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": {
+    "correct_of": 8
+  },
+  "error_taxonomy": [
+    {
+      "code": "sign_error",
+      "label_de": "Plus und Minus verwechselt",
+      "hint_de": "Fällt etwas dazu oder wird etwas weggegeben? Überlege, was in der Geschichte passiert, und wähle dann das Zeichen."
+    },
+    {
+      "code": "miscount",
+      "label_de": "verzählt",
+      "hint_de": "Zähle die Dinge in der Geschichte noch einmal langsam nach."
+    },
+    {
+      "code": "incomplete",
+      "label_de": "nur einen Teil der Geschichte benutzt",
+      "hint_de": "Die Geschichte hat zwei Zahlen. Nutze beide für deine Rechnung."
+    },
+    {
+      "code": "computation_error",
+      "label_de": "richtiges Zeichen, falsches Ergebnis",
+      "hint_de": "Das Rechenzeichen stimmt! Prüfe dein Ergebnis noch einmal nach."
+    },
+    {
+      "code": "other",
+      "label_de": "noch einmal probieren",
+      "hint_de": "Schau noch einmal genau hin und rechne in Ruhe."
+    }
+  ],
+  "provenance": {
+    "sources": [
+      "Padberg & Benz 2021; Rahmenlehrplan BE/BB 2023"
+    ],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

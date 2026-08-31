@@ -1,0 +1,76 @@
+{
+  "spec_version": 1,
+  "skill_id": "C2.1",
+  "construct_id": "C2.1",
+  "domain": "C",
+  "title_de": "Addieren mit Zehnerübergang über Zerlegen",
+  "level_titles_de": [
+    "Zerlegen bis zur vollen Zehn",
+    "Stützaufgabe zur vollen Zehn",
+    "Plusaufgaben mit Zehnerübergang"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "drag_partition",
+      "custom_widget": null,
+      "params": {
+        "total_range": [11, 19],
+        "parts": 2,
+        "equal": false,
+        "box_labels": ["volle Zehn", "Rest"]
+      },
+      "problem_count": 8,
+      "prompt_de": "Zerlege die Plättchen: Lege eine volle Zehn in die erste Box und den Rest in die zweite Box.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "symbolisch",
+      "template": "equation_gap",
+      "custom_widget": null,
+      "params": {
+        "op": "+",
+        "form": "helper",
+        "zr": 20,
+        "a_range": [8, 9],
+        "b_range": [2, 9]
+      },
+      "problem_count": 8,
+      "prompt_de": "Ergänze die Stützaufgabe: Zerlege den zweiten Summanden so, dass rechts eine volle Zehn steht.",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "equation_solve",
+      "custom_widget": null,
+      "params": {
+        "op": "+",
+        "unknown": "result",
+        "zr": 20,
+        "a_range": [2, 9],
+        "b_range": [2, 9],
+        "mode": "standard"
+      },
+      "problem_count": 8,
+      "prompt_de": "Löse die Plusaufgabe. Zerlege so, dass du zuerst die volle Zehn erreichst.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": {
+    "correct_of": 8
+  },
+  "error_taxonomy": [
+    { "code": "miscount", "label_de": "verzählt", "hint_de": "Zähle noch einmal langsam und in Ruhe." },
+    { "code": "no_make_ten", "label_de": "nicht bis zur vollen Zehn zerlegt", "hint_de": "Zerlege einen Summanden so, dass zuerst eine volle Zehn entsteht, zum Beispiel 8 + 7 = 8 + 2 + 5." },
+    { "code": "incomplete", "label_de": "Aufgabe unvollständig gelöst", "hint_de": "Trage noch die fehlende Zahl ein." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau noch einmal genau hin und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["Gaidoschik 2010; Wartha & Schulz 2019"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

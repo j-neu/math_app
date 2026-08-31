@@ -1,0 +1,93 @@
+{
+  "spec_version": 1,
+  "skill_id": "D1.1",
+  "construct_id": "D1.1",
+  "domain": "D",
+  "title_de": "Sachsituationen mathematisch erfassen",
+  "level_titles_de": [
+    "Kleine Plusgeschichten aus dem Alltag",
+    "Minusgeschichten aus dem Alltag",
+    "Sachsituationen bis 100"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "symbolisch",
+      "template": "word_problem",
+      "custom_widget": null,
+      "params": {
+        "contexts": [
+          { "setting_de": "auf dem Markt", "object_de": "Äpfel" },
+          { "setting_de": "im Korb", "object_de": "Birnen" },
+          { "setting_de": "im Klassenzimmer", "object_de": "Stifte" },
+          { "setting_de": "auf dem Schulhof", "object_de": "Bälle" },
+          { "setting_de": "im Park", "object_de": "Vögel" },
+          { "setting_de": "im Regal", "object_de": "Bücher" }
+        ],
+        "op": "+",
+        "zr": 10,
+        "ask_operation": false
+      },
+      "problem_count": 8,
+      "prompt_de": "Lies die Geschichte und tippe das Ergebnis ein.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "symbolisch",
+      "template": "word_problem",
+      "custom_widget": null,
+      "params": {
+        "contexts": [
+          { "setting_de": "auf dem Tisch", "object_de": "Kekse" },
+          { "setting_de": "im Garten", "object_de": "Tomaten" },
+          { "setting_de": "in der Schultüte", "object_de": "Bonbons" },
+          { "setting_de": "auf dem Schulhof", "object_de": "Kinder" },
+          { "setting_de": "im Sandkasten", "object_de": "Förmchen" },
+          { "setting_de": "in der Pausentasche", "object_de": "Mandarinen" }
+        ],
+        "op": "-",
+        "zr": 20,
+        "ask_operation": false
+      },
+      "problem_count": 8,
+      "prompt_de": "Lies die Geschichte und tippe das Ergebnis ein.",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "word_problem",
+      "custom_widget": null,
+      "params": {
+        "contexts": [
+          { "setting_de": "in der Bücherei", "object_de": "Bücher" },
+          { "setting_de": "im Klassenraum", "object_de": "Hefte" },
+          { "setting_de": "auf dem Sportplatz", "object_de": "Kinder" },
+          { "setting_de": "im Schulgarten", "object_de": "Pflanzen" },
+          { "setting_de": "im Supermarkt", "object_de": "Joghurts" },
+          { "setting_de": "im Park", "object_de": "Blumen" }
+        ],
+        "op": "+",
+        "zr": 100,
+        "ask_operation": false
+      },
+      "problem_count": 8,
+      "prompt_de": "Lies die Geschichte genau und tippe das Ergebnis ein.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "miscount", "label_de": "verzählt", "hint_de": "Zähle die Dinge in der Geschichte noch einmal langsam nach." },
+    { "code": "sign_error", "label_de": "Plus und Minus verwechselt", "hint_de": "Fällt etwas dazu oder wird etwas weggegeben? Danach richtet sich dein Rechenzeichen." },
+    { "code": "incomplete", "label_de": "nur einen Teil der Geschichte benutzt", "hint_de": "Die Geschichte hat zwei Zahlen. Nutze beide für deine Rechnung." },
+    { "code": "number_from_story", "label_de": "andere Zahlen als in der Geschichte", "hint_de": "Lies noch einmal: Welche zwei Zahlen stehen in der Geschichte? Rechne genau mit ihnen." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau noch einmal genau hin und rechne in Ruhe." }
+  ],
+  "provenance": {
+    "sources": ["KMK 2022; Rahmenlehrplan BE/BB 2023"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

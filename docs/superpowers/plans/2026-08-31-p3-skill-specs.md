@@ -29,7 +29,7 @@ Author the 36 machine-readable skill specs (`docs/clean-room/skills/specs/<skill
 - `place_counters`: `frame: "zehnerfeld"|"rekenrek"|"stellenwerttafel"`; `action: "fill"|"take_away"`.
 - `zehnerfeld_read`: `arrangement: "structured"|"two_groups"|"five_pattern"` (two_groups = two colours; child counts the total).
 - `stellenwerttafel_read`: `mode: "read"|"sum_rows"` (sum_rows = two counter rows, child types the total).
-- `equation_gap`: `prompt_kind: "gap"|"place_value"|"half"|"double"|"neighbor"|"helper_double"` (each picks the phrase + gap layout; arithmetic must hold).
+- `equation_gap`: `prompt_kind`/`form: "gap"|"helper"|"missing_addend"|"any_split"|"place_value"|"half"|"double"|"neighbor"|"helper_double"`. `any_split` (A3.2 L3) renders two blanks `_ + _ = N`; **all** pairs summing to N are accepted and listed in `expected` (params: `zr`, `total_range`).
 - `word_problem`: `ask_operation: false|true` (true → child first picks `+`/`−`, then answers).
 - `equation_solve`: `mode: "standard"|"place_value"` (place_value prompt: "4 Zehner 3 Einer = ?").
 
@@ -56,6 +56,17 @@ Only these keys per template, with these meanings. Values must be chosen so the 
 | `strategy_choice` | `op:"+"\|"-"`, `zr:int`, `a_range`, `b_range`, `strategies:[{id,label_de}]`, `correct_strategy:id` |
 | `word_problem` | `contexts:[{setting_de,object_de}]` (≥2 entries), `op:"+"\|"-"`, `zr:int`, `ask_operation:bool` |
 | custom | `bundling`/`unbundling`: `number_range:[12,39]`; `flash_subitize`: `count_range:[min,max]` (max ≤ 5), `flash_ms:800`, `display:"dots"\|"rekenrek"`; `numberline_mark`: `range`, `value_range` |
+
+## 4.5b Generator obligations (extensions the runtime MUST honour — authored into the specs)
+
+- `numberline_step`: `start` is sampled from `start_range` FILTERED to values congruent to `target` mod `step` (A1.3 L1 step 2, start_range [2,10] → only even starts).
+- `word_problem` `op: "+|-"`: the generator re-rolls the operation per problem (D1.2 ask_operation levels).
+- `zehnerfeld_read` `arrangement: "two_groups"` with `count_range` up to 20 (C1.2/C1.3 L2): renders two equal groups/frames, count is the total.
+- `equation_solve` `equal: true` (A3.3 L3): force a == b.
+- `sequence_gap` `progression: "double"` (A3.3 L2): geometric doubling sequence; `step` is then ignored.
+- `drag_partition` `equal: true`: correctness requires equal box counts AND sum == total.
+- `equation_gap` `form: "any_split"` (A3.2 L3): two blanks, every pair summing to the total is correct; `expected` lists all pairs.
+- `equation_gap` `helper`/`helper_double`/`half`: the gap value is `a+b−10` (helper), `1` (helper_double near-doubles), `total/2` (half) — arithmetic must hold.
 
 ## 4. Authoritative level mapping (skill → L1/L2/L3 template: params)
 

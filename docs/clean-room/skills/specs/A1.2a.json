@@ -1,0 +1,76 @@
+{
+  "spec_version": 1,
+  "skill_id": "A1.2a",
+  "construct_id": "A1.2",
+  "domain": "A",
+  "title_de": "Rückwärtszählen bis 20",
+  "level_titles_de": [
+    "Rückwärts auf dem Zahlenstrahl",
+    "Zahlenfolge rückwärts",
+    "Lückentext rückwärts"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "numberline_step",
+      "custom_widget": null,
+      "params": {
+        "range": [0, 20],
+        "start_range": [18, 20],
+        "target": 12,
+        "step": 1,
+        "direction": "down"
+      },
+      "problem_count": 8,
+      "prompt_de": "Tippe auf dem Zahlenstrahl Schritt für Schritt zurück bis zur 12.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "symbolisch",
+      "template": "sequence_gap",
+      "custom_widget": null,
+      "params": {
+        "direction": "down",
+        "step": 1,
+        "start_range": [14, 18],
+        "length": 5,
+        "gap_indices": [2]
+      },
+      "problem_count": 8,
+      "prompt_de": "Zähle rückwärts und tippe die fehlende Zahl ein.",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "sequence_gap",
+      "custom_widget": null,
+      "params": {
+        "direction": "down",
+        "step": 1,
+        "start_range": [14, 18],
+        "length": 8,
+        "gap_indices": [2, 5]
+      },
+      "problem_count": 8,
+      "prompt_de": "Zähle rückwärts und tippe die fehlenden Zahlen ein.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": {
+    "correct_of": 8
+  },
+  "error_taxonomy": [
+    { "code": "miscount", "label_de": "verzählt", "hint_de": "Zähle noch einmal langsam und in Ruhe." },
+    { "code": "skip", "label_de": "eine Zahl übersprungen", "hint_de": "Überspringe keine Zahl: Vor der 10 kommt die 11." },
+    { "code": "incomplete", "label_de": "nicht bis zum Ziel gezählt", "hint_de": "Zähle weiter zurück, bis du unten angekommen bist." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau noch einmal genau hin und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["Wartha & Schulz 2019; Padberg & Benz 2021"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

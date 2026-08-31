@@ -1,0 +1,76 @@
+{
+  "spec_version": 1,
+  "skill_id": "A1.4",
+  "construct_id": "A1.4",
+  "domain": "A",
+  "title_de": "Vorgänger und Nachfolger bestimmen",
+  "level_titles_de": [
+    "Die Zahl in der Mitte",
+    "Die Zahl am Anfang",
+    "Vorn und hinten"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "symbolisch",
+      "template": "sequence_gap",
+      "custom_widget": null,
+      "params": {
+        "direction": "up",
+        "step": 1,
+        "start_range": [11, 92],
+        "length": 5,
+        "gap_indices": [2]
+      },
+      "problem_count": 8,
+      "prompt_de": "Welche Zahl gehört in die Mitte? Tippe sie ein.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "symbolisch",
+      "template": "sequence_gap",
+      "custom_widget": null,
+      "params": {
+        "direction": "up",
+        "step": 1,
+        "start_range": [12, 92],
+        "length": 5,
+        "gap_indices": [0]
+      },
+      "problem_count": 8,
+      "prompt_de": "Welche Zahl fehlt am Anfang? Tippe sie ein.",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "sequence_gap",
+      "custom_widget": null,
+      "params": {
+        "direction": "up",
+        "step": 1,
+        "start_range": [12, 92],
+        "length": 5,
+        "gap_indices": [0, 4]
+      },
+      "problem_count": 8,
+      "prompt_de": "Welche Zahlen fehlen vorn und hinten? Tippe sie ein.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": {
+    "correct_of": 8
+  },
+  "error_taxonomy": [
+    { "code": "miscount", "label_de": "verzählt", "hint_de": "Zähle noch einmal langsam und in Ruhe." },
+    { "code": "neighbor_error", "label_de": "Vorgänger und Nachfolger verwechselt", "hint_de": "Der Vorgänger ist eine Zahl kleiner, der Nachfolger eine Zahl größer." },
+    { "code": "boundary_error", "label_de": "an der Zehnergrenze verwechselt", "hint_de": "Auch an der Zehnergrenze gilt: Vor der 30 kommt die 29, nach der 39 kommt die 40." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau noch einmal genau hin und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["Wartha & Schulz 2019; Padberg & Benz 2021"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "spec_version": 1,
+  "skill_id": "C3.3",
+  "construct_id": "C3.3",
+  "domain": "C",
+  "title_de": "Mit Hilfsaufgaben rechnen",
+  "level_titles_de": [
+    "Verdopplung und eins dazu",
+    "Mit der Verdopplung rechnen",
+    "Hilfsaufgaben nutzen"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "drag_partition",
+      "custom_widget": null,
+      "params": {
+        "total_range": [11, 19],
+        "parts": 2,
+        "equal": false,
+        "box_labels": ["Verdopplung", "1 dazu"]
+      },
+      "problem_count": 8,
+      "prompt_de": "Lege die Plättchen in zwei Kästen: Erst die Verdopplung, dann eins dazu. So hilft dir die Verdopplung beim Rechnen.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "symbolisch",
+      "template": "equation_gap",
+      "custom_widget": null,
+      "params": {
+        "op": "+",
+        "form": "helper_double",
+        "zr": 100,
+        "a_range": [13, 48],
+        "b_range": [14, 49]
+      },
+      "problem_count": 8,
+      "prompt_de": "Nutze die Verdopplung als Hilfsaufgabe: Rechne zuerst das Doppelte, dann kommt eins dazu. Tippe die fehlende Zahl ein.",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "equation_solve",
+      "custom_widget": null,
+      "params": {
+        "op": "+",
+        "unknown": "result",
+        "zr": 100,
+        "a_range": [13, 48],
+        "b_range": [14, 49],
+        "mode": "standard"
+      },
+      "problem_count": 8,
+      "prompt_de": "Rechne mit der Hilfsaufgabe: Erst die Verdopplung, dann eins dazu. Tippe das Ergebnis ein.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "anchor_miss", "label_de": "die Verdopplung nicht als Stützpunkt genutzt", "hint_de": "Rechne zuerst die Verdopplung, zum Beispiel 7 + 7 = 14, und zähle dann 1 dazu." },
+    { "code": "overstep_error", "label_de": "beim Zehnerübergang gestolpert", "hint_de": "Gehe über die volle Zehn: Erst zum vollen Zehner, dann weiter." },
+    { "code": "miscount", "label_de": "verzählt", "hint_de": "Zähle noch einmal langsam und in Ruhe." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau noch einmal genau hin und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["Padberg & Benz 2021; Selter & Spiegel 1997"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

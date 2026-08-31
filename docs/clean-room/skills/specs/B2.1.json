@@ -1,0 +1,71 @@
+{
+  "spec_version": 1,
+  "skill_id": "B2.1",
+  "construct_id": "B2.1",
+  "domain": "B",
+  "title_de": "Zahlen in der Stellenwerttafel darstellen",
+  "level_titles_de": [
+    "Zahlen in der Stellenwerttafel darstellen",
+    "Zahlen aus der Stellenwerttafel lesen",
+    "Zehner und Einer zusammenzählen"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "place_counters",
+      "custom_widget": null,
+      "params": {
+        "count_range": [11, 99],
+        "frame": "stellenwerttafel",
+        "action": "fill"
+      },
+      "problem_count": 8,
+      "prompt_de": "Stelle die Zahl in der Stellenwerttafel dar. Tippe die richtige Anzahl Plättchen an.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "stellenwerttafel_read",
+      "custom_widget": null,
+      "params": {
+        "mode": "read",
+        "columns": ["Z", "E"],
+        "number_range": [11, 99]
+      },
+      "problem_count": 8,
+      "prompt_de": "Lies die Zahl in der Stellenwerttafel und tippe sie ein.",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "equation_gap",
+      "custom_widget": null,
+      "params": {
+        "op": "+",
+        "form": "place_value",
+        "zr": 99,
+        "tens_range": [1, 9],
+        "ones_range": [1, 9]
+      },
+      "problem_count": 8,
+      "prompt_de": "Zähle die Zehner und die Einer zusammen und tippe die Zahl ein.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "place_error", "label_de": "Zehner und Einer vertauscht", "hint_de": "Die Zehner gehören in die Zehnerspalte, die Einer in die Einerspalte." },
+    { "code": "zero_ones_error", "label_de": "die Spalte für null Einer wurde gefüllt", "hint_de": "Hat die Zahl keine Einer, bleibt die Einerspalte leer." },
+    { "code": "incomplete", "label_de": "eine Spalte fehlt", "hint_de": "Wenn die Zahl Zehner und Einer hat, fülle beide Spalten." },
+    { "code": "miscount", "label_de": "verzählt", "hint_de": "Zähle die Plättchen in jeder Spalte noch einmal langsam." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau noch einmal genau hin und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["Padberg & Benz 2021; Rahmenlehrplan BE/BB 2023"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

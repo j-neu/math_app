@@ -1,0 +1,67 @@
+{
+  "spec_version": 1,
+  "skill_id": "A2.1",
+  "construct_id": "A2.1",
+  "domain": "A",
+  "title_de": "Mengen auf einen Blick erfassen",
+  "level_titles_de": [
+    "Punkte auf einen Blick",
+    "Kugeln auf einen Blick",
+    "Punkte im Zehnerfeld"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "ikonisch",
+      "template": "custom_widget",
+      "custom_widget": "flash_subitize",
+      "params": {
+        "count_range": [1, 5],
+        "flash_ms": 800,
+        "display": "dots"
+      },
+      "problem_count": 8,
+      "prompt_de": "Schau genau hin! Wie viele Punkte hast du gesehen? Tippe die Zahl ein.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "custom_widget",
+      "custom_widget": "flash_subitize",
+      "params": {
+        "count_range": [1, 5],
+        "flash_ms": 800,
+        "display": "rekenrek"
+      },
+      "problem_count": 8,
+      "prompt_de": "Schau genau hin! Wie viele Kugeln hast du gesehen? Tippe die Zahl ein.",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "ikonisch",
+      "template": "zehnerfeld_read",
+      "custom_widget": null,
+      "params": {
+        "count_range": [1, 5],
+        "arrangement": "structured"
+      },
+      "problem_count": 8,
+      "prompt_de": "Wie viele Punkte sind im Zehnerfeld? Tippe die Zahl ein.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "miscount", "label_de": "verzählt", "hint_de": "Zähle die Punkte noch einmal langsam und in Ruhe." },
+    { "code": "subitize_shift", "label_de": "um eins daneben", "hint_de": "Du bist ganz nah dran! Prüfe kurz: Ist es eine mehr oder eine weniger?" },
+    { "code": "incomplete", "label_de": "zu wenige Punkte erkannt", "hint_de": "Vergiss keine Punkte. Schau dir das Bild noch einmal genau an." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau noch einmal genau hin und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["Krajewski 2003/2008; Krajewski & Schneider 2009"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

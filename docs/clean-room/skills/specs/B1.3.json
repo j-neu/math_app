@@ -1,0 +1,69 @@
+{
+  "spec_version": 1,
+  "skill_id": "B1.3",
+  "construct_id": "B1.3",
+  "domain": "B",
+  "title_de": "Einen Zehner in Einer tauschen",
+  "level_titles_de": [
+    "Ein Zehnerbündel öffnen",
+    "Aufgelöste Zahlen in der Stellenwerttafel lesen",
+    "Zehner und viele Einer zusammenzählen"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "custom_widget",
+      "custom_widget": "unbundling",
+      "params": {
+        "number_range": [12, 39]
+      },
+      "problem_count": 8,
+      "prompt_de": "Öffne ein Zehnerbündel und zähle dann alle einzelnen Stäbchen.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "stellenwerttafel_read",
+      "custom_widget": null,
+      "params": {
+        "mode": "sum_rows",
+        "columns": ["Z", "E"],
+        "rows": "two_rows"
+      },
+      "problem_count": 8,
+      "prompt_de": "Hier wurde ein Zehner gegen Einer getauscht. Tippe ein, wie viele es zusammen sind.",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "equation_gap",
+      "custom_widget": null,
+      "params": {
+        "op": "+",
+        "form": "place_value",
+        "zr": 99,
+        "tens_range": [1, 8],
+        "ones_range": [10, 18]
+      },
+      "problem_count": 8,
+      "prompt_de": "Zähle die Zehner und die vielen Einer zusammen. Tippe die Zahl ein.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "unbundling_error", "label_de": "das Zehnerbündel falsch geöffnet", "hint_de": "Beim Öffnen eines Zehnerbündels werden genau zehn einzelne Stäbchen." },
+    { "code": "miscount", "label_de": "verzählt", "hint_de": "Zähle die einzelnen Stäbchen noch einmal langsam." },
+    { "code": "place_error", "label_de": "Zehner und Einer vertauscht", "hint_de": "Bündel sind Zehner, lose Stäbchen sind Einer." },
+    { "code": "incomplete", "label_de": "nicht alle Stäbchen gezählt", "hint_de": "Vergiss kein Stäbchen: Zähle die Bündel und die einzelnen Stäbchen zusammen." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau noch einmal genau hin und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["Schipper 2009; Rahmenlehrplan BE/BB 2023"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "spec_version": 1,
+  "skill_id": "C2.2",
+  "construct_id": "C2.2",
+  "domain": "C",
+  "title_de": "Verdopplungen als Stützaufgaben nutzen",
+  "level_titles_de": [
+    "Verdopplungen legen",
+    "Fast gleich große Gruppen erkennen",
+    "Mit Verdopplungen rechnen"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "drag_partition",
+      "custom_widget": null,
+      "params": {
+        "total_range": [12, 18],
+        "parts": 2,
+        "equal": true,
+        "box_labels": ["Gruppe 1", "Gruppe 2"]
+      },
+      "problem_count": 8,
+      "prompt_de": "Lege die Plättchen in zwei gleich große Gruppen: In beiden Gruppen liegen gleich viele Plättchen.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "zehnerfeld_read",
+      "custom_widget": null,
+      "params": {
+        "count_range": [5, 10],
+        "arrangement": "two_groups"
+      },
+      "problem_count": 8,
+      "prompt_de": "Sieh dir die zwei Gruppen an. Wie viele Plättchen sind es zusammen?",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "equation_gap",
+      "custom_widget": null,
+      "params": {
+        "op": "+",
+        "form": "helper_double",
+        "zr": 20,
+        "a_range": [5, 9],
+        "b_range": [6, 10]
+      },
+      "problem_count": 8,
+      "prompt_de": "Rechne zuerst die Verdopplung und ergänze dann die Stützaufgabe.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": {
+    "correct_of": 8
+  },
+  "error_taxonomy": [
+    { "code": "miscount", "label_de": "verzählt", "hint_de": "Zähle noch einmal langsam und in Ruhe." },
+    { "code": "anchor_miss", "label_de": "die Verdopplung nicht als Stützpunkt genutzt", "hint_de": "Rechne zuerst die Verdopplung, zum Beispiel 6 + 6 = 12, und zähle dann 1 dazu." },
+    { "code": "overstep_error", "label_de": "am Zehnerübergang gestolpert", "hint_de": "Gehe über die volle Zehn: Erst zur vollen Zehn, dann weiter." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau noch einmal genau hin und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["Padberg & Benz 2021; Gaidoschik 2010"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

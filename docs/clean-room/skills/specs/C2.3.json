@@ -1,0 +1,76 @@
+{
+  "spec_version": 1,
+  "skill_id": "C2.3",
+  "construct_id": "C2.3",
+  "domain": "C",
+  "title_de": "Subtrahieren durch Ergänzen",
+  "level_titles_de": [
+    "Im Zehnerfeld ergänzen",
+    "Ergänzungsaufgaben lösen",
+    "Die fehlende Zahl finden"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "place_counters",
+      "custom_widget": null,
+      "params": {
+        "count_range": [1, 9],
+        "frame": "zehnerfeld",
+        "action": "fill"
+      },
+      "problem_count": 8,
+      "prompt_de": "Im Zehnerfeld liegen schon Plättchen. Ergänze die fehlenden Plättchen bis zur Zielzahl.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "symbolisch",
+      "template": "equation_gap",
+      "custom_widget": null,
+      "params": {
+        "op": "+",
+        "form": "missing_addend",
+        "zr": 20,
+        "a_range": [5, 9],
+        "b_range": [2, 9]
+      },
+      "problem_count": 8,
+      "prompt_de": "Ergänze bis zum Ergebnis: Finde die Zahl, die in die Lücke passt.",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "equation_solve",
+      "custom_widget": null,
+      "params": {
+        "op": "+",
+        "unknown": "addend",
+        "zr": 20,
+        "a_range": [1, 9],
+        "b_range": [2, 9],
+        "mode": "standard"
+      },
+      "problem_count": 8,
+      "prompt_de": "Finde die fehlende Zahl: Ergänze von der bekannten Zahl aus bis zum Ergebnis.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": {
+    "correct_of": 8
+  },
+  "error_taxonomy": [
+    { "code": "miscount", "label_de": "verzählt", "hint_de": "Zähle noch einmal langsam und in Ruhe." },
+    { "code": "overstep_error", "label_de": "am Zehnerübergang gestolpert", "hint_de": "Ergänze zuerst bis zur vollen Zehn und dann weiter bis zum Ergebnis." },
+    { "code": "counts_back", "label_de": "rückwärts gezählt", "hint_de": "Zähle nicht zurück: Ergänze von der kleineren Zahl aus vorwärts bis zum Ergebnis." },
+    { "code": "incomplete", "label_de": "Aufgabe unvollständig gelöst", "hint_de": "Trage noch die fehlende Zahl ein." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau noch einmal genau hin und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["Selter & Spiegel 1997; Gaidoschik 2010"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "spec_version": 1,
+  "skill_id": "A1.1b",
+  "construct_id": "A1.1",
+  "domain": "A",
+  "title_de": "Vorwärtszählen bis 100",
+  "level_titles_de": [
+    "Weiterzählen bis 60",
+    "Über die Zehnergrenze zählen",
+    "Lückentext bis 100"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "numberline_step",
+      "custom_widget": null,
+      "params": {
+        "range": [
+          40,
+          60
+        ],
+        "start_range": [
+          40,
+          42
+        ],
+        "target": 60,
+        "step": 1,
+        "direction": "up"
+      },
+      "problem_count": 8,
+      "prompt_de": "Tippe auf dem Zahlenstrahl Schritt für Schritt weiter bis zur 60.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "symbolisch",
+      "template": "sequence_gap",
+      "custom_widget": null,
+      "params": {
+        "direction": "up",
+        "step": 1,
+        "start_range": [
+          46,
+          49
+        ],
+        "length": 5,
+        "gap_indices": [
+          2
+        ]
+      },
+      "problem_count": 8,
+      "prompt_de": "Zähle über die Zehnergrenze weiter und tippe die fehlende Zahl ein.",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "sequence_gap",
+      "custom_widget": null,
+      "params": {
+        "direction": "up",
+        "step": 1,
+        "start_range": [
+          40,
+          50
+        ],
+        "length": 8,
+        "gap_indices": [
+          2,
+          5
+        ]
+      },
+      "problem_count": 8,
+      "prompt_de": "Zähle bis zur 100 weiter und tippe die fehlenden Zahlen ein.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": {
+    "correct_of": 8
+  },
+  "error_taxonomy": [
+    {
+      "code": "miscount",
+      "label_de": "verzählt",
+      "hint_de": "Zähle noch einmal langsam und in Ruhe."
+    },
+    {
+      "code": "skip",
+      "label_de": "eine Zahl übersprungen",
+      "hint_de": "Überspringe keine Zahl: Auf die 49 folgt die 50."
+    },
+    {
+      "code": "overstep_error",
+      "label_de": "den Zehnerübergang verpasst",
+      "hint_de": "An der Zehnergrenze genau aufpassen: Nach der 49 kommt die 50."
+    },
+    {
+      "code": "incomplete",
+      "label_de": "nicht bis zum Ziel gezählt",
+      "hint_de": "Zähle weiter, bis du bei der 100 ankommst."
+    },
+    {
+      "code": "other",
+      "label_de": "noch einmal probieren",
+      "hint_de": "Schau noch einmal genau hin und probiere es noch einmal."
+    }
+  ],
+  "provenance": {
+    "sources": [
+      "Padberg & Benz 2021; KMK 2022"
+    ],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

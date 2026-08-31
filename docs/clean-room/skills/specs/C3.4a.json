@@ -1,0 +1,77 @@
+{
+  "spec_version": 1,
+  "skill_id": "C3.4a",
+  "construct_id": "C3.4",
+  "domain": "C",
+  "title_de": "Im Hunderterraum zerlegen und addieren",
+  "level_titles_de": [
+    "Zerlegen mit Plättchen",
+    "In Zehner und Einer zerlegen",
+    "Geschickt addieren"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "drag_partition",
+      "custom_widget": null,
+      "params": {
+        "total_range": [30, 99],
+        "parts": 3,
+        "equal": false,
+        "box_labels": ["1. Summand", "Zehner", "Einer"]
+      },
+      "problem_count": 8,
+      "prompt_de": "Verteile die Plättchen auf die drei Kästen: Erster Summand, Zehner und Einer. Zusammen ergeben sie die Zahl.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "symbolisch",
+      "template": "equation_gap",
+      "custom_widget": null,
+      "params": {
+        "op": "+",
+        "form": "helper",
+        "zr": 100,
+        "a_range": [20, 49],
+        "b_range": [12, 39]
+      },
+      "problem_count": 8,
+      "prompt_de": "Zerlege den zweiten Summanden in Zehner und Einer. Tippe die fehlende Zahl ein.",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "equation_solve",
+      "custom_widget": null,
+      "params": {
+        "op": "+",
+        "unknown": "result",
+        "zr": 100,
+        "a_range": [20, 59],
+        "b_range": [12, 39],
+        "mode": "standard"
+      },
+      "problem_count": 8,
+      "prompt_de": "Rechne geschickt: Zerlege den zweiten Summanden in Zehner und Einer. Tippe das Ergebnis ein.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": {
+    "correct_of": 8
+  },
+  "error_taxonomy": [
+    { "code": "zerlegung_error", "label_de": "nicht günstig zerlegt", "hint_de": "Zerlege den zweiten Summanden in Zehner und Einer, dann rechnest du leichter." },
+    { "code": "overstep_error", "label_de": "Zehnerübergang übersehen", "hint_de": "Achte auf den Übergang zur nächsten Zehn, wenn du die Einer zusammenzählst." },
+    { "code": "place_error", "label_de": "Zehner und Einer vertauscht", "hint_de": "Rechne erst die Zehner, dann die Einer." },
+    { "code": "incomplete", "label_de": "ein Teilschritt fehlt", "hint_de": "Nutze alle Teile der Zerlegung: Erster Summand, Zehner und Einer." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau noch einmal genau hin und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["Wartha & Schulz 2019; Padberg & Benz 2021"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

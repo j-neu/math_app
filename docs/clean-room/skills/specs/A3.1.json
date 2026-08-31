@@ -1,0 +1,72 @@
+{
+  "spec_version": 1,
+  "skill_id": "A3.1",
+  "construct_id": "A3.1",
+  "domain": "A",
+  "title_de": "Zahlen aus Teilen zusammensetzen",
+  "level_titles_de": [
+    "In zwei Teile zerlegen",
+    "In drei Teile zerlegen",
+    "Das fehlende Teil finden"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "drag_partition",
+      "custom_widget": null,
+      "params": {
+        "total_range": [6, 10],
+        "parts": 2,
+        "equal": false,
+        "box_labels": ["Teil 1", "Teil 2"]
+      },
+      "problem_count": 8,
+      "prompt_de": "Verteile die Plättchen auf die zwei Kästen. Zusammen ergeben sie die Zahl.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "enaktiv",
+      "template": "drag_partition",
+      "custom_widget": null,
+      "params": {
+        "total_range": [6, 10],
+        "parts": 3,
+        "equal": false,
+        "box_labels": ["Teil 1", "Teil 2", "Teil 3"]
+      },
+      "problem_count": 8,
+      "prompt_de": "Verteile die Plättchen auf die drei Kästen. Zusammen ergeben sie die Zahl.",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "equation_gap",
+      "custom_widget": null,
+      "params": {
+        "op": "+",
+        "form": "missing_addend",
+        "zr": 10,
+        "a_range": [1, 5],
+        "b_range": [2, 5]
+      },
+      "problem_count": 8,
+      "prompt_de": "Welche Zahl fehlt? Tippe die fehlende Zahl ein.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "parts_sum_error", "label_de": "die Teile ergeben nicht das Ganze", "hint_de": "Zähle alle Plättchen in den Kästen zusammen: Ergibt die Summe die Zahl?" },
+    { "code": "miscount", "label_de": "verzählt", "hint_de": "Zähle die Plättchen in jedem Kästchen noch einmal langsam." },
+    { "code": "incomplete", "label_de": "ein Kästchen fehlt", "hint_de": "Kein Kästchen darf leer bleiben. Verteile alle Plättchen." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau noch einmal genau hin und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["Padberg & Benz 2021; Lenz & Wittmann 2023"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

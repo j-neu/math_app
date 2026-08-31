@@ -1,0 +1,69 @@
+{
+  "spec_version": 1,
+  "skill_id": "C1.3",
+  "construct_id": "C1.3",
+  "domain": "C",
+  "title_de": "Halbierungsaufgaben sicher beherrschen",
+  "level_titles_de": [
+    "Gerecht teilen",
+    "Die Hälfte sehen",
+    "Die Hälfte finden"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "drag_partition",
+      "custom_widget": null,
+      "params": {
+        "total_range": [2, 20],
+        "parts": 2,
+        "equal": true,
+        "box_labels": ["Teil 1", "Teil 2"]
+      },
+      "problem_count": 8,
+      "prompt_de": "Halbieren heißt gerecht teilen: Lege in beide Kästen gleich viele Plättchen.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "zehnerfeld_read",
+      "custom_widget": null,
+      "params": {
+        "count_range": [2, 20],
+        "arrangement": "two_groups"
+      },
+      "problem_count": 8,
+      "prompt_de": "Die Punkte sind in zwei gleich großen Gruppen. Wie viele Punkte sind in einer Gruppe? Tippe die Zahl ein.",
+      "slow_band_ms": 7000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "equation_gap",
+      "custom_widget": null,
+      "params": {
+        "op": "+",
+        "form": "half",
+        "zr": 20,
+        "a_range": [2, 10]
+      },
+      "problem_count": 8,
+      "prompt_de": "Die Hälfte fehlt. Tippe die Hälfte der Zahl ein.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "miscount", "label_de": "verzählt", "hint_de": "Zähle die Punkte noch einmal langsam und in Ruhe." },
+    { "code": "incomplete", "label_de": "nur einen Teil der Menge gezählt", "hint_de": "Beide Gruppen zusammen ergeben die ganze Menge." },
+    { "code": "half_error", "label_de": "die Hälfte falsch bestimmt", "hint_de": "Die Hälfte von 12 ist 6, denn 6 + 6 = 12." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau noch einmal genau hin und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["Gaidoschik 2010; KMK 2022"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

@@ -1432,6 +1432,423 @@ void main() {
     });
   });
 
+  group('drag_partition generator', () {
+    SkillSpec spec(Map<String, dynamic> params) => SkillSpec.fromJson(
+      _baseSpec(_level(2, 'enaktiv', 'drag_partition', params, 9000)),
+    );
+
+    test('sum (default): positive boxes summing to total, expected empty', () {
+      final s = spec({
+        'total_range': [6, 10],
+        'parts': 2,
+        'box_labels': ['Teil 1', 'Teil 2'],
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final total = p.display['total'] as int;
+          final boxes = (p.display['boxes'] as List).cast<int>();
+          expect(total, inInclusiveRange(6, 10));
+          expect(boxes, hasLength(2));
+          expect(boxes.reduce((a, b) => a + b), total);
+          expect(boxes.every((b) => b >= 1), isTrue);
+          expect(p.display['split_constraint'], 'sum');
+          expect(p.display['parts'], 2);
+          expect(p.display['box_labels'], ['Teil 1', 'Teil 2']);
+          expect(p.expected, isEmpty, reason: 'widget evaluates semantically');
+        }
+      }
+    });
+
+    test('sum with 3 boxes keeps every part >= 1 (no empty Kasten)', () {
+      final s = spec({
+        'total_range': [6, 10],
+        'parts': 3,
+        'box_labels': ['Teil 1', 'Teil 2', 'Teil 3'],
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final total = p.display['total'] as int;
+          final boxes = (p.display['boxes'] as List).cast<int>();
+          expect(boxes, hasLength(3));
+          expect(boxes.reduce((a, b) => a + b), total);
+          expect(boxes.every((b) => b >= 1), isTrue);
+        }
+      }
+    });
+
+    test('equal: even totals split in two equal halves (A3.3/C1.2/C1.3)', () {
+      final s = spec({
+        'total_range': [2, 20],
+        'parts': 2,
+        'equal': true,
+        'box_labels': ['Teil 1', 'Teil 2'],
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final total = p.display['total'] as int;
+          final boxes = (p.display['boxes'] as List).cast<int>();
+          expect(total.isEven, isTrue, reason: 'equal needs even totals');
+          expect(boxes, [total ~/ 2, total ~/ 2]);
+          expect(p.display['split_constraint'], 'equal');
+        }
+      }
+    });
+
+    test('equal via split_constraint string works the same', () {
+      final s = spec({
+        'total_range': [2, 10],
+        'parts': 2,
+        'split_constraint': 'equal',
+        'box_labels': ['Teil 1', 'Teil 2'],
+      });
+      for (var seed = 0; seed < 100; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final total = p.display['total'] as int;
+          final boxes = (p.display['boxes'] as List).cast<int>();
+          expect(total.isEven, isTrue);
+          expect(boxes, [total ~/ 2, total ~/ 2]);
+        }
+      }
+    });
+
+    test('make_ten: totals 11..19 and exactly 10 + (total-10)', () {
+      final s = spec({
+        'total_range': [11, 19],
+        'parts': 2,
+        'split_constraint': 'make_ten',
+        'box_labels': ['volle Zehn', 'Rest'],
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final total = p.display['total'] as int;
+          final boxes = (p.display['boxes'] as List).cast<int>();
+          expect(total, inInclusiveRange(11, 19));
+          final sorted = [...boxes]..sort();
+          expect(sorted, [10, total - 10]..sort(),
+              reason: 'a wrong split like 15=9+6 must never be emitted');
+        }
+      }
+    });
+
+    test('near_double: odd totals 11..19, boxes [n, n, 1] (7+7+1=15)', () {
+      final s = spec({
+        'total_range': [11, 19],
+        'parts': 3,
+        'split_constraint': 'near_double',
+        'box_labels': ['Verdopplung', 'Verdopplung', '1 dazu'],
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final total = p.display['total'] as int;
+          final boxes = (p.display['boxes'] as List).cast<int>();
+          expect(total.isOdd, isTrue, reason: 'near_double totals are odd');
+          expect(total, inInclusiveRange(11, 19));
+          final n = (total - 1) ~/ 2;
+          expect(boxes, [n, n, 1]);
+          expect(boxes.reduce((a, b) => a + b), total);
+          expect(boxes.reduce((a, b) => a + b), 2 * n + 1);
+        }
+      }
+    });
+
+    test('tens_ones: boxes [a, 10*(b~/10), b%10] with a+b == total', () {
+      final s = spec({
+        'total_range': [30, 99],
+        'parts': 3,
+        'split_constraint': 'tens_ones',
+        'box_labels': ['1. Summand', 'Zehner', 'Einer'],
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final total = p.display['total'] as int;
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          final boxes = (p.display['boxes'] as List).cast<int>();
+          expect(total, inInclusiveRange(30, 99));
+          expect(a, greaterThanOrEqualTo(1));
+          expect(b, greaterThanOrEqualTo(11), reason: 'Zehner box >= 1');
+          expect(b % 10, greaterThanOrEqualTo(1), reason: 'Einer box >= 1');
+          expect(a + b, total);
+          expect(boxes, [a, 10 * (b ~/ 10), b % 10]);
+        }
+      }
+    });
+
+    test('hand-computed tens_ones example 35 + 27 -> [35, 20, 7]', () {
+      final spec = _realSpec('C3.4a');
+      final problems = generateProblems(spec: spec, level: 1, seed: 369);
+      final p = problems[6];
+      expect(p.display['total'], 62);
+      expect(p.display['a'], 35);
+      expect(p.display['b'], 27);
+      expect(p.display['boxes'], [35, 20, 7]);
+      expect(p.display['split_constraint'], 'tens_ones');
+      expect(p.expected, isEmpty);
+    });
+
+    test('is deterministic and unique within a level where the range allows', () {
+      for (final s in [
+        spec({
+          'total_range': [6, 10],
+          'parts': 2,
+          'box_labels': ['Teil 1', 'Teil 2'],
+        }),
+        spec({
+          'total_range': [11, 19],
+          'parts': 2,
+          'split_constraint': 'make_ten',
+          'box_labels': ['volle Zehn', 'Rest'],
+        }),
+      ]) {
+        for (var seed = 0; seed < 50; seed++) {
+          final first = generateProblems(spec: s, level: 2, seed: seed);
+          final second = generateProblems(spec: s, level: 2, seed: seed);
+          expect(_signature(first), _signature(second));
+          final keys = first.map((p) => jsonEncode(p.display)).toSet();
+          expect(keys.length, first.length, reason: 'seed $seed');
+        }
+      }
+    });
+
+    test('hand-computed real C2.1 L1: every split is a full ten + rest', () {
+      final spec = _realSpec('C2.1');
+      for (var seed = 0; seed < 20; seed++) {
+        for (final p in generateProblems(spec: spec, level: 1, seed: seed)) {
+          final total = p.display['total'] as int;
+          final boxes = (p.display['boxes'] as List).cast<int>();
+          expect(total, inInclusiveRange(11, 19));
+          final sorted = [...boxes]..sort();
+          expect(sorted, [10, total - 10]..sort());
+        }
+      }
+    });
+  });
+
+  group('place_counters generator', () {
+    SkillSpec spec(Map<String, dynamic> params) => SkillSpec.fromJson(
+      _baseSpec(_level(2, 'enaktiv', 'place_counters', params, 9000)),
+    );
+
+    test('fill: count in range, frame/action carried, expected == count', () {
+      final s = spec({
+        'count_range': [1, 10],
+        'frame': 'zehnerfeld',
+        'action': 'fill',
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final count = p.display['count'] as int;
+          expect(count, inInclusiveRange(1, 10));
+          expect(p.display['frame'], 'zehnerfeld');
+          expect(p.display['action'], 'fill');
+          expect(p.expected, [count.toString()]);
+        }
+      }
+    });
+
+    test('zehnerfeld capacity: count never exceeds 10 per frame', () {
+      final s = spec({
+        'count_range': [1, 20],
+        'frame': 'zehnerfeld',
+        'action': 'fill',
+      });
+      for (var seed = 0; seed < 100; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          expect(p.display['count'] as int, inInclusiveRange(1, 10));
+        }
+      }
+    });
+
+    test('take_away: total >= count and remaining >= 0', () {
+      final s = spec({
+        'count_range': [2, 10],
+        'frame': 'zehnerfeld',
+        'action': 'take_away',
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final count = p.display['count'] as int;
+          final total = p.display['total'] as int;
+          final remaining = p.display['remaining'] as int;
+          expect(count, inInclusiveRange(2, 10));
+          expect(total, greaterThanOrEqualTo(count));
+          expect(remaining, total - count);
+          expect(remaining, greaterThanOrEqualTo(0));
+          expect(p.display['action'], 'take_away');
+          expect(p.expected, [count.toString()]);
+        }
+      }
+    });
+
+    test('rekenrek frame allows counts up to 20', () {
+      final s = spec({
+        'count_range': [1, 20],
+        'frame': 'rekenrek',
+        'action': 'fill',
+      });
+      for (var seed = 0; seed < 100; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          expect(p.display['count'] as int, inInclusiveRange(1, 20));
+          expect(p.display['frame'], 'rekenrek');
+        }
+      }
+    });
+
+    test('stellenwerttafel allows two-digit counts (B2.1/C3.1)', () {
+      final s = spec({
+        'count_range': [11, 99],
+        'frame': 'stellenwerttafel',
+        'action': 'fill',
+      });
+      for (var seed = 0; seed < 100; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          expect(p.display['count'] as int, inInclusiveRange(11, 99));
+          expect(p.display['frame'], 'stellenwerttafel');
+        }
+      }
+    });
+
+    test('is deterministic and unique within a level', () {
+      for (final s in [
+        spec({
+          'count_range': [1, 10],
+          'frame': 'zehnerfeld',
+          'action': 'fill',
+        }),
+        spec({
+          'count_range': [2, 10],
+          'frame': 'zehnerfeld',
+          'action': 'take_away',
+        }),
+      ]) {
+        for (var seed = 0; seed < 50; seed++) {
+          final first = generateProblems(spec: s, level: 2, seed: seed);
+          final second = generateProblems(spec: s, level: 2, seed: seed);
+          expect(_signature(first), _signature(second));
+          final keys = first.map((p) => jsonEncode(p.display)).toSet();
+          expect(keys.length, first.length, reason: 'seed $seed');
+        }
+      }
+    });
+  });
+
+  group('bundle_sticks generator', () {
+    SkillSpec spec(Map<String, dynamic> params) => SkillSpec.fromJson(
+      _baseSpec(_level(2, 'enaktiv', 'bundle_sticks', params, 9000)),
+    );
+
+    test('count in range and canonical Z Zehner, E Einer answer', () {
+      final s = spec({
+        'count_range': [12, 39],
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final count = p.display['count'] as int;
+          expect(count, inInclusiveRange(12, 39));
+          final bundles = count ~/ 10;
+          final singles = count % 10;
+          expect(p.display['bundles'], bundles);
+          expect(p.display['singles'], singles);
+          expect(bundles, greaterThanOrEqualTo(1),
+              reason: 'count >= 10 requires at least one bundle');
+          expect(p.expected, ['$bundles Zehner, $singles Einer']);
+        }
+      }
+    });
+
+    test('39 sticks -> 3 Zehner, 9 Einer', () {
+      final s = spec({
+        'count_range': [39, 39],
+      });
+      for (final p in generateProblems(spec: s, level: 2, seed: 1)) {
+        expect(p.display['count'], 39);
+        expect(p.display['bundles'], 3);
+        expect(p.display['singles'], 9);
+        expect(p.expected, ['3 Zehner, 9 Einer']);
+      }
+    });
+
+    test('never generates counts < 12 (bundling needs >= 1 bundle)', () {
+      final s = spec({
+        'count_range': [12, 39],
+      });
+      for (var seed = 0; seed < 100; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          expect(p.display['count'] as int, greaterThanOrEqualTo(12));
+        }
+      }
+    });
+
+    test('a count_range below 12 is a spec error', () {
+      final s = spec({
+        'count_range': [5, 9],
+      });
+      expect(
+        () => generateProblems(spec: s, level: 2, seed: 1),
+        throwsA(isA<SpecFormatException>()),
+      );
+    });
+
+    test('is deterministic and unique within a level', () {
+      final s = spec({
+        'count_range': [12, 39],
+      });
+      for (var seed = 0; seed < 50; seed++) {
+        final first = generateProblems(spec: s, level: 2, seed: seed);
+        final second = generateProblems(spec: s, level: 2, seed: seed);
+        expect(_signature(first), _signature(second));
+        final keys = first.map((p) => jsonEncode(p.display)).toSet();
+        expect(keys.length, first.length, reason: 'seed $seed');
+      }
+    });
+  });
+
+  group('rekenrek_set generator', () {
+    SkillSpec spec(Map<String, dynamic> params) => SkillSpec.fromJson(
+      _baseSpec(_level(2, 'enaktiv', 'rekenrek_set', params, 9000)),
+    );
+
+    test('count in 1..20, rows carried, expected == count', () {
+      final s = spec({
+        'count_range': [1, 20],
+        'rows': 2,
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final count = p.display['count'] as int;
+          expect(count, inInclusiveRange(1, 20));
+          expect(p.display['rows'], 2);
+          expect(p.expected, [count.toString()]);
+        }
+      }
+    });
+
+    test('20 beads reproduce 20', () {
+      final s = spec({
+        'count_range': [20, 20],
+        'rows': 2,
+      });
+      for (final p in generateProblems(spec: s, level: 2, seed: 1)) {
+        expect(p.display['count'], 20);
+        expect(p.expected, ['20']);
+      }
+    });
+
+    test('is deterministic and unique within a level', () {
+      final s = spec({
+        'count_range': [1, 20],
+        'rows': 2,
+      });
+      for (var seed = 0; seed < 50; seed++) {
+        final first = generateProblems(spec: s, level: 2, seed: seed);
+        final second = generateProblems(spec: s, level: 2, seed: seed);
+        expect(_signature(first), _signature(second));
+        final keys = first.map((p) => jsonEncode(p.display)).toSet();
+        expect(keys.length, first.length, reason: 'seed $seed');
+      }
+    });
+  });
+
   group('Problem JSON round-trip', () {
     test('toJson/fromJson preserves every field', () {
       final spec = _compareSpec();

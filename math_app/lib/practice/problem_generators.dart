@@ -144,6 +144,42 @@ Problem _generateForTemplate(
         index,
         gen,
       );
+    case 'drag_partition':
+      return _generateDragPartition(
+        spec,
+        level,
+        levelNumber,
+        seed,
+        index,
+        gen,
+      );
+    case 'place_counters':
+      return _generatePlaceCounters(
+        spec,
+        level,
+        levelNumber,
+        seed,
+        index,
+        gen,
+      );
+    case 'bundle_sticks':
+      return _generateBundleSticks(
+        spec,
+        level,
+        levelNumber,
+        seed,
+        index,
+        gen,
+      );
+    case 'rekenrek_set':
+      return _generateRekenrekSet(
+        spec,
+        level,
+        levelNumber,
+        seed,
+        index,
+        gen,
+      );
     default:
       throw UnimplementedError(
         'Generator for template "${level.template}" is declared but not yet '
@@ -959,4 +995,310 @@ Problem _generateStrategyChoice(
         'strategy_choice: unsupported strategy "$strategy"',
       );
   }
+}
+
+/// `drag_partition` generator (P2 plan §5 rule 1, P3 §4.5b): split `total`
+/// into `parts` boxes under the parameterised `split_constraint` (or the
+/// legacy `equal: true` flag). The widget evaluates the child's split
+/// semantically, so `expected` stays empty while `display` carries
+/// `total`, `parts`, `box_labels`, `split_constraint` and the canonical
+/// `boxes` (plus the two operands `a`/`b` for `tens_ones`).
+Problem _generateDragPartition(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final totalRange = level.intListParam('total_range');
+  final totalLo = totalRange.isEmpty ? 6 : totalRange[0];
+  final totalHi = totalRange.isEmpty ? 10 : totalRange[1];
+  final parts = level.intParam('parts', fallback: 2);
+  final boxLabels =
+      ((level.params['box_labels'] as List?) ?? const []).cast<String>();
+  if (boxLabels.length != parts) {
+    throw SpecFormatException(
+      'drag_partition: "box_labels" must have one entry per part ($parts), '
+      'found ${boxLabels.length}',
+    );
+  }
+
+  final constraintParam = level.stringParam('split_constraint');
+  final splitConstraint = constraintParam.isNotEmpty
+      ? constraintParam
+      : (level.boolParam('equal') ? 'equal' : 'sum');
+
+  final boxes =
+      _dragPartitionBoxes(gen, splitConstraint, parts, totalLo, totalHi);
+  final total = boxes.reduce((a, b) => a + b);
+
+  final display = <String, dynamic>{
+    'total': total,
+    'parts': parts,
+    'split_constraint': splitConstraint,
+    'box_labels': boxLabels,
+    'boxes': boxes,
+  };
+  if (splitConstraint == 'tens_ones') {
+    display['a'] = boxes[0];
+    display['b'] = boxes[1] + boxes[2];
+  }
+
+  return Problem(
+    template: 'drag_partition',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: display,
+    expected: const [],
+  );
+}
+
+/// Picks the canonical `parts` box counts for one [drag_partition] problem
+/// under [splitConstraint]. Every emitted split honours the constraint
+/// (a wrong split like 15 = 9 + 6 is never produced for `make_ten`).
+List<int> _dragPartitionBoxes(
+  SeededGenerator gen,
+  String splitConstraint,
+  int parts,
+  int totalLo,
+  int totalHi,
+) {
+  switch (splitConstraint) {
+    case 'sum':
+      // Any split of `total` into `parts` positive integers.
+      if (totalHi < parts) {
+        throw SpecFormatException(
+          'drag_partition: total_range max ($totalHi) < parts ($parts): no '
+          'valid positive split exists',
+        );
+      }
+      final lo = totalLo < parts ? parts : totalLo;
+      final total = gen.nextIntInRange(lo, totalHi);
+      final boxes = <int>[];
+      var remaining = total;
+      for (var i = 0; i < parts - 1; i++) {
+        final maxForBox = remaining - (parts - 1 - i);
+        final b = gen.nextIntInRange(1, maxForBox);
+        boxes.add(b);
+        remaining -= b;
+      }
+      boxes.add(remaining);
+      return boxes;
+
+    case 'equal':
+      // All boxes equal and sum == total; total must be divisible by parts.
+      final candidates = <int>[
+        for (var t = totalLo < parts ? parts : totalLo; t <= totalHi; t++)
+          if (t % parts == 0) t,
+      ];
+      if (candidates.isEmpty) {
+        throw SpecFormatException(
+          'drag_partition: no total in [$totalLo, $totalHi] divisible by '
+          'parts $parts for split_constraint "equal"',
+        );
+      }
+      final total = candidates[gen.nextInt(candidates.length)];
+      final part = total ~/ parts;
+      return List<int>.filled(parts, part);
+
+    case 'make_ten':
+      // One box exactly 10, the other total - 10; totals 11..19.
+      if (parts != 2) {
+        throw SpecFormatException(
+          'drag_partition: "make_ten" requires parts == 2, got $parts',
+        );
+      }
+      final total = gen.nextIntInRange(
+        totalLo < 11 ? 11 : totalLo,
+        totalHi > 19 ? 19 : totalHi,
+      );
+      return [10, total - 10];
+
+    case 'near_double':
+      // 3 boxes: two equal n, third == 1; total == 2n+1 (odd, 11..19).
+      if (parts != 3) {
+        throw SpecFormatException(
+          'drag_partition: "near_double" requires parts == 3, got $parts',
+        );
+      }
+      final odds = <int>[
+        for (var t = totalLo < 11 ? 11 : totalLo; t <= (totalHi > 19 ? 19 : totalHi); t++)
+          if (t.isOdd) t,
+      ];
+      if (odds.isEmpty) {
+        throw SpecFormatException(
+          'drag_partition: no odd total in [11, 19] for "near_double"',
+        );
+      }
+      final total = odds[gen.nextInt(odds.length)];
+      final n = (total - 1) ~/ 2;
+      return [n, n, 1];
+
+    case 'tens_ones':
+      // 3 boxes: [a, 10*floor(b/10), b%10] with a + b == total.
+      if (parts != 3) {
+        throw SpecFormatException(
+          'drag_partition: "tens_ones" requires parts == 3, got $parts',
+        );
+      }
+      if (totalHi < 12) {
+        throw SpecFormatException(
+          'drag_partition: "tens_ones" needs totals >= 12 (a >= 1, b >= 11), '
+          'got total_range max $totalHi',
+        );
+      }
+      var total = gen.nextIntInRange(totalLo, totalHi);
+      var a = 1;
+      for (var attempts = 0; attempts < 300; attempts++) {
+        final aMax = total - 11; // keep b = total - a >= 11
+        if (aMax < 1) {
+          total = gen.nextIntInRange(
+            totalLo < 12 ? 12 : totalLo,
+            totalHi,
+          );
+          continue;
+        }
+        a = gen.nextIntInRange(1, aMax);
+        if ((total - a) % 10 >= 1) break; // Einer box must hold >= 1
+      }
+      final b = total - a;
+      return [a, 10 * (b ~/ 10), b % 10];
+
+    default:
+      throw SpecFormatException(
+        'drag_partition: unknown split_constraint "$splitConstraint"',
+      );
+  }
+}
+
+/// `place_counters` generator (P2 plan §5 rule 2, P3 §3): the child taps
+/// cells in a frame to fill a target count or to take away `count` from a
+/// starting `total`. Per-frame capacity caps `count` (and `total`) so a
+/// single ten-frame never holds more than 10 counters.
+Problem _generatePlaceCounters(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final countRange = level.intListParam('count_range');
+  final countLo = countRange.isEmpty ? 1 : countRange[0];
+  final countHi = countRange.isEmpty ? 10 : countRange[1];
+  final frame = level.stringParam('frame', fallback: 'zehnerfeld');
+  final action = level.stringParam('action', fallback: 'fill');
+
+  final int frameCap = switch (frame) {
+    'rekenrek' => 20,
+    'stellenwerttafel' => 99,
+    _ => 10,
+  };
+  final top = countHi > frameCap ? frameCap : countHi;
+  if (top < countLo) {
+    throw SpecFormatException(
+      'place_counters: frame "$frame" holds at most $frameCap counters but '
+      'count_range starts at $countLo',
+    );
+  }
+  final count = gen.nextIntInRange(countLo, top);
+
+  final display = <String, dynamic>{
+    'count': count,
+    'frame': frame,
+    'action': action,
+  };
+  if (action == 'take_away') {
+    final total = gen.nextIntInRange(count, top);
+    display['total'] = total;
+    display['remaining'] = total - count;
+  }
+
+  return Problem(
+    template: 'place_counters',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: display,
+    expected: [count.toString()],
+  );
+}
+
+/// `bundle_sticks` generator (P2 plan §5 rule 3, P3 §4.5b): pick a stick
+/// count (at least 12, so the canonical answer always needs >= 1 Zehner
+/// bundle) and emit the canonical `"Z Zehner, E Einer"` string.
+Problem _generateBundleSticks(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final countRange = level.intListParam('count_range');
+  final countLo = countRange.isEmpty ? 12 : countRange[0];
+  final countHi = countRange.isEmpty ? 39 : countRange[1];
+  final lo = countLo < 12 ? 12 : countLo;
+  if (lo > countHi) {
+    throw SpecFormatException(
+      'bundle_sticks: count_range must allow counts >= 12 (bundling), got '
+      '[$countLo, $countHi]',
+    );
+  }
+  final count = gen.nextIntInRange(lo, countHi);
+  final bundles = count ~/ 10;
+  final singles = count % 10;
+
+  return Problem(
+    template: 'bundle_sticks',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: {'count': count, 'bundles': bundles, 'singles': singles},
+    expected: ['$bundles Zehner, $singles Einer'],
+  );
+}
+
+/// `rekenrek_set` generator (P2 plan §5 rule 4): the child slides beads on a
+/// two-row Rekenrek to reproduce `count` (1..20); `expected` is the count.
+Problem _generateRekenrekSet(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final countRange = level.intListParam('count_range');
+  final countLo = countRange.isEmpty ? 1 : countRange[0];
+  final countHi = countRange.isEmpty ? 20 : countRange[1];
+  final rows = level.intParam('rows', fallback: 2);
+  final lo = countLo < 1 ? 1 : countLo;
+  final top = countHi > 20 ? 20 : countHi;
+  if (lo > top) {
+    throw SpecFormatException(
+      'rekenrek_set: count_range must lie within [1, 20], got '
+      '[$countLo, $countHi]',
+    );
+  }
+  final count = gen.nextIntInRange(lo, top);
+
+  return Problem(
+    template: 'rekenrek_set',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: {'count': count, 'rows': rows},
+    expected: [count.toString()],
+  );
 }

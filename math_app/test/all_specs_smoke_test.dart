@@ -176,6 +176,92 @@ bool problemValid(Problem p) {
   return false;
 }
 
+/// True when a manipulative-template Problem (drag_partition,
+/// place_counters, bundle_sticks, rekenrek_set) is well-formed: every
+/// emitted split honours its split_constraint, counts respect their frame
+/// capacity, bundle answers are canonical and subtraction never leaves a
+/// negative remainder.
+bool manipulativeValid(Problem p) {
+  switch (p.template) {
+    case 'drag_partition':
+      final total = p.display['total'];
+      final parts = p.display['parts'];
+      final rawBoxes = p.display['boxes'];
+      final constraint = p.display['split_constraint'];
+      final rawLabels = p.display['box_labels'];
+      if (total is! int || parts is! int || rawBoxes is! List) return false;
+      if (constraint is! String || rawLabels is! List) return false;
+      final boxes = rawBoxes.cast<int>();
+      if (boxes.length != parts) return false;
+      if (rawLabels.length != parts) return false;
+      if (boxes.any((b) => b < 1)) return false;
+      if (boxes.reduce((a, b) => a + b) != total) return false;
+      switch (constraint) {
+        case 'sum':
+          return true;
+        case 'equal':
+          return total % parts == 0 && boxes.every((b) => b == total ~/ parts);
+        case 'make_ten':
+          return parts == 2 &&
+              boxes.contains(10) &&
+              boxes.any((b) => b == total - 10);
+        case 'near_double':
+          if (parts != 3 || !total.isOdd) return false;
+          final n = (total - 1) ~/ 2;
+          return total == 2 * n + 1 &&
+              boxes.where((b) => b == n).length == 2 &&
+              boxes.where((b) => b == 1).length == 1;
+        case 'tens_ones':
+          if (parts != 3) return false;
+          final a = p.display['a'];
+          final b = p.display['b'];
+          if (a is! int || b is! int) return false;
+          return a + b == total &&
+              boxes[0] == a &&
+              boxes[1] == 10 * (b ~/ 10) &&
+              boxes[2] == b % 10;
+      }
+      return false;
+
+    case 'place_counters':
+      final count = p.display['count'];
+      final frame = p.display['frame'];
+      final action = p.display['action'];
+      if (count is! int || frame is! String || action is! String) return false;
+      if (count < 1) return false;
+      if (frame == 'zehnerfeld' && count > 10) return false;
+      if (frame == 'rekenrek' && count > 20) return false;
+      if (action == 'take_away') {
+        final total = p.display['total'];
+        final remaining = p.display['remaining'];
+        if (total is! int || remaining is! int) return false;
+        if (total < count || remaining != total - count || remaining < 0) {
+          return false;
+        }
+      }
+      return p.expected.length == 1 && p.expected.single == '$count';
+
+    case 'bundle_sticks':
+      final count = p.display['count'];
+      if (count is! int || count < 10) return false;
+      final bundles = count ~/ 10;
+      final singles = count % 10;
+      if (p.display['bundles'] != bundles) return false;
+      if (p.display['singles'] != singles) return false;
+      return bundles >= 1 &&
+          p.expected.length == 1 &&
+          p.expected.single == '$bundles Zehner, $singles Einer';
+
+    case 'rekenrek_set':
+      final count = p.display['count'];
+      if (count is! int || count < 1 || count > 20) return false;
+      return p.display['rows'] == 2 &&
+          p.expected.length == 1 &&
+          p.expected.single == '$count';
+  }
+  return false;
+}
+
 void main() {
   group('real specs: equation_solve / equation_gap levels generate', () {
     final dir = Directory(_specsDir);
@@ -344,6 +430,119 @@ void main() {
           final levelSpec = spec.levelSpec(level);
           if (levelSpec.template != 'word_problem' &&
               levelSpec.template != 'strategy_choice') {
+            continue;
+          }
+          final a = generateProblems(spec: spec, level: level, seed: 7);
+          final b = generateProblems(spec: spec, level: level, seed: 7);
+          expect(
+            jsonEncode(a.map((p) => p.toJson()).toList()),
+            jsonEncode(b.map((p) => p.toJson()).toList()),
+            reason: '${spec.skillId} L$level',
+          );
+        }
+      }
+    });
+  });
+
+  group('real specs: manipulative levels generate (P2 task 5)', () {
+    final dir = Directory(_specsDir);
+    if (!dir.existsSync()) {
+      fail('real spec tree must exist at $_specsDir');
+    }
+    final files =
+        dir
+            .listSync()
+            .whereType<File>()
+            .where((f) => f.path.endsWith('.json'))
+            .toList()
+          ..sort((a, b) => a.path.compareTo(b.path));
+    final specs = [
+      for (final file in files)
+        SkillSpec.fromJson(
+          jsonDecode(file.readAsStringSync()) as Map<String, dynamic>,
+        ),
+    ];
+
+    test('every drag_partition/place_counters/bundle_sticks/rekenrek_set '
+        'level yields valid problems', () {
+      var checkedLevels = 0;
+      for (final spec in specs) {
+        for (var level = 1; level <= 3; level++) {
+          final levelSpec = spec.levelSpec(level);
+          if (!const {
+                'drag_partition',
+                'place_counters',
+                'bundle_sticks',
+                'rekenrek_set',
+              }.contains(levelSpec.template)) {
+            continue;
+          }
+          checkedLevels++;
+          for (var seed = 0; seed < 3; seed++) {
+            final problems = generateProblems(
+              spec: spec,
+              level: level,
+              seed: seed,
+            );
+            expect(
+              problems,
+              hasLength(levelSpec.problemCount),
+              reason: '${spec.skillId} L$level seed $seed',
+            );
+            for (var i = 0; i < problems.length; i++) {
+              final p = problems[i];
+              expect(p.index, i, reason: '${spec.skillId} L$level');
+              expect(p.promptDe, isNotEmpty);
+              expect(
+                manipulativeValid(p),
+                isTrue,
+                reason: '${spec.skillId} L$level seed $seed: '
+                    '${jsonEncode(p.toJson())}',
+              );
+            }
+          }
+        }
+      }
+      expect(checkedLevels, greaterThan(0));
+    });
+
+    test('the construct-specific constraint gates hold per skill', () {
+      final gate = <String, String>{
+        'A3.1': 'sum',
+        'A3.3': 'equal',
+        'C1.2': 'equal',
+        'C1.3': 'equal',
+        'C2.1': 'make_ten',
+        'C3.3': 'near_double',
+        'C3.4a': 'tens_ones',
+        'C3.4b': 'tens_ones',
+        'C4.2': 'sum',
+      };
+      for (final spec in specs) {
+        final expected = gate[spec.skillId];
+        if (expected == null) continue;
+        final levelSpec = spec.levelSpec(1);
+        expect(levelSpec.template, 'drag_partition',
+            reason: '${spec.skillId} L1 is drag_partition');
+        for (var seed = 0; seed < 20; seed++) {
+          for (final p in generateProblems(spec: spec, level: 1, seed: seed)) {
+            expect(p.display['split_constraint'], expected,
+                reason: '${spec.skillId} L1 seed $seed');
+          }
+        }
+      }
+    });
+
+    test('generation is deterministic on the manipulative levels', () {
+      for (final spec in specs) {
+        for (var level = 1; level <= 3; level++) {
+          final levelSpec = spec.levelSpec(level);
+          if (!const {
+                'drag_partition',
+                'place_counters',
+                'bundle_sticks',
+                'rekenrek_set',
+              }.contains(levelSpec.template)) {
             continue;
           }
           final a = generateProblems(spec: spec, level: level, seed: 7);

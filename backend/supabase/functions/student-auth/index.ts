@@ -114,7 +114,14 @@ Deno.serve(async (req) => {
       .from("students")
       .select("id, display_name, avatar")
       .eq("class_id", klass.id)
-      .order("display_name");
+      .order("display_name")
+      // `display_name` has no unique constraint (two children named "Max" in
+      // the same class is ordinary), so Postgres does not guarantee a stable
+      // relative order between equal-name rows across queries. `id` is the
+      // primary key, so this makes the roster order fully deterministic —
+      // which both the tile grid position and `_assignAvatarColours`'
+      // collision resolution depend on staying stable between sessions.
+      .order("id");
 
     await limit.markSucceeded();
     return json({

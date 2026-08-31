@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/problem.dart';
 import '../manipulatives/staebchen.dart';
 import 'answer_pad.dart';
+import 'hint_text.dart';
 
 /// Custom-widget template for the registry key `"unbundling"` (B1.3
 /// Entbündeln, P2 plan §5): renders a bundled picture — `display.tens`
@@ -107,7 +108,7 @@ class _UnbundlingWidgetState extends State<UnbundlingWidget> {
           const Text(
             'Tippe auf ein Bündel, um es zu öffnen.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14, color: Colors.black54),
+            style: TextStyle(fontSize: 14, color: kHintTextColor),
           ),
         ],
       ],

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -13,6 +15,9 @@ import 'package:math_app/screens/settings_screen.dart';
 import 'package:math_app/screens/user_selection_screen.dart';
 import 'package:math_app/screens/school_code_entry_screen.dart';
 import 'package:math_app/screens/web_diagnostic_entry_screen.dart';
+import 'package:math_app/services/app_start_recovery.dart';
+import 'package:math_app/services/learning_path_service.dart';
+import 'package:math_app/services/student_auth_service.dart';
 import 'package:math_app/services/user_service.dart';
 
 void main() async {
@@ -59,8 +64,35 @@ final _router = GoRouter(
   ],
 );
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MyApp extends StatefulWidget {
+  const MyApp({super.key, this.authService, this.learningPathService});
+
+  /// Test injection: when omitted the shell reads the stored token from
+  /// [StudentAuthService] prefs and uses a real [LearningPathService].
+  final StudentAuthService? authService;
+  final LearningPathService? learningPathService;
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late final StudentAuthService _auth =
+      widget.authService ?? StudentAuthService();
+  late final LearningPathService _learningPathService =
+      widget.learningPathService ?? LearningPathService();
+
+  @override
+  void initState() {
+    super.initState();
+    // P2 plan §8 task 11: retry practice sessions stranded by a previous
+    // run (offline close, dropped connection before /end). Fired after the
+    // first frame so startup is never blocked; best-effort and silent — a
+    // failure just leaves the session pending for the next run.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(maybeRecoverPendingSessions(_auth, _learningPathService));
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -36,6 +36,12 @@ class _FlashSubitizeWidgetState extends State<FlashSubitizeWidget> {
   Timer? _timer;
   bool _visible = true;
 
+  /// Null until the first [didChangeDependencies], so the initial hide timer
+  /// is scheduled exactly once even when the preference stays false.
+  bool? _reduceMotion;
+
+  bool get _reduceMotionPref => _reduceMotion ?? false;
+
   int get _count => (widget.problem.display['count'] as int?) ?? 0;
   int get _flashMs => (widget.problem.display['flash_ms'] as int?) ?? 800;
   String get _pattern =>
@@ -44,7 +50,24 @@ class _FlashSubitizeWidgetState extends State<FlashSubitizeWidget> {
   @override
   void initState() {
     super.initState();
-    _scheduleHide();
+    // The hide timer is scheduled in didChangeDependencies so the reduced-
+    // motion preference is known before the first flash timer starts.
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final reduce = MediaQuery.disableAnimationsOf(context);
+    if (reduce == _reduceMotion) return;
+    _reduceMotion = reduce;
+    _timer?.cancel();
+    if (reduce) {
+      // Reduced motion: never flash — the pattern stays visible so the
+      // count can still be read while the child types.
+      if (mounted) setState(() => _visible = true);
+    } else {
+      _scheduleHide();
+    }
   }
 
   @override
@@ -69,6 +92,8 @@ class _FlashSubitizeWidgetState extends State<FlashSubitizeWidget> {
   }
 
   void _scheduleHide() {
+    if (_reduceMotionPref) return;
+    _timer?.cancel();
     _timer = Timer(Duration(milliseconds: _flashMs), () {
       if (mounted) setState(() => _visible = false);
     });
@@ -111,13 +136,21 @@ class _FlashSubitizeWidgetState extends State<FlashSubitizeWidget> {
         AnimatedOpacity(
           key: const ValueKey('flash-visual'),
           opacity: _visible ? 1 : 0,
-          duration: const Duration(milliseconds: 200),
+          duration: _reduceMotionPref
+              ? Duration.zero
+              : const Duration(milliseconds: 200),
           child: _visual(),
         ),
         const SizedBox(height: 12),
         TextButton(
           key: const ValueKey('flash-reshow'),
           onPressed: _reshow,
+          // Explicit touch target: the Material 3 TextButton default (40 px
+          // high) is below the >= 44 px ADHD/a11y minimum.
+          style: TextButton.styleFrom(
+            minimumSize: const Size(160, 48),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          ),
           child: const Text('Nochmal sehen'),
         ),
         const SizedBox(height: 8),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/problem.dart';
 import '../manipulatives/staebchen.dart';
+import 'hint_text.dart';
 
 /// Enaktiv template widget for `bundle_sticks` (P2 plan §5 rule 3).
 ///
@@ -118,7 +119,7 @@ class _BundleSticksWidgetState extends State<BundleSticksWidget> {
           Text(
             'Tippe auf ein Stäbchen, um 10 zu bündeln.',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.black54,
+                  color: kHintTextColor,
                   fontSize: 14,
                 ),
           ),

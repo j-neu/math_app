@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/problem.dart';
 import '../manipulatives/staebchen.dart';
+import 'hint_text.dart';
 
 /// Custom-widget template for the registry key `"bundling"` (B1.2 Bündeln,
 /// P2 plan §5): renders `display.count` loose sticks. Tapping a loose stick
@@ -120,7 +121,7 @@ class _BundlingWidgetState extends State<BundlingWidget> {
           Text(
             'Tippe auf ein Stäbchen, um 10 zu bündeln.',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.black54,
+                  color: kHintTextColor,
                   fontSize: 14,
                 ),
           ),

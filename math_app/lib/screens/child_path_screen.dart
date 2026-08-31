@@ -458,6 +458,11 @@ class _ChildPathScreenState extends State<ChildPathScreen> {
             color: mastered ? Colors.green.shade700 : Colors.grey.shade400,
             border: Border.all(color: Colors.grey.shade600, width: 1),
           ),
+          // A mastered level is signalled by icon + colour, never colour
+          // alone (ADHD/a11y guideline).
+          child: mastered
+              ? const Icon(Icons.check, size: 10, color: Colors.white)
+              : null,
         ),
       ),
     );

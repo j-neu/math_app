@@ -495,10 +495,14 @@ class _PracticeScreenState extends State<PracticeScreen> {
               const SizedBox(height: 12),
               Text(
                 mastered ? 'Geschafft!' : 'Fast geschafft!',
+                // Dark primary on the surface, not amber: amber.shade800 is
+                // only ~2.3:1 on white (fails even the large-text 3:1
+                // threshold). The trophy icon keeps the celebration colour;
+                // the text itself must stay readable (≈10:1).
                 style: TextStyle(
                   fontSize: 40,
                   fontWeight: FontWeight.bold,
-                  color: mastered ? Colors.amber.shade800 : scheme.onSurface,
+                  color: mastered ? scheme.primary : scheme.onSurface,
                 ),
               ),
               const SizedBox(height: 12),

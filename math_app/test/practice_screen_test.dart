@@ -484,4 +484,46 @@ void main() {
     await tester.pump(const Duration(seconds: 2));
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('wrong-answer feedback is encouraging: hint shown, never the '
+      'punitive word "Falsch"', (tester) async {
+    final backend = _Backend();
+    final service = LearningPathService(client: backend.client);
+    final spec = _spec(3, 'equation_solve', {
+      'op': '+',
+      'unknown': 'result',
+      'zr': 10,
+      'a_range': [1, 5],
+      'b_range': [1, 5],
+      'mode': 'standard',
+    });
+    final controller = PracticeController(
+      token: 'tok',
+      spec: spec,
+      level: 3,
+      service: service,
+    );
+    await _pumpScreen(tester, controller, spec);
+
+    final expected = int.parse(controller.currentProblem!.expected.single);
+    await tester.enterText(find.byType(TextField), '${expected + 1}');
+    await tester.pump();
+    await tester.tap(find.widgetWithText(FilledButton, 'Weiter'));
+    await tester.pump();
+    await tester.pump();
+
+    // The taxonomy hint appears, the retry stays possible, and the copy is
+    // gentle — no red "Falsch!" anywhere.
+    expect(find.text('Zähle noch einmal langsam.'), findsOneWidget);
+    expect(find.text('Nochmal'), findsOneWidget,
+        reason: 'the child can retry the same problem');
+    expect(find.textContaining('Falsch'), findsNothing,
+        reason: 'feedback must never be punitive');
+
+    final hint = tester.widget<Text>(find.text('Zähle noch einmal langsam.'));
+    expect(hint.style?.color, isNot(Colors.red.shade700),
+        reason: 'the hint is not signalled in red');
+
+    await tester.pump(const Duration(seconds: 2));
+  });
 }

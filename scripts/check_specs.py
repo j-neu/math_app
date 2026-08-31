@@ -78,7 +78,7 @@ PARAMS_BY_TEMPLATE = {
     "numberline_step": {"range", "start_range", "target", "step", "direction"},
     "zehnerfeld_read": {"count_range", "arrangement"},
     "fingerbild_read": {"count_range", "hands"},
-    "stellenwerttafel_read": {"mode", "columns", "number_range", "rows", "op"},
+    "stellenwerttafel_read": {"mode", "columns", "number_range", "rows", "op", "ones_range"},
     "numberline_locate": {"range", "value_range"},
     "picture_compare": {"left_range", "right_range", "question", "difference_min"},
     "equation_solve": {

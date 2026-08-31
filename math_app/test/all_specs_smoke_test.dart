@@ -231,6 +231,14 @@ bool manipulativeValid(Problem p) {
       if (count < 1) return false;
       if (frame == 'zehnerfeld' && count > 10) return false;
       if (frame == 'rekenrek' && count > 20) return false;
+      if (p.display['mode'] == 'nonstandard') {
+        // B2.3 L1: the Einer column holds 10..19 and 10*tens + ones == count.
+        final tens = p.display['tens'];
+        final ones = p.display['ones'];
+        if (tens is! int || ones is! int) return false;
+        if (tens < 1 || ones < 10 || ones > 19) return false;
+        if (10 * tens + ones != count) return false;
+      }
       if (action == 'take_away') {
         final total = p.display['total'];
         final remaining = p.display['remaining'];
@@ -400,6 +408,136 @@ bool visualReadingValid(Problem p) {
           return p.expected.length == 1 && p.expected.single == '$diff';
       }
       return false;
+  }
+  return false;
+}
+
+/// True when a custom-widget Problem is well-formed (P2 plan §5 custom_widget
+/// registry). `bundling` is semantic — the widget evaluates the child's
+/// bundles — so its `expected` stays empty while `count`/`bundles`/`singles`
+/// carry the canonical split. `unbundling`, `numberline_mark` and
+/// `flash_subitize` carry a concrete expected value.
+bool customWidgetValid(Problem p) {
+  if (p.template != 'custom_widget') return false;
+  switch (p.display['custom_widget']) {
+    case 'bundling':
+      final count = p.display['count'];
+      final bundles = p.display['bundles'];
+      final singles = p.display['singles'];
+      if (count is! int || bundles is! int || singles is! int) return false;
+      if (count < 12 || count > 39) return false;
+      if (bundles != count ~/ 10 || singles != count % 10) return false;
+      if (bundles < 1) return false;
+      return p.expected.isEmpty;
+    case 'unbundling':
+      final tens = p.display['tens'];
+      final ones = p.display['ones'];
+      final count = p.display['count'];
+      if (tens is! int || ones is! int || count is! int) return false;
+      if (tens < 1 || ones < 1) return false;
+      if (10 * tens + ones != count) return false;
+      return p.expected.length == 1 && p.expected.single == '$count';
+    case 'numberline_mark':
+      final range = p.display['range'];
+      final value = p.display['value'];
+      if (range is! List || range.length != 2 || value is! int) return false;
+      final lo = (range[0] as num).toInt();
+      final hi = (range[1] as num).toInt();
+      if (value <= lo || value >= hi) return false;
+      return p.expected.length == 1 && p.expected.single == '$value';
+    case 'flash_subitize':
+      final count = p.display['count'];
+      final flashMs = p.display['flash_ms'];
+      final pattern = p.display['display'];
+      if (count is! int || flashMs is! int || pattern is! String) return false;
+      if (count < 1 || count > 5) return false;
+      if (flashMs != 800) return false;
+      if (pattern != 'dots' && pattern != 'rekenrek') return false;
+      return p.expected.length == 1 && p.expected.single == '$count';
+  }
+  return false;
+}
+
+/// True when a sequence_gap Problem is well-formed: the values form an
+/// arithmetic sequence with the parameterised direction/step (or a geometric
+/// doubling for `progression: "double"`), stay inside ZR100 (and >= 1 for
+/// downward sequences), and `expected` lists exactly the values at
+/// `gap_indices` in order.
+bool sequenceGapValid(Problem p) {
+  if (p.expected.isEmpty) return false;
+  final values = p.display['values'];
+  final gapIndices = p.display['gap_indices'];
+  if (values is! List || gapIndices is! List) return false;
+  final seq = values.map((v) => v is num ? v.toInt() : null).toList();
+  if (seq.any((v) => v == null)) return false;
+  final nums = seq.cast<int>();
+  if (nums.isEmpty || nums.any((v) => v < 1 || v > 100)) return false;
+  final direction = p.display['direction'] as String? ?? 'up';
+  final progression = p.display['progression'] as String? ?? 'arithmetic';
+  if (direction != 'up' && direction != 'down') return false;
+  if (progression == 'double') {
+    for (var i = 0; i < nums.length - 1; i++) {
+      if (nums[i + 1] != 2 * nums[i]) return false;
+    }
+  } else {
+    final step = p.display['step'];
+    if (step is! int || step < 1) return false;
+    final dir = direction == 'up' ? 1 : -1;
+    for (var i = 0; i < nums.length - 1; i++) {
+      if (nums[i + 1] - nums[i] != dir * step) return false;
+    }
+  }
+  final indices = gapIndices
+      .map((g) => g is num ? g.toInt() : -1)
+      .toList();
+  if (indices.any((g) => g < 0 || g >= nums.length)) return false;
+  if (p.expected.length != indices.length) return false;
+  for (var i = 0; i < indices.length; i++) {
+    if (p.expected[i] != '${nums[indices[i]]}') return false;
+  }
+  return true;
+}
+
+/// True when a compare_symbols Problem is well-formed: `expected` is the
+/// operator that truly holds between the two displayed numbers.
+bool compareSymbolsValid(Problem p) {
+  if (p.expected.isEmpty) return false;
+  final a = p.display['a'];
+  final b = p.display['b'];
+  if (a is! int || b is! int) return false;
+  final op = a > b ? '>' : (a < b ? '<' : '=');
+  return p.expected.length == 1 && p.expected.single == op;
+}
+
+/// Routes a generated Problem to its template's semantic validity check, so
+/// the full-bank smoke test can assert every problem (not just the ones the
+/// per-group tests cover) is arithmetically/pedagogically well-formed.
+bool problemSemanticallyValid(Problem p) {
+  switch (p.template) {
+    case 'equation_solve':
+    case 'equation_gap':
+      return equationHolds(p);
+    case 'word_problem':
+    case 'strategy_choice':
+      return problemValid(p);
+    case 'drag_partition':
+    case 'place_counters':
+    case 'bundle_sticks':
+    case 'rekenrek_set':
+      return manipulativeValid(p);
+    case 'numberline_step':
+    case 'zehnerfeld_read':
+    case 'fingerbild_read':
+    case 'stellenwerttafel_read':
+    case 'numberline_locate':
+    case 'picture_compare':
+      return visualReadingValid(p);
+    case 'sequence_gap':
+      return sequenceGapValid(p);
+    case 'compare_symbols':
+      return compareSymbolsValid(p);
+    case 'custom_widget':
+      return customWidgetValid(p);
   }
   return false;
 }
@@ -820,6 +958,172 @@ void main() {
             jsonEncode(b.map((p) => p.toJson()).toList()),
             reason: '${spec.skillId} L$level',
           );
+        }
+      }
+    });
+  });
+
+  group('full-bank smoke test: every spec x level across 5 seeds', () {
+    final dir = Directory(_specsDir);
+    if (!dir.existsSync()) {
+      fail('real spec tree must exist at $_specsDir');
+    }
+    final files =
+        dir
+            .listSync()
+            .whereType<File>()
+            .where((f) => f.path.endsWith('.json'))
+            .toList()
+          ..sort((a, b) => a.path.compareTo(b.path));
+    final specs = [
+      for (final file in files)
+        SkillSpec.fromJson(
+          jsonDecode(file.readAsStringSync()) as Map<String, dynamic>,
+        ),
+    ];
+    const seeds = [1, 7, 42, 123, 987];
+
+    test('all 36 specs: exact problem_count, no exceptions, non-empty '
+        'expected/prompt, deterministic per seed', () {
+      expect(specs, hasLength(36));
+      var generated = 0;
+      for (final spec in specs) {
+        for (var level = 1; level <= 3; level++) {
+          final levelSpec = spec.levelSpec(level);
+          for (final seed in seeds) {
+            final problems = generateProblems(
+              spec: spec,
+              level: level,
+              seed: seed,
+            );
+            expect(
+              problems,
+              hasLength(levelSpec.problemCount),
+              reason: '${spec.skillId} L$level seed $seed',
+            );
+            final regenerated = generateProblems(
+              spec: spec,
+              level: level,
+              seed: seed,
+            );
+            expect(
+              jsonEncode(problems.map((p) => p.toJson()).toList()),
+              jsonEncode(regenerated.map((p) => p.toJson()).toList()),
+              reason: '${spec.skillId} L$level seed $seed is deterministic',
+            );
+            for (var i = 0; i < problems.length; i++) {
+              final p = problems[i];
+              generated++;
+              expect(p.index, i,
+                  reason: '${spec.skillId} L$level seed $seed');
+              expect(p.skillId, spec.skillId);
+              expect(p.level, level);
+              expect(p.seed, seed);
+              expect(p.template, levelSpec.template,
+                  reason: '${spec.skillId} L$level seed $seed');
+              expect(
+                p.promptDe,
+                isNotEmpty,
+                reason: '${spec.skillId} L$level seed $seed German prompt',
+              );
+              final allowedEmpty =
+                  p.template == 'drag_partition' ||
+                  (p.template == 'custom_widget' &&
+                      p.display['custom_widget'] == 'bundling');
+              if (!allowedEmpty) {
+                expect(
+                  p.expected,
+                  isNotEmpty,
+                  reason: '${spec.skillId} L$level seed $seed: '
+                      '${jsonEncode(p.toJson())}',
+                );
+              }
+            }
+          }
+        }
+      }
+      // 36 specs x 3 levels x problem_count (8) x 5 seeds = 864 x 5.
+      expect(generated, 36 * 3 * 8 * 5);
+    });
+
+    test('every one of the 4320 problems passes its template validity check',
+        () {
+      var checked = 0;
+      for (final spec in specs) {
+        for (var level = 1; level <= 3; level++) {
+          for (final seed in seeds) {
+            for (final p in generateProblems(
+              spec: spec,
+              level: level,
+              seed: seed,
+            )) {
+              expect(
+                problemSemanticallyValid(p),
+                isTrue,
+                reason: '${spec.skillId} L$level seed $seed: '
+                    '${jsonEncode(p.toJson())}',
+              );
+              checked++;
+            }
+          }
+        }
+      }
+      expect(checked, 4320);
+    });
+
+    test('construct-specific gates: nonstandard place_counters, "viele Einer" '
+        'sum_rows and flash_subitize params', () {
+      for (final spec in specs) {
+        for (var level = 1; level <= 3; level++) {
+          final levelSpec = spec.levelSpec(level);
+          for (final seed in seeds) {
+            final problems = generateProblems(
+              spec: spec,
+              level: level,
+              seed: seed,
+            );
+            for (final p in problems) {
+              if (p.template == 'place_counters' &&
+                  p.display['mode'] == 'nonstandard') {
+                final count = p.display['count'] as int;
+                final tens = p.display['tens'] as int;
+                final ones = p.display['ones'] as int;
+                expect(tens, count ~/ 10 - 1,
+                    reason: '${spec.skillId} L$level: tens = n div 10 - 1');
+                expect(ones, 10 + count % 10,
+                    reason: '${spec.skillId} L$level: ones = 10 + n mod 10');
+                expect(10 * tens + ones, count,
+                    reason: '${spec.skillId} L$level nonstandard re-composes');
+                expect(ones, inInclusiveRange(10, 19));
+              }
+              if (p.template == 'stellenwerttafel_read' &&
+                  p.display['mode'] == 'sum_rows' &&
+                  levelSpec.intListParam('ones_range').isNotEmpty) {
+                final row1 = (p.display['row1'] as List).cast<int>();
+                final row2 = (p.display['row2'] as List).cast<int>();
+                final onesSum = row1[1] + row2[1];
+                expect(onesSum, inInclusiveRange(10, 18),
+                    reason: '${spec.skillId} L$level "viele Einer"');
+                final value = p.display['value'] as int;
+                expect(
+                  (row1[0] + row2[0]) * 10 + onesSum,
+                  value,
+                  reason: '${spec.skillId} L$level composed value',
+                );
+              }
+              if (p.template == 'custom_widget' &&
+                  p.display['custom_widget'] == 'flash_subitize') {
+                expect(p.display['count'] as int, inInclusiveRange(1, 5),
+                    reason: '${spec.skillId} L$level subitizable range');
+                expect(p.display['flash_ms'], 800);
+                expect(
+                  p.display['display'],
+                  anyOf('dots', 'rekenrek'),
+                  reason: '${spec.skillId} L$level flash pattern',
+                );
+              }
+            }
+          }
         }
       }
     });

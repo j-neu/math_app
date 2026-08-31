@@ -30,7 +30,8 @@
       "params": {
         "mode": "sum_rows",
         "columns": ["Z", "E"],
-        "rows": "two_rows"
+        "rows": "two_rows",
+        "ones_range": [10, 18]
       },
       "problem_count": 8,
       "prompt_de": "Hier wurde ein Zehner gegen Einer getauscht. Tippe ein, wie viele es zusammen sind.",

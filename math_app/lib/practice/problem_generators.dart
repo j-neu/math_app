@@ -234,6 +234,15 @@ Problem _generateForTemplate(
         index,
         gen,
       );
+    case 'custom_widget':
+      return _generateCustomWidget(
+        spec,
+        level,
+        levelNumber,
+        seed,
+        index,
+        gen,
+      );
     default:
       throw UnimplementedError(
         'Generator for template "${level.template}" is declared but not yet '
@@ -1233,6 +1242,13 @@ List<int> _dragPartitionBoxes(
 /// cells in a frame to fill a target count or to take away `count` from a
 /// starting `total`. Per-frame capacity caps `count` (and `total`) so a
 /// single ten-frame never holds more than 10 counters.
+///
+/// `mode: "nonstandard"` (B2.3 L1) shows the Stellenwerttafel in non-standard
+/// form: the number `n` is decomposed as `tens = n div 10 - 1`,
+/// `ones = 10 + n mod 10` (so the Einer column holds 10..19 and
+/// `10*tens + ones == n` always — P3 §4.5). `display` carries `tens` and
+/// `ones` so the widget can check `10*tens_placed + ones_placed == count`
+/// where `ones_placed` may exceed 9.
 Problem _generatePlaceCounters(
   SkillSpec spec,
   LevelSpec level,
@@ -1246,6 +1262,7 @@ Problem _generatePlaceCounters(
   final countHi = countRange.isEmpty ? 10 : countRange[1];
   final frame = level.stringParam('frame', fallback: 'zehnerfeld');
   final action = level.stringParam('action', fallback: 'fill');
+  final mode = level.stringParam('mode', fallback: 'standard');
 
   final int frameCap = switch (frame) {
     'rekenrek' => 20,
@@ -1259,6 +1276,41 @@ Problem _generatePlaceCounters(
       'count_range starts at $countLo',
     );
   }
+
+  if (mode == 'nonstandard') {
+    // B2.3 L1: non-standard decomposition with the Einer column holding
+    // 10..19. The tens digit is n div 10 - 1, which is >= 1 only for
+    // n >= 20 — clamp the sample so the picture always shows a Zehner.
+    final lo = countLo < 20 ? 20 : countLo;
+    if (lo > top) {
+      throw SpecFormatException(
+        'place_counters: mode "nonstandard" needs counts >= 20 (so the '
+        'non-standard decomposition has tens >= 1), got count_range '
+        '[$countLo, $countHi]',
+      );
+    }
+    final count = gen.nextIntInRange(lo, top);
+    final tens = count ~/ 10 - 1;
+    final ones = 10 + count % 10;
+    return Problem(
+      template: 'place_counters',
+      skillId: spec.skillId,
+      level: levelNumber,
+      seed: seed,
+      index: index,
+      promptDe: level.promptDe,
+      display: {
+        'count': count,
+        'frame': frame,
+        'action': action,
+        'mode': mode,
+        'tens': tens,
+        'ones': ones,
+      },
+      expected: [count.toString()],
+    );
+  }
+
   final count = gen.nextIntInRange(countLo, top);
 
   final display = <String, dynamic>{
@@ -1568,13 +1620,41 @@ Problem _generateStellenwerttafelRead(
     }
     final int t1, o1, t2, o2, value;
     if (op == '+') {
-      // Column sums stay <= 9 so the result never exceeds ZR100 and no
-      // carry is needed.
-      t1 = gen.nextIntInRange(1, 8);
-      t2 = gen.nextIntInRange(1, 9 - t1);
-      o1 = gen.nextIntInRange(0, 9);
-      o2 = gen.nextIntInRange(0, 9 - o1);
-      value = (t1 + t2) * 10 + (o1 + o2);
+      final onesRange = level.intListParam('ones_range');
+      if (onesRange.isNotEmpty) {
+        // "viele Einer" (B1.3 L2, B2.3 L2): the E column holds 10..19
+        // counters across the two rows. Each row digit stays <= 9; the
+        // composed value = (t1+t2)*10 + (o1+o2). The tens are capped so the
+        // result never exceeds ZR100 even with ones up to 18.
+        final oLo = onesRange[0];
+        final oHi = onesRange[1];
+        if (oLo < 10) {
+          throw SpecFormatException(
+            'stellenwerttafel_read: sum_rows ones_range must start >= 10 for '
+            'the "viele Einer" form, got $oLo',
+          );
+        }
+        if (oLo > min(oHi, 18)) {
+          throw SpecFormatException(
+            'stellenwerttafel_read: sum_rows ones_range [$oLo, $oHi] has no '
+            'ones total in [10, 18]',
+          );
+        }
+        final totalOnes = gen.nextIntInRange(oLo, min(oHi, 18));
+        o1 = gen.nextIntInRange(max(0, totalOnes - 9), min(9, totalOnes));
+        o2 = totalOnes - o1;
+        t1 = gen.nextIntInRange(1, 7);
+        t2 = gen.nextIntInRange(1, 8 - t1);
+        value = (t1 + t2) * 10 + totalOnes;
+      } else {
+        // Standard sum_rows: column sums stay <= 9 so the result never
+        // exceeds ZR100 and no carry is needed.
+        t1 = gen.nextIntInRange(1, 8);
+        t2 = gen.nextIntInRange(1, 9 - t1);
+        o1 = gen.nextIntInRange(0, 9);
+        o2 = gen.nextIntInRange(0, 9 - o1);
+        value = (t1 + t2) * 10 + (o1 + o2);
+      }
     } else {
       // row1 > row2 (two-digit result, never negative); each subtrahend
       // column <= the minuend column so the child never has to borrow.
@@ -1737,5 +1817,229 @@ Problem _generatePictureCompare(
     promptDe: level.promptDe,
     display: {'left': left, 'right': right, 'question': question},
     expected: [expected],
+  );
+}
+
+/// Dispatches to the per-registry-key custom-widget generator (P2 plan §5
+/// custom_widget registry). Unknown keys are rejected by [SkillSpec] parsing
+/// (`kKnownCustomWidgets`); this throws rather than silently generating so a
+/// spec that slips through still fails loudly.
+Problem _generateCustomWidget(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  switch (level.customWidget) {
+    case 'bundling':
+      return _generateBundling(spec, level, levelNumber, seed, index, gen);
+    case 'unbundling':
+      return _generateUnbundling(spec, level, levelNumber, seed, index, gen);
+    case 'numberline_mark':
+      return _generateNumberlineMark(spec, level, levelNumber, seed, index, gen);
+    case 'flash_subitize':
+      return _generateFlashSubitize(spec, level, levelNumber, seed, index, gen);
+    default:
+      throw SpecFormatException(
+        'custom_widget: unknown registry key "${level.customWidget}"',
+      );
+  }
+}
+
+/// Registry key `"bundling"` (B1.2 Bündeln): the widget renders ungrouped
+/// sticks and the child bundles them into tens. The widget evaluates
+/// semantically — correct iff `10*bundles + singles == count` and, since
+/// counts are always >= 12, `bundles >= 1` — so `expected` stays empty while
+/// `display` carries `count` plus the canonical `bundles`/`singles` split
+/// (the DB stores the canonical `"Z Zehner, E Einer"` string built from
+/// them).
+Problem _generateBundling(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final numberRange = level.intListParam('number_range');
+  final countLo = numberRange.isEmpty ? 12 : numberRange[0];
+  final countHi = numberRange.isEmpty ? 39 : numberRange[1];
+  final lo = countLo < 12 ? 12 : countLo;
+  final hi = countHi > 39 ? 39 : countHi;
+  if (lo > hi) {
+    throw SpecFormatException(
+      'bundling: number_range [$countLo, $countHi] must allow counts >= 12 '
+      '(at least one Zehner bundle), got max $countHi',
+    );
+  }
+  final count = gen.nextIntInRange(lo, hi);
+  final bundles = count ~/ 10;
+  final singles = count % 10;
+
+  return Problem(
+    template: 'custom_widget',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: {
+      'custom_widget': 'bundling',
+      'count': count,
+      'bundles': bundles,
+      'singles': singles,
+    },
+    expected: const [],
+  );
+}
+
+/// Registry key `"unbundling"` (B1.3 Entbündeln): the widget shows a bundled
+/// picture `"Z Zehner, E Einer"` (bundles + loose singles) and asks
+/// "wie viele Einer insgesamt?" — opening a bundle turns `Z` bundles into
+/// `Z*10` single sticks, so the answer is `expected == Z*10 + E`. `display`
+/// carries `tens`, `ones` and the total `count`. Both digits are kept >= 1 so
+/// the picture always shows a Zehner bundle and loose Einer.
+Problem _generateUnbundling(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final numberRange = level.intListParam('number_range');
+  final countLo = numberRange.isEmpty ? 12 : numberRange[0];
+  final countHi = numberRange.isEmpty ? 39 : numberRange[1];
+  final totalLo = countLo < 12 ? 12 : countLo;
+  final totalHi = countHi > 39 ? 39 : countHi;
+  if (totalLo > totalHi) {
+    throw SpecFormatException(
+      'unbundling: number_range [$countLo, $countHi] must allow a bundled '
+      'count >= 12 with at least one Zehner bundle',
+    );
+  }
+  final combos = <(int, int)>[
+    for (var tens = 1; tens <= 3; tens++)
+      for (var ones = 1; ones <= 9; ones++)
+        if (10 * tens + ones >= totalLo && 10 * tens + ones <= totalHi)
+          (tens, ones),
+  ];
+  if (combos.isEmpty) {
+    throw SpecFormatException(
+      'unbundling: number_range [$countLo, $countHi] admits no bundled '
+      'picture (tens 1..3, ones 1..9)',
+    );
+  }
+  final (tens, ones) = combos[gen.nextInt(combos.length)];
+  final count = 10 * tens + ones;
+
+  return Problem(
+    template: 'custom_widget',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: {
+      'custom_widget': 'unbundling',
+      'tens': tens,
+      'ones': ones,
+      'count': count,
+    },
+    expected: [count.toString()],
+  );
+}
+
+/// Registry key `"numberline_mark"` (B2.2): the child taps where `value`
+/// sits on the line. `value` is drawn from `value_range` clamped strictly
+/// inside `range` so it is never an endpoint (endpoints are
+/// indistinguishable from the boundary of the widget). `expected == value`.
+Problem _generateNumberlineMark(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final range = level.intListParam('range');
+  final rangeLo = range.isEmpty ? 0 : range[0];
+  final rangeHi = range.isEmpty ? 100 : range[1];
+  final valueRange = level.intListParam('value_range');
+  final vLo = valueRange.isEmpty ? rangeLo + 1 : valueRange[0];
+  final vHi = valueRange.isEmpty ? rangeHi - 1 : valueRange[1];
+  final lo = max(vLo, rangeLo + 1);
+  final hi = min(vHi, rangeHi - 1);
+  if (hi < lo) {
+    throw SpecFormatException(
+      'numberline_mark: value_range [$vLo, $vHi] leaves no interior point in '
+      '[$rangeLo, $rangeHi]',
+    );
+  }
+  final value = gen.nextIntInRange(lo, hi);
+
+  return Problem(
+    template: 'custom_widget',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: {
+      'custom_widget': 'numberline_mark',
+      'range': [rangeLo, rangeHi],
+      'value': value,
+    },
+    expected: [value.toString()],
+  );
+}
+
+/// Registry key `"flash_subitize"` (A2.1): a dot/Rekenrek pattern flashes for
+/// `flash_ms` (800 ms) and the child types the count. `count` is drawn from
+/// `count_range` clamped to the subitizable range 1..5 (P3 §4.5: max <= 5);
+/// `display` carries `count`, `flash_ms` and the pattern `display`
+/// (`"dots"` or `"rekenrek"`). `expected == count`.
+Problem _generateFlashSubitize(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final countRange = level.intListParam('count_range');
+  final countLo = countRange.isEmpty ? 1 : max(countRange[0], 1);
+  final countHi = countRange.isEmpty ? 5 : min(countRange[1], 5);
+  if (countHi < countLo) {
+    throw SpecFormatException(
+      'flash_subitize: count_range [$countLo, $countHi] has no subitizable '
+      'count (subitizing is capped at 5)',
+    );
+  }
+  final count = gen.nextIntInRange(countLo, countHi);
+  final flashMs = level.intParam('flash_ms', fallback: 800);
+  final pattern = level.stringParam('display', fallback: 'dots');
+  if (pattern != 'dots' && pattern != 'rekenrek') {
+    throw SpecFormatException(
+      'flash_subitize: display must be "dots" or "rekenrek", got "$pattern"',
+    );
+  }
+
+  return Problem(
+    template: 'custom_widget',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: {
+      'custom_widget': 'flash_subitize',
+      'count': count,
+      'flash_ms': flashMs,
+      'display': pattern,
+    },
+    expected: [count.toString()],
   );
 }

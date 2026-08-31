@@ -212,7 +212,7 @@ void main() {
       }
     });
 
-    test('unimplemented templates throw UnimplementedError', () {
+    test('custom_widget templates generate instead of throwing', () {
       final spec = SkillSpec.fromJson(
         _baseSpec(
           _level(2, 'ikonisch', 'custom_widget', {
@@ -222,10 +222,10 @@ void main() {
           }, 9000, customWidget: 'flash_subitize'),
         ),
       );
-      expect(
-        () => generateProblems(spec: spec, level: 2, seed: 1),
-        throwsA(isA<UnimplementedError>()),
-      );
+      for (final p in generateProblems(spec: spec, level: 2, seed: 1)) {
+        expect(p.template, 'custom_widget');
+        expect(p.expected, isNotEmpty);
+      }
     });
   });
 
@@ -1708,6 +1708,56 @@ void main() {
       }
     });
 
+    test('mode nonstandard (B2.3 L1): tens = n div 10 - 1, ones = 10 + n '
+        'mod 10, 10*tens + ones == count', () {
+      final s = spec({
+        'count_range': [20, 99],
+        'frame': 'stellenwerttafel',
+        'action': 'fill',
+        'mode': 'nonstandard',
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final count = p.display['count'] as int;
+          final tens = p.display['tens'] as int;
+          final ones = p.display['ones'] as int;
+          expect(p.display['mode'], 'nonstandard');
+          expect(count, inInclusiveRange(20, 99));
+          expect(tens, count ~/ 10 - 1, reason: 'z = n div 10 - 1');
+          expect(ones, 10 + count % 10, reason: 'o = 10 + n mod 10');
+          expect(ones, inInclusiveRange(10, 19));
+          expect(tens, greaterThanOrEqualTo(1));
+          expect(10 * tens + ones, count,
+              reason: 'the non-standard form re-composes to n');
+          expect(p.expected, [count.toString()]);
+        }
+      }
+      final edge = spec({
+        'count_range': [34, 34],
+        'frame': 'stellenwerttafel',
+        'action': 'fill',
+        'mode': 'nonstandard',
+      });
+      for (final p in generateProblems(spec: edge, level: 2, seed: 1)) {
+        expect(p.display['tens'], 2, reason: '2 Zehner');
+        expect(p.display['ones'], 14, reason: '14 Einer');
+        expect(p.expected, ['34']);
+      }
+    });
+
+    test('mode nonstandard below 20 is a spec error (no Zehner to show)', () {
+      final s = spec({
+        'count_range': [5, 9],
+        'frame': 'stellenwerttafel',
+        'action': 'fill',
+        'mode': 'nonstandard',
+      });
+      expect(
+        () => generateProblems(spec: s, level: 2, seed: 1),
+        throwsA(isA<SpecFormatException>()),
+      );
+    });
+
     test('is deterministic and unique within a level', () {
       for (final s in [
         spec({
@@ -2286,6 +2336,59 @@ void main() {
       }
     });
 
+    test('sum_rows with ones_range: the E column totals 10..18 ("viele '
+        'Einer", B1.3/B2.3 L2) and the composed value is correct', () {
+      final s = spec({
+        'mode': 'sum_rows',
+        'columns': ['Z', 'E'],
+        'rows': 'two_rows',
+        'ones_range': [10, 18],
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final row1 = (p.display['row1'] as List).cast<int>();
+          final row2 = (p.display['row2'] as List).cast<int>();
+          final ones = row1[1] + row2[1];
+          expect(ones, inInclusiveRange(10, 18),
+              reason: 'many Einer: ones sum >= 10');
+          expect(row1[0], inInclusiveRange(1, 9));
+          expect(row2[0], inInclusiveRange(1, 9));
+          expect(row1[1], inInclusiveRange(0, 9), reason: 'row digit <= 9');
+          expect(row2[1], inInclusiveRange(0, 9), reason: 'row digit <= 9');
+          final value = (row1[0] + row2[0]) * 10 + ones;
+          expect(value, inInclusiveRange(10, 99), reason: 'ZR100');
+          expect(p.expected, [value.toString()]);
+          expect(p.display['value'], value);
+        }
+      }
+      final realB23 = _realSpec('B2.3');
+      for (var seed = 0; seed < 30; seed++) {
+        for (final p in generateProblems(
+          spec: realB23,
+          level: 2,
+          seed: seed,
+        )) {
+          final row1 = (p.display['row1'] as List).cast<int>();
+          final row2 = (p.display['row2'] as List).cast<int>();
+          expect(row1[1] + row2[1], inInclusiveRange(10, 18),
+              reason: 'B2.3 L2 "viele Einer"');
+        }
+      }
+      final realB13 = _realSpec('B1.3');
+      for (var seed = 0; seed < 30; seed++) {
+        for (final p in generateProblems(
+          spec: realB13,
+          level: 2,
+          seed: seed,
+        )) {
+          final row1 = (p.display['row1'] as List).cast<int>();
+          final row2 = (p.display['row2'] as List).cast<int>();
+          expect(row1[1] + row2[1], inInclusiveRange(10, 18),
+              reason: 'B1.3 L2 opened-bundle reading');
+        }
+      }
+    });
+
     test('is deterministic and unique within a level', () {
       for (final s in [
         spec({
@@ -2482,6 +2585,206 @@ void main() {
           expect(_signature(first), _signature(second));
           final keys = first.map((p) => jsonEncode(p.display)).toSet();
           expect(keys.length, first.length, reason: 'unique seed $seed');
+        }
+      }
+    });
+  });
+
+  group('custom_widget generators (P2 §5 registry)', () {
+    SkillSpec spec(String key, Map<String, dynamic> params) =>
+        SkillSpec.fromJson(
+          _baseSpec(_level(2, 'ikonisch', 'custom_widget', params, 7000,
+              customWidget: key)),
+        );
+
+    test('bundling (B1.2): display count >= 12, canonical split, expected '
+        'empty (semantic)', () {
+      final s = spec('bundling', {'number_range': [12, 39]});
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          expect(p.display['custom_widget'], 'bundling');
+          final count = p.display['count'] as int;
+          expect(count, inInclusiveRange(12, 39));
+          final bundles = count ~/ 10;
+          final singles = count % 10;
+          expect(p.display['bundles'], bundles);
+          expect(p.display['singles'], singles);
+          expect(bundles, greaterThanOrEqualTo(1),
+              reason: 'count >= 10 needs at least one Zehner bundle');
+          expect(10 * bundles + singles, count);
+          expect(p.expected, isEmpty, reason: 'widget evaluates semantically');
+        }
+      }
+    });
+
+    test('unbundling (B1.3): "Z Zehner, E Einer", expected == 10*Z + E', () {
+      final s = spec('unbundling', {'number_range': [12, 39]});
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          expect(p.display['custom_widget'], 'unbundling');
+          final tens = p.display['tens'] as int;
+          final ones = p.display['ones'] as int;
+          expect(tens, inInclusiveRange(1, 3));
+          expect(ones, inInclusiveRange(1, 9));
+          final count = 10 * tens + ones;
+          expect(p.display['count'], count);
+          expect(count, inInclusiveRange(12, 39));
+          expect(p.expected, [count.toString()],
+              reason: 'opening the bundle yields count single sticks');
+        }
+      }
+    });
+
+    test('unbundling edge: 13 -> 1 Zehner 3 Einer', () {
+      final s = spec('unbundling', {'number_range': [13, 13]});
+      for (final p in generateProblems(spec: s, level: 2, seed: 1)) {
+        expect(p.display['tens'], 1);
+        expect(p.display['ones'], 3);
+        expect(p.expected, ['13']);
+      }
+    });
+
+    test('numberline_mark (B2.2): value interior to range, expected == value',
+        () {
+      final s = spec('numberline_mark', {
+        'range': [0, 100],
+        'value_range': [1, 99],
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          expect(p.display['custom_widget'], 'numberline_mark');
+          final value = p.display['value'] as int;
+          expect(value, inInclusiveRange(1, 99));
+          expect(value, greaterThan(0), reason: 'never the lo endpoint');
+          expect(value, lessThan(100), reason: 'never the hi endpoint');
+          expect(p.expected, [value.toString()]);
+        }
+      }
+    });
+
+    test('flash_subitize (A2.1): count <= 5, flash_ms 800, dots|rekenrek', () {
+      final dots = spec('flash_subitize', {
+        'count_range': [1, 5],
+        'flash_ms': 800,
+        'display': 'dots',
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: dots, level: 2, seed: seed)) {
+          expect(p.display['custom_widget'], 'flash_subitize');
+          final count = p.display['count'] as int;
+          expect(count, inInclusiveRange(1, 5), reason: 'subitizable range');
+          expect(p.display['flash_ms'], 800);
+          expect(p.display['display'], 'dots');
+          expect(p.expected, [count.toString()]);
+        }
+      }
+      final rekenrek = spec('flash_subitize', {
+        'count_range': [1, 5],
+        'flash_ms': 800,
+        'display': 'rekenrek',
+      });
+      for (final p in generateProblems(spec: rekenrek, level: 2, seed: 7)) {
+        expect(p.display['display'], 'rekenrek');
+      }
+    });
+
+    test('flash_subitize clamps an over-large count_range to 5', () {
+      final s = spec('flash_subitize', {
+        'count_range': [1, 10],
+        'flash_ms': 800,
+        'display': 'dots',
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          expect(p.display['count'] as int, inInclusiveRange(1, 5));
+        }
+      }
+    });
+
+    test('a count_range above 5 with lo > 5 is a spec error', () {
+      final s = spec('flash_subitize', {
+        'count_range': [6, 9],
+        'flash_ms': 800,
+        'display': 'dots',
+      });
+      expect(
+        () => generateProblems(spec: s, level: 2, seed: 1),
+        throwsA(isA<SpecFormatException>()),
+      );
+    });
+
+    test('an invalid display pattern is a spec error', () {
+      final s = spec('flash_subitize', {
+        'count_range': [1, 5],
+        'flash_ms': 800,
+        'display': 'circles',
+      });
+      expect(
+        () => generateProblems(spec: s, level: 2, seed: 1),
+        throwsA(isA<SpecFormatException>()),
+      );
+    });
+
+    test('is deterministic and unique within a level (where the range allows)',
+        () {
+      final specs = [
+        spec('bundling', {'number_range': [12, 39]}),
+        spec('unbundling', {'number_range': [12, 39]}),
+        spec('numberline_mark', {
+          'range': [0, 100],
+          'value_range': [1, 99],
+        }),
+        spec('flash_subitize', {
+          'count_range': [1, 5],
+          'flash_ms': 800,
+          'display': 'dots',
+        }),
+      ];
+      for (final s in specs) {
+        for (var seed = 0; seed < 50; seed++) {
+          final first = generateProblems(spec: s, level: 2, seed: seed);
+          final second = generateProblems(spec: s, level: 2, seed: seed);
+          expect(_signature(first), _signature(second), reason: 'seed $seed');
+        }
+      }
+      // Uniqueness is only required where the sampled range admits it: a
+      // subitizing level has at most 5 distinct counts, so 8 problems must
+      // repeat some.
+      for (final s in [
+        spec('bundling', {'number_range': [12, 39]}),
+        spec('unbundling', {'number_range': [12, 39]}),
+        spec('numberline_mark', {
+          'range': [0, 100],
+          'value_range': [1, 99],
+        }),
+      ]) {
+        for (var seed = 0; seed < 50; seed++) {
+          final first = generateProblems(spec: s, level: 2, seed: seed);
+          final keys = first.map((p) => jsonEncode(p.display)).toSet();
+          expect(keys.length, first.length, reason: 'unique seed $seed');
+        }
+      }
+    });
+
+    test('real A2.1 L1/L2 and B1.3 L1 generate valid problems', () {
+      final a21 = _realSpec('A2.1');
+      for (var level = 1; level <= 2; level++) {
+        for (var seed = 0; seed < 30; seed++) {
+          for (final p in generateProblems(spec: a21, level: level, seed: seed)) {
+            expect(p.display['custom_widget'], 'flash_subitize');
+            expect(p.display['count'] as int, inInclusiveRange(1, 5));
+            expect(p.display['flash_ms'], 800);
+            expect(p.expected, ['${p.display['count']}']);
+          }
+        }
+      }
+      final b13 = _realSpec('B1.3');
+      for (var seed = 0; seed < 30; seed++) {
+        for (final p in generateProblems(spec: b13, level: 1, seed: seed)) {
+          expect(p.display['custom_widget'], 'unbundling');
+          final tens = p.display['tens'] as int;
+          final ones = p.display['ones'] as int;
+          expect(p.expected, ['${10 * tens + ones}']);
         }
       }
     });

@@ -162,13 +162,16 @@ void main() {
     test('unimplemented templates throw UnimplementedError', () {
       final spec = SkillSpec.fromJson(
         _baseSpec(
-          _level(2, 'symbolisch', 'equation_solve', {
+          _level(2, 'symbolisch', 'strategy_choice', {
             'op': '+',
-            'unknown': 'result',
-            'zr': 10,
+            'zr': 20,
             'a_range': [1, 5],
             'b_range': [1, 5],
-            'mode': 'standard',
+            'strategies': [
+              {'id': 'double', 'label_de': 'verdoppeln'},
+              {'id': 'make_ten', 'label_de': 'zur vollen Zehn'},
+            ],
+            'correct_strategy': 'double',
           }, 7000),
         ),
       );
@@ -349,6 +352,568 @@ void main() {
           expect(p.display['a'] as int, inInclusiveRange(1, 10));
           expect(p.display['b'] as int, inInclusiveRange(1, 10));
         }
+      }
+    });
+  });
+
+  group('equation_solve generator', () {
+    SkillSpec spec(Map<String, dynamic> params) => SkillSpec.fromJson(
+      _baseSpec(_level(2, 'symbolisch', 'equation_solve', params, 6000)),
+    );
+
+    test('unknown=result op +: expected == a+b, result respects zr', () {
+      final s = spec({
+        'op': '+',
+        'unknown': 'result',
+        'zr': 20,
+        'a_range': [2, 9],
+        'b_range': [2, 9],
+        'mode': 'standard',
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          final c = p.display['c'] as int;
+          expect(c, a + b, reason: 'display c is the result');
+          expect(p.expected, [c.toString()]);
+          expect(c, lessThanOrEqualTo(20), reason: 'zr is the result bound');
+        }
+      }
+    });
+
+    test('unknown=result op -: never negative, a >= b, a==b gives result 0', () {
+      final s = spec({
+        'op': '-',
+        'unknown': 'result',
+        'zr': 20,
+        'a_range': [2, 20],
+        'b_range': [1, 10],
+        'mode': 'standard',
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          expect(a, greaterThanOrEqualTo(b), reason: 'no negative result');
+          expect(p.expected, [(a - b).toString()]);
+        }
+      }
+      final fixed = spec({
+        'op': '-',
+        'unknown': 'result',
+        'zr': 20,
+        'a_range': [5, 5],
+        'b_range': [5, 5],
+        'mode': 'standard',
+      });
+      for (final p in generateProblems(spec: fixed, level: 2, seed: 3)) {
+        expect(p.expected, ['0'], reason: 'subtract with a==b -> result 0');
+      }
+    });
+
+    test('unknown=addend: _ + b = c with missing addend >= 1 and c <= zr', () {
+      final s = spec({
+        'op': '+',
+        'unknown': 'addend',
+        'zr': 20,
+        'a_range': [1, 9],
+        'b_range': [2, 9],
+        'mode': 'standard',
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          final c = p.display['c'] as int;
+          expect(a, greaterThanOrEqualTo(1), reason: 'addend >= 1');
+          expect(a + b, c);
+          expect(c, lessThanOrEqualTo(20), reason: 'result c <= zr');
+          expect(p.expected, [a.toString()], reason: 'missing addend is a');
+        }
+      }
+    });
+
+    test('unknown=subtrahend: a - _ = c with 1 <= subtrahend <= a-1', () {
+      final s = spec({
+        'op': '-',
+        'unknown': 'subtrahend',
+        'zr': 20,
+        'a_range': [5, 20],
+        'b_range': [1, 9],
+        'mode': 'standard',
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          final c = p.display['c'] as int;
+          expect(a - b, c);
+          expect(b, inInclusiveRange(1, a - 1));
+          expect(p.expected, [b.toString()], reason: 'missing subtrahend is b');
+        }
+      }
+    });
+
+    test('unknown=minuend: _ - b = c with minuend c+b, boundary at zr', () {
+      final s = spec({
+        'op': '-',
+        'unknown': 'minuend',
+        'zr': 20,
+        'a_range': [5, 20],
+        'b_range': [1, 9],
+        'mode': 'standard',
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          final c = p.display['c'] as int;
+          expect(a, c + b, reason: 'minuend x = c + b');
+          expect(c, greaterThanOrEqualTo(1));
+          expect(a, lessThanOrEqualTo(20), reason: 'minuend <= zr');
+          expect(p.expected, [a.toString()], reason: 'missing minuend is a');
+        }
+      }
+      final atZr = spec({
+        'op': '-',
+        'unknown': 'minuend',
+        'zr': 20,
+        'a_range': [20, 20],
+        'b_range': [1, 9],
+        'mode': 'standard',
+      });
+      for (final p in generateProblems(spec: atZr, level: 2, seed: 5)) {
+        expect(p.display['a'], 20, reason: 'minuend at zr');
+        expect(p.expected, ['20']);
+      }
+    });
+
+    test('equal:true forces a == b and expected is the double', () {
+      final s = spec({
+        'op': '+',
+        'unknown': 'result',
+        'zr': 20,
+        'a_range': [2, 10],
+        'b_range': [2, 10],
+        'equal': true,
+        'mode': 'standard',
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          expect(a, b, reason: 'equal forces a == b');
+          expect(p.expected, [(2 * a).toString()]);
+        }
+      }
+    });
+
+    test('place_value mode op +: column-wise, expected == tens*10 + ones', () {
+      final s = spec({
+        'op': '+',
+        'unknown': 'result',
+        'zr': 100,
+        'mode': 'place_value',
+        'tens_range': [1, 4],
+        'ones_range': [1, 4],
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          final tens = p.display['tens'] as int;
+          final ones = p.display['ones'] as int;
+          expect(ones, lessThan(10), reason: 'no ones-column overstep');
+          expect(tens, lessThan(10), reason: 'no tens-column overstep');
+          expect(tens * 10 + ones, a + b);
+          expect(p.expected, [(tens * 10 + ones).toString()]);
+        }
+      }
+    });
+
+    test('place_value mode op -: column-wise subtraction, never negative', () {
+      final s = spec({
+        'op': '-',
+        'unknown': 'result',
+        'zr': 100,
+        'mode': 'place_value',
+        'tens_range': [1, 9],
+        'ones_range': [1, 9],
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          final tens = p.display['tens'] as int;
+          final ones = p.display['ones'] as int;
+          expect(tens, greaterThanOrEqualTo(0));
+          expect(ones, greaterThanOrEqualTo(0));
+          expect(tens * 10 + ones, a - b);
+          expect(p.expected, [(a - b).toString()]);
+        }
+      }
+    });
+
+    test('is deterministic and unique within a level', () {
+      final s = spec({
+        'op': '+',
+        'unknown': 'addend',
+        'zr': 100,
+        'a_range': [21, 49],
+        'b_range': [12, 39],
+        'mode': 'standard',
+      });
+      for (var seed = 0; seed < 50; seed++) {
+        final first = generateProblems(spec: s, level: 2, seed: seed);
+        final second = generateProblems(spec: s, level: 2, seed: seed);
+        expect(_signature(first), _signature(second));
+        final keys = first.map((p) => jsonEncode(p.display)).toSet();
+        expect(keys.length, first.length, reason: 'unique within a level');
+      }
+    });
+
+    test('problems carry index, non-empty expected and prompt', () {
+      final s = spec({
+        'op': '+',
+        'unknown': 'result',
+        'zr': 20,
+        'a_range': [2, 9],
+        'b_range': [2, 9],
+        'mode': 'standard',
+      });
+      final problems = generateProblems(spec: s, level: 2, seed: 11);
+      for (var i = 0; i < problems.length; i++) {
+        expect(problems[i].index, i);
+        expect(problems[i].expected, isNotEmpty);
+        expect(problems[i].promptDe, isNotEmpty);
+        expect(problems[i].template, 'equation_solve');
+      }
+    });
+  });
+
+  group('equation_gap generator', () {
+    SkillSpec spec(Map<String, dynamic> params) => SkillSpec.fromJson(
+      _baseSpec(_level(2, 'symbolisch', 'equation_gap', params, 7000)),
+    );
+
+    test('form gap: a - b = _ with expected a-b and gap_after result', () {
+      final s = spec({
+        'op': '-',
+        'form': 'gap',
+        'zr': 20,
+        'a_range': [5, 18],
+        'b_range': [2, 9],
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          expect(a, greaterThanOrEqualTo(b), reason: 'no negative result');
+          expect(p.expected, [(a - b).toString()]);
+          expect(p.display['gap_after'], 'result');
+          expect(p.display['form'], 'gap');
+        }
+      }
+    });
+
+    test('form helper op + make_ten: a+b = 10+_, gap == a+b-10 >= 1', () {
+      final s = spec({
+        'op': '+',
+        'form': 'helper',
+        'zr': 20,
+        'a_range': [8, 9],
+        'b_range': [2, 9],
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          final first = p.display['first'] as int;
+          final gap = int.parse(p.expected.single);
+          expect(first, 10, reason: 'volle Zehn');
+          expect(gap, a + b - 10, reason: 'helper gap == a+b-10');
+          expect(gap, greaterThanOrEqualTo(1));
+          expect(first + gap, a + b, reason: 'whole equation holds');
+          expect(p.display['gap_after'], 'right');
+        }
+      }
+      final edge = spec({
+        'op': '+',
+        'form': 'helper',
+        'zr': 20,
+        'a_range': [9, 9],
+        'b_range': [2, 2],
+      });
+      for (final p in generateProblems(spec: edge, level: 2, seed: 1)) {
+        expect(p.expected, ['1'], reason: 'a+b-10 == 1 boundary');
+      }
+    });
+
+    test('form helper op + tens_ones: a+b = (a+tens)+_, gap == b%10', () {
+      final s = spec({
+        'op': '+',
+        'form': 'helper',
+        'zr': 100,
+        'a_range': [20, 49],
+        'b_range': [12, 39],
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          final first = p.display['first'] as int;
+          final gap = int.parse(p.expected.single);
+          expect(first, a + 10 * (b ~/ 10), reason: 'first is a + tens of b');
+          expect(gap, b % 10);
+          expect(gap, greaterThanOrEqualTo(1));
+          expect(first + gap, a + b, reason: 'whole equation holds');
+          expect(p.display['split'], 'tens_ones');
+        }
+      }
+    });
+
+    test('form helper op - make_ten: a-b = (a-ones)-_, rest >= 1', () {
+      final s = spec({
+        'op': '-',
+        'form': 'helper',
+        'zr': 100,
+        'a_range': [23, 98],
+        'b_range': [3, 9],
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          final first = p.display['first'] as int;
+          final gap = int.parse(p.expected.single);
+          expect(first, a - a % 10, reason: 'first reaches the full ten');
+          expect(gap, b - a % 10, reason: 'rest = b - ones of a');
+          expect(gap, greaterThanOrEqualTo(1));
+          expect(first - gap, a - b, reason: 'whole equation holds');
+          expect(p.display['split'], 'make_ten');
+        }
+      }
+    });
+
+    test('form helper op - tens_ones: a-b = (a-tens)-_, gap == b%10', () {
+      final s = spec({
+        'op': '-',
+        'form': 'helper',
+        'zr': 100,
+        'a_range': [40, 90],
+        'b_range': [12, 39],
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          final first = p.display['first'] as int;
+          final gap = int.parse(p.expected.single);
+          expect(first, a - 10 * (b ~/ 10), reason: 'first is a - tens of b');
+          expect(gap, b % 10);
+          expect(gap, greaterThanOrEqualTo(1));
+          expect(first - gap, a - b, reason: 'whole equation holds');
+          expect(p.display['split'], 'tens_ones');
+        }
+      }
+    });
+
+    test('form missing_addend: a + _ = c with expected c-a and c <= zr', () {
+      final s = spec({
+        'op': '+',
+        'form': 'missing_addend',
+        'zr': 20,
+        'a_range': [5, 9],
+        'b_range': [2, 9],
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          final c = p.display['c'] as int;
+          expect(c, a + b);
+          expect(c, lessThanOrEqualTo(20));
+          expect(p.expected, [(c - a).toString()]);
+          expect(p.display['gap_after'], 'middle');
+        }
+      }
+    });
+
+    test('form any_split: expected lists all pairs i+(total-i)', () {
+      final six = spec({
+        'op': '+',
+        'form': 'any_split',
+        'zr': 10,
+        'total_range': [6, 6],
+      });
+      for (final p in generateProblems(spec: six, level: 2, seed: 3)) {
+        expect(p.display['total'], 6);
+        expect(p.expected, ['1+5', '2+4', '3+3', '4+2', '5+1']);
+      }
+      final ten = spec({
+        'op': '+',
+        'form': 'any_split',
+        'zr': 10,
+        'total_range': [10, 10],
+      });
+      for (final p in generateProblems(spec: ten, level: 2, seed: 3)) {
+        expect(p.expected, hasLength(9));
+        expect(p.expected.first, '1+9');
+        expect(p.expected.last, '9+1');
+        for (final pair in p.expected) {
+          final parts = pair.split('+').map(int.parse).toList();
+          expect(parts[0] + parts[1], 10);
+          expect(parts[0], inInclusiveRange(1, 9));
+        }
+      }
+    });
+
+    test('form place_value: expected == tens*10 + ones, ones may be >= 10', () {
+      final s = spec({
+        'op': '+',
+        'form': 'place_value',
+        'zr': 99,
+        'tens_range': [1, 8],
+        'ones_range': [10, 19],
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final tens = p.display['tens'] as int;
+          final ones = p.display['ones'] as int;
+          expect(tens, inInclusiveRange(1, 8));
+          expect(ones, inInclusiveRange(10, 19));
+          expect(p.expected, [(tens * 10 + ones).toString()]);
+          expect(tens * 10 + ones, lessThanOrEqualTo(99), reason: 'zr');
+        }
+      }
+      final edge = spec({
+        'op': '+',
+        'form': 'place_value',
+        'zr': 99,
+        'tens_range': [2, 2],
+        'ones_range': [19, 19],
+      });
+      for (final p in generateProblems(spec: edge, level: 2, seed: 1)) {
+        expect(p.expected, ['39'], reason: '2 Zehner 19 Einer = 39');
+      }
+    });
+
+    test('form half: total even, expected == total/2', () {
+      final s = spec({
+        'op': '+',
+        'form': 'half',
+        'zr': 20,
+        'a_range': [2, 10],
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final total = p.display['total'] as int;
+          expect(total.isEven, isTrue);
+          expect(total, lessThanOrEqualTo(20));
+          expect(p.expected, [(total ~/ 2).toString()]);
+          expect(int.parse(p.expected.single) * 2, total);
+        }
+      }
+    });
+
+    test('form double: expected == 2a and never exceeds zr', () {
+      final s = spec({
+        'op': '+',
+        'form': 'double',
+        'zr': 20,
+        'a_range': [2, 10],
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final a = p.display['a'] as int;
+          expect(p.expected, [(2 * a).toString()]);
+          expect(2 * a, lessThanOrEqualTo(20), reason: 'double <= zr');
+        }
+      }
+    });
+
+    test('form neighbor: expected == [n-1, n+1]', () {
+      final s = spec({
+        'op': '+',
+        'form': 'neighbor',
+        'zr': 20,
+        'start_range': [2, 19],
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final n = p.display['n'] as int;
+          expect(n, inInclusiveRange(2, 19));
+          expect(p.expected, [(n - 1).toString(), (n + 1).toString()]);
+        }
+      }
+    });
+
+    test('form helper_double: gap == (a+b)-2*min(a,b), 6+7 -> 1', () {
+      final s = spec({
+        'op': '+',
+        'form': 'helper_double',
+        'zr': 20,
+        'a_range': [5, 9],
+        'b_range': [6, 10],
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          final first = p.display['first'] as int;
+          final min = a < b ? a : b;
+          final gap = int.parse(p.expected.single);
+          expect(first, 2 * min, reason: 'Stützaufgabe is the double');
+          expect(gap, a + b - 2 * min);
+          expect(gap, greaterThanOrEqualTo(1), reason: 'a != b');
+          expect(first + gap, a + b, reason: 'whole equation holds');
+          expect(p.display['gap_after'], 'right');
+        }
+      }
+      final edge = spec({
+        'op': '+',
+        'form': 'helper_double',
+        'zr': 20,
+        'a_range': [6, 6],
+        'b_range': [7, 7],
+      });
+      for (final p in generateProblems(spec: edge, level: 2, seed: 1)) {
+        expect(p.expected, ['1'], reason: '6+7 = 12+1');
+      }
+    });
+
+    test('is deterministic and unique within a level', () {
+      final s = spec({
+        'op': '+',
+        'form': 'helper',
+        'zr': 20,
+        'a_range': [8, 9],
+        'b_range': [2, 9],
+      });
+      for (var seed = 0; seed < 50; seed++) {
+        final first = generateProblems(spec: s, level: 2, seed: seed);
+        final second = generateProblems(spec: s, level: 2, seed: seed);
+        expect(_signature(first), _signature(second));
+        final keys = first.map((p) => jsonEncode(p.display)).toSet();
+        expect(keys.length, first.length, reason: 'unique within a level');
+      }
+    });
+
+    test('problems carry index, non-empty expected and prompt', () {
+      final s = spec({
+        'op': '-',
+        'form': 'gap',
+        'zr': 20,
+        'a_range': [5, 18],
+        'b_range': [2, 9],
+      });
+      final problems = generateProblems(spec: s, level: 2, seed: 11);
+      for (var i = 0; i < problems.length; i++) {
+        expect(problems[i].index, i);
+        expect(problems[i].expected, isNotEmpty);
+        expect(problems[i].promptDe, isNotEmpty);
+        expect(problems[i].template, 'equation_gap');
       }
     });
   });

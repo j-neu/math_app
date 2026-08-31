@@ -108,6 +108,24 @@ Problem _generateForTemplate(
         index,
         gen,
       );
+    case 'equation_solve':
+      return _generateEquationSolve(
+        spec,
+        level,
+        levelNumber,
+        seed,
+        index,
+        gen,
+      );
+    case 'equation_gap':
+      return _generateEquationGap(
+        spec,
+        level,
+        levelNumber,
+        seed,
+        index,
+        gen,
+      );
     default:
       throw UnimplementedError(
         'Generator for template "${level.template}" is declared but not yet '
@@ -224,4 +242,405 @@ Problem _generateCompareSymbols(
     display: {'a': a, 'b': b},
     expected: [op],
   );
+}
+
+/// Draws `[lo..hi]` but never lets the sample exceed the outer bound, so a
+/// caller can clamp a draw into the valid space instead of rejecting it.
+int _clampedDraw(SeededGenerator gen, int lo, int hi, int outer) {
+  final top = min(hi, outer);
+  return top < lo ? lo : gen.nextIntInRange(lo, top);
+}
+
+/// `equation_solve` generator (P2 plan §5 rule 11, P3 §4.5b): the child
+/// solves `a op b = c` with one of `a`/`b`/`c` unknown. `display` always
+/// carries all three numbers plus `op`/`unknown`/`mode`; `expected` holds the
+/// missing value. `mode: "place_value"` decomposes both addends into tens and
+/// ones and `expected` is the column-wise result `tens*10 + ones`.
+/// Subtraction is never negative (`a >= b`), `equal: true` forces `a == b`.
+Problem _generateEquationSolve(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final op = level.stringParam('op', fallback: '+');
+  final unknown = level.stringParam('unknown', fallback: 'result');
+  final mode = level.stringParam('mode', fallback: 'standard');
+  final zr = level.intParam('zr', fallback: _maxZR);
+
+  if (mode == 'place_value') {
+    final tensRange = level.intListParam('tens_range');
+    final onesRange = level.intListParam('ones_range');
+    final tLo = tensRange.isEmpty ? 1 : tensRange[0];
+    final tHi = tensRange.isEmpty ? 9 : tensRange[1];
+    final oLo = onesRange.isEmpty ? 1 : onesRange[0];
+    final oHi = onesRange.isEmpty ? 9 : onesRange[1];
+
+    int tensA, onesA, tensB, onesB, resultTens, resultOnes;
+    if (op == '-') {
+      tensA = gen.nextIntInRange(tLo, tHi);
+      onesA = gen.nextIntInRange(oLo, oHi);
+      tensB = _clampedDraw(gen, tLo, tHi, tensA);
+      onesB = _clampedDraw(gen, oLo, oHi, onesA);
+      resultTens = tensA - tensB;
+      resultOnes = onesA - onesB;
+    } else {
+      tensA = _clampedDraw(gen, tLo, tHi, 9);
+      onesA = _clampedDraw(gen, oLo, oHi, 9);
+      tensB = _clampedDraw(gen, tLo, tHi, 9 - tensA);
+      onesB = _clampedDraw(gen, oLo, oHi, 9 - onesA);
+      resultTens = tensA + tensB;
+      resultOnes = onesA + onesB;
+    }
+    final a = tensA * 10 + onesA;
+    final b = tensB * 10 + onesB;
+    final c = resultTens * 10 + resultOnes;
+
+    return Problem(
+      template: 'equation_solve',
+      skillId: spec.skillId,
+      level: levelNumber,
+      seed: seed,
+      index: index,
+      promptDe: level.promptDe,
+      display: {
+        'op': op,
+        'unknown': unknown,
+        'mode': mode,
+        'a': a,
+        'b': b,
+        'c': c,
+        'a_tens': tensA,
+        'a_ones': onesA,
+        'b_tens': tensB,
+        'b_ones': onesB,
+        'tens': resultTens,
+        'ones': resultOnes,
+      },
+      expected: [c.toString()],
+    );
+  }
+
+  final aRange = level.intListParam('a_range');
+  final bRange = level.intListParam('b_range');
+  final aLo = aRange.isEmpty ? 1 : aRange[0];
+  final aHi = aRange.isEmpty ? 9 : aRange[1];
+  final bLo = bRange.isEmpty ? 1 : bRange[0];
+  final bHi = bRange.isEmpty ? 9 : bRange[1];
+
+  final equal = level.boolParam('equal');
+
+  int a, b, c;
+  if (equal) {
+    // A3.3 / C1.2 doubling: a == b, result 2a within zr.
+    a = gen.nextIntInRange(max(aLo, 1), min(aHi, zr ~/ 2));
+    b = a;
+    c = op == '-' ? 0 : a + b;
+  } else {
+    switch (unknown) {
+      case 'result':
+        if (op == '-') {
+          a = gen.nextIntInRange(max(aLo, bLo), aHi);
+          b = _clampedDraw(gen, bLo, bHi, a);
+          c = a - b;
+        } else {
+          a = _clampedDraw(gen, aLo, aHi, zr - bLo);
+          b = _clampedDraw(gen, bLo, bHi, zr - a);
+          c = a + b;
+        }
+      case 'addend':
+        // _ + b = c, missing a >= 1, c = a + b <= zr.
+        b = _clampedDraw(gen, bLo, bHi, zr - max(aLo, 1));
+        a = gen.nextIntInRange(max(aLo, 1), min(aHi, zr - b));
+        c = a + b;
+      case 'subtrahend':
+        // a - _ = c with 1 <= missing b <= a - 1.
+        a = gen.nextIntInRange(max(aLo, 2), aHi);
+        c = gen.nextIntInRange(max(bLo, 1), min(bHi, a - 1));
+        b = a - c;
+      case 'minuend':
+        // _ - b = c with missing a = c + b, result c >= 1.
+        a = gen.nextIntInRange(max(aLo, 2), aHi);
+        b = _clampedDraw(gen, bLo, bHi, a - 1);
+        c = a - b;
+      default:
+        throw SpecFormatException(
+          'equation_solve: unknown unknown mode "$unknown"',
+        );
+    }
+  }
+
+  return Problem(
+    template: 'equation_solve',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: {'op': op, 'unknown': unknown, 'mode': mode, 'a': a, 'b': b, 'c': c},
+    expected: [(unknown == 'result' ? c : (unknown == 'addend' || unknown == 'minuend' ? a : b)).toString()],
+  );
+}
+
+/// `equation_gap` generator (P2 plan §5 rule 12, P3 §3): a Stützpunkt-form
+/// with one (or two) blanks whose value(s) `expected` lists. Every shown
+/// equation is arithmetically true. Forms: `gap`, `helper`, `missing_addend`,
+/// `any_split`, `place_value`, `half`, `double`, `neighbor`, `helper_double`.
+Problem _generateEquationGap(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final op = level.stringParam('op', fallback: '+');
+  final form = level.stringParam('form', fallback: 'gap');
+  final zr = level.intParam('zr', fallback: _maxZR);
+  final aRange = level.intListParam('a_range');
+  final bRange = level.intListParam('b_range');
+  final aLo = aRange.isEmpty ? 1 : aRange[0];
+  final aHi = aRange.isEmpty ? 9 : aRange[1];
+  final bLo = bRange.isEmpty ? 1 : bRange[0];
+  final bHi = bRange.isEmpty ? 9 : bRange[1];
+
+  switch (form) {
+    case 'gap':
+      // a op b = _  (C4.2 Umkehraufgabe).
+      final a = gen.nextIntInRange(max(aLo, bLo), aHi);
+      final b = _clampedDraw(gen, bLo, bHi, a);
+      final c = op == '-' ? a - b : a + b;
+      return Problem(
+        template: 'equation_gap',
+        skillId: spec.skillId,
+        level: levelNumber,
+        seed: seed,
+        index: index,
+        promptDe: level.promptDe,
+        display: {'form': form, 'op': op, 'a': a, 'b': b, 'gap_after': 'result'},
+        expected: [c.toString()],
+      );
+
+    case 'helper':
+      // Stützpunkt: a op b = first op _. For single-digit b the split is
+      // make_ten (C2.1 plus / C3.2 minus), for two-digit b it is tens_ones
+      // (C3.4a plus / C3.4b minus).
+      final isTensOnes = bHi >= 10;
+      final split = isTensOnes ? 'tens_ones' : 'make_ten';
+      int a, b, first, gap;
+      if (op == '-') {
+        if (isTensOnes) {
+          // a - b = (a - tens) - _, gap = b % 10 (>= 1).
+          a = gen.nextIntInRange(aLo, aHi);
+          b = gen.nextIntInRange(bLo, bHi);
+          var attempts = 0;
+          while (b % 10 == 0 && attempts++ < 300) {
+            b = gen.nextIntInRange(bLo, bHi);
+          }
+          first = a - 10 * (b ~/ 10);
+          gap = b % 10;
+        } else {
+          // a - b = (a - ones) - _, gap = b - ones >= 1 (C3.2).
+          a = gen.nextIntInRange(aLo, aHi);
+          var attempts = 0;
+          while ((a % 10 == 0 || a % 10 == 9) && attempts++ < 300) {
+            a = gen.nextIntInRange(aLo, aHi);
+          }
+          b = gen.nextIntInRange(max(bLo, a % 10 + 1), bHi);
+          first = a - a % 10;
+          gap = b - a % 10;
+        }
+      } else {
+        if (isTensOnes) {
+          // a + b = (a + tens) + _, gap = b % 10 (>= 1) (C3.4a).
+          a = gen.nextIntInRange(aLo, aHi);
+          b = gen.nextIntInRange(bLo, bHi);
+          var attempts = 0;
+          while (b % 10 == 0 && attempts++ < 300) {
+            b = gen.nextIntInRange(bLo, bHi);
+          }
+          first = a + 10 * (b ~/ 10);
+          gap = b % 10;
+        } else {
+          // a + b = 10 + _, gap = a + b - 10 >= 1 (C2.1).
+          a = gen.nextIntInRange(aLo, aHi);
+          b = gen.nextIntInRange(max(bLo, 11 - a), min(bHi, zr - a));
+          first = 10;
+          gap = a + b - 10;
+        }
+      }
+      return Problem(
+        template: 'equation_gap',
+        skillId: spec.skillId,
+        level: levelNumber,
+        seed: seed,
+        index: index,
+        promptDe: level.promptDe,
+        display: {
+          'form': form,
+          'op': op,
+          'a': a,
+          'b': b,
+          'first': first,
+          'split': split,
+          'gap_after': 'right',
+        },
+        expected: [gap.toString()],
+      );
+
+    case 'missing_addend':
+      // a + _ = c with c = a + b <= zr (A3.1 L3, C2.3 L2).
+      final a = gen.nextIntInRange(aLo, min(aHi, zr - bLo));
+      final b = gen.nextIntInRange(bLo, min(bHi, zr - a));
+      final c = a + b;
+      return Problem(
+        template: 'equation_gap',
+        skillId: spec.skillId,
+        level: levelNumber,
+        seed: seed,
+        index: index,
+        promptDe: level.promptDe,
+        display: {
+          'form': form,
+          'op': op,
+          'a': a,
+          'b': b,
+          'c': c,
+          'gap_after': 'middle',
+        },
+        expected: [b.toString()],
+      );
+
+    case 'any_split':
+      // _ + _ = N; every pair i + (N-i) for i = 1..N-1 is accepted (A3.2 L3).
+      final totalRange = level.intListParam('total_range');
+      final totalLo = totalRange.isEmpty ? 6 : totalRange[0];
+      final totalHi = totalRange.isEmpty ? 10 : totalRange[1];
+      final total = gen.nextIntInRange(totalLo, totalHi);
+      final pairs = <String>[
+        for (var i = 1; i <= total - 1; i++) '$i+${total - i}',
+      ];
+      return Problem(
+        template: 'equation_gap',
+        skillId: spec.skillId,
+        level: levelNumber,
+        seed: seed,
+        index: index,
+        promptDe: level.promptDe,
+        display: {'form': form, 'op': op, 'total': total, 'gap_after': 'both'},
+        expected: pairs,
+      );
+
+    case 'place_value':
+      // Z Zehner + E Einer = ? ; expected = Z*10 + E, E may be >= 10.
+      final tensRange = level.intListParam('tens_range');
+      final onesRange = level.intListParam('ones_range');
+      final tLo = tensRange.isEmpty ? 1 : tensRange[0];
+      final tHi = tensRange.isEmpty ? 9 : tensRange[1];
+      final oLo = onesRange.isEmpty ? 1 : onesRange[0];
+      final oHi = onesRange.isEmpty ? 9 : onesRange[1];
+      var tens = gen.nextIntInRange(tLo, tHi);
+      final ones = gen.nextIntInRange(oLo, oHi);
+      var attempts = 0;
+      while (tens * 10 + ones > zr && attempts++ < 300) {
+        tens = gen.nextIntInRange(tLo, tHi);
+      }
+      return Problem(
+        template: 'equation_gap',
+        skillId: spec.skillId,
+        level: levelNumber,
+        seed: seed,
+        index: index,
+        promptDe: level.promptDe,
+        display: {
+          'form': form,
+          'op': op,
+          'tens': tens,
+          'ones': ones,
+          'gap_after': 'result',
+        },
+        expected: [(tens * 10 + ones).toString()],
+      );
+
+    case 'half':
+      // _ + _ = 2a with expected = a = total/2 (C1.3 L3).
+      final a = gen.nextIntInRange(aLo, min(aHi, zr ~/ 2));
+      final total = 2 * a;
+      return Problem(
+        template: 'equation_gap',
+        skillId: spec.skillId,
+        level: levelNumber,
+        seed: seed,
+        index: index,
+        promptDe: level.promptDe,
+        display: {'form': form, 'op': op, 'total': total, 'gap_after': 'both'},
+        expected: [a.toString()],
+      );
+
+    case 'double':
+      // a + a = _ with expected = 2a <= zr.
+      final a = gen.nextIntInRange(aLo, min(aHi, zr ~/ 2));
+      return Problem(
+        template: 'equation_gap',
+        skillId: spec.skillId,
+        level: levelNumber,
+        seed: seed,
+        index: index,
+        promptDe: level.promptDe,
+        display: {'form': form, 'op': op, 'a': a, 'gap_after': 'result'},
+        expected: [(2 * a).toString()],
+      );
+
+    case 'neighbor':
+      // Nachbarzahlen: n ± 1, both neighbours accepted.
+      final startRange = level.intListParam('start_range');
+      final sLo = startRange.isEmpty ? aLo : startRange[0];
+      final sHi = startRange.isEmpty ? aHi : startRange[1];
+      final n = gen.nextIntInRange(max(sLo, 2), min(sHi, zr - 1));
+      return Problem(
+        template: 'equation_gap',
+        skillId: spec.skillId,
+        level: levelNumber,
+        seed: seed,
+        index: index,
+        promptDe: level.promptDe,
+        display: {'form': form, 'op': op, 'n': n, 'gap_after': 'both'},
+        expected: [(n - 1).toString(), (n + 1).toString()],
+      );
+
+    case 'helper_double':
+      // a + b = 2*min(a,b) + _, gap = a + b - 2*min (C2.2 L3, C3.3 L2).
+      var a = gen.nextIntInRange(aLo, aHi);
+      var b = gen.nextIntInRange(bLo, bHi);
+      var attempts = 0;
+      while (a == b && attempts++ < 300) {
+        a = gen.nextIntInRange(aLo, aHi);
+        b = gen.nextIntInRange(bLo, bHi);
+      }
+      final min = a < b ? a : b;
+      final first = 2 * min;
+      final gap = a + b - 2 * min;
+      return Problem(
+        template: 'equation_gap',
+        skillId: spec.skillId,
+        level: levelNumber,
+        seed: seed,
+        index: index,
+        promptDe: level.promptDe,
+        display: {
+          'form': form,
+          'op': op,
+          'a': a,
+          'b': b,
+          'first': first,
+          'gap_after': 'right',
+        },
+        expected: [gap.toString()],
+      );
+
+    default:
+      throw SpecFormatException('equation_gap: unknown form "$form"');
+  }
 }

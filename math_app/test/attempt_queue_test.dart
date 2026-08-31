@@ -107,4 +107,30 @@ void main() {
     expect(pending.length, 2);
     expect(pending.map((a) => a.problemIndex), containsAll([0, 2]));
   });
+
+  test(
+      'flush removes only what it sent, so a concurrent append from another tab survives',
+      () async {
+    // Two browser tabs share localStorage but not AttemptQueue's in-memory
+    // Lock. This simulates Tab B's flush: it reads [attempt 0], then while
+    // its network call is "in flight" Tab A appends attempt 1 directly to
+    // the shared storage (no shared lock to stop it). If flush cleared the
+    // whole key on success, attempt 1 would be destroyed even though it
+    // was never sent.
+    final q = AttemptQueue();
+    await q.add('ps1', attempt(0));
+
+    final sent = await q.flush('ps1', (batch) async {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+        'attempt_queue_ps1',
+        jsonEncode([attempt(0).toJson(), attempt(1).toJson()]),
+      );
+      return true;
+    });
+
+    expect(sent, 1);
+    final stillPending = await q.pending('ps1');
+    expect(stillPending.map((a) => a.problemIndex).toList(), [1]);
+  });
 }

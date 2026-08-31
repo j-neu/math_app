@@ -125,6 +125,15 @@ class AttemptQueue {
 
   /// Sends everything pending via [send]. Returns the number of attempts
   /// accepted; keeps the queue intact when [send] reports failure.
+  ///
+  /// Non-destructive by design: on success this removes only the attempts
+  /// it actually sent (identified by [PracticeAttempt.problemIndex], which
+  /// is already unique per session — see [add]), not the whole stored key.
+  /// Two browser tabs on the same device share `localStorage` but not this
+  /// [Lock] (it's process-local), so another tab can append a new attempt
+  /// between this flush's read and its removal. Re-reading the current
+  /// list right before writing back means that attempt survives instead of
+  /// being wiped out by a wholesale `remove`.
   Future<int> flush(
     String practiceSessionId,
     Future<bool> Function(List<PracticeAttempt>) send,
@@ -136,7 +145,19 @@ class AttemptQueue {
       if (batch.isEmpty) return 0;
       final ok = await send(batch);
       if (!ok) return 0;
-      await prefs.remove(key);
+
+      final sentIndices = batch.map((a) => a.problemIndex).toSet();
+      final currentAtRemoval = _readAttempts(prefs, key);
+      final remaining =
+          currentAtRemoval.where((a) => !sentIndices.contains(a.problemIndex)).toList();
+      if (remaining.isEmpty) {
+        await prefs.remove(key);
+      } else {
+        await prefs.setString(
+          key,
+          jsonEncode(remaining.map((a) => a.toJson()).toList()),
+        );
+      }
       return batch.length;
     });
   }

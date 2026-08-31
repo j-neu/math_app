@@ -10,6 +10,7 @@
 // using the service-role key as its bearer token (see commit ff6d26f).
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { timingSafeEqual } from "https://deno.land/std@0.224.0/crypto/timing_safe_equal.ts";
 import { sortSkillIds } from "../_shared/ordering.ts";
 import { verifyStudentToken } from "../_shared/jwt.ts";
 import { requireEnv } from "../_shared/env.ts";
@@ -24,6 +25,21 @@ const corsHeaders = {
 // handler below fails closed if this is missing rather than falling back
 // to a non-null assertion that guarantees nothing at runtime.
 const STUDENT_JWT_SECRET = requireEnv("STUDENT_JWT_SECRET");
+
+const enc = new TextEncoder();
+
+// `===` on strings short-circuits at the first differing byte, so its
+// timing leaks how many leading bytes of the service-role key a guess got
+// right. Defence in depth, not an exploitable hole at this key's length —
+// but cheap to close. timingSafeEqual requires equal-length inputs, so a
+// length mismatch (the common case for a wrong guess) is handled directly
+// without ever comparing byte-for-byte.
+function constantTimeEquals(a: string, b: string): boolean {
+  const aBytes = enc.encode(a);
+  const bBytes = enc.encode(b);
+  if (aBytes.length !== bBytes.length) return false;
+  return timingSafeEqual(aBytes, bBytes);
+}
 
 // deno-lint-ignore no-explicit-any
 type Db = any;
@@ -43,7 +59,7 @@ async function authenticateWriter(req: Request): Promise<WriterAuth> {
 
   const bearer = authHeader.replace(/^Bearer\s+/i, "").trim();
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-  if (bearer === serviceRoleKey) {
+  if (constantTimeEquals(bearer, serviceRoleKey)) {
     return { ok: true, isService: true, schoolId: null };
   }
 

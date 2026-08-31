@@ -17,7 +17,8 @@ import { requireEnv } from "../_shared/env.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-student-token",
 };
 
 // Custom, developer-managed secret (unlike SUPABASE_URL/SUPABASE_*_KEY,

@@ -203,10 +203,14 @@ void main() {
     expect(caught, isNot(isA<FormatException>()));
   });
 
-  test('a failing endPractice flush leaves the queued attempts intact instead of losing them', () async {
+  test(
+      'a failing endPractice flush keeps the session open instead of closing it on incomplete data',
+      () async {
     // This is the exact scenario AttemptQueue exists to protect against, at
     // the one moment it matters most: session end. A dropped connection
-    // during the final flush must not throw and must not clear the queue.
+    // during the final flush must not clear the queue, and the session
+    // must never be closed on incomplete data — so /end must never be
+    // called when the flush didn't fully succeed.
     final queue = AttemptQueue();
     const sessionId = 'ps-drop';
     await queue.add(
@@ -221,10 +225,12 @@ void main() {
       ),
     );
 
+    var endCalled = false;
     final client = MockClient((req) async {
       if (req.url.path.endsWith('/practice-session/sync')) {
         throw const SocketException('dropped mid-flush');
       }
+      endCalled = true;
       return http.Response(
         jsonEncode({
           'skill_mastered': false,
@@ -236,11 +242,76 @@ void main() {
     });
 
     final service = LearningPathService(client: client, queue: queue);
-    final result = await service.endPractice('tok', sessionId, slowBandMs: 5000);
 
-    expect(result.mastered, isFalse);
+    await expectLater(
+      () => service.endPractice('tok', sessionId, slowBandMs: 5000),
+      throwsA(isA<LearningPathException>()),
+    );
+
+    expect(endCalled, isFalse, reason: '/end must not be called when the flush failed');
     final stillPending = await queue.pending(sessionId);
     expect(stillPending, hasLength(1));
     expect(stillPending.first.problemIndex, 0);
+    expect(await service.pendingEndSessions(), contains(sessionId));
+
+    // Calling it again (e.g. the child retries) must not double-record the
+    // session as pending.
+    await expectLater(
+      () => service.endPractice('tok', sessionId, slowBandMs: 5000),
+      throwsA(isA<LearningPathException>()),
+    );
+    final pendingSessions = await service.pendingEndSessions();
+    expect(pendingSessions.where((id) => id == sessionId), hasLength(1));
+  });
+
+  test(
+      'recoverPendingSessions flushes and closes a stranded session, then clears it from the pending list',
+      () async {
+    // Simulates the next app run after the scenario above: a session was
+    // left pending (flush failed last time), and nothing else ever
+    // revisits an old practiceSessionId — recovery is the only thing that
+    // can still get this child's last answer to the server.
+    SharedPreferences.setMockInitialValues({
+      'learning_path_pending_end_sessions': ['ps-stranded'],
+    });
+    final queue = AttemptQueue();
+    await queue.add(
+      'ps-stranded',
+      const PracticeAttempt(
+        problemIndex: 0,
+        problem: {'a': 1, 'b': 1},
+        answer: '2',
+        wasCorrect: true,
+        responseMs: 900,
+        errorCode: null,
+      ),
+    );
+
+    var endCalls = 0;
+    final client = MockClient((req) async {
+      if (req.url.path.endsWith('/practice-session/sync')) {
+        return http.Response(jsonEncode({}), 200);
+      }
+      endCalls++;
+      return http.Response(
+        jsonEncode({
+          'skill_mastered': true,
+          'slow_flag': false,
+          'unlocked_skill_ids': <String>[],
+        }),
+        200,
+      );
+    });
+
+    final service = LearningPathService(client: client, queue: queue);
+    await service.recoverPendingSessions('tok', slowBandMs: 5000);
+
+    expect(endCalls, 1);
+    expect(await queue.pending('ps-stranded'), isEmpty);
+    expect(await service.pendingEndSessions(), isEmpty);
+
+    // Idempotent: nothing left pending, so calling it again does nothing.
+    await service.recoverPendingSessions('tok', slowBandMs: 5000);
+    expect(endCalls, 1);
   });
 }

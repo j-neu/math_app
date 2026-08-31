@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:synchronized/synchronized.dart';
 import '../models/learning_path.dart';
 import 'attempt_queue.dart';
 import 'supabase_config.dart';
@@ -22,6 +24,16 @@ class LearningPathService {
   static const _unreadableResponseMessage =
       'Antwort vom Server konnte nicht gelesen werden.';
   static const _pathLoadFailedMessage = 'Lernpfad konnte nicht geladen werden.';
+  static const _sessionNotFinishedMessage =
+      'Deine Antworten sind noch nicht angekommen. Wir versuchen es gleich noch einmal.';
+
+  // Practice sessions whose final flush and/or /end call did not succeed
+  // yet, stored durably so a later app run can find and retry them — see
+  // recoverPendingSessions(). One shared key/lock is fine: this list is
+  // small (a handful of stranded sessions at most) and writes to it are
+  // rare compared to attempt_queue traffic.
+  static const _pendingEndSessionsKey = 'learning_path_pending_end_sessions';
+  static final Lock _pendingSessionsLock = Lock();
 
   final http.Client _client;
   final AttemptQueue _queue;
@@ -152,6 +164,22 @@ class LearningPathService {
     });
   }
 
+  /// Ends a practice session: flushes anything still queued, then tells the
+  /// server the session is over so it can compute mastery/unlock from the
+  /// full set of attempts.
+  ///
+  /// If the final flush does not fully succeed, this does NOT call `/end`.
+  /// Closing the session on incomplete data would let the server compute
+  /// mastery from a partial attempt set, and the unsent attempt would sit
+  /// in local storage forever — nothing else ever revisits an old
+  /// [practiceSessionId]. Instead the session id is recorded durably (so a
+  /// later run can retry it — see [recoverPendingSessions]) and this
+  /// throws a [LearningPathException] so the caller knows the session is
+  /// still open.
+  ///
+  /// The same applies if the flush succeeds but the `/end` call itself
+  /// then fails (network error or bad status): the session is recorded
+  /// pending so recovery retries the `/end` call later.
   Future<({bool mastered, bool slowFlag, List<String> unlocked})> endPractice(
     String token,
     String practiceSessionId, {
@@ -179,6 +207,33 @@ class LearningPathService {
       }
     });
 
+    final stillQueued = await _queue.pending(practiceSessionId);
+    if (stillQueued.isNotEmpty) {
+      // The flush above didn't fully succeed. Never call /end on
+      // incomplete data — keep the session open and remember it for
+      // recovery instead.
+      await _markSessionPending(practiceSessionId);
+      throw const LearningPathException(_sessionNotFinishedMessage);
+    }
+
+    try {
+      final result = await _callEnd(token, practiceSessionId, slowBandMs);
+      await _clearPendingSession(practiceSessionId);
+      return result;
+    } catch (_) {
+      // The flush succeeded but /end itself failed (network error or bad
+      // status) — the server was never told to close the session. Keep it
+      // pending so recoverPendingSessions retries the /end call later.
+      await _markSessionPending(practiceSessionId);
+      rethrow;
+    }
+  }
+
+  Future<({bool mastered, bool slowFlag, List<String> unlocked})> _callEnd(
+    String token,
+    String practiceSessionId,
+    int slowBandMs,
+  ) async {
     final result = await _send(() => _client.post(
           Uri.parse('$supabaseFunctionsUrl/practice-session/end'),
           headers: _headers(token),
@@ -190,7 +245,7 @@ class LearningPathService {
 
     if (result.statusCode != 200) {
       throw LearningPathException(
-          result.body['error'] as String? ?? 'Übung konnte nicht abgeschlossen werden');
+          result.body['error'] as String? ?? _sessionNotFinishedMessage);
     }
 
     try {
@@ -203,6 +258,67 @@ class LearningPathService {
       );
     } catch (_) {
       throw const LearningPathException(_unreadableResponseMessage);
+    }
+  }
+
+  Future<void> _markSessionPending(String practiceSessionId) async {
+    await _pendingSessionsLock.synchronized(() async {
+      final prefs = await SharedPreferences.getInstance();
+      final list = prefs.getStringList(_pendingEndSessionsKey) ?? <String>[];
+      if (!list.contains(practiceSessionId)) {
+        await prefs.setStringList(_pendingEndSessionsKey, [...list, practiceSessionId]);
+      }
+    });
+  }
+
+  Future<void> _clearPendingSession(String practiceSessionId) async {
+    await _pendingSessionsLock.synchronized(() async {
+      final prefs = await SharedPreferences.getInstance();
+      final list = prefs.getStringList(_pendingEndSessionsKey) ?? <String>[];
+      if (list.contains(practiceSessionId)) {
+        await prefs.setStringList(
+          _pendingEndSessionsKey,
+          list.where((id) => id != practiceSessionId).toList(),
+        );
+      }
+    });
+  }
+
+  /// Practice sessions that were flushed but never confirmed closed with
+  /// the server. Exposed for diagnostics/tests and for a "wird noch
+  /// gespeichert" indicator, should P2 want one.
+  Future<List<String>> pendingEndSessions() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getStringList(_pendingEndSessionsKey) ?? <String>[];
+  }
+
+  /// Retries every practice session left pending by a previous run — most
+  /// likely because the connection dropped between the child's last
+  /// answer and the server being told the session was over (see
+  /// [endPractice]). For each one this re-attempts the flush (a harmless
+  /// no-op if everything already synced, since `/sync` is an idempotent
+  /// upsert on (practice_session_id, problem_index)) and then calls
+  /// `/end`. A session is removed from the pending list only once `/end`
+  /// actually succeeds, so this is safe to call as often as needed —
+  /// repeated calls neither duplicate nor lose anything, and a session
+  /// that still can't complete (offline, server down, ...) simply stays
+  /// pending for the next call.
+  ///
+  /// P2 MUST call this — at app start, and ideally again on reconnect.
+  /// Nothing else ever revisits an old practiceSessionId, so a session
+  /// left pending here stays stranded until something calls this.
+  Future<void> recoverPendingSessions(
+    String token, {
+    required int slowBandMs,
+  }) async {
+    final sessions = await pendingEndSessions();
+    for (final sessionId in sessions) {
+      try {
+        await endPractice(token, sessionId, slowBandMs: slowBandMs);
+      } catch (_) {
+        // Still not recoverable this run; stays in the pending list so the
+        // next call retries it.
+      }
     }
   }
 }

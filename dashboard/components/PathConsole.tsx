@@ -55,9 +55,9 @@ export function PathConsole({ path, items, progress, allSkills }: PathDetailResu
       return false;
     }
     setErrorBox(result.error);
-    if (result.status === 409 && body.action === "activate") {
+    if (result.status === 409 && (body.action === "activate" || body.action === "reactivate")) {
       setErrorHint(
-        "Hinweis: Möglicherweise hat das Kind bereits einen aktiven Lernpfad. Archivieren Sie zuerst den aktiven Lernpfad.",
+        "Hinweis: Bitte zuerst den aktiven Lernpfad archivieren oder deaktivieren, dann erneut versuchen.",
       );
     }
     return false;
@@ -70,10 +70,17 @@ export function PathConsole({ path, items, progress, allSkills }: PathDetailResu
     );
   }
 
+  function reactivate() {
+    void runAction(
+      { path_id: path!.id, action: "reactivate" },
+      "Lernpfad reaktivieren? Der Lernpfad ist ab sofort wieder für das Kind sichtbar und kann geübt werden.",
+    );
+  }
+
   function archive() {
     void runAction(
       { path_id: path!.id, action: "archive" },
-      "Archivieren? Der Lernpfad wird für das Kind unsichtbar.",
+      "Der Lernpfad wird archiviert und ist für das Kind nicht mehr sichtbar. Du kannst ihn später wieder aktivieren.",
     );
   }
 
@@ -119,14 +126,14 @@ export function PathConsole({ path, items, progress, allSkills }: PathDetailResu
     const n = path!.unlock_width;
     if (
       !window.confirm(
-        `Fortschritt zurücksetzen? Alle Versuche und Meisterungen dieses Kindes in diesem Lernpfad werden gelöscht. Die ersten ${n} Kompetenzen werden wieder freigeschaltet.`,
+        `Fortschritt zurücksetzen? Alle Versuche und Meisterungen des Kindes werden gelöscht und der Status der Kompetenzen in diesem Lernpfad zurückgesetzt. Die ersten ${n} Kompetenzen werden wieder freigeschaltet.`,
       )
     ) {
       return;
     }
     if (
       !window.confirm(
-        "Wirklich zurücksetzen? Alle Fortschritte werden gelöscht und der Lernpfad neu geöffnet. Diese Aktion kann nicht rückgängig gemacht werden.",
+        "Wirklich zurücksetzen? Dieser Schritt kann nicht rückgängig gemacht werden.",
       )
     ) {
       return;
@@ -163,108 +170,124 @@ export function PathConsole({ path, items, progress, allSkills }: PathDetailResu
       </div>
 
       {/* Lifecycle actions */}
-      {(path.status === "draft" || path.status === "active") && (
+      {(path.status === "draft" || path.status === "active" || path.status === "archived") && (
         <div className="flex gap-2 flex-wrap">
-          {path.status === "draft" && (
+          {(path.status === "draft" || path.status === "archived") && (
             <button
               type="button"
-              onClick={activate}
+              onClick={path.status === "archived" ? reactivate : activate}
               disabled={busy}
               className={`${actionButtonClass} bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white border-transparent`}
             >
-              Aktivieren
+              {path.status === "archived" ? "Reaktivieren" : "Aktivieren"}
             </button>
           )}
-          <button
-            type="button"
-            onClick={archive}
-            disabled={busy}
-            className={`${actionButtonClass} bg-white hover:bg-gray-50 disabled:opacity-50 text-gray-700 border-gray-300`}
-          >
-            Archivieren
-          </button>
+          {path.status !== "archived" && (
+            <button
+              type="button"
+              onClick={archive}
+              disabled={busy}
+              className={`${actionButtonClass} bg-white hover:bg-gray-50 disabled:opacity-50 text-gray-700 border-gray-300`}
+            >
+              Archivieren
+            </button>
+          )}
+        </div>
+      )}
+
+      {path.status === "completed" && (
+        <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-sm text-blue-900">
+          Dieser Lernpfad ist abgeschlossen und daher schreibgeschützt. Fortschritt und Status
+          können nicht mehr geändert werden.
         </div>
       )}
 
       {/* Unlock width */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-2">
-        <div className="flex items-end gap-3 flex-wrap">
-          <div className="space-y-1">
-            <label htmlFor="unlock-width" className="block text-sm font-medium text-gray-700">
-              Freigeschaltete Kompetenzen
-            </label>
-            <input
-              id="unlock-width"
-              type="number"
-              min={1}
-              max={10}
-              value={unlockWidth}
-              onChange={(e) => setUnlockWidth(e.target.value)}
-              className="w-24 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+      {path.status !== "completed" && (
+        <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-2">
+          <div className="flex items-end gap-3 flex-wrap">
+            <div className="space-y-1">
+              <label htmlFor="unlock-width" className="block text-sm font-medium text-gray-700">
+                Freigeschaltete Kompetenzen am Anfang
+              </label>
+              <input
+                id="unlock-width"
+                type="number"
+                min={1}
+                max={10}
+                value={unlockWidth}
+                onChange={(e) => setUnlockWidth(e.target.value)}
+                className="min-h-[44px] w-24 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={saveUnlockWidth}
+              disabled={busy}
+              className={`${actionButtonClass} bg-gray-900 hover:bg-gray-700 disabled:opacity-50 text-white border-transparent`}
+            >
+              Speichern
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={saveUnlockWidth}
-            disabled={busy}
-            className={`${actionButtonClass} bg-gray-900 hover:bg-gray-700 disabled:opacity-50 text-white border-transparent`}
-          >
-            Speichern
-          </button>
+          {unlockWidthError && <p className="text-sm text-red-700">{unlockWidthError}</p>}
+          <p className="text-sm text-gray-500">
+            Legt fest, wie viele Kompetenzen am Anfang des Lernpfads für das Kind verfügbar sind
+            (1–10). Kompetenzen weiter hinten bleiben gesperrt, bis das Kind vorankommt.
+          </p>
         </div>
-        {unlockWidthError && <p className="text-sm text-red-700">{unlockWidthError}</p>}
-        <p className="text-xs text-gray-500">
-          Legt fest, wie viele Kompetenzen für das Kind gleichzeitig geöffnet sind (1–10).
-        </p>
-      </div>
+      )}
 
       {/* Add skill */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-2">
-        <label htmlFor="add-skill" className="block text-sm font-medium text-gray-700">
-          Kompetenz aus dem Katalog
-        </label>
-        <div className="flex gap-3 flex-wrap items-center">
-          <select
-            id="add-skill"
-            value={addSkillId}
-            onChange={(e) => setAddSkillId(e.target.value)}
-            className="flex-1 min-w-52 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">Bitte wählen…</option>
-            {allSkills.map((skill) => (
-              <option key={skill.id} value={skill.id}>
-                {skill.title_de}
-              </option>
-            ))}
-          </select>
-          <button
-            type="button"
-            onClick={addSkill}
-            disabled={busy || !addSkillId}
-            className={`${actionButtonClass} bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white border-transparent`}
-          >
-            Kompetenz hinzufügen
-          </button>
-        </div>
-        {allSkills.length === 0 && (
+      {path.status !== "completed" && (
+        <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-2">
+          <label htmlFor="add-skill" className="block text-sm font-medium text-gray-700">
+            Kompetenz aus dem Katalog
+          </label>
+          <div className="flex gap-3 flex-wrap items-center">
+            <select
+              id="add-skill"
+              value={addSkillId}
+              onChange={(e) => setAddSkillId(e.target.value)}
+              className="min-h-[44px] flex-1 min-w-52 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Bitte wählen…</option>
+              {allSkills.map((skill) => (
+                <option key={skill.id} value={skill.id}>
+                  {skill.title_de}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={addSkill}
+              disabled={busy || !addSkillId}
+              className={`${actionButtonClass} bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white border-transparent`}
+            >
+              Kompetenz hinzufügen
+            </button>
+          </div>
+          {allSkills.length === 0 && (
+            <p className="text-sm text-gray-500">
+              Alle Kompetenzen sind bereits im Lernpfad enthalten.
+            </p>
+          )}
           <p className="text-sm text-gray-500">
-            Alle Kompetenzen sind bereits im Lernpfad enthalten.
+            Die hinzugefügte Kompetenz wird ans Ende gestellt und ist zunächst gesperrt.
           </p>
-        )}
-        <p className="text-xs text-gray-500">
-          Die hinzugefügte Kompetenz wird ans Ende gestellt und ist zunächst gesperrt.
-        </p>
-      </div>
+        </div>
+      )}
 
       {/* Reset */}
-      <button
-        type="button"
-        onClick={resetProgress}
-        disabled={busy}
-        className={`${actionButtonClass} bg-red-50 hover:bg-red-100 disabled:opacity-50 text-red-700 border-red-200`}
-      >
-        Fortschritt zurücksetzen
-      </button>
+      {path.status !== "completed" && (
+        <button
+          type="button"
+          onClick={resetProgress}
+          disabled={busy}
+          className={`${actionButtonClass} bg-red-50 hover:bg-red-100 disabled:opacity-50 text-red-700 border-red-200`}
+        >
+          Fortschritt zurücksetzen
+        </button>
+      )}
 
       {/* Item list */}
       <div className="space-y-3">
@@ -298,22 +321,22 @@ export function PathConsole({ path, items, progress, allSkills }: PathDetailResu
                       }
                       aria-expanded={expanded}
                       aria-label={`${item.skills.title_de} ${expanded ? "einklappen" : "erweitern"}`}
-                      className="flex-1 min-w-52 text-left"
+                      className="flex-1 min-w-52 min-h-[44px] flex items-center text-left"
                     >
                       <span className="font-medium text-gray-900">{item.skills.title_de}</span>
                     </button>
                     {item.origin === "teacher_added" && (
-                      <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200 font-medium">
+                      <span className="inline-flex items-center gap-1 text-sm px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200 font-medium">
                         Hinzugefügt
                       </span>
                     )}
                     {isSlow && (
-                      <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 font-medium">
+                      <span className="inline-flex items-center gap-1 text-sm px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 font-medium">
                         Langsames Bearbeiten
                       </span>
                     )}
                     <span
-                      className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded font-medium ${stateMeta.className}`}
+                      className={`inline-flex items-center gap-1 text-sm px-2 py-0.5 rounded font-medium ${stateMeta.className}`}
                     >
                       <span aria-hidden="true">{stateMeta.icon}</span>
                       {stateMeta.label}
@@ -342,12 +365,12 @@ export function PathConsole({ path, items, progress, allSkills }: PathDetailResu
                                     {row.attempts} Versuche, {row.correct} richtig
                                   </span>
                                   {row.mastered_at && (
-                                    <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 font-medium">
+                                    <span className="inline-flex items-center gap-1 text-sm px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 font-medium">
                                       Gemeistert
                                     </span>
                                   )}
                                   {row.slow_flag && (
-                                    <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 font-medium">
+                                    <span className="inline-flex items-center gap-1 text-sm px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 font-medium">
                                       Langsames Bearbeiten
                                     </span>
                                   )}
@@ -364,7 +387,8 @@ export function PathConsole({ path, items, progress, allSkills }: PathDetailResu
                     </div>
                   )}
 
-                  <div className="flex items-center gap-1.5 flex-wrap pl-9">
+                  {path.status !== "completed" && (
+                    <div className="flex items-center gap-1.5 flex-wrap pl-9">
                     <button
                       type="button"
                       onClick={() => moveItem(index, -1)}
@@ -419,6 +443,7 @@ export function PathConsole({ path, items, progress, allSkills }: PathDetailResu
                       Entfernen
                     </button>
                   </div>
+                  )}
                 </li>
               );
             })}

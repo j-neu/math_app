@@ -42,3 +42,14 @@ export function archiveTransitionError(status: string): string | null {
   if ((PATH_STATUSES as readonly string[]).includes(status)) return null;
   return "Lernpfad kann nicht archiviert werden";
 }
+
+/**
+ * Whether the `reactivate` action (archive → active) may run against a path
+ * whose current status is `status`. Any schema-legal status can be
+ * reactivated; reactivating an already active path is the idempotent no-op.
+ * Returns null when allowed, a German error string otherwise.
+ */
+export function reactivateTransitionError(status: string): string | null {
+  if ((PATH_STATUSES as readonly string[]).includes(status)) return null;
+  return "Lernpfad kann nicht reaktiviert werden";
+}

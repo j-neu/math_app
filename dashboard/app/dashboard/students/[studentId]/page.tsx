@@ -1,6 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { getStudentLearningPaths } from "@/lib/lernpfad/queries";
+import { pathCounts } from "@/lib/lernpfad/stats";
+import { PathStatusBadge } from "@/components/PathStatusBadge";
 
 const STATUS_LABEL: Record<string, { label: string; className: string }> = {
   in_progress: { label: "In Bearbeitung", className: "text-yellow-700 bg-yellow-50" },
@@ -54,6 +57,8 @@ export default async function StudentHistoryPage({ params }: Props) {
     .select("id", { count: "exact", head: true })
     .eq("diagnostic_id", DIAG_ID);
 
+  const learningPaths = await getStudentLearningPaths(supabase, params.studentId);
+
   return (
     <div className="space-y-8 max-w-2xl">
       <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -67,6 +72,42 @@ export default async function StudentHistoryPage({ params }: Props) {
       </div>
 
       <h1 className="text-2xl font-bold">{student.display_name} — Verlauf</h1>
+
+      {/* Lernpfade */}
+      <section className="space-y-3">
+        <h2 className="text-lg font-semibold">Lernpfade</h2>
+        {learningPaths.length === 0 ? (
+          <p className="text-gray-400 text-sm py-6 text-center">
+            Noch keine Lernpfade. Nach einer abgeschlossenen Diagnostik wird automatisch ein
+            Entwurf angelegt.
+          </p>
+        ) : (
+          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden divide-y divide-gray-100">
+            {learningPaths.map((path) => {
+              const counts = pathCounts(path.path_items);
+              const sourceDate = new Date(
+                path.activated_at ?? path.created_at,
+              ).toLocaleDateString("de-DE");
+              return (
+                <Link
+                  key={path.id}
+                  href={`/dashboard/lernpfade/${path.id}`}
+                  className="min-h-[44px] flex items-center gap-2 px-4 py-3 hover:bg-gray-50"
+                >
+                  <PathStatusBadge status={path.status} />
+                  <span className="text-sm text-gray-600">
+                    {counts.mastered} gemeistert · {counts.available} verfügbar
+                  </span>
+                  <span className="text-sm text-gray-400 ml-auto">
+                    aus {sourceDate}
+                  </span>
+                  <span aria-hidden="true" className="text-gray-400">›</span>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </section>
 
       {(!sessions || sessions.length === 0) ? (
         <p className="text-gray-400 text-sm py-6 text-center">Noch keine Diagnostik durchgeführt.</p>
@@ -90,7 +131,7 @@ export default async function StudentHistoryPage({ params }: Props) {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3 flex-wrap">
                     <span className="text-sm font-medium text-gray-800">{date}</span>
-                    <span className={`text-xs px-2 py-0.5 rounded ${statusInfo.className}`}>
+                    <span className={`text-sm px-2 py-0.5 rounded ${statusInfo.className}`}>
                       {statusInfo.label}
                     </span>
                     <span className="text-xs text-gray-400">

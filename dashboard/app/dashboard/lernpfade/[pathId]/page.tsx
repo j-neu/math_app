@@ -68,10 +68,17 @@ export default async function LernpfadDetailPage({ params }: Props) {
         <PathStatusBadge status={currentPath.status} />
       </div>
 
-      {(currentPath.status === "draft" || currentPath.status === "archived") && (
+      {currentPath.status === "draft" && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-900">
           Dieser Lernpfad ist für das Kind noch nicht sichtbar. Er wird erst nach dem Aktivieren
           angezeigt.
+        </div>
+      )}
+
+      {currentPath.status === "archived" && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-900">
+          Dieser Lernpfad ist archiviert und für das Kind nicht mehr sichtbar. Reaktivieren Sie
+          ihn, damit das Kind ihn wieder üben kann.
         </div>
       )}
 

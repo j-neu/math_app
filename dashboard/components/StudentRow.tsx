@@ -179,7 +179,10 @@ export function StudentRow({ student, diagnosticId, totalQuestions }: Props) {
             {student.display_name.charAt(0).toUpperCase()}
           </div>
           <div>
-            <Link href={`/dashboard/students/${student.id}`} className="font-medium text-sm hover:text-blue-600 hover:underline">
+            <Link
+              href={`/dashboard/students/${student.id}`}
+              className="min-h-[44px] inline-flex items-center font-medium text-sm hover:text-blue-600 hover:underline"
+            >
               {student.display_name}
             </Link>
             {latest && (

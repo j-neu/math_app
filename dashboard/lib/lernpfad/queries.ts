@@ -167,16 +167,17 @@ export async function getPathDetail(
   };
 }
 
-export async function getStudentOverviewLink(
+export async function getStudentLearningPaths(
   supabase: SupabaseClient,
   studentId: string,
-): Promise<{ id: string } | null> {
+): Promise<ClassPathRow[]> {
   const { data } = await supabase
     .from("learning_paths")
-    .select("id")
+    .select(
+      "id, student_id, status, unlock_width, created_at, activated_at, path_items(skill_id, state)",
+    )
     .eq("student_id", studentId)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  return data ?? null;
+    .order("activated_at", { ascending: false })
+    .order("created_at", { ascending: false });
+  return (data ?? []) as ClassPathRow[];
 }

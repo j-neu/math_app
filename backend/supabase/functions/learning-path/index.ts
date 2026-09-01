@@ -13,7 +13,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { timingSafeEqual } from "https://deno.land/std@0.224.0/crypto/timing_safe_equal.ts";
 import { sortSkillIds } from "../_shared/ordering.ts";
-import { archiveTransitionError, unlockWindowStates } from "../_shared/path_actions.ts";
+import { archiveTransitionError, reactivateTransitionError, unlockWindowStates } from "../_shared/path_actions.ts";
 import { verifyStudentToken } from "../_shared/jwt.ts";
 import { requireEnv } from "../_shared/env.ts";
 
@@ -276,7 +276,19 @@ Deno.serve(async (req) => {
   }
 
   switch (action) {
-    case "activate": {
+    case "activate":
+    case "reactivate": {
+      // reactivate (archive → active) re-opens an archived path for the
+      // child. Same constraints as activate: at most one active path per
+      // student, enforced by the partial unique index (23505 → 409).
+      if (action === "reactivate") {
+        const { data: current } = await supabase
+          .from("learning_paths").select("status").eq("id", path_id).maybeSingle();
+        const transitionError = current
+          ? reactivateTransitionError(current.status)
+          : null;
+        if (transitionError) return json({ error: transitionError }, 400);
+      }
       const { error } = await supabase.from("learning_paths")
         .update({ status: "active", activated_at: new Date().toISOString() })
         .eq("id", path_id);

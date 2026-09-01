@@ -22,8 +22,8 @@ export default function CookieBanner() {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg">
-      <div className="max-w-5xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+    <div className="sticky bottom-0 z-50 w-full bg-white border-t border-gray-200 shadow-lg">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
         <p className="text-sm text-gray-700 flex-1">
           Diese Anwendung verwendet ausschließlich technisch notwendige Cookies
           für die Anmeldung. Keine Tracking- oder Analyse-Cookies.{" "}
@@ -33,7 +33,7 @@ export default function CookieBanner() {
         </p>
         <button
           onClick={accept}
-          className="shrink-0 bg-[#154761] text-white text-sm px-4 py-2 rounded hover:bg-[#1a5a7a] transition-colors"
+          className="shrink-0 min-h-[44px] inline-flex items-center justify-center bg-[#154761] text-white text-sm px-4 py-2 rounded hover:bg-[#1a5a7a] transition-colors"
         >
           Verstanden
         </button>

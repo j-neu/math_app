@@ -13,10 +13,6 @@ interface Props {
   params: { id: string };
 }
 
-function pathSortKey(p: { activated_at: string | null; created_at: string }): string {
-  return p.activated_at ?? p.created_at;
-}
-
 export default async function KlasseDetailPage({ params }: Props) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -90,15 +86,27 @@ export default async function KlasseDetailPage({ params }: Props) {
   const studentAppBase = process.env.NEXT_PUBLIC_STUDENT_APP_URL ?? "";
   const shortLoginUrl = schoolSlug ? `${studentAppBase}/s/${schoolSlug}` : null;
 
-  // Lernpfade: latest path per student + slow-flag alerts (all counts from stats.ts)
+  // Lernpfade: all paths per student (not just the latest) + slow-flag alerts
   const lernpfade = await getClassLearningPaths(supabase, params.id);
 
-  const latestPathByStudent = new Map<string, ClassPathRow>();
+  const pathsByStudent = new Map<string, ClassPathRow[]>();
   for (const p of lernpfade.paths) {
-    const existing = latestPathByStudent.get(p.student_id);
-    if (!existing || pathSortKey(p) > pathSortKey(existing)) {
-      latestPathByStudent.set(p.student_id, p);
-    }
+    const list = pathsByStudent.get(p.student_id) ?? [];
+    list.push(p);
+    pathsByStudent.set(p.student_id, list);
+  }
+  const STATUS_RANK: Record<string, number> = {
+    active: 0,
+    draft: 1,
+    completed: 2,
+    archived: 3,
+  };
+  for (const list of pathsByStudent.values()) {
+    list.sort(
+      (a, b) =>
+        (STATUS_RANK[a.status] ?? 9) - (STATUS_RANK[b.status] ?? 9) ||
+        (b.activated_at ?? b.created_at).localeCompare(a.activated_at ?? a.created_at),
+    );
   }
 
   const slowSkillIdsByStudent = new Map<string, Set<string>>();
@@ -124,7 +132,7 @@ export default async function KlasseDetailPage({ params }: Props) {
     skillTitleById = new Map((skills ?? []).map((s) => [s.id, s.title_de]));
   }
 
-  const anyPath = latestPathByStudent.size > 0;
+  const anyPath = pathsByStudent.size > 0;
 
   return (
     <div className="space-y-10">
@@ -208,23 +216,20 @@ export default async function KlasseDetailPage({ params }: Props) {
         {students && students.length > 0 && (
           <div className="bg-white border border-gray-200 rounded-xl overflow-hidden divide-y divide-gray-100">
             {students.map((s) => {
-              const path = latestPathByStudent.get(s.id) ?? null;
+              const studentPaths = pathsByStudent.get(s.id) ?? [];
               const slowSkills = [...(slowSkillIdsByStudent.get(s.id) ?? [])]
                 .map((id) => skillTitleById.get(id))
                 .filter((title): title is string => Boolean(title));
               return (
                 <PathStatusRow
                   key={s.id}
+                  studentId={s.id}
                   studentName={s.display_name}
-                  path={
-                    path
-                      ? {
-                          id: path.id,
-                          status: path.status,
-                          counts: pathCounts(path.path_items),
-                        }
-                      : null
-                  }
+                  paths={studentPaths.map((path) => ({
+                    id: path.id,
+                    status: path.status,
+                    counts: pathCounts(path.path_items),
+                  }))}
                   slowSkills={slowSkills}
                 />
               );

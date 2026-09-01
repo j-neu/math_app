@@ -1,5 +1,9 @@
 import { assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts";
-import { archiveTransitionError, unlockWindowStates } from "./path_actions.ts";
+import {
+  archiveTransitionError,
+  reactivateTransitionError,
+  unlockWindowStates,
+} from "./path_actions.ts";
 
 Deno.test("unlockWindowStates opens exactly the first unlock_width items by position", () => {
   const items = [
@@ -73,5 +77,18 @@ Deno.test("archive rejects an unknown current status", () => {
   assertEquals(
     archiveTransitionError("published"),
     "Lernpfad kann nicht archiviert werden",
+  );
+});
+
+Deno.test("reactivate is allowed from every schema status incl. active (idempotent no-op)", () => {
+  for (const status of ["draft", "active", "completed", "archived"]) {
+    assertEquals(reactivateTransitionError(status), null);
+  }
+});
+
+Deno.test("reactivate rejects an unknown current status", () => {
+  assertEquals(
+    reactivateTransitionError("published"),
+    "Lernpfad kann nicht reaktiviert werden",
   );
 });

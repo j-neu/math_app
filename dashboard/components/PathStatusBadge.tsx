@@ -11,7 +11,7 @@ export function PathStatusBadge({ status }: { status: PathStatus }) {
   const meta = STATUS_META[status] ?? STATUS_META.draft;
   return (
     <span
-      className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded font-medium ${meta.className}`}
+      className={`inline-flex items-center gap-1 text-sm px-2 py-0.5 rounded font-medium ${meta.className}`}
       role="status"
     >
       <span aria-hidden="true" className="text-current">{meta.icon}</span>

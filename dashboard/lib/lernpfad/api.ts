@@ -2,6 +2,7 @@ import { FunctionsHttpError, type SupabaseClient } from "@supabase/supabase-js";
 
 export type PatchPathAction =
   | "activate"
+  | "reactivate"
   | "archive"
   | "set_unlock_width"
   | "add_skill"

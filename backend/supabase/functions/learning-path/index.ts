@@ -21,6 +21,7 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-student-token",
+  "Access-Control-Allow-Methods": "POST, GET, PUT, PATCH, DELETE, OPTIONS",
 };
 
 // Custom, developer-managed secret (unlike SUPABASE_URL/SUPABASE_*_KEY,

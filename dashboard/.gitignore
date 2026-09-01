@@ -8,6 +8,9 @@
 
 # testing
 /coverage
+/test-results/
+/playwright-report/
+/e2e/.fixture.json
 
 # next.js
 /.next/

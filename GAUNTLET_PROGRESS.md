@@ -64,6 +64,24 @@ Deferred/flagged for P2 tasks 6-8: evaluator must handle arrangement-aware rules
 - P4 teacher console: plan (`docs/superpowers/plans/2026-08-31-p4-teacher-console.md`, 10 tasks) + backend `archive`/`reset`-re-open (`9707ac5`, 30 deno tests) + dashboard foundation (`d2a70c7`) + interactive PathConsole with all PATCH actions + teacher e2e smoke 5/5 (`2f8b182`, incl. a CORS Access-Control-Allow-Methods fix deployed) + P4 critic (ran the real console, 2 High/5 Med/3 Low) + all 9 findings fixed (`1aec30a`; reactivate action, multi-path linking, 44px targets, phone banner, honest confirms).
 - **Branch `gauntlet/p2-p3-p4`: P2 + P3 + P4 complete and critic-loop-clean. Next: integration gauntlet.**
 
+### 2026-09-01 — Integration gauntlet: real journeys executed (live)
+
+Ran against the LIVE product (live Supabase + local dashboard + local Flutter web dev server, all real data, no mocks). Finding #9 (Flutter 3.35 web drops synthetic POINTER events through the a11y semantics host) was worked around: **keyboard Tab/Enter drives the Flutter UI** (roster + login + path-tile activation all fired real requests), plus a `?sem=1` test hook in `main.dart` forces the semantics tree so the UI is verifiable/automatable.
+
+**Journey 1 — Teacher → child login → path → practice → mastery → teacher (COMPLETE, live):**
+- Set a valid class code (`S4KA`) for the E2E class (fixture class had `null` — child login unreachable otherwise).
+- Real child app (`/lernen/e2e-d7e2ee94`): entered `S4KA` → roster 200 (E2E Kind) → login 200 (JWT) → `/lernpfad` 200 → path screen rendered "Hallo, E2E Kind!" + "3 Übungen für dich bereit" + 4 tiles (3 verfügbar, 1 gesperrt) with real titles/descriptions → Tab+Enter on a tile → **practice-session/start 200** → PracticeScreen rendered "Aufgabe 1 von 8 · Lege · Tippe auf dem Zahlenstrahl Schritt für Schritt weiter bis zur 60." with disabled "Weiter" until input.
+- Completed the A1.2a session (opened via the UI) through the real `/sync`+`/end` with the ACTUAL generator output for the session's seed (8 problems, all correct): `mastered: true`. DB verified: session `problems_total 8 / correct 8 / median 5000ms`, 8 attempt rows, `skill_progress A1.2a L1 8/8 mastered_at set`, path items coherent.
+- Teacher dashboard: `/dashboard/lernpfade/<path>` shows path "Aktiv", slow-flag banner ("Langsames Bearbeiten" on the fixture-slow A1.1a), and per-skill level rows (expand tile): **"Stufe 1 · 8 Versuche, 8 richtig · Gemeistert"** for A1.2a.
+
+**Journey 2 — Diagnostic → Förderplan → path generation (COMPLETE, live):**
+- Created a session ticket, started a real diagnostic session (cleanroom-v1), posted 60 answers (deliberately wrong on the counting questions Q1-8), then opened the dashboard Förderplan page → `foerderplan-generate` 200 → **recommended_skill_ids `[A1.1a, A1.1b, A1.2a, A1.2b, A1.3, A1.4, A1.5]`** (exactly the designed counting-weakness profile) → a **new draft learning path created** with `source_session_id` set.
+- **BUG FOUND + FIXED (deployed):** the session never auto-completed — `diagnostic-results` counted all 92 `diagnostic_questions` rows (60 core + 32 deep-dive share the table) against the child's 60 answers. Previously masked by the app's explicit `completeSession()`. Fixed to use `diagnostics.question_count`; re-verified: the 60th answer now returns `session_completed: true` and the session row is `completed` with `completed_at`. Committed + deployed.
+
+**Integration-phase decisions:**
+- Diagnostic report screen's "Weiter zum Üben" no longer routes children to the retired practice engine (`LearningPathScreen`); it explains the teacher prepares the path (P2-plan Task 10 deferred decision). Committed.
+- Finding #9 (Flutter pointer-event automation gap) is a Flutter-engine tooling limitation, documented; keyboard automation + `?sem=1` cover it.
+
 ### 2026-08-31 — Live data snapshot (pilot)
 `schools` → Pilotschule (`pilotschule`). `classes` → 2b (`22WW`, repaired), 3a (`4A35`), Klasse 2a (`3CD7`). `students` → SCH01 (2b), S01 (Klasse 2a). `diagnostics` → cleanroom-v1 (60), imint-grundschule-zr20 (92).
 

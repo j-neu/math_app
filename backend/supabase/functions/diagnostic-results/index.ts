@@ -83,23 +83,34 @@ Deno.serve(async (req) => {
 
   if (rErr) return json({ error: "Failed to save result", detail: rErr.message }, 500);
 
-  // Check if all questions answered → complete session
-  const { count: totalQuestions } = await supabase
-    .from("diagnostic_questions")
-    .select("id", { count: "exact", head: true })
-    .eq("diagnostic_id", session.diagnostic_id);
+  // Check if all questions answered → complete session.
+  // The total is the diagnostic's question_count (the core items the child
+  // actually answers), NOT the count of rows in diagnostic_questions: the
+  // cleanroom bank stores the 32 deep-dive items in the same table (61..92),
+  // and the child never answers those in the standard flow. Counting rows
+  // would demand 92 answers for a 60-item run and the session would never
+  // auto-complete (previously masked by the app's explicit completeSession).
+  const { data: diag } = await supabase
+    .from("diagnostics")
+    .select("question_count")
+    .eq("id", session.diagnostic_id)
+    .maybeSingle();
+  const totalQuestions = diag?.question_count ?? 0;
 
   const { count: answeredCount } = await supabase
     .from("diagnostic_results")
     .select("id", { count: "exact", head: true })
     .eq("session_id", session_id);
 
-  const completed = (answeredCount ?? 0) >= (totalQuestions ?? 1);
+  const completed = (answeredCount ?? 0) >= totalQuestions;
   if (completed) {
-    await supabase
+    const { error: completeErr } = await supabase
       .from("diagnostic_sessions")
       .update({ status: "completed", completed_at: new Date().toISOString() })
       .eq("id", session_id);
+    if (completeErr) {
+      console.error("diagnostic-results: session completion update failed:", completeErr);
+    }
   }
 
   return json({ ok: true, session_completed: completed });

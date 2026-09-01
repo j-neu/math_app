@@ -4,9 +4,17 @@ import Link from "next/link";
 import { StudentRow } from "@/components/StudentRow";
 import { AddStudentForm } from "@/components/AddStudentForm";
 import { BulkQrButton } from "@/components/BulkQrButton";
+import { PathStatusRow } from "@/components/PathStatusRow";
+import { getClassLearningPaths } from "@/lib/lernpfad/queries";
+import type { ClassPathRow } from "@/lib/lernpfad/queries";
+import { pathCounts } from "@/lib/lernpfad/stats";
 
 interface Props {
   params: { id: string };
+}
+
+function pathSortKey(p: { activated_at: string | null; created_at: string }): string {
+  return p.activated_at ?? p.created_at;
 }
 
 export default async function KlasseDetailPage({ params }: Props) {
@@ -82,6 +90,42 @@ export default async function KlasseDetailPage({ params }: Props) {
   const studentAppBase = process.env.NEXT_PUBLIC_STUDENT_APP_URL ?? "";
   const shortLoginUrl = schoolSlug ? `${studentAppBase}/s/${schoolSlug}` : null;
 
+  // Lernpfade: latest path per student + slow-flag alerts (all counts from stats.ts)
+  const lernpfade = await getClassLearningPaths(supabase, params.id);
+
+  const latestPathByStudent = new Map<string, ClassPathRow>();
+  for (const p of lernpfade.paths) {
+    const existing = latestPathByStudent.get(p.student_id);
+    if (!existing || pathSortKey(p) > pathSortKey(existing)) {
+      latestPathByStudent.set(p.student_id, p);
+    }
+  }
+
+  const slowSkillIdsByStudent = new Map<string, Set<string>>();
+  for (const row of lernpfade.progress) {
+    if (!row.slow_flag) continue;
+    let ids = slowSkillIdsByStudent.get(row.student_id);
+    if (!ids) {
+      ids = new Set<string>();
+      slowSkillIdsByStudent.set(row.student_id, ids);
+    }
+    ids.add(row.skill_id);
+  }
+
+  const flaggedSkillIds = Array.from(
+    new Set([...slowSkillIdsByStudent.values()].flatMap((ids) => [...ids])),
+  );
+  let skillTitleById = new Map<string, string>();
+  if (flaggedSkillIds.length > 0) {
+    const { data: skills } = await supabase
+      .from("skills")
+      .select("id, title_de")
+      .in("id", flaggedSkillIds);
+    skillTitleById = new Map((skills ?? []).map((s) => [s.id, s.title_de]));
+  }
+
+  const anyPath = latestPathByStudent.size > 0;
+
   return (
     <div className="space-y-10">
       {/* Breadcrumb */}
@@ -145,6 +189,46 @@ export default async function KlasseDetailPage({ params }: Props) {
                 totalQuestions={totalQuestions ?? undefined}
               />
             ))}
+          </div>
+        )}
+      </section>
+
+      {/* Lernpfade */}
+      <section className="space-y-3">
+        <div className="flex items-baseline justify-between">
+          <h2 className="text-lg font-semibold">Lernpfade</h2>
+          <p className="text-xs text-gray-400">Stand: {new Date().toLocaleString("de-DE")}</p>
+        </div>
+        {(!students || students.length === 0 || !anyPath) && (
+          <p className="text-gray-400 text-sm py-3 text-center">
+            Noch keine Lernpfade. Nach einer abgeschlossenen Diagnostik wird automatisch ein
+            Entwurf angelegt.
+          </p>
+        )}
+        {students && students.length > 0 && (
+          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden divide-y divide-gray-100">
+            {students.map((s) => {
+              const path = latestPathByStudent.get(s.id) ?? null;
+              const slowSkills = [...(slowSkillIdsByStudent.get(s.id) ?? [])]
+                .map((id) => skillTitleById.get(id))
+                .filter((title): title is string => Boolean(title));
+              return (
+                <PathStatusRow
+                  key={s.id}
+                  studentName={s.display_name}
+                  path={
+                    path
+                      ? {
+                          id: path.id,
+                          status: path.status,
+                          counts: pathCounts(path.path_items),
+                        }
+                      : null
+                  }
+                  slowSkills={slowSkills}
+                />
+              );
+            })}
           </div>
         )}
       </section>

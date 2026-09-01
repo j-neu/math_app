@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart' show SemanticsBinding;
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:go_router/go_router.dart';
@@ -24,6 +25,12 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (kIsWeb) {
     usePathUrlStrategy(); // Clean URLs: /s/<ticket> instead of /#/s/<ticket>
+    // Test/accessibility hook: force the semantics tree on for web builds so
+    // automated UI verification (and screen-reader tooling) can see and drive
+    // the canvas app. Production builds never pass this flag.
+    if (Uri.base.queryParameters['sem'] == '1') {
+      SemanticsBinding.instance.ensureSemantics();
+    }
   }
   await initializeDateFormatting('de_DE', null);
   runApp(const MyApp());

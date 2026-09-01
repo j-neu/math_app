@@ -57,6 +57,13 @@ Committed evidence (all on `gauntlet/p2-p3-p4`):
 
 Deferred/flagged for P2 tasks 6-8: evaluator must handle arrangement-aware rules (C1.1b/C1.3 L2 two_groups derived quantity), flash_subitize repeats counts by design (≤5), A1.5 L1 only 2 unique problems (plan-allowed duplicate fill), B1.3/B2.3 L2 gained `ones_range` [10,18].
 
+### 2026-08-31 — P2 critic round + P4 teacher console
+
+- P2 critic (fresh context, ran the actual app against live): **Critical CORS blocker** — `learning-path` omitted `x-student-token` from `Access-Control-Allow-Headers`, killing `/lernpfad` in-browser. Fixed (`3ab353a`) + deployed; preflight verified. Plus 3 Important + 6 Minor findings → all fixed at `43b3a0b` (take_away semantics, retry-copy, neighbor dual-gap, Semantics labels, reduced motion, gray subtracted group, recovery band persistence, A1.2b range) + stray png removed. Re-review: 9/10 addressed; #9 (Flutter-web synthetic-pointer limitation) is tooling-only.
+- P3 re-review: 18/18 findings ADDRESSED in the actual JSONs; check_specs OK 36/36; one residual (A1.2b L2 range) fixed.
+- P4 teacher console: plan (`docs/superpowers/plans/2026-08-31-p4-teacher-console.md`, 10 tasks) + backend `archive`/`reset`-re-open (`9707ac5`, 30 deno tests) + dashboard foundation (`d2a70c7`) + interactive PathConsole with all PATCH actions + teacher e2e smoke 5/5 (`2f8b182`, incl. a CORS Access-Control-Allow-Methods fix deployed) + P4 critic (ran the real console, 2 High/5 Med/3 Low) + all 9 findings fixed (`1aec30a`; reactivate action, multi-path linking, 44px targets, phone banner, honest confirms).
+- **Branch `gauntlet/p2-p3-p4`: P2 + P3 + P4 complete and critic-loop-clean. Next: integration gauntlet.**
+
 ### 2026-08-31 — Live data snapshot (pilot)
 `schools` → Pilotschule (`pilotschule`). `classes` → 2b (`22WW`, repaired), 3a (`4A35`), Klasse 2a (`3CD7`). `students` → SCH01 (2b), S01 (Klasse 2a). `diagnostics` → cleanroom-v1 (60), imint-grundschule-zr20 (92).
 

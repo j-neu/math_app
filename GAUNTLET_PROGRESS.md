@@ -89,5 +89,15 @@ Ran against the LIVE product (live Supabase + local dashboard + local Flutter we
 
 ## Open items / decisions
 - [ ] 59-vs-60 core item count (Jakob's R2.9 sign-off determines final state).
-- [ ] P2/P3/P4 acceptance criteria from independent critics.
-- [ ] Live deployment of any new edge functions / dashboard changes after this build.
+- [ ] Deploy the Flutter web app with the new practice runtime + teacher console to Vercel (local verification done; production rollout is Jakob's step).
+- [ ] F5 abandoned-session handling: document-only note today; product decision needed (abandon timeout vs resumable state).
+- [ ] Live re-deploy of the dashboard after P4 changes (next push to the portal repo).
+
+### 2026-09-01 — Final fresh-context integration critic + fixes
+The final critic exercised the real product (all three journeys passed) and found 1 Critical + 3 Important + 2 Minor, all addressed at `a2625c1` + backend deploys:
+- F1 (Critical): console add-skill picker exposed 87 legacy skills with no spec → now filtered to the 36 spec-backed skills.
+- F2 (Important): `deno check` failed across functions (latent TS type errors in diagnostic-sessions) → fixed, all functions type-check clean.
+- F3 (Important): practice summary said "Fast geschafft!" after an 8/8 mastered session → now keyed to the session result.
+- F4 (Important): duplicate problems within a session → 16 degenerate generator ranges widened; smoke test now asserts ≥4 distinct per level.
+- F5/F6 (Minor): abandoned-session notes added; "aus Diagnostik vom" label neutral for manual paths.
+Final gates (fresh): `flutter test` 455/455 · `flutter analyze` 0 errors · dashboard `tsc` clean · `check_specs.py` OK 36/36.

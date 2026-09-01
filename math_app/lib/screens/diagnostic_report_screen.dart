@@ -13,7 +13,6 @@ import '../services/diagnostic_service.dart';
 import '../services/docx_kurz_foerderplan_service.dart';
 import '../services/pdf_kurz_foerderplan_service.dart';
 import '../services/pdf_report_service.dart';
-import 'learning_path_screen.dart';
 
 /// Native Förderplan screen shown immediately after a diagnostic completes.
 class DiagnosticReportScreen extends StatefulWidget {
@@ -493,10 +492,29 @@ class _DiagnosticReportScreenState extends State<DiagnosticReportScreen> {
     }
   }
 
+  // The legacy practice engine (LearningPathScreen, retired skills) must not
+  // be the child's next step after a diagnostic — practice now happens on the
+  // server-driven learning path via the class code (integration-phase
+  // decision, P2 plan Task 10). The child is told the teacher prepares the
+  // path instead of being routed to retired exercises.
   void _continueToLearningPath(BuildContext context) {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => LearningPathScreen(userProfile: widget.userProfile),
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Dein Lernpfad'),
+        content: const Text(
+          'Deine Lehrkraft bereitet deinen persönlichen Lernpfad vor. '
+          'Zum Üben bekommst du von ihr einen Code.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            },
+            child: const Text('Verstanden'),
+          ),
+        ],
       ),
     );
   }

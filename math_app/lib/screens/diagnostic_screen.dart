@@ -744,6 +744,12 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
         );
 
         if (shouldExit == true && context.mounted) {
+          // NOTE (integration-critic F5): the session is left in_progress so
+          // the child can resume later — the server is never told the session
+          // was abandoned (no API call here, and the diagnostic-sessions
+          // function's only terminal action is "complete"). Marking sessions
+          // abandoned would need a product decision; see the note in
+          // diagnostic-sessions/index.ts.
           Navigator.of(context).pop();
         }
       },

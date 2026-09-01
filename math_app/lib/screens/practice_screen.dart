@@ -192,7 +192,14 @@ class _PracticeScreenState extends State<PracticeScreen> {
         ],
       ),
     );
-    if (leave == true && mounted) Navigator.pop(context);
+    if (leave == true && mounted) {
+      // NOTE (integration-critic F5): this pops without telling the server.
+      // The practice_session keeps ended_at = null (a dangling row) until the
+      // /end path runs. A safe fix needs a product decision (an explicit
+      // abandon action or an inactivity threshold) — ending here and letting
+      // the server score partial attempts would be wrong. Document-only.
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -486,7 +493,12 @@ class _PracticeScreenState extends State<PracticeScreen> {
   Widget _buildSummary(BuildContext context) {
     final result = _controller.masteryResult;
     final scheme = Theme.of(context).colorScheme;
-    final mastered = result?.mastered ?? false;
+    // The primary verdict is the SESSION result, not the whole-skill one:
+    // a child who aces the session (e.g. 8/8) has "Geschafft!" even when the
+    // skill still has further levels; "Fast geschafft!" is reserved for a
+    // session that did not reach the mastery threshold (integration-critic F3).
+    final sessionMastered = _controller.sessionMastered;
+    final celebrated = sessionMastered || (result?.mastered ?? false);
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -496,13 +508,13 @@ class _PracticeScreenState extends State<PracticeScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                mastered ? Icons.emoji_events : Icons.flag,
+                celebrated ? Icons.emoji_events : Icons.flag,
                 size: 72,
-                color: mastered ? Colors.amber.shade700 : scheme.primary,
+                color: celebrated ? Colors.amber.shade700 : scheme.primary,
               ),
               const SizedBox(height: 12),
               Text(
-                mastered ? 'Geschafft!' : 'Fast geschafft!',
+                celebrated ? 'Geschafft!' : 'Fast geschafft!',
                 // Dark primary on the surface, not amber: amber.shade800 is
                 // only ~2.3:1 on white (fails even the large-text 3:1
                 // threshold). The trophy icon keeps the celebration colour;
@@ -510,7 +522,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 style: TextStyle(
                   fontSize: 40,
                   fontWeight: FontWeight.bold,
-                  color: mastered ? scheme.primary : scheme.onSurface,
+                  color: celebrated ? scheme.primary : scheme.onSurface,
                 ),
               ),
               const SizedBox(height: 12),
@@ -544,25 +556,50 @@ class _PracticeScreenState extends State<PracticeScreen> {
         ),
       ];
     }
-    if (result.mastered) {
-      final unlocked = result.unlocked.map(_titleForSkill).where((t) => t.isNotEmpty).toList();
+    if (_controller.sessionMastered) {
+      final remainingLevels = widget.spec.levels.length - _controller.level;
+      final unlocked = result.mastered
+          ? result.unlocked.map(_titleForSkill).where((t) => t.isNotEmpty).toList()
+          : const <String>[];
       return [
         Text(
-          unlocked.isEmpty
-              ? 'Du hast alle Aufgaben geschafft!'
-              : 'Du hast eine neue Fähigkeit geöffnet:',
+          'Du hast alle ${_controller.problemCount} Aufgaben richtig.',
           textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 18),
         ),
-        for (final title in unlocked)
+        // The skill may still have further levels even though the session was
+        // mastered — say so instead of implying failure.
+        if (!result.mastered && remainingLevels > 0)
           Padding(
             padding: const EdgeInsets.only(top: 6),
             child: Text(
-              title,
+              remainingLevels == 1
+                  ? 'Noch 1 Stufe bis die Kompetenz ganz geschafft ist.'
+                  : 'Noch $remainingLevels Stufen bis die Kompetenz ganz '
+                        'geschafft ist.',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 18, height: 1.4),
             ),
           ),
+        if (result.mastered && unlocked.isNotEmpty) ...[
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(
+              'Du hast eine neue Fähigkeit geöffnet:',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 18),
+            ),
+          ),
+          for (final title in unlocked)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ),
+        ],
       ];
     }
     return const [

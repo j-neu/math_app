@@ -1090,6 +1090,44 @@ void main() {
       expect(checked, 4320);
     });
 
+    test('no degenerate levels: >= 4 distinct problem signatures per level',
+        () {
+      // A problem "signature" is the full display payload — exactly the key
+      // generateProblems deduplicates on. A level whose parameter ranges can
+      // only produce a handful of distinct problems fills the rest of the
+      // session with repeats (integration-critic F4: A1.2a L2 served the same
+      // sequence 3x in one session). Every level must be able to produce at
+      // least 4 distinct signatures across the smoke-test seeds.
+      //
+      // Legitimately-capped templates: flash_subitize / the subitizable
+      // zehnerfeld_read levels (A2.1) draw counts from [1, 5] — subitizing is
+      // capped at 5, so these levels support exactly 5 distinct signatures,
+      // still >= 4. No template supports fewer than 4 in the current specs.
+      for (final spec in specs) {
+        for (var level = 1; level <= 3; level++) {
+          final levelSpec = spec.levelSpec(level);
+          final signatures = <String>{};
+          for (final seed in seeds) {
+            for (final p in generateProblems(
+              spec: spec,
+              level: level,
+              seed: seed,
+            )) {
+              signatures.add(jsonEncode(p.display));
+            }
+          }
+          expect(
+            signatures.length,
+            greaterThanOrEqualTo(4),
+            reason: '${spec.skillId} L$level must not be degenerate '
+                '(template ${levelSpec.template}): only '
+                '${signatures.length} distinct problem signatures in a '
+                '${levelSpec.problemCount}-problem session',
+          );
+        }
+      }
+    });
+
     test('construct-specific gates: nonstandard place_counters, "viele Einer" '
         'sum_rows and flash_subitize params', () {
       for (final spec in specs) {

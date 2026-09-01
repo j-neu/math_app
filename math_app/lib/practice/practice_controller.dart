@@ -73,6 +73,10 @@ class PracticeController extends ChangeNotifier {
   /// feedback but never re-recorded — see [submit].
   final Set<int> _recordedProblemIndices = <int>{};
 
+  /// Problems answered correctly on the FIRST attempt (a later retry does
+  /// not count). Drives the summary's session verdict.
+  int _firstAttemptCorrectCount = 0;
+
   /// True when the last submission was a CORRECT answer on a problem whose
   /// attempt was already recorded (i.e. the child fixed a first-attempt
   /// mistake). The screen uses this to show honest "Jetzt stimmt es!"
@@ -110,6 +114,16 @@ class PracticeController extends ChangeNotifier {
 
   MasteryResult? get masteryResult => _masteryResult;
 
+  /// True when the SESSION earned the level's mastery threshold: every
+  /// required problem was answered correctly on the first attempt. This is
+  /// the session result — distinct from the server's whole-skill
+  /// [MasteryResult.mastered], which stays false until all levels of the
+  /// skill are done. The summary uses this so a child who aces the session
+  /// never sees "Fast geschafft!" just because the skill still has further
+  /// levels (integration-critic F3).
+  bool get sessionMastered =>
+      _firstAttemptCorrectCount >= spec.mastery.correctOf;
+
   String? get errorMessage => _errorMessage;
 
   /// The encouraging hint for the last wrong answer, drawn from the spec's
@@ -144,6 +158,7 @@ class PracticeController extends ChangeNotifier {
       );
       _problemIndex = 0;
       _recordedProblemIndices.clear();
+      _firstAttemptCorrectCount = 0;
       _lastEvaluation = null;
       _lastWasRetryCorrect = false;
       _stopwatch
@@ -190,6 +205,7 @@ class PracticeController extends ChangeNotifier {
     final alreadyRecorded = !_recordedProblemIndices.add(_problemIndex);
     _lastWasRetryCorrect = alreadyRecorded && evaluation.isCorrect;
     if (!alreadyRecorded) {
+      if (evaluation.isCorrect) _firstAttemptCorrectCount++;
       final attempt = PracticeAttempt(
         problemIndex: _problemIndex,
         problem: problem.toJson(),

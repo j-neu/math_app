@@ -41,6 +41,12 @@ export default async function LernpfadDetailPage({ params }: Props) {
   const sourceDate = new Date(
     currentPath.activated_at ?? currentPath.created_at,
   ).toLocaleDateString("de-DE");
+  // Only a path that really came from a diagnostic gets the "aus Diagnostik"
+  // label; a manually created path has no source session and would otherwise
+  // be mislabelled (integration-critic F6).
+  const sourceLabel = currentPath.source_session_id
+    ? ` · aus Diagnostik vom ${sourceDate}`
+    : " · manuell erstellt";
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -61,8 +67,7 @@ export default async function LernpfadDetailPage({ params }: Props) {
         <div>
           <h1 className="text-2xl font-bold">{currentStudent.display_name} — Lernpfad</h1>
           <p className="text-sm text-gray-500 mt-1">
-            {currentPath.unlock_width} Kompetenzen freigeschaltet · aus Diagnostik vom{" "}
-            {sourceDate}
+            {currentPath.unlock_width} Kompetenzen freigeschaltet{sourceLabel}
           </p>
         </div>
         <PathStatusBadge status={currentPath.status} />

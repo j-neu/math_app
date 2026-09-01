@@ -40,6 +40,14 @@ Deno.serve(async (req) => {
     return json({ ok: true });
   }
 
+  // NOTE (integration-critic F5): no action ever writes status = 'abandoned'
+  // (the column allows it; the child app closes mid-diagnostic by popping
+  // without a server call). This is deliberate: an in_progress session is
+  // RESUMABLE ("Du kannst später dort weitermachen, wo du aufgehört hast"),
+  // so marking a session abandoned on close would break resume. A safe fix
+  // needs a product decision — e.g. an inactivity timeout or a separate
+  // "abandon but keep resumable until a deadline" state. Document-only.
+
   // ── Resolve ticket ID ────────────────────────────────────────────────────────
   let ticket_id: string;
 

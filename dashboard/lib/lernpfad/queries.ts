@@ -7,6 +7,7 @@ import type {
   PathStatus,
   SkillProgressRow,
 } from "./types.ts";
+import { SPEC_BACKED_SKILL_IDS } from "./types.ts";
 
 export interface PathDetailStudent {
   id: string;
@@ -157,7 +158,14 @@ export async function getPathDetail(
     .select("id, title_de, color");
 
   const onPath = new Set((items ?? []).map((item) => item.skill_id as string));
-  const allSkills = (catalog ?? []).filter((skill) => !onPath.has(skill.id as string));
+  // Only offer skills the child app can actually run: the 36 spec-backed
+  // ids, excluding the ones already on the path. Legacy/retired skills have
+  // no child-facing spec and would dead-end the child (F1).
+  const allSkills = (catalog ?? []).filter(
+    (skill) =>
+      !onPath.has(skill.id as string) &&
+      SPEC_BACKED_SKILL_IDS.has(skill.id as string),
+  );
 
   return {
     path: { ...(path as LearningPathRow), student },

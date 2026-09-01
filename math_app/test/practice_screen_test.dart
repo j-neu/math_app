@@ -161,6 +161,7 @@ Future<void> _pumpScreen(
   PracticeController controller,
   SkillSpec spec, {
   SkillSpecStore? store,
+  int level = 3,
 }) async {
   await tester.binding.setSurfaceSize(const Size(900, 1700));
   addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -170,7 +171,7 @@ Future<void> _pumpScreen(
       home: PracticeScreen(
         token: 'tok',
         spec: spec,
-        level: 3,
+        level: level,
         controller: controller,
         skillStore: store,
       ),
@@ -381,6 +382,59 @@ void main() {
     }
 
     await tester.pump(const Duration(seconds: 2));
+  });
+
+  testWidgets('mastered session with further skill levels: the summary is '
+      'session-positive and says how many stages remain — never '
+      '"Fast geschafft!"', (tester) async {
+    final backend = _Backend()..mastered = false;
+    final service = LearningPathService(client: backend.client);
+    final spec = _spec(1, 'equation_solve', {
+      'op': '+',
+      'unknown': 'result',
+      'zr': 10,
+      'a_range': [1, 5],
+      'b_range': [1, 5],
+      'mode': 'standard',
+    });
+    final controller = PracticeController(
+      token: 'tok',
+      spec: spec,
+      level: 1,
+      service: service,
+    );
+    await _pumpScreen(tester, controller, spec, store: _unlockStore(), level: 1);
+
+    // All 8 problems correct on the first attempt → the session is mastered.
+    for (var i = 0; i < 8; i++) {
+      await _answerCorrect(tester, controller);
+      if (i < 7) {
+        await tester.tap(find.widgetWithText(FilledButton, 'Weiter'));
+        await tester.pump();
+        await tester.pump();
+      }
+    }
+    await tester.tap(find.widgetWithText(FilledButton, 'Weiter'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.pump(const Duration(milliseconds: 50));
+
+    expect(backend.endCalls, 1);
+    expect(controller.sessionMastered, isTrue,
+        reason: '8/8 correct on first attempts masters the session');
+    expect(find.text('Geschafft!'), findsOneWidget);
+    expect(find.text('Du hast alle 8 Aufgaben richtig.'), findsOneWidget);
+    expect(
+      find.text('Noch 2 Stufen bis die Kompetenz ganz geschafft ist.'),
+      findsOneWidget,
+      reason: 'level 1 of 3 is done, so 2 stages remain',
+    );
+    expect(find.text('Fast geschafft!'), findsNothing,
+        reason: 'the session was mastered — only a non-mastered session '
+            'deserves "Fast geschafft!"');
+    expect(find.text('Zurück zum Lernpfad'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 2)); // flush the auto-advance timer
   });
 
   testWidgets(

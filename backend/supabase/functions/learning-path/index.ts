@@ -3,7 +3,8 @@
 // GET    /learning-path             child token  → the active path + progress
 // POST   /learning-path/generate    teacher      → draft path from a session
 // PATCH  /learning-path             teacher      → reorder/add/remove/skip/
-//                                                  activate/unlock_width/reset
+//                                                  activate/unlock_width/reset/
+//                                                  archive
 //
 // POST and PATCH are teacher-only, scoped to the teacher's own school, OR
 // the service role — foerderplan-generate calls /generate server-to-server
@@ -12,6 +13,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { timingSafeEqual } from "https://deno.land/std@0.224.0/crypto/timing_safe_equal.ts";
 import { sortSkillIds } from "../_shared/ordering.ts";
+import { archiveTransitionError, unlockWindowStates } from "../_shared/path_actions.ts";
 import { verifyStudentToken } from "../_shared/jwt.ts";
 import { requireEnv } from "../_shared/env.ts";
 
@@ -363,7 +365,7 @@ Deno.serve(async (req) => {
 
     case "reset_progress": {
       const { data: p } = await supabase
-        .from("learning_paths").select("student_id").eq("id", path_id).maybeSingle();
+        .from("learning_paths").select("student_id, unlock_width").eq("id", path_id).maybeSingle();
       if (p) {
         const { error: spErr } = await supabase.from("skill_progress")
           .delete().eq("student_id", p.student_id);
@@ -377,6 +379,37 @@ Deno.serve(async (req) => {
       if (piErr) {
         console.error("learning-path/reset_progress: path_items update failed:", piErr);
         return json({ error: "Fortschritt konnte nicht zurückgesetzt werden" }, 500);
+      }
+      // Re-open the unlock window, mirroring /generate's
+      // `idx < unlock_width → available` rule, so a reset path is immediately
+      // playable by the child instead of stranding every item locked.
+      if (p) {
+        const { data: items } = await supabase
+          .from("path_items").select("id, position").eq("path_id", path_id);
+        const reopen = unlockWindowStates(items ?? [], p.unlock_width)
+          .filter((r) => r.state === "available");
+        if (reopen.length > 0) {
+          const { error: rErr } = await supabase.from("path_items")
+            .update({ state: "available" }).in("id", reopen.map((r) => r.id));
+          if (rErr) {
+            console.error("learning-path/reset_progress: re-open update failed:", rErr);
+            return json({ error: "Fortschritt konnte nicht zurückgesetzt werden" }, 500);
+          }
+        }
+      }
+      return json({ ok: true });
+    }
+
+    case "archive": {
+      const { data: path } = await supabase
+        .from("learning_paths").select("status").eq("id", path_id).maybeSingle();
+      const transitionError = path ? archiveTransitionError(path.status) : null;
+      if (transitionError) return json({ error: transitionError }, 400);
+      const { error } = await supabase.from("learning_paths")
+        .update({ status: "archived" }).eq("id", path_id);
+      if (error) {
+        console.error("learning-path/archive failed:", error);
+        return json({ error: "Lernpfad konnte nicht archiviert werden" }, 500);
       }
       return json({ ok: true });
     }

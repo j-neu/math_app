@@ -114,9 +114,9 @@ Deno.serve(async (req) => {
       )
       .eq("session_id", existing.id);
 
-    const results = (priorResults ?? []).map((r) => ({
-      // deno-lint-ignore no-explicit-any
-      question_number: (r.diagnostic_questions as any).question_number as number,
+    // deno-lint-ignore no-explicit-any
+    const results = (priorResults ?? []).map((r: any) => ({
+      question_number: r.diagnostic_questions?.question_number as number,
       was_correct: r.was_correct as boolean,
       response_time_seconds: r.response_time_seconds as number | null,
       status: r.status as string,

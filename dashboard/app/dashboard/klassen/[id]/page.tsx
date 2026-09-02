@@ -5,6 +5,7 @@ import { StudentRow } from "@/components/StudentRow";
 import { AddStudentForm } from "@/components/AddStudentForm";
 import { BulkQrButton } from "@/components/BulkQrButton";
 import { PathStatusRow } from "@/components/PathStatusRow";
+import { ClassCodePanel } from "@/components/ClassCodePanel";
 import { getClassLearningPaths } from "@/lib/lernpfad/queries";
 import type { ClassPathRow } from "@/lib/lernpfad/queries";
 import { pathCounts } from "@/lib/lernpfad/stats";
@@ -20,7 +21,7 @@ export default async function KlasseDetailPage({ params }: Props) {
 
   const { data: klass } = await supabase
     .from("classes")
-    .select("id, name, grade, school_id, schools(slug)")
+    .select("id, name, grade, school_id, class_code, schools(slug)")
     .eq("id", params.id)
     .single();
 
@@ -166,6 +167,13 @@ export default async function KlasseDetailPage({ params }: Props) {
           </div>
         </div>
       )}
+
+      {/* Class-code panel for the practice (Lernpfad) login */}
+      <ClassCodePanel
+        classId={params.id}
+        classCode={(klass as { class_code?: string | null }).class_code ?? null}
+        practiceUrl={schoolSlug ? `${studentAppBase}/lernen/${schoolSlug}` : null}
+      />
 
       {/* Student list */}
       <section className="space-y-3">

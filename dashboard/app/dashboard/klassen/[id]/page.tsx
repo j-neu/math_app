@@ -9,6 +9,7 @@ import { ClassCodePanel } from "@/components/ClassCodePanel";
 import { getClassLearningPaths } from "@/lib/lernpfad/queries";
 import type { ClassPathRow } from "@/lib/lernpfad/queries";
 import { pathCounts } from "@/lib/lernpfad/stats";
+import { ACTIVE_DIAG_ID } from "@/lib/diagnostics";
 
 interface Props {
   params: { id: string };
@@ -36,8 +37,6 @@ export default async function KlasseDetailPage({ params }: Props) {
 
   if (teacher?.school_id !== klass.school_id) redirect("/dashboard");
 
-  const DIAG_ID = "00000000-0000-0000-0000-000000000001";
-
   // Fetch students with their sessions and per-session result counts
   const { data: students } = await supabase
     .from("students")
@@ -49,10 +48,14 @@ export default async function KlasseDetailPage({ params }: Props) {
     .eq("class_id", params.id)
     .order("display_name");
 
-  const { count: totalQuestions } = await supabase
-    .from("diagnostic_questions")
-    .select("id", { count: "exact", head: true })
-    .eq("diagnostic_id", DIAG_ID);
+  // Core-tier length of the active diagnostic — the denominator for in-progress
+  // progress displays (question_count, not row count: deep-dive rows are 32 extra).
+  const { data: activeDiag } = await supabase
+    .from("diagnostics")
+    .select("question_count")
+    .eq("id", ACTIVE_DIAG_ID)
+    .single();
+  const totalQuestions = activeDiag?.question_count ?? null;
 
   // Category stats for aggregate view
   const sessionIds = (students ?? [])
@@ -201,7 +204,7 @@ export default async function KlasseDetailPage({ params }: Props) {
                     diagnostic_results: { id: string }[];
                   }[];
                 }}
-                diagnosticId={DIAG_ID}
+                diagnosticId={ACTIVE_DIAG_ID}
                 totalQuestions={totalQuestions ?? undefined}
               />
             ))}

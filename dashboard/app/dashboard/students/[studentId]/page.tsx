@@ -11,8 +11,6 @@ const STATUS_LABEL: Record<string, { label: string; className: string }> = {
   abandoned: { label: "Abgebrochen", className: "text-gray-500 bg-gray-50" },
 };
 
-const DIAG_ID = "00000000-0000-0000-0000-000000000001";
-
 interface Props {
   params: { studentId: string };
 }
@@ -45,17 +43,33 @@ export default async function StudentHistoryPage({ params }: Props) {
   const { data: sessions } = await supabase
     .from("diagnostic_sessions")
     .select(`
-      id, status, started_at, completed_at,
+      id, status, started_at, completed_at, diagnostic_id,
       diagnostic_results(count),
       foerderplaene(brief_skill_ids, category_stats)
     `)
     .eq("student_id", params.studentId)
     .order("started_at", { ascending: false });
 
-  const { count: totalQuestions } = await supabase
-    .from("diagnostic_questions")
-    .select("id", { count: "exact", head: true })
-    .eq("diagnostic_id", DIAG_ID);
+  // Session totals are per-bank: legacy iMINT sessions had 92 items, the active
+  // clean-room diagnostic has 60 core (+ 32 deep-dive). Read question_count from
+  // each session's own diagnostic so old and new sessions display correctly.
+  const sessionDiagIds = Array.from(
+    new Set(
+      (sessions ?? [])
+        .map((s) => (s as { diagnostic_id?: string | null }).diagnostic_id)
+        .filter((id): id is string => !!id),
+    ),
+  );
+  let totalByDiagnostic = new Map<string, number>();
+  if (sessionDiagIds.length > 0) {
+    const { data: diagnostics } = await supabase
+      .from("diagnostics")
+      .select("id, question_count")
+      .in("id", sessionDiagIds);
+    totalByDiagnostic = new Map(
+      (diagnostics ?? []).map((d) => [d.id, d.question_count]),
+    );
+  }
 
   const learningPaths = await getStudentLearningPaths(supabase, params.studentId);
 
@@ -116,6 +130,8 @@ export default async function StudentHistoryPage({ params }: Props) {
           {sessions.map((session) => {
             const answered =
               (session.diagnostic_results as { count: number }[])?.[0]?.count ?? 0;
+            const sessionDiagId = (session as { diagnostic_id?: string | null }).diagnostic_id;
+            const sessionTotal = sessionDiagId ? (totalByDiagnostic.get(sessionDiagId) ?? null) : null;
             const plan = Array.isArray(session.foerderplaene)
               ? session.foerderplaene[0]
               : session.foerderplaene;
@@ -135,7 +151,7 @@ export default async function StudentHistoryPage({ params }: Props) {
                       {statusInfo.label}
                     </span>
                     <span className="text-xs text-gray-400">
-                      {answered}{totalQuestions ? ` / ${totalQuestions}` : ""} Fragen
+                      {answered}{sessionTotal ? ` / ${sessionTotal}` : ""} Fragen
                     </span>
                   </div>
                   {answered > 0 && (

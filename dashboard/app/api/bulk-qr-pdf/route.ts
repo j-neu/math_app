@@ -8,8 +8,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import QRCode from "qrcode";
+import { ACTIVE_DIAG_ID } from "@/lib/diagnostics";
 
-const DIAG_ID = "00000000-0000-0000-0000-000000000001";
 const QR_SIZE = 160;
 const W = 595;
 const H = 842;
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
     .from("session_tickets")
     .select("id, student_id, short_code")
     .in("student_id", students.map((s) => s.id))
-    .eq("diagnostic_id", DIAG_ID)
+    .eq("diagnostic_id", ACTIVE_DIAG_ID)
     .is("consumed_at", null)
     .order("created_at", { ascending: false });
 
@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
     const codes = generateUniqueCodes(needTicket.length);
     const { data: newTickets, error: ticketErr } = await supabase
       .from("session_tickets")
-      .insert(needTicket.map((s, i) => ({ student_id: s.id, diagnostic_id: DIAG_ID, short_code: codes[i] })))
+      .insert(needTicket.map((s, i) => ({ student_id: s.id, diagnostic_id: ACTIVE_DIAG_ID, short_code: codes[i] })))
       .select("id, student_id, short_code");
 
     if (ticketErr || !newTickets) {

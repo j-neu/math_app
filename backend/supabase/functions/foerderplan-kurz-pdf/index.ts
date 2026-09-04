@@ -527,7 +527,11 @@ Deno.serve(async (req) => {
 });
 
 function pdfResponse(bytes: Uint8Array, filename: string) {
-  return new Response(bytes, {
+  // Copy into a plain ArrayBuffer (see foerderplan-pdf): Deno's newer TS libs
+  // reject Uint8Array<ArrayBufferLike> as a Response body; the copy preserves
+  // exactly the byte range of `bytes`.
+  const body = new Uint8Array(bytes).buffer;
+  return new Response(body, {
     headers: {
       ...corsHeaders,
       "Content-Type": "application/pdf",

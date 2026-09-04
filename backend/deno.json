@@ -1,0 +1,6 @@
+{
+  "tasks": {
+    "check": "deno check supabase/functions/**/*.ts",
+    "test": "deno test supabase/functions/_shared/*_test.ts"
+  }
+}

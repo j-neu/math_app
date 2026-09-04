@@ -113,18 +113,20 @@ cd math_app && flutter analyze       # expect: 0 ERRORS (style lints are a movin
 cd dashboard && npx tsc --noEmit     # expect: exit 0
 
 # Backend
-cd backend && deno check supabase/functions/**/*.ts
-# ⚠️ KNOWN BROKEN as of 2026-09-04: 4 errors under Deno 2.9.6 / TypeScript 6.0.3,
-# though d23d0ad recorded this gate clean on 2026-09-01. The repo pins no Deno
-# version (no deno.json anywhere), so "type-check clean" is not reproducible
-# across machines or across time. Two errors are near-certainly toolchain drift
-# — TS 5.7 made Uint8Array generic, so `new Response(bytes)` now resolves against
-# the URLSearchParams overload (foerderplan-kurz-pdf:530, foerderplan-pdf:262).
-# Two are loose casts of `{[k:string]: unknown}` to a named shape
-# (foerderplan-pdf:165, 220). The deployed functions run on Supabase's own Deno
-# and are live and working, so this is a gate defect, not an outage.
-# FIX PROPERLY: pin the toolchain (add deno.json with a version) and then decide
-# whether the remaining errors are real. Do not "fix" it by dropping the gate.
+cd backend && deno check supabase/functions/**/*.ts   # also: deno task check
+# ✅ GREEN since 2026-09-04. The four errors recorded below were fixed in
+# behavior-preserving fashion: the two `new Response(Uint8Array)` sites now copy
+# into a plain ArrayBuffer (`new Uint8Array(bytes).buffer`), and the two loose
+# casts in foerderplan-pdf were replaced by one typed boundary (SkillRow
+# interface + type-guard filter). The error report also surfaced a real
+# rendering defect — foerderplan-pdf recommendation rows always rendered gray
+# because they coloured on the short category while DOMAIN_LABELS holds the full
+# labels; they now colour by the skill's `domain` letter. Legacy rows (domain
+# NULL) are unchanged. `backend/deno.json` (+ deno.lock) added so the gate is a
+# canonical, reproducible command. History: d23d0ad recorded this gate clean on
+# 2026-09-01; Deno 2.9.6 / TypeScript 6.0.3 then flagged 4 errors (two genuine
+# TS lib drift, two loose casts). Deploy of the two fixed edge functions is
+# Jakob's step (deployed binaries still ship the old code until redeployed).
 
 # Clean-room integrity
 python scripts/check_provenance.py --all

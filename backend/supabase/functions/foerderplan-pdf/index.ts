@@ -38,11 +38,30 @@ const DOMAIN_COLORS: Record<string, [number, number, number]> = {
 };
 const DEFAULT_COLOR: [number, number, number] = [0.4, 0.4, 0.4];
 
+// The columns `foerderplan-pdf` reads off a `skills` row. New-taxonomy skills
+// carry a `domain` letter (A–D); legacy skills leave it NULL.
+interface SkillRow {
+  id: string;
+  category: string;
+  domain: string | null;
+  title_de: string;
+  description_de: string;
+}
+
 function catColor(cat: string): [number, number, number] {
   for (const [domain, label] of Object.entries(DOMAIN_LABELS)) {
     if (label === cat) return DOMAIN_COLORS[domain]!;
   }
   return DEFAULT_COLOR;
+}
+
+// Recommendation rows store the short category ("Domäne A") that never equals a
+// DOMAIN_LABELS value, so catColor alone renders them all gray. Colour new
+// taxonomy rows by their domain letter instead; legacy rows (domain NULL) keep
+// the catColor fallback.
+function rowColor(s: SkillRow): [number, number, number] {
+  if (s.domain) return DOMAIN_COLORS[s.domain] ?? DEFAULT_COLOR;
+  return catColor(s.category);
 }
 
 Deno.serve(async (req) => {
@@ -87,11 +106,15 @@ Deno.serve(async (req) => {
   // Load skill details for recommended skills
   const { data: skillsData } = await supabase
     .from("skills")
-    .select("id, category, color, title_de, description_de")
+    .select("id, category, domain, title_de, description_de")
     .in("id", plan.recommended_skill_ids as string[]);
 
-  const skillMap = new Map((skillsData ?? []).map((s: { id: string; [k: string]: unknown }) => [s.id, s]));
-  const recommended = (plan.recommended_skill_ids as string[]).map((id: string) => skillMap.get(id)).filter(Boolean);
+  const skillMap = new Map<string, SkillRow>(
+    (skillsData ?? []).map((s: SkillRow) => [s.id, s]),
+  );
+  const recommended = (plan.recommended_skill_ids as string[])
+    .map((id: string) => skillMap.get(id))
+    .filter((s): s is SkillRow => s !== undefined);
   const brief = recommended.slice(0, 3);
 
   const studentName = student?.display_name ?? "Unbekannt";
@@ -162,9 +185,9 @@ Deno.serve(async (req) => {
     drawText("Keine spezifischen Fördermaßnahmen erforderlich.", MARGIN, 11);
   } else {
     for (let i = 0; i < brief.length; i++) {
-      const s = brief[i] as { category: string; title_de: string; description_de: string };
+      const s = brief[i];
       newPageIfNeeded(60);
-      const c = catColor(s.category);
+      const c = rowColor(s);
       page.drawRectangle({ x: MARGIN, y: y - 2, width: 4, height: 14, color: rgb(...c) });
       drawText(`${i + 1}. ${s.title_de}`, MARGIN + 10, 11, true);
       drawText(s.description_de, MARGIN + 10, 10);
@@ -217,9 +240,9 @@ Deno.serve(async (req) => {
     drawText("Sehr gut! Keine weiteren Fördermaßnahmen notwendig.", MARGIN, 11);
   } else {
     for (let i = 0; i < recommended.length; i++) {
-      const s = recommended[i] as { category: string; title_de: string; description_de: string };
+      const s = recommended[i];
       newPageIfNeeded(55);
-      const c = catColor(s.category);
+      const c = rowColor(s);
       page.drawRectangle({ x: MARGIN, y: y - 2, width: 4, height: 14, color: rgb(...c) });
       drawText(`${i + 1}. ${s.title_de}`, MARGIN + 10, 10, true);
       drawText(s.description_de, MARGIN + 10, 9);
@@ -259,7 +282,12 @@ Deno.serve(async (req) => {
     .update({ pdf_storage_path: storagePath })
     .eq("session_id", session_id);
 
-  return new Response(pdfBytes, {
+  // Copy into a plain ArrayBuffer: Deno's newer TypeScript libs no longer accept
+  // a Uint8Array<ArrayBufferLike> view as Response body. `new Uint8Array(bytes)`
+  // yields exactly the PDF bytes (offset 0, byteLength = bytes.length).
+  const body = new Uint8Array(pdfBytes).buffer;
+
+  return new Response(body, {
     headers: {
       ...corsHeaders,
       "Content-Type": "application/pdf",

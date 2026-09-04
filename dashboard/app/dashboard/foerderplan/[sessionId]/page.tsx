@@ -312,7 +312,7 @@ export default async function FoerderplanPage({ params }: Props) {
                   statusLabel = "Leer";
                   statusClass = "text-amber-700 bg-amber-50 border-amber-200";
                 } else if (row.status === "timeout") {
-                  statusLabel = "Timeout";
+                  statusLabel = "Zeitüberschreitung";
                   statusClass = "text-orange-700 bg-orange-50 border-orange-200";
                 } else if (row.was_correct) {
                   statusLabel = "Richtig";

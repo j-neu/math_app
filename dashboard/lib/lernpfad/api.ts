@@ -60,7 +60,9 @@ export async function patchPath(
         // response body is not JSON — keep the default message
       }
     } else if (error instanceof Error) {
-      message = error.message;
+      // A network-level failure ("fetch failed", DNS, ...) is English in the
+      // browser; the teacher gets a neutral German message instead.
+      message = "Verbindung zum Server nicht möglich. Bitte versuche es erneut.";
     }
     return { ok: false, status, error: message };
   }

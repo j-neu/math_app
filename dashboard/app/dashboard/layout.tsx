@@ -18,7 +18,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <div className="min-h-screen flex flex-col">
       <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <span className="font-semibold text-gray-900">Math App</span>
+          <span className="font-semibold text-gray-900">Numeris – Lehrerportal</span>
           {teacher?.schools && (
             <span className="text-gray-400 text-sm">
               — {(teacher.schools as unknown as { name: string }).name}

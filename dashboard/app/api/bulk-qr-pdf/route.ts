@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
   if (!user) return errJson("Nicht angemeldet", 401);
 
   const { class_id } = await req.json();
-  if (!class_id) return errJson("class_id required", 400);
+  if (!class_id) return errJson("Klasse fehlt", 400);
 
   // Verify teacher owns this class's school
   const [{ data: klass }, { data: teacher }] = await Promise.all([

@@ -17,33 +17,28 @@ export default function ImpressumPage() {
 
         <section className="space-y-6 text-gray-700 text-sm leading-relaxed">
           <div>
-            <h2 className="font-semibold text-gray-900 mb-1">Angaben gemäß § 5 TMG</h2>
-            {/* TODO: Replace with real name and address before going live */}
+            <h2 className="font-semibold text-gray-900 mb-1">Angaben gemäß § 5 DDG</h2>
+            {/* TODO: Real name and address eintragen, bevor diese Seite veröffentlicht wird. */}
             <p>
-              [Jakob Neumann]<br />
-              [Eulerstraße 12]<br />
-              [13357 Berlin]<br />
+              [Name]<br />
+              [Straße und Hausnummer]<br />
+              [Postleitzahl und Ort]<br />
               Deutschland
             </p>
           </div>
 
           <div>
             <h2 className="font-semibold text-gray-900 mb-1">Kontakt</h2>
-            <p>
-              E-Mail:{" "}
-              {/* TODO: Replace with contact email */}
-              <a href="mailto:[jakob.neumann@schule.berlin.de]" className="underline hover:text-gray-900">
-                [jakob.neumann@schule.berlin.de]
-              </a>
-            </p>
+            {/* TODO: Echte Kontaktadresse eintragen, bevor diese Seite veröffentlicht wird. */}
+            <p>E-Mail: [E-Mail-Adresse]</p>
           </div>
 
           <div>
             <h2 className="font-semibold text-gray-900 mb-1">Verantwortlich für den Inhalt (§ 18 Abs. 2 MStV)</h2>
             <p>
-              [Jakob Neumann]<br />
-              [Eulerstraße 12]<br />
-              [13357 Berlin]
+              [Name]<br />
+              [Straße und Hausnummer]<br />
+              [Postleitzahl und Ort]
             </p>
           </div>
 
@@ -58,7 +53,7 @@ export default function ImpressumPage() {
         </section>
 
         <p className="mt-12 text-xs text-gray-400">
-          Stand: Mai 2026
+          Stand: September 2026
         </p>
       </div>
     </div>

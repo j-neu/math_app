@@ -22,11 +22,11 @@ export default function DatenschutzPage() {
             <p>
               Verantwortlich im Sinne der DSGVO ist:
             </p>
-            {/* TODO: Replace with real contact details before going live */}
+            {/* TODO: Real name and address eintragen, bevor diese Seite veröffentlicht wird. */}
             <p className="mt-2">
-              [Jakob Neumann]<br />
-              [Eulerstraße 12], [13357 Berlin]<br />
-              E-Mail: <a href="mailto:[jakob.neumann@schule.berlin.de]" className="underline hover:text-gray-900">jakob.neumann@schule.berlin.de</a>
+              [Name]<br />
+              [Straße und Hausnummer], [Postleitzahl und Ort]<br />
+              E-Mail: [E-Mail-Adresse]
             </p>
           </section>
 
@@ -44,8 +44,10 @@ export default function DatenschutzPage() {
               </li>
               <li>
                 <strong>Schülerinnen und Schüler:</strong> Pseudonymisierter Anzeigename
-                (z. B. „S01", von der Lehrkraft gewählt), Klasse, Diagnoseergebnisse und
-                generierter Förderplan. Es werden keine vollständigen Namen, keine Geburtsdaten
+                (z. B. „S01", von der Lehrkraft gewählt), Klasse, Diagnoseergebnisse,
+                generierter Förderplan sowie Fortschritt auf dem Lernpfad
+                (bearbeitete Übungen, Antworten und erzielter Lernstand).
+                Es werden keine vollständigen Namen, keine Geburtsdaten
                 und keine direkten Identifikationsmerkmale gespeichert.
                 Rechtsgrundlage: berechtigtes Interesse der Schule an der individuellen
                 Förderung (Art. 6 Abs. 1 lit. f DSGVO).
@@ -115,9 +117,9 @@ export default function DatenschutzPage() {
               <li>Widerspruch gegen die Verarbeitung (Art. 21)</li>
             </ul>
             <p className="mt-2">
-              Zur Ausübung Ihrer Rechte wenden Sie sich bitte per E-Mail an:{" "}
-              <a href="mailto:[EMAIL]" className="underline hover:text-gray-900">[EMAIL]</a>.
-              Anfragen werden innerhalb von 30 Tagen bearbeitet.
+              Zur Ausübung Ihrer Rechte wenden Sie sich bitte per E-Mail an die im
+              Impressum genannte Adresse. Anfragen werden innerhalb von 30 Tagen
+              bearbeitet.
             </p>
             <p className="mt-2">
               Sie haben außerdem das Recht, sich bei der zuständigen Datenschutz-Aufsichtsbehörde
@@ -148,7 +150,7 @@ export default function DatenschutzPage() {
         </div>
 
         <p className="mt-12 text-xs text-gray-400">
-          Stand: Mai 2026
+          Stand: September 2026
         </p>
       </div>
     </div>

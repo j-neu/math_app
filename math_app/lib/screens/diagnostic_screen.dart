@@ -23,6 +23,15 @@ import '../screens/diagnostic_report_screen.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:path_provider/path_provider.dart';
 
+/// One persisted diagnostic result row (web/API mode).
+typedef _AnswerRow = ({
+  int questionNumber,
+  bool wasCorrect,
+  double responseTimeSeconds,
+  String status,
+  String? userAnswer,
+});
+
 class DiagnosticScreen extends StatefulWidget {
   final UserProfile userProfile;
   final bool retryMode;
@@ -61,6 +70,18 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   final List<DiagnosticResult> _diagnosticResults = []; // Store full diagnostic session data
   final TextEditingController _textController = TextEditingController();
 
+  // Web-mode save gate: when a result cannot be persisted after bounded
+  // retries the child is blocked with a German retry instead of silently
+  // advancing past an unsaved answer (see _advanceAfterPersist/_blockSave).
+  bool _saveBlocked = false;
+  bool _retryingSave = false;
+  Future<void> Function()? _retrySave;
+  // True while an answer is being persisted/advanced. Guards _nextQuestion
+  // against re-entry (a double tap or Enter during a multi-second network
+  // stall must not run the submit logic twice on the same question) and
+  // drives the disabled-Weiter progress state.
+  bool _savingAnswer = false;
+
   // Timeout and timing tracking (varies by question type)
   static const int timeoutSecondsSingle = 20; // Single-field questions
   static const int timeoutSecondsMultiple = 60; // Multiple/Sort questions
@@ -91,7 +112,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   }
 
   /// Populates state from server-side results when a session is resumed,
-  /// then advances the index to the first unanswered question.
+  /// then advances the index to the first question still to be answered.
   void _hydrateFromServer(
     List<DiagnosticQuestion> questions,
     List<ServerResult> serverResults,
@@ -100,12 +121,16 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
       for (final r in serverResults) r.questionNumber: r,
     };
 
-    // Walk questions in display order; stop at the first one without a server result.
+    // Walk questions in display order. Answered rows are replayed (local
+    // result, skill tags, break-off state). A question with no server row is
+    // either a break-off-exempt ZR100 question whose 'skipped' marker never
+    // stored (never presented — skip it), or the next question to ask.
     int firstUnansweredIndex = questions.length;
     for (int i = 0; i < questions.length; i++) {
       final q = questions[i];
       final r = resultsByListNumber[q.listNumber];
       if (r == null) {
+        if (_shouldSkipQuestion(q)) continue;
         firstUnansweredIndex = i;
         break;
       }
@@ -237,6 +262,13 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
 
   /// Skip the current question due to timeout
   void _skipCurrentQuestion(List<DiagnosticQuestion> questions) {
+    // The timeout dialog and the answer field can race: if the child already
+    // submitted an answer and the persist is in flight, the guard in
+    // _nextQuestion would swallow this skip — but the local 'timeout' row,
+    // skill tags and false break-off failure below would already have been
+    // applied. Do nothing instead: the submitted answer decides the outcome.
+    if (_savingAnswer) return;
+
     final question = questions[_currentQuestionIndex];
     final responseTime = DateTime.now().difference(_questionStartTime!).inSeconds.toDouble();
 
@@ -448,6 +480,16 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   }
 
   Future<void> _nextQuestion(List<DiagnosticQuestion> questions) async {
+    if (_savingAnswer) return;
+    setState(() => _savingAnswer = true);
+    try {
+      await _nextQuestionInner(questions);
+    } finally {
+      if (mounted) setState(() => _savingAnswer = false);
+    }
+  }
+
+  Future<void> _nextQuestionInner(List<DiagnosticQuestion> questions) async {
     // Stop the timer
     _timeoutTimer?.cancel();
 
@@ -487,22 +529,6 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
 
     _diagnosticResults.add(result);
 
-    // Post to Supabase (web/API mode)
-    if (_sessionId != null) {
-      try {
-        await ApiService().postResult(
-          sessionId: _sessionId!,
-          questionNumber: currentQuestion.listNumber,
-          wasCorrect: wasCorrect,
-          responseTimeSeconds: responseTime,
-          status: answerStatus,
-          userAnswer: userAnswer.isEmpty ? null : userAnswer,
-        );
-      } catch (e) {
-        debugPrint('ApiService.postResult failed: $e');
-      }
-    }
-
     // If incorrect OR took too long, add skill tags
     if (!wasCorrect) {
       print('=== Question ${currentQuestion.listNumber} FAILED ===');
@@ -518,60 +544,183 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
       _checkBreakOffLogic(currentQuestion, true);
     }
 
-    if (_currentQuestionIndex < questions.length - 1) {
-      // Find next non-skipped question
-      int nextIndex = _currentQuestionIndex + 1;
-      while (nextIndex < questions.length && _shouldSkipQuestion(questions[nextIndex])) {
-        // Mark as skipped
-        final skippedResult = DiagnosticResult(
-          questionId: questions[nextIndex].listNumber.toString(),
-          wasCorrect: false,
-          responseTimeSeconds: 0.0,
-          status: 'skipped',
-        );
-        _diagnosticResults.add(skippedResult);
+    // Web/API mode: the answer must be persisted to the server BEFORE the
+    // child advances. A silently dropped row would leave the session short
+    // an answer and the Förderplan would be generated from gaps — and the
+    // server's auto-complete only fires when every row is present, so a
+    // missing post would also strand the session as in_progress forever.
+    // postResult upserts on (session_id, question_id), so retrying after a
+    // lost response is safe. If the row still cannot be stored, block here
+    // and show the German retry state instead of moving on.
+    if (_sessionId != null) {
+      final currentRow = (
+        questionNumber: currentQuestion.listNumber,
+        wasCorrect: wasCorrect,
+        responseTimeSeconds: responseTime,
+        status: answerStatus,
+        userAnswer: userAnswer.isEmpty ? null : userAnswer,
+      );
+      final advanced = await _advanceAfterPersist(questions, currentRow);
+      if (!advanced) return;
+    } else {
+      // Native mode — original local-only flow below.
+      if (_currentQuestionIndex < questions.length - 1) {
+        // Find next non-skipped question
+        int nextIndex = _currentQuestionIndex + 1;
+        while (nextIndex < questions.length && _shouldSkipQuestion(questions[nextIndex])) {
+          // Mark as skipped
+          final skippedResult = DiagnosticResult(
+            questionId: questions[nextIndex].listNumber.toString(),
+            wasCorrect: false,
+            responseTimeSeconds: 0.0,
+            status: 'skipped',
+          );
+          _diagnosticResults.add(skippedResult);
 
-        // Post skipped question to API
-        if (_sessionId != null) {
-          try {
-            await ApiService().postResult(
-              sessionId: _sessionId!,
-              questionNumber: questions[nextIndex].listNumber,
-              wasCorrect: false,
-              responseTimeSeconds: 0,
-              status: 'skipped',
-            );
-          } catch (e) {
-            debugPrint('ApiService.postResult (skipped) failed: $e');
-          }
+          nextIndex++;
         }
 
-        nextIndex++;
-      }
+        setState(() {
+          _currentQuestionIndex = nextIndex;
+          _textController.clear();
+        });
 
-      setState(() {
-        _currentQuestionIndex = nextIndex;
-        _textController.clear();
-      });
+        // Start timer for next question if not at end
+        if (_currentQuestionIndex < questions.length) {
+          _startQuestionTimer(questions);
+        }
 
-      // Start timer for next question if not at end
-      if (_currentQuestionIndex < questions.length) {
-        _startQuestionTimer(questions);
-      }
-
-      // Save progress locally (native only)
-      if (_sessionId == null) {
         await _saveDiagnosticProgress();
-      }
 
-      // If we've reached the end, process results
-      if (_currentQuestionIndex >= questions.length) {
+        // If we've reached the end, process results
+        if (_currentQuestionIndex >= questions.length) {
+          _processResults(questions);
+        }
+      } else {
+        // Test is finished, process results
         _processResults(questions);
       }
+    }
+  }
+
+  /// Web-mode persistence + advance. The just-given answer row must be stored
+  /// before the child moves on (hard gate); break-off 'skipped' markers are
+  /// best effort (they exist for resume/auto-complete bookkeeping, and a
+  /// missing marker must not strand a child who already answered correctly).
+  /// Returns true when the UI advanced, false when the answer row could not
+  /// be stored after bounded retries and the child is blocked on the German
+  /// retry screen.
+  Future<bool> _advanceAfterPersist(
+    List<DiagnosticQuestion> questions,
+    _AnswerRow currentRow,
+  ) async {
+    final nextIndex = await _persistRowsAndFindNext(questions, currentRow);
+    if (nextIndex == null) return false;
+    if (!mounted) return false;
+
+    setState(() {
+      _currentQuestionIndex = nextIndex;
+      _textController.clear();
+    });
+
+    if (_currentQuestionIndex < questions.length) {
+      _startQuestionTimer(questions);
     } else {
-      // Test is finished, process results
       _processResults(questions);
     }
+    return true;
+  }
+
+  /// Persists [currentRow] and best-effort 'skipped' markers for every
+  /// following break-off-exempt question, returning the index of the next
+  /// presented question (or questions.length at the end), or null when the
+  /// answer row itself could not be stored after bounded retries.
+  Future<int?> _persistRowsAndFindNext(
+    List<DiagnosticQuestion> questions,
+    _AnswerRow currentRow,
+  ) async {
+    if (!await _persistRowWithRetry(currentRow)) {
+      _blockSave(questions, currentRow);
+      return null;
+    }
+
+    var nextIndex = _currentQuestionIndex + 1;
+    while (nextIndex < questions.length &&
+        _shouldSkipQuestion(questions[nextIndex])) {
+      final skipped = questions[nextIndex];
+      // Best effort and single attempt: a failing 'skipped' marker must not
+      // lock the child out or stall the run on a dead network — it only
+      // exists for resume/auto-complete bookkeeping, and the session is
+      // completed server-side by _processResults regardless.
+      await _persistRowWithRetry((
+        questionNumber: skipped.listNumber,
+        wasCorrect: false,
+        responseTimeSeconds: 0,
+        status: 'skipped',
+        userAnswer: null,
+      ), maxAttempts: 1);
+      nextIndex++;
+    }
+
+    // Mirror the walked 'skipped' rows locally. This runs once per advance
+    // (advances are serialized by the _nextQuestion guard, and a blocked
+    // answer-row failure returns before this point), so entries cannot be
+    // double-appended by a retry.
+    for (var i = _currentQuestionIndex + 1; i < nextIndex; i++) {
+      _diagnosticResults.add(DiagnosticResult(
+        questionId: questions[i].listNumber.toString(),
+        wasCorrect: false,
+        responseTimeSeconds: 0.0,
+        status: 'skipped',
+      ));
+    }
+    return nextIndex;
+  }
+
+  /// Posts [row], retrying up to [maxAttempts] times. The results endpoint
+  /// upserts on (session_id, question_id), so a retry after a lost response
+  /// cannot create a duplicate row.
+  Future<bool> _persistRowWithRetry(_AnswerRow row,
+      {int maxAttempts = 3}) async {
+    for (var attempt = 1; attempt <= maxAttempts; attempt++) {
+      if (attempt > 1) {
+        await Future.delayed(Duration(milliseconds: 600 * (attempt - 1)));
+      }
+      try {
+        await ApiService().postResult(
+          sessionId: _sessionId!,
+          questionNumber: row.questionNumber,
+          wasCorrect: row.wasCorrect,
+          responseTimeSeconds: row.responseTimeSeconds,
+          status: row.status,
+          userAnswer: row.userAnswer,
+        );
+        return true;
+      } catch (e) {
+        debugPrint('postResult (Q${row.questionNumber}) '
+            'attempt $attempt/$maxAttempts failed: $e');
+      }
+    }
+    return false;
+  }
+
+  /// Arms the German retry state: the child stays on the current question,
+  /// the answer is kept in memory, and [FilledButton] in the question view
+  /// re-runs the persistence and advance.
+  void _blockSave(List<DiagnosticQuestion> questions, _AnswerRow currentRow) {
+    if (!mounted) return;
+    _retrySave = () async {
+      if (!mounted || _retryingSave || _savingAnswer) return;
+      setState(() => _retryingSave = true);
+      try {
+        final ok = await _advanceAfterPersist(questions, currentRow);
+        if (!mounted) return;
+        if (ok) setState(() => _saveBlocked = false);
+      } finally {
+        if (mounted) setState(() => _retryingSave = false);
+      }
+    };
+    setState(() => _saveBlocked = true);
   }
 
   Future<void> _saveDiagnosticProgress() async {
@@ -763,7 +912,35 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Fehler: ${snapshot.error}'));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline,
+                      color: Color(0xFFEC4748), size: 64),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Die Aufgaben konnten nicht geladen werden.',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Bitte wende dich an deine Lehrkraft.',
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  FilledButton(
+                    onPressed: () {
+                      setState(() {
+                        _questionsFuture = _loadQuestions();
+                      });
+                    },
+                    child: const Text('Nochmal versuchen'),
+                  ),
+                ],
+              ),
+            );
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(child: Text('Keine Aufgaben gefunden.'));
           }
@@ -784,6 +961,53 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
                   SizedBox(height: 10),
                   Text('Bitte warten.'),
                 ],
+              ),
+            );
+          }
+
+          // Web-mode save gate: the last answer could not be stored. The
+          // child stays on this question with a retry button — never
+          // silently advancing past an unsaved answer.
+          if (_saveBlocked) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.cloud_off,
+                        color: Color(0xFFEC4748), size: 64),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Deine Antwort konnte noch nicht gespeichert werden.',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Das kann passieren, wenn die Internetverbindung '
+                      'gerade nicht klappt.',
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+                    FilledButton(
+                      onPressed: _retryingSave ? null : _retrySave,
+                      child: _retryingSave
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text('Nochmal versuchen'),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Wenn es nicht klappt, wende dich bitte an deine '
+                      'Lehrkraft.',
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
               ),
             );
           }
@@ -838,8 +1062,16 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
                   _buildAnswerWidget(question, questions),
                   const SizedBox(height: 40),
                   ElevatedButton(
-                    onPressed: () => _nextQuestion(questions),
-                    child: const Text('Weiter'),
+                    onPressed: _savingAnswer
+                        ? null
+                        : () => _nextQuestion(questions),
+                    child: _savingAnswer
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('Weiter'),
                   ),
                 ],
               ),

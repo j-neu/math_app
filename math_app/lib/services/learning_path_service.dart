@@ -26,6 +26,7 @@ class LearningPathService {
   static const _pathLoadFailedMessage = 'Lernpfad konnte nicht geladen werden.';
   static const _sessionNotFinishedMessage =
       'Deine Antworten sind noch nicht angekommen. Wir versuchen es gleich noch einmal.';
+  static const _requestTimeout = Duration(seconds: 12);
 
   // Practice sessions whose final flush and/or /end call did not succeed
   // yet, stored durably so a later app run can find and retry them — see
@@ -68,7 +69,7 @@ class LearningPathService {
   ) async {
     late http.Response res;
     try {
-      res = await request();
+      res = await request().timeout(_requestTimeout);
     } catch (_) {
       throw const LearningPathException(_connectionErrorMessage);
     }
@@ -86,10 +87,12 @@ class LearningPathService {
   Future<LearningPath> fetchPath(String token) async {
     late http.Response res;
     try {
-      res = await _client.get(
-        Uri.parse('$supabaseFunctionsUrl/learning-path'),
-        headers: _headers(token),
-      );
+      res = await _client
+          .get(
+            Uri.parse('$supabaseFunctionsUrl/learning-path'),
+            headers: _headers(token),
+          )
+          .timeout(_requestTimeout);
     } catch (_) {
       throw const LearningPathException(_connectionErrorMessage);
     }
@@ -155,14 +158,16 @@ class LearningPathService {
     await _queue.add(practiceSessionId, attempt);
     await _queue.flush(practiceSessionId, (batch) async {
       try {
-        final res = await _client.post(
-          Uri.parse('$supabaseFunctionsUrl/practice-session/sync'),
-          headers: _headers(token),
-          body: jsonEncode({
-            'practice_session_id': practiceSessionId,
-            'attempts': batch.map((a) => a.toJson()).toList(),
-          }),
-        );
+        final res = await _client
+            .post(
+              Uri.parse('$supabaseFunctionsUrl/practice-session/sync'),
+              headers: _headers(token),
+              body: jsonEncode({
+                'practice_session_id': practiceSessionId,
+                'attempts': batch.map((a) => a.toJson()).toList(),
+              }),
+            )
+            .timeout(_requestTimeout);
         return res.statusCode == 200;
       } catch (_) {
         return false;
@@ -199,14 +204,16 @@ class LearningPathService {
     // to do it.
     await _queue.flush(practiceSessionId, (batch) async {
       try {
-        final res = await _client.post(
-          Uri.parse('$supabaseFunctionsUrl/practice-session/sync'),
-          headers: _headers(token),
-          body: jsonEncode({
-            'practice_session_id': practiceSessionId,
-            'attempts': batch.map((a) => a.toJson()).toList(),
-          }),
-        );
+        final res = await _client
+            .post(
+              Uri.parse('$supabaseFunctionsUrl/practice-session/sync'),
+              headers: _headers(token),
+              body: jsonEncode({
+                'practice_session_id': practiceSessionId,
+                'attempts': batch.map((a) => a.toJson()).toList(),
+              }),
+            )
+            .timeout(_requestTimeout);
         return res.statusCode == 200;
       } catch (_) {
         return false;

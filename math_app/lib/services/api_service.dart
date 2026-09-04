@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'supabase_config.dart';
@@ -7,6 +8,23 @@ const _headers = {
   'Authorization': 'Bearer $supabaseAnonKey',
   'apikey': supabaseAnonKey,
 };
+
+/// Bound for every request to the Supabase edge functions. School Wi-Fi
+/// black-holes connections (no RST) more often than it refuses them, and an
+/// unbounded await would freeze the child's screen forever instead of ever
+/// reaching the German error/retry states.
+const _requestTimeout = Duration(seconds: 12);
+
+Future<http.Response> _postJson(Uri uri, Map<String, dynamic> body) async {
+  try {
+    return await http
+        .post(uri, headers: _headers, body: jsonEncode(body))
+        .timeout(_requestTimeout);
+  } on TimeoutException {
+    throw const ApiException(
+        'Zeitüberschreitung: Der Server hat nicht rechtzeitig geantwortet.');
+  }
+}
 
 class ServerResult {
   final int questionNumber;
@@ -45,11 +63,8 @@ class ApiService {
 
   Future<({String sessionId, bool resumed, bool alreadyCompleted, List<ServerResult> priorResults, bool retryMode, List<int> retryQuestionNumbers, bool abbreviatedMode})>
       _startSessionRaw(Map<String, dynamic> body) async {
-    final response = await http.post(
-      Uri.parse('$supabaseFunctionsUrl/diagnostic-sessions'),
-      headers: _headers,
-      body: jsonEncode(body),
-    );
+    final response = await _postJson(
+        Uri.parse('$supabaseFunctionsUrl/diagnostic-sessions'), body);
 
     if (response.statusCode == 410) throw const SessionExpiredException();
     if (response.statusCode == 404) throw const TicketNotFoundException();
@@ -83,18 +98,15 @@ class ApiService {
     required String status, // 'attempted' | 'skipped' | 'timeout'
     String? userAnswer,
   }) async {
-    final response = await http.post(
-      Uri.parse('$supabaseFunctionsUrl/diagnostic-results'),
-      headers: _headers,
-      body: jsonEncode({
-        'session_id': sessionId,
-        'question_number': questionNumber,
-        'was_correct': wasCorrect,
-        'response_time_seconds': responseTimeSeconds,
-        'status': status,
-        if (userAnswer != null && userAnswer.isNotEmpty) 'user_answer': userAnswer,
-      }),
-    );
+    final response = await _postJson(
+        Uri.parse('$supabaseFunctionsUrl/diagnostic-results'), {
+      'session_id': sessionId,
+      'question_number': questionNumber,
+      'was_correct': wasCorrect,
+      'response_time_seconds': responseTimeSeconds,
+      'status': status,
+      if (userAnswer != null && userAnswer.isNotEmpty) 'user_answer': userAnswer,
+    });
 
     if (response.statusCode != 200) {
       throw ApiException('diagnostic-results failed (${response.statusCode}): ${response.body}');
@@ -109,11 +121,9 @@ class ApiService {
   // net in case any skip-result posts failed silently and the auto-complete
   // check in diagnostic-results never fired.
   Future<void> completeSession(String sessionId) async {
-    final response = await http.post(
-      Uri.parse('$supabaseFunctionsUrl/diagnostic-sessions'),
-      headers: _headers,
-      body: jsonEncode({'session_id': sessionId, 'action': 'complete'}),
-    );
+    final response = await _postJson(
+        Uri.parse('$supabaseFunctionsUrl/diagnostic-sessions'),
+        {'session_id': sessionId, 'action': 'complete'});
     if (response.statusCode != 200) {
       throw ApiException('completeSession failed (${response.statusCode}): ${response.body}');
     }

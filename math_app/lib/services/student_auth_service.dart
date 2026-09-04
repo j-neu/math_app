@@ -48,6 +48,7 @@ class StudentAuthService {
       'Verbindung zum Server nicht möglich. Bitte Internetverbindung prüfen.';
   static const _unreadableResponseMessage =
       'Antwort vom Server konnte nicht gelesen werden.';
+  static const _requestTimeout = Duration(seconds: 12);
 
   final http.Client _client;
   StudentAuthService({http.Client? client}) : _client = client ?? http.Client();
@@ -71,7 +72,7 @@ class StudentAuthService {
   ) async {
     late http.Response res;
     try {
-      res = await request();
+      res = await request().timeout(_requestTimeout);
     } catch (_) {
       throw const StudentAuthException(_connectionErrorMessage);
     }

@@ -485,9 +485,10 @@ class _DiagnosticReportScreenState extends State<DiagnosticReportScreen> {
         ),
       );
     } catch (e) {
+      debugPrint('Kurzförderplan export failed: $e');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Fehler: $e')),
+        SnackBar(content: const Text('Der Bericht konnte nicht gespeichert werden.')),
       );
     }
   }

@@ -59,14 +59,21 @@ class _WebDiagnosticEntryScreenState extends State<WebDiagnosticEntryScreen> {
       );
     } on SessionExpiredException {
       setState(() => _error =
-          'Dieser Link ist abgelaufen.\nBitte bitte deine Lehrkraft um einen neuen QR-Code.');
+          'Dieser Link ist abgelaufen.\nBitte deine Lehrkraft um einen neuen QR-Code.');
     } on TicketNotFoundException {
       setState(() => _error =
-          'Dieser Link ist ungültig.\nBitte bitte deine Lehrkraft um einen neuen QR-Code.');
+          'Dieser Link ist ungültig.\nBitte deine Lehrkraft um einen neuen QR-Code.');
     } catch (_) {
       setState(() => _error =
           'Ein Fehler ist aufgetreten.\nBitte versuche es später noch einmal.');
     }
+  }
+
+  Future<void> _retryStartSession() async {
+    setState(() {
+      _error = null;
+    });
+    await _startSession();
   }
 
   @override
@@ -87,6 +94,16 @@ class _WebDiagnosticEntryScreenState extends State<WebDiagnosticEntryScreen> {
                       _error!,
                       style: Theme.of(context).textTheme.titleLarge,
                       textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+                    FilledButton(
+                      onPressed: _retryStartSession,
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size(220, 56),
+                        textStyle: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      child: const Text('Nochmal versuchen'),
                     ),
                   ],
                 )

@@ -3,18 +3,20 @@ import 'dart:io' show File;
 import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:math_app/widgets/answer_widgets.dart';
 import 'package:math_app/widgets/manipulatives/fingerbild.dart';
 import 'package:math_app/widgets/manipulatives/rekenrek.dart';
 import 'package:math_app/widgets/manipulatives/staebchen.dart';
 import 'package:math_app/widgets/manipulatives/stellenwerttafel.dart';
 import 'package:math_app/widgets/manipulatives/zahlenstrahl.dart';
 import 'package:math_app/widgets/manipulatives/zehnerfeld.dart';
+import 'package:math_app/widgets/diagnostic_answer_widgets.dart';
 import '../models/diagnostic_question.dart';
 import '../models/diagnostic_result.dart';
 import '../models/diagnostic_session.dart';
 import '../models/user_profile.dart';
 import '../services/diagnostic_service.dart';
+import '../services/diagnostic_shortening.dart';
+import '../services/answer_grading.dart';
 import '../services/diagnostic_report_generator.dart';
 import '../services/api_service.dart';
 import '../services/user_service.dart';
@@ -90,13 +92,14 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   String? _audioTempFilePath;
 
-  // Break-off logic tracking
-  final Map<String, bool> _categoryFailedZR20 = {}; // Track which categories failed in ZR 20
-  final Map<String, bool> _categoryPassedZR20 = {}; // Track which categories passed in ZR 20
+  // Break-off (shortened diagnostic) gate: construct-keyed, difficulty-graded.
+  // See ConstructGates in services/diagnostic_shortening.dart for the rule.
+  late final ConstructGates _gates;
 
   @override
   void initState() {
     super.initState();
+    _gates = ConstructGates(abbreviated: widget.userProfile.useBreakOffLogic);
     _questionsFuture = _loadQuestions();
 
     // Only load saved progress if NOT in retry mode
@@ -122,15 +125,15 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     };
 
     // Walk questions in display order. Answered rows are replayed (local
-    // result, skill tags, break-off state). A question with no server row is
-    // either a break-off-exempt ZR100 question whose 'skipped' marker never
+    // result, skill tags, break-off gate state). A question with no server
+    // row is either a gate-skipped question whose 'skipped' marker never
     // stored (never presented — skip it), or the next question to ask.
     int firstUnansweredIndex = questions.length;
     for (int i = 0; i < questions.length; i++) {
       final q = questions[i];
       final r = resultsByListNumber[q.listNumber];
       if (r == null) {
-        if (_shouldSkipQuestion(q)) continue;
+        if (_gates.shouldSkip(q)) continue;
         firstUnansweredIndex = i;
         break;
       }
@@ -142,11 +145,9 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
         status: r.status,
         userAnswer: r.userAnswer,
       ));
+      _gates.noteAnswered(q, r.wasCorrect);
       if (!r.wasCorrect) {
         _skillTagsToPractice.addAll(q.ifWrongPracticeSkills);
-        _checkBreakOffLogic(q, false);
-      } else {
-        _checkBreakOffLogic(q, true);
       }
     }
 
@@ -284,8 +285,8 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     _diagnosticResults.add(result);
     _skillTagsToPractice.addAll(question.ifWrongPracticeSkills);
 
-    // Check break-off logic
-    _checkBreakOffLogic(question, false);
+    // Update the break-off gate
+    _gates.noteAnswered(question, false);
 
     // Move to next question
     _nextQuestion(questions);
@@ -324,8 +325,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     print('=== Reconstructing Diagnostic State ===');
     _diagnosticResults.clear();
     _skillTagsToPractice.clear();
-    _categoryFailedZR20.clear();
-    _categoryPassedZR20.clear();
+    _gates.clear();
 
     // Iterate through all questions up to the saved index
     // Note: We iterate by list index, but we need to handle skipped questions too if logic implies it.
@@ -347,18 +347,16 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
       // 2. Break-off logic state (to know if we should skip future questions)
 
       if (userAnswer != null) {
-        final textCorrect = _checkAnswer(userAnswer, question.correctAnswer, question.answerFormat, question.listNumber);
+        final textCorrect = _checkAnswer(question, userAnswer);
         // We don't have response time from saved state, so assume 0.0 or not "too long"
         // This is a limitation: if they failed due to time previously, we might re-evaluate as pass here.
         // But persistent "wasCorrect" isn't saved in UserProfile, only answers.
         // Assuming textCorrect is the main factor for reconstruction.
         final wasCorrect = textCorrect; 
 
+        _gates.noteAnswered(question, wasCorrect);
         if (!wasCorrect) {
           _skillTagsToPractice.addAll(question.ifWrongPracticeSkills);
-          _checkBreakOffLogic(question, false);
-        } else {
-          _checkBreakOffLogic(question, true);
         }
 
         // Re-add to results list (simplified)
@@ -373,7 +371,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
         // No answer found for this index. 
         // It might be a question skipped by break-off logic?
         // If so, we should record it as skipped.
-        if (_shouldSkipQuestion(question)) {
+        if (_gates.shouldSkip(question)) {
            _diagnosticResults.add(DiagnosticResult(
             questionId: question.listNumber.toString(),
             wasCorrect: false,
@@ -384,99 +382,6 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
       }
     }
     print('=== Reconstruction Complete: ${_skillTagsToPractice.length} tags found ===');
-  }
-
-  /// Check if question should be skipped due to break-off logic
-  /// Skip ZR 100 questions only if the category failed in ZR 20 AND didn't pass
-  bool _shouldSkipQuestion(DiagnosticQuestion question) {
-    // If user has disabled break-off logic, never skip questions
-    if (!widget.userProfile.useBreakOffLogic) {
-      return false;
-    }
-
-    // Prefer card-oriented skipGroup; fall back to first-skill-prefix for legacy rows
-    final category = _categoryKey(question);
-    if (category == null) return false;
-
-    // Determine if this is a ZR 100 question (questions with numbers typically > 20)
-    final isZR100 = _isZR100Question(question);
-
-    // Only skip ZR 100 questions if:
-    // 1. This is a ZR 100 question, AND
-    // 2. The category failed in ZR 20, AND
-    // 3. The category did NOT pass in ZR 20 (pass takes precedence)
-    if (isZR100 &&
-        _categoryFailedZR20[category] == true &&
-        _categoryPassedZR20[category] != true) {
-      return true;
-    }
-
-    return false;
-  }
-
-  /// Break-off group key. Prefers the explicit `skipGroup` CSV column
-  /// (e.g. "verdoppeln", "halbieren") so a failure on one ZR20 item only
-  /// suppresses the ZR100 items in the same group, not every other ZR100
-  /// question in the same coarse skill family.
-  ///
-  /// Falls back to the first-skill-prefix (e.g. "basic" from
-  /// `basic_strategy_8`) for rows without a skipGroup, preserving the
-  /// original Phase-0 behaviour.
-  String? _categoryKey(DiagnosticQuestion question) {
-    final group = question.ifWrongSkip?.trim();
-    if (group != null && group.isNotEmpty) return group;
-    if (question.ifWrongPracticeSkills.isEmpty) return null;
-    return question.ifWrongPracticeSkills.first.split('_').first;
-  }
-
-  /// Determine if a question is in ZR 100 range (vs ZR 20)
-  bool _isZR100Question(DiagnosticQuestion question) {
-    // Explicit CSV override wins — used where the magnitude heuristic
-    // misclassifies (e.g. "Doppelte von 19" is diagnostically ZR100).
-    final zr = question.zahlenraum;
-    if (zr != null && zr.isNotEmpty) {
-      return zr.toUpperCase() == 'ZR100' || zr.toUpperCase() == 'ZR1000';
-    }
-
-    // Image questions carry an item ID in questionText (not a filename);
-    // fall back to the correct answer to judge the number range.
-    if (question.sourceType == QuestionType.image) {
-      // For image questions, check the correct answer instead
-      final answer = int.tryParse(question.correctAnswer) ?? 0;
-      return answer > 20;
-    }
-
-    // For text/cards questions, check if question text contains numbers > 20
-    final text = question.questionText.toLowerCase();
-    final numbers = RegExp(r'\d+').allMatches(text);
-    for (final match in numbers) {
-      final num = int.tryParse(match.group(0) ?? '0') ?? 0;
-      if (num > 20) return true;
-    }
-    return false;
-  }
-
-  /// Track break-off logic: mark category as passed or failed in ZR 20
-  /// This determines whether ZR 100 questions in the same category should be skipped
-  void _checkBreakOffLogic(DiagnosticQuestion question, bool wasCorrect) {
-    // Determine if this is a ZR 20 question (not ZR 100)
-    final isZR20 = !_isZR100Question(question);
-
-    if (isZR20) {
-      // Card-oriented skipGroup if set, else first-skill-prefix
-      final category = _categoryKey(question);
-      if (category == null) return;
-
-      if (wasCorrect) {
-        // Mark this category as passed in ZR 20
-        // This prevents skipping ZR 100 questions in this category
-        _categoryPassedZR20[category] = true;
-      } else {
-        // Mark this category as failed in ZR 20
-        // This will cause ZR 100 questions in this category to be skipped
-        _categoryFailedZR20[category] = true;
-      }
-    }
   }
 
   Future<void> _nextQuestion(List<DiagnosticQuestion> questions) async {
@@ -504,7 +409,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
 
     // Check if answer is correct and record result
     final currentQuestion = questions[_currentQuestionIndex];
-    final textCorrect = _checkAnswer(userAnswer, currentQuestion.correctAnswer, currentQuestion.answerFormat, currentQuestion.listNumber);
+    final textCorrect = _checkAnswer(currentQuestion, userAnswer);
 
     // Determine time threshold based on question type
     final timeThreshold = currentQuestion.answerFormat == AnswerFormat.single
@@ -517,7 +422,15 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     final tookTooLong = responseTime > timeThreshold;
     final wasCorrect = textCorrect && !tookTooLong;
 
-    final answerStatus = userAnswer.isEmpty ? 'leer' : 'attempted';
+    // The server's status vocabulary is attempted|skipped|timeout (DB check
+    // constraint diagnostic_results_status_check); 'leer' was never accepted
+    // and a child pressing Weiter with no answer would 500 and strand on the
+    // retry screen. An empty submit means the child did not know — record it
+    // as a skip (server side) / leer (native side, where the old vocabulary
+    // still applies).
+    final answerStatus = userAnswer.isEmpty
+        ? (_sessionId != null ? 'skipped' : 'leer')
+        : 'attempted';
 
     final result = DiagnosticResult(
       questionId: currentQuestion.listNumber.toString(),
@@ -529,7 +442,8 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
 
     _diagnosticResults.add(result);
 
-    // If incorrect OR took too long, add skill tags
+    // If incorrect OR took too long, add skill tags and update the gate
+    _gates.noteAnswered(currentQuestion, wasCorrect);
     if (!wasCorrect) {
       print('=== Question ${currentQuestion.listNumber} FAILED ===');
       print('  - Text correct: $textCorrect');
@@ -537,11 +451,9 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
       print('  - Took too long: $tookTooLong');
       print('  - Adding skill tags: ${currentQuestion.ifWrongPracticeSkills}');
       _skillTagsToPractice.addAll(currentQuestion.ifWrongPracticeSkills);
-      _checkBreakOffLogic(currentQuestion, false);
     } else {
       print('=== Question ${currentQuestion.listNumber} PASSED ===');
       print('  - Response time: ${responseTime}s (threshold: ${timeThreshold}s)');
-      _checkBreakOffLogic(currentQuestion, true);
     }
 
     // Web/API mode: the answer must be persisted to the server BEFORE the
@@ -567,7 +479,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
       if (_currentQuestionIndex < questions.length - 1) {
         // Find next non-skipped question
         int nextIndex = _currentQuestionIndex + 1;
-        while (nextIndex < questions.length && _shouldSkipQuestion(questions[nextIndex])) {
+        while (nextIndex < questions.length && _gates.shouldSkip(questions[nextIndex])) {
           // Mark as skipped
           final skippedResult = DiagnosticResult(
             questionId: questions[nextIndex].listNumber.toString(),
@@ -646,7 +558,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
 
     var nextIndex = _currentQuestionIndex + 1;
     while (nextIndex < questions.length &&
-        _shouldSkipQuestion(questions[nextIndex])) {
+        _gates.shouldSkip(questions[nextIndex])) {
       final skipped = questions[nextIndex];
       // Best effort and single attempt: a failing 'skipped' marker must not
       // lock the child out or stall the run on a dead network — it only
@@ -838,26 +750,9 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     );
   }
 
-  bool _checkAnswer(String userAnswer, String correctAnswer, AnswerFormat format, int questionNumber) {
-    if (userAnswer.isEmpty) return false;
-
-    switch (format) {
-      case AnswerFormat.single:
-        return userAnswer.toLowerCase() == correctAnswer.toLowerCase();
-
-      case AnswerFormat.multiple:
-      case AnswerFormat.sort:
-        // Normalize both answers by removing extra spaces
-        final userItems = userAnswer.split(',').map((s) => s.trim().toLowerCase()).toList();
-        final correctItems = correctAnswer.split(',').map((s) => s.trim().toLowerCase()).toList();
-
-        if (userItems.length != correctItems.length) return false;
-
-        for (int i = 0; i < userItems.length; i++) {
-          if (userItems[i] != correctItems[i]) return false;
-        }
-        return true;
-    }
+  bool _checkAnswer(DiagnosticQuestion question, String userAnswer) {
+    if (userAnswer.trim().isEmpty) return false;
+    return AnswerGrading.grade(userAnswer: userAnswer, question: question);
   }
 
   @override
@@ -1087,59 +982,12 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
       DiagnosticQuestion question, List<DiagnosticQuestion> questions) {
     void onSubmit() => _nextQuestion(questions);
 
-    final Widget answerInput;
-    switch (question.answerFormat) {
-      case AnswerFormat.single:
-        answerInput = SingleAnswerWidget(
-          key: ValueKey('single_${question.listNumber}'),
-          controller: _textController,
-          onSubmit: onSubmit,
-        );
-        break;
-      case AnswerFormat.multiple:
-        // Calculate the number of fields based on the correct answer
-        final fieldCount = question.correctAnswer
-            .split(',')
-            .map((s) => s.trim())
-            .where((s) => s.isNotEmpty)
-            .length;
-
-        // Try to find a starting number for counting questions
-        String? prefixText;
-        
-        // Check if it's a counting question (contains "Count" in English or "Zähle" in German)
-        final isCounting = question.english.toLowerCase().contains('count') || 
-                           question.german.toLowerCase().contains('zähle');
-                            
-        // Check if the main display text is a number (which is usually the starting number for these questions)
-        final isNumber = int.tryParse(question.questionText.trim()) != null;
-        
-        if (isCounting && isNumber) {
-          prefixText = '${question.questionText.trim()}, ';
-        }
-
-        answerInput = MultipleAnswerWidget(
-          key: ValueKey('multiple_${question.listNumber}'),
-          controller: _textController,
-          fieldCount: fieldCount,
-          prefixText: prefixText,
-          onSubmit: onSubmit,
-        );
-        break;
-      case AnswerFormat.sort:
-        // Parse the correct answer to get the items to sort
-        final items = question.correctAnswer
-            .split(',')
-            .map((s) => s.trim())
-            .where((s) => s.isNotEmpty)
-            .toList();
-        answerInput = SortAnswerWidget(
-          key: ValueKey('sort_${question.listNumber}'),
-          controller: _textController,
-          items: items,
-        );
-        break;
-    }
+    final answerInput = DiagnosticAnswerInput(
+      key: ValueKey('answer_${question.listNumber}'),
+      question: question,
+      controller: _textController,
+      onSubmit: onSubmit,
+    );
 
     // Visual items render the arrangement from their clean-room spec above
     // the answer input (see buildVisualDisplay).

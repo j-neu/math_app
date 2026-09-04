@@ -30,7 +30,8 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith("/login") ||
     pathname.startsWith("/invite") ||
     pathname.startsWith("/impressum") ||
-    pathname.startsWith("/datenschutz");
+    pathname.startsWith("/datenschutz") ||
+    pathname.startsWith("/wissenschaftliche-grundlagen");
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();

@@ -1,6 +1,7 @@
 import 'package:csv/csv.dart';
 import 'package:flutter/services.dart';
 import '../models/diagnostic_question.dart';
+import 'diagnostic_shortening.dart';
 
 /// Loads the clean-room diagnostic item bank.
 ///
@@ -45,6 +46,7 @@ class DiagnosticService {
         final skipGroupRaw = row.length > 10 ? row[10].toString().trim() : '';
         final zahlenraumRaw = row.length > 11 ? row[11].toString().trim() : '';
         final audioAssetRaw = row.length > 12 ? row[12].toString().trim() : '';
+        final notes = row.length > 9 ? row[9].toString() : '';
         questions.add(
           DiagnosticQuestion(
             listNumber: listNumber,
@@ -60,6 +62,8 @@ class DiagnosticService {
             zahlenraum: zahlenraumRaw.isEmpty ? null : zahlenraumRaw,
             imagePath: _getImagePath(questionText, sourceType),
             audioAsset: audioAssetRaw.isEmpty ? null : audioAssetRaw,
+            constructId: constructFrom(notes),
+            difficulty: difficultyFrom(notes),
           ),
         );
       } catch (e) {

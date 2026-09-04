@@ -11,6 +11,17 @@ enum AnswerFormat {
   sort,
 }
 
+/// Difficulty ladder of a diagnostic item (blueprint §Break-off: constructs
+/// run easy → medium → hard). Consumed by the shortened-diagnostic gate.
+enum QuestionDifficulty {
+  easy(0),
+  medium(1),
+  hard(2);
+
+  const QuestionDifficulty(this.rank);
+  final int rank;
+}
+
 class DiagnosticQuestion {
   final int listNumber;
   final QuestionType sourceType;
@@ -26,6 +37,8 @@ class DiagnosticQuestion {
   final String? zahlenraum; // Explicit ZR (e.g. "ZR20", "ZR100"); overrides number-magnitude heuristic
   final String? imagePath;
   final String? audioAsset; // Public URL for audio asset (e.g. Supabase Storage URL)
+  final String? constructId; // Construct code (e.g. "A1.1"), parsed from the Notes column
+  final QuestionDifficulty? difficulty; // easy/medium/hard ladder position
 
   DiagnosticQuestion({
     required this.listNumber,
@@ -42,5 +55,7 @@ class DiagnosticQuestion {
     this.zahlenraum,
     this.imagePath,
     this.audioAsset,
+    this.constructId,
+    this.difficulty,
   });
 }

@@ -17,7 +17,7 @@
       "custom_widget": null,
       "params": {
         "range": [0, 50],
-        "start_range": [25, 35],
+        "start_range": [20, 35],
         "target": 45,
         "step": 5,
         "direction": "up"

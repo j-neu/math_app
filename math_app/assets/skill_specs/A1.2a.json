@@ -17,7 +17,7 @@
       "custom_widget": null,
       "params": {
         "range": [0, 20],
-        "start_range": [18, 20],
+        "start_range": [14, 20],
         "target": 12,
         "step": 1,
         "direction": "down"
@@ -34,7 +34,7 @@
       "params": {
         "direction": "down",
         "step": 1,
-        "start_range": [14, 18],
+        "start_range": [11, 18],
         "length": 5,
         "gap_indices": [2]
       },
@@ -50,7 +50,7 @@
       "params": {
         "direction": "down",
         "step": 1,
-        "start_range": [14, 18],
+        "start_range": [11, 18],
         "length": 8,
         "gap_indices": [2, 5]
       },

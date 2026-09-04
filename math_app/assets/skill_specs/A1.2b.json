@@ -21,7 +21,7 @@
           100
         ],
         "start_range": [
-          91,
+          88,
           95
         ],
         "target": 85,
@@ -41,8 +41,8 @@
         "direction": "down",
         "step": 1,
         "start_range": [
-          52,
-          53
+          51,
+          54
         ],
         "length": 5,
         "gap_indices": [
@@ -62,7 +62,7 @@
         "direction": "down",
         "step": 1,
         "start_range": [
-          51,
+          41,
           52
         ],
         "length": 8,

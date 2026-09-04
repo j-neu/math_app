@@ -1,0 +1,25 @@
+# Independence adjudications for diagnostic_core_v1.csv  (tasks.md R2.11)
+#
+# Read by scripts/check_item_independence.py --strict. One key per line,
+# "key: reason". The key is the flagged item's ID, or — because this runtime
+# CSV carries no item-ID column, only ListNumber — the row index the report
+# prints ("New item 20").
+#
+# CAUTION: keys here are row indices, so they are NOT stable across a
+# regeneration of the CSV — adding or removing any item shifts every index
+# after it. This already happened once: dropping A1.5-01 (row 8) for the R2.9
+# 59-item core moved A3.3-02 from 20 to 19 on 2026-09-04. After running
+# scripts/generate_diagnostic_csv.py, always re-run the checker and re-key
+# this file against the index it reports.
+#
+# Verify a key by reading the row it points at:
+#   python -c "import csv;r=list(csv.DictReader(open('math_app/Research/diagnostic_core_v1.csv',encoding='utf-8-sig')));print(r[18]['QuestionText'])"
+# Row 19 must read: "Tim weiss: 4 + 4 = 8. Wie viel ist dann 4 + 5?"
+#
+# Each entry below transcribes the adjudication already recorded in the item's
+# own provenance file under "Distinct from any known legacy item"; those files
+# carry reviewed_by=Jakob / reviewed_on=2026-08-30 in provenance.csv. Nothing
+# here is a new judgment — this file only makes the gate agree with the
+# adjudication that was already written and signed.
+
+19: A3.3-02 — Kollision ist das Operandenpaar 4 + 5 (Legacy-Item 50). Das Paar ist durch das Konstrukt erzwungen: A3.3 prueft die Ableitung einer Nachbaraufgabe aus einer bekannten Verdopplung, und die Nachbaraufgabe zu 4 + 4 ist notwendigerweise 4 + 5. Stimulus, Rahmung und Aufgabenstellung sind eigenstaendig ("Tim weiss: 4 + 4 = 8. Wie viel ist dann 4 + 5?" — Anker explizit vorgegeben, Ableitung ist die eigentliche Anforderung), waehrend das Legacy-Item die Aufgabe ohne Anker als reine Rechenaufgabe stellt. Quelle der Begruendung: docs/clean-room/items/A3.3-02.md.

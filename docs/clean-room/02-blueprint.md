@@ -2,8 +2,8 @@
 
 | Feld | Wert |
 |---|---|
-| **Titel** | Blueprint: Kerntest (60 Items) + optionale Deep-Dive-Blöcke |
-| **Status** | DRAFT — awaiting Jakob's sign-off |
+| **Titel** | Blueprint: Kerntest (59 Items) + optionale Deep-Dive-Blöcke |
+| **Status** | ✅ FREIGEGEBEN — Jakob, 2026-09-04 |
 | **Datum** | 2026-08-29 |
 | **Owner** | Jakob |
 | **Ersetzt** | die Item- und Sequenzplanung des bisherigen Diagnostikums (tasks.md, R1.4). |
@@ -12,14 +12,14 @@
 
 Die Diagnostik besteht aus zwei Stufen, die die Lehrkraft wählen kann:
 
-1. **Kerntest — 60 Items** über alle vier Domänen (A–D). Er liefert in einer Sitzung ein belastbares Profil über alle Konstrukte der Konstruktkarte (01-construct-map.md). Administrationszeit: **20–30 Minuten**.
+1. **Kerntest — 59 Items** über alle vier Domänen (A–D). Er liefert in einer Sitzung ein belastbares Profil über alle Konstrukte der Konstruktkarte (01-construct-map.md). Administrationszeit: **20–30 Minuten**.
 2. **Optionale Deep-Dive-Blöcke** je Domäne. Sie werden nur dann vorgelegt, wenn der Kerntest in einer Domäne Auffälligkeiten oder Uneindeutigkeiten zeigt, und vertiefen gezielt die betroffenen Konstrukte (siehe Abschnitt Deep-Dive-Blöcke). Sie verlängern die Sitzung um 5–10 Minuten pro Block.
 
-Die Gesamtzahl von 60 Kern-Items ist eine eigene redaktionelle Entscheidung — bewusst gewählt, nicht von einem bestehenden Instrument übernommen (Begründung siehe `decisions/0003-why-60-core-items.md`). Jede Zuweisung unten ist mit der Literatur begründet.
+Die Gesamtzahl von **59** Kern-Items ist eine eigene redaktionelle Entscheidung — bewusst gewählt, nicht von einem bestehenden Instrument übernommen (Begründung siehe `decisions/0003-why-60-core-items.md`; die Ausgangszahl 60 wurde bei der R2.9-Durchsicht am 2026-08-30 auf 59 korrigiert, als A1.5-01 als redundant gestrichen wurde). Jede Zuweisung unten ist mit der Literatur begründet.
 
 Die Entscheidung, ob ein Deep-Dive-Block vorgelegt wird, trifft die Lehrkraft pro Kind nach Sichtung des Kernprofils; die App schlägt passende Blöcke vor, legt sie aber nicht automatisch vor. Beide Stufen verwenden dasselbe Item-Template (rewrite.md §6) und dieselben Provenance-Anforderungen.
 
-## Kern-Allokation (60 Items)
+## Kern-Allokation (59 Items)
 
 | Konstrukt | Items | Verteilung auf Teilkonstrukte | Begründung |
 |---|---|---|---|
@@ -37,7 +37,7 @@ Die Entscheidung, ob ein Deep-Dive-Block vorgelegt wird, trifft die Lehrkraft pr
 
 ## Item-Ebene
 
-Für jedes der 60 Kern-Items und für jedes Deep-Dive-Item wird eine Item-Datei gemäß dem Template aus rewrite.md §6 angelegt (`docs/clean-room/items/<ID>.md`) mit Konstrukt-ID, Schwierigkeitsklasse, Zahlraum, Stimulusform, erwarteter Antwort, Fehlerdiagnostik und Skill-Zuordnung. Die Fehlerschwellen der Skip-Tabelle werden in den Item-Dateien derjenigen Items hinterlegt, die den jeweiligen Break-off auslösen, damit die Implementierung alle Regeln aus einer einzigen Quelle bezieht.
+Für jedes der 59 Kern-Items und für jedes Deep-Dive-Item wird eine Item-Datei gemäß dem Template aus rewrite.md §6 angelegt (`docs/clean-room/items/<ID>.md`) mit Konstrukt-ID, Schwierigkeitsklasse, Zahlraum, Stimulusform, erwarteter Antwort, Fehlerdiagnostik und Skill-Zuordnung. Die Fehlerschwellen der Skip-Tabelle werden in den Item-Dateien derjenigen Items hinterlegt, die den jeweiligen Break-off auslösen, damit die Implementierung alle Regeln aus einer einzigen Quelle bezieht.
 
 ## Sequenzregeln
 
@@ -49,12 +49,12 @@ Für jedes der 60 Kern-Items und für jedes Deep-Dive-Item wird eine Item-Datei 
 
 ## Schwierigkeitsverteilung
 
-Die 60 Kern-Items sind über folgende Schwierigkeitsklassen verteilt:
+Die 59 Kern-Items sind über folgende Schwierigkeitsklassen verteilt:
 
 | Klasse | Anteil | Erwartete Passquote (2. Klasse) |
 |---|---|---|
 | Leicht | 30 % (≈18 Items) | > 80 % |
-| Mittel | 50 % (≈30 Items) | 40–80 % |
+| Mittel | 50 % (≈29 Items) | 40–80 % |
 | Schwer | 20 % (≈12 Items) | < 40 % |
 
 Begründung: Diagnostische Instrumente sollen die Kinder spreizen, damit Förderbedarf sichtbar wird. Die Verteilung mit einem Schwerpunkt im mittleren Bereich folgt der gängigen Testkonstruktionsnorm der Item-Response-Theorie, wonach Items mittlerer Schwierigkeit die meiste Information liefern; die Zielvorgaben gelten testweit, nicht je Konstrukt.
@@ -94,7 +94,7 @@ Jeder Block ist optional, wird nur auf Anforderung der Lehrkraft vorgelegt und f
 
 ## Administrationszeit
 
-- **Kerntest:** 20–30 Minuten (60 Items; mit Break-off verkürzt sich die Zeit entsprechend).
+- **Kerntest:** 20–30 Minuten (59 Items; mit Break-off verkürzt sich die Zeit entsprechend).
 - **Je Deep-Dive-Block:** +5–10 Minuten.
 - Für Kinder der 2. Klasse wird eine Pause nach ca. 15 Minuten eingeplant; der Kerntest ist so aufgebaut, dass er an einer festgelegten Stelle unterbrochen und in derselben Sitzung fortgesetzt werden kann.
 

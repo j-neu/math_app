@@ -3,14 +3,14 @@
 | Feld | Wert |
 |---|---|
 | **Titel** | Item→Skill-Zuordnung (If-wrong → Förderskills) |
-| **Status** | DRAFT — awaiting Jakob's sign-off |
+| **Status** | ✅ FREIGEGEBEN — Jakob, 2026-09-04 |
 | **Datum** | 2026-08-29 |
 | **Owner** | Jakob |
 | **Bezug** | tasks.md, R4.1 |
 
 ## Einführung
 
-Diese Datei ist die Item→Skill-Zuordnung (tasks.md, R4.1): Für jedes der 92 Items des Item-Banks (60 Kern-Items + 32 Deep-Dive-Items) wird begründet, welche Förderskills ein Fehler auf dem Item nahelegt. Die Fehlerdiagnostik stammt aus den Item-Dateien (R2.*), die Ursachenzuschreibung aus der Konstruktkarte (`01-construct-map.md`) und der Bibliographie (`03-bibliography.md`).
+Diese Datei ist die Item→Skill-Zuordnung (tasks.md, R4.1): Für jedes der 91 Items des Item-Banks (59 Kern-Items + 32 Deep-Dive-Items) wird begründet, welche Förderskills ein Fehler auf dem Item nahelegt. Die Fehlerdiagnostik stammt aus den Item-Dateien (R2.*), die Ursachenzuschreibung aus der Konstruktkarte (`01-construct-map.md`) und der Bibliographie (`03-bibliography.md`).
 
 **Begründungsform (Reasoning Chain):** *wahrscheinliche Ursache → Skill-Lücke → empfohlene Skills in Prioritätsreihenfolge.* Jeder Eintrag nennt erst die wahrscheinlichste Fehlerursache, dann die dadurch sichtbare Skill-Lücke (aus `skills_taxonomy.csv`, R3.3), dann die empfohlenen Skills in Prioritätsreihenfolge (1. = höchste Priorität).
 

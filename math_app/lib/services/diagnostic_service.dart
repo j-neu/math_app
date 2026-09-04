@@ -4,7 +4,7 @@ import '../models/diagnostic_question.dart';
 
 /// Loads the clean-room diagnostic item bank.
 ///
-/// The runtime asset is `Research/diagnostic_core_v1.csv` (the 60-item core
+/// The runtime asset is `Research/diagnostic_core_v1.csv` (the 59-item core
 /// test, tasks.md R5.1). The optional deep-dive blocks live in the sibling
 /// `Research/diagnostic_deepdive_v1.csv` and are not loaded by the core
 /// diagnostic flow. Both files reuse the legacy 13-column schema

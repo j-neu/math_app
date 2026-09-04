@@ -2,7 +2,7 @@
 """Generate the clean-room diagnostic CSVs from the item bank.
 
 Produces:
-  * ``math_app/Research/diagnostic_core_v1.csv``    — the 60 core items
+  * ``math_app/Research/diagnostic_core_v1.csv``    — the 59 core items
   * ``math_app/Research/diagnostic_deepdive_v1.csv`` — the 32 optional
     deep-dive items in a SEPARATE sibling file (tasks.md R5.1).
 
@@ -21,7 +21,7 @@ Schemes decided here (documented per the R5.1 brief):
 
 Tier
     The deep-dive blocks live in a sibling file with ListNumber restarting at
-    1 (1..32). The core file numbers its 60 items 1..60 in the blueprint
+    1 (1..32). The core file numbers its 59 items 1..59 in the blueprint
     §Sequenzregeln order (A1 -> A2 -> A3 -> B1 -> B2 -> C1 -> C2 -> C3 -> C4
     -> D1; within a construct items are ordered by difficulty, which for every
     construct matches the item's numeric suffix order).
@@ -131,7 +131,9 @@ CORE_ORDER = [
     "A1.2-01", "A1.2-02",
     "A1.3-01", "A1.3-02",
     "A1.4-01",
-    "A1.5-01",
+    # A1.5-01 removed by the R2.9 review (2026-08-30): redundant against
+    # A1.1-02, whose ZR100 counting sequence already crosses two Dekaden and
+    # therefore measures the Zehnerübergang. Core tier is 59, not 60.
     "A2.1-01",
     "A2.2-01", "A2.2-02",
     "A2.3-01",
@@ -208,7 +210,6 @@ ENGLISH = {
     "A1.3-01": "Count on in steps of two from the number 26. Name the next four numbers.",
     "A1.3-02": "Count backwards in steps of five from the number 45. Name the next five numbers.",
     "A1.4-01": "Which number comes directly before 37, and which number comes directly after 37?",
-    "A1.5-01": "Count on from 17 without stopping until you reach 23.",
     "A2.1-01": "A counting frame will appear for a short moment. Remember exactly how many beads you see. How many beads were there?",
     "A2.2-01": "Here is a ten-frame. Some boxes are filled. You may look as long as you like. How many boxes are filled?",
     "A2.2-02": "You see two hands. Some fingers are stretched out. How many fingers are there in total?",
@@ -401,8 +402,8 @@ def main() -> int:
         errors.append(f"Order entries without an item file: {extra}")
 
     # 2. Counts per the blueprint.
-    if len(CORE_ORDER) != 60:
-        errors.append(f"Core order has {len(CORE_ORDER)} items, expected 60")
+    if len(CORE_ORDER) != 59:
+        errors.append(f"Core order has {len(CORE_ORDER)} items, expected 59")
     if len(DEEP_ORDER) != 32:
         errors.append(f"Deep-dive order has {len(DEEP_ORDER)} items, expected 32")
 

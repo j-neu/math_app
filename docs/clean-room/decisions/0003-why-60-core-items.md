@@ -1,6 +1,6 @@
 # ADR 0003 — Why the core diagnostic has exactly 60 items
 
-**Status:** ✅ DECIDED (provisional — Jakob to confirm)
+**Status:** ✅ DECIDED — confirmed by Jakob, 2026-09-04
 **Date:** 2026-08-29
 **Owner:** Jakob
 **Task:** `tasks.md` R1.8
@@ -21,7 +21,10 @@ Count history:
 
 ## Decision
 
-The core diagnostic contains exactly **60 items**, allocated per construct in the blueprint (`docs/clean-room/02-blueprint.md`, `tasks.md` R1.4). The per-construct allocation is our editorial choice, documented there with rationale from the bibliography, not a copy of any existing instrument's allocation.
+The core diagnostic contains exactly **60 items**  
+> **AMENDED 2026-08-30 (R2.9): the final count is 59.** Jakob's item review struck A1.5-01 as redundant against A1.1-02, which already crosses two Dekaden and so already measures the Zehnerübergang. The reasoning below for choosing a ~60-item scale is unchanged and still governs; padding a domain with a redundant item purely to reach a round 60 would have been the wrong trade-off. See `02-blueprint.md`.
+
+Original text: the core diagnostic contains exactly **60 items**, allocated per construct in the blueprint (`docs/clean-room/02-blueprint.md`, `tasks.md` R1.4). The per-construct allocation is our editorial choice, documented there with rationale from the bibliography, not a copy of any existing instrument's allocation.
 
 ## Reasoning
 

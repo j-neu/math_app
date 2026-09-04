@@ -27,11 +27,13 @@ void main() {
     );
   });
 
-  test('core tier parses exactly the 60 blueprint items', () {
-    expect(coreQuestions, hasLength(60));
-    // ListNumbers are sequential 1..60.
+  test('core tier parses exactly the 59 blueprint items', () {
+    // 59, not 60: the R2.9 review (2026-08-30) struck A1.5-01 as redundant
+    // against A1.1-02. See docs/clean-room/02-blueprint.md.
+    expect(coreQuestions, hasLength(59));
+    // ListNumbers are sequential 1..59.
     expect(coreQuestions.map((q) => q.listNumber).toList(),
-        List<int>.generate(60, (i) => i + 1));
+        List<int>.generate(59, (i) => i + 1));
   });
 
   test('deep-dive sibling file parses exactly the 32 block items', () {

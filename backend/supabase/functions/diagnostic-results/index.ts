@@ -88,7 +88,7 @@ Deno.serve(async (req) => {
   // actually answers), NOT the count of rows in diagnostic_questions: the
   // cleanroom bank stores the 32 deep-dive items in the same table (61..92),
   // and the child never answers those in the standard flow. Counting rows
-  // would demand 92 answers for a 60-item run and the session would never
+  // would demand 91 answers for a 59-item run and the session would never
   // auto-complete (previously masked by the app's explicit completeSession).
   const { data: diag } = await supabase
     .from("diagnostics")

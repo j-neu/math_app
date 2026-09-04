@@ -1,0 +1,40 @@
+# P2 Practice Runtime — Scoped Re-review Report
+
+Date: 2026-09-01 · Branch: `gauntlet/p2-p3-p4` · Reviewer context: fresh, independent
+Commit under review: `43b3a0b` (fixer claims findings 2–8, 10 + A1.2b; finding 1 fixed in `3ab353a`, on the branch)
+
+## 1. Findings table
+
+| # | Finding | Status | Evidence (fresh) |
+|---|---|---|---|
+| 1 | `learning-path` CORS omits `x-student-token`; child flow dead | **ADDRESSED** | `backend/supabase/functions/learning-path/index.ts:20-22` now lists `x-student-token` in `Access-Control-Allow-Headers` (live OPTIONS preflight to `https://zzxqeqwffexythqzjkxr.supabase.co/functions/v1/learning-path` with `Access-Control-Request-Headers: x-student-token` returns **200** and echoes `access-control-allow-headers: authorization, x-client-info, apikey, content-type, x-student-token`). Fix is deployed, not just committed. |
+| 2 | `place_counters` `take_away` expected ≠ graded remaining | **ADDRESSED** | `problem_generators.dart:1321-1338` now emits `expected: [(total − count).toString()]` and `display {total, remaining, op:'-'}` (plus `count` from `:1317`); `template_evaluator.dart:200-203` grades `display.remaining`; `all_specs_smoke_test.dart:242-252` asserts `op == '-'` and `expected == remaining`. Generator test updated (`problem_generators_test.dart` "expected is the REMAINING count"). |
+| 3 | C1.1b L1 unplayable (no Minusaufgabe / removal count shown) | **ADDRESSED** | `place_counters_widget.dart:167-186` renders `"$_total − $_removeCount = ?"` (`Key('pc-equation')`); child taps remove cells and the widget reports the **remaining** `_filledCells.length` (`:104-110`); over-removal shows "Nimm nur N Plättchen weg." (`Key('pc-takeaway-hint')`, `:199-206`); C1.1b L1 prompt matches. Widget test `{total:8, count:3}` → removing 3 cells reports `"5"`. |
+| 4 | Retry-correct shows "Super!" / praise over-claims; first-attempt-only recording | **ADDRESSED** | `practice_controller.dart` adds `_lastWasRetryCorrect` set on `alreadyRecorded && evaluation.isCorrect` (`:187`), reset in `start()`/`advance()`; `practice_screen.dart:391-398` shows **"Jetzt stimmt es!"** when `isRetryCorrect` else the deterministic praise. First-attempt-only recording intact (unchanged `_recordedProblemIndices.add` gate). Tests updated in `practice_screen_test.dart` (asserts `Jetzt stimmt es!` + `Super!` findsNothing + attempts stay 1) and `practice_controller_test.dart`. |
+| 5 | `equation_gap` `neighbor` validates only first filled gap | **ADDRESSED** | `equation_gap_widget.dart:89-94` requires BOTH fields and reports `"n-1,n+1"` (single gap → `""`); `template_evaluator.dart` routes `form == 'neighbor'` to `_evaluateNeighbor` (`:74-95`) — correct iff both expected neighbours present, set-based (order-independent), rejects single/wrong/duplicate. Generator emits both `[n-1, n+1]` (`:726-727`). Tests: widget test "requires BOTH gaps" + evaluator group (5 cases). |
+| 6 | No Semantics on interactive template widgets | **ADDRESSED** | 18 `Semantics(` sites across 13 template widget files (`place_counters`, `bundle_sticks`, `bundling`, `unbundling`, `drag_partition`, `numberline_*`, `strategy_choice`, `picture_compare`, `flash_subitize`, `compare_symbols`, `rekenrek_set`); `lib/widgets/manipulatives` has no own GestureDetectors used by practice templates — `staebchen.dart`/`zahlenstrahl.dart` GestureDetectors (`StaebchenOeffnenWidget`, `ZahlenstrahlMarkWidget`) are **diagnostic-screen-only**. Semantics test exists: `template_widgets_test.dart` "tappable cells carry semantic labels for assistive tech" (`ensureSemantics`, 10 labelled cells). |
+| 7 | Reduced motion not honoured on practice screen (pulse/shake) | **ADDRESSED** | `practice_screen.dart:391` reads `MediaQuery.disableAnimationsOf(context)`; `_CorrectFeedback`/`_IncorrectFeedback` take `animate` and skip the `TweenAnimationBuilder` under reduced motion while keeping icon+text (feedback still visible). Test present: `practice_screen_test.dart` "reduced motion: correct feedback stays visible without the pulse and the incorrect shake is skipped" (uses `FakeAccessibilityFeatures(disableAnimations: true)`). |
+| 8 | C1.1b L2 two_groups no gray (taken-away) group | **ADDRESSED** | `problem_generators.dart:1607-1628` orders the split big-first `[big, small]`, sets `display['subtract_group'] = 1`, `expected = [big − small]`; `zehnerfeld_read_widget.dart:52-65` wraps group `subtract_group` in `Opacity(key: 'zf-group-dimmer-N', opacity: 0.35)`. Tests: generator asserts `subtract_group == 1` + big-first (200 seeds + real C1.1b L2); widget test asserts `zf-group-dimmer-1` opacity < 1 and `zf-group-dimmer-0` absent; "no subtract_group → neither dimmed". |
+| 9 | Flutter web drops synthetic pointer events (e2e/a11y automation impossible) | **NOT ADDRESSED** | Not claimed by the fixer (out of the claimed 2–8/10 scope). No change in the fix commit touches the web engine/semantics host issue. Remains an open tooling blocker for automated web e2e. |
+| 10 | App-start recovery uses hard-coded 7000 ms band | **ADDRESSED** | `learning_path_service.dart` persists `{"practice_session_id", "slow_band_ms"}` JSON entries (`_markSessionPending` `:267-284`), `pendingEndSessions()` returns records, `_slowBandOf` falls back to `defaultSlowBandMs = 7000` for legacy plain-id entries; `recoverPendingSessions(token)` re-ends with each session's stored band (`:345-363`). `app_start_recovery.dart` drops `kRecoverySlowBandMs`/param and delegates. Tests updated/added in `learning_path_service_test.dart` (band 5000 persisted, 9000 re-sent, legacy→7000) and `app_start_recovery_test.dart` (9000 stored band, legacy fallback). |
+| — | A1.2b L2 `start_range` | **ADDRESSED** | `[52,54]` → `[52,53]` in `docs/clean-room/skills/specs/A1.2b.json` and `math_app/assets/skill_specs/A1.2b.json` (in sync). |
+
+## 2. Fresh gate output
+
+```
+$ cd math_app && flutter test        → 453 passed, 0 failed (All tests passed!)
+$ cd math_app && flutter analyze     → 335 issues, 0 errors (info/warnings only; 0 errors)
+$ python scripts/check_specs.py      → OK: 36 specs validated
+```
+
+Live backend: preflight OPTIONS `learning-path` now passes with `x-student-token` (deployed).
+
+## 3. New-breakage / hygiene findings
+
+1. **Stray PNG at repo root introduced by the fix commit.** `git show 43b3a0b --stat` adds `p2-login-code.png` (18 KB) at the repository root — exactly the class of stray file the reviewer was asked to confirm absent. It was subsequently removed by follow-up commit `bb08fb7` ("chore: remove stray critic screenshot from repo root"), and the current tree (`HEAD = bb08fb7`) is clean (`git status` empty, no root PNG). Low severity since already self-cleaned, but the fix commit itself violated the rule.
+2. **Unrelated clean-room documentation churn bundled into the fix commit.** `43b3a0b` also deletes `docs/clean-room/items/A1.5-01.md`, rewrites `provenance.csv` (255 lines), and edits `02-blueprint.md`, `mapping-rationale.md`, and ~40 item files — all unrelated to the P2 practice-runtime findings and to the A1.2b range fix. Scope creep in a "fix" commit; docs-only, no functional impact.
+3. **Semantics gap remains on diagnostic-only manipulatives** (`StaebchenOeffnenWidget` at `staebchen.dart:136`, `ZahlenstrahlMarkWidget` at `zahlenstrahl.dart:174` still wrap bare GestureDetectors without labels). Not reachable from any practice template, so the P2 finding is met, but the "6 manipulatives" part of finding #6's wording is only partially covered.
+
+## 4. The single biggest remaining issue
+
+**Finding #9 (Flutter web drops synthetic pointer events through the a11y semantics host, breaking automated e2e/a11y click testing) is entirely unaddressed.** It was outside the fixer's claimed scope, but it is the one finding still open that genuinely blocks verification of the child journey end-to-end (roster→login→path→practice) by automation — and, more broadly, the fixer's claimed findings all verify as addressed. Second to it, the fix commit hygiene (stray root PNG now removed, unrelated docs churn) is a process finding, not a product breakage.

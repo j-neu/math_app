@@ -1,6 +1,6 @@
 # ADR 0009 — Mastery threshold and the slow-response flag
 
-**Status:** 🟡 DRAFT — awaiting Jakob's sign-off
+**Status:** ✅ DECIDED — signed off by Jakob, 2026-09-04
 **Date:** 2026-08-30
 **Owner:** Jakob
 **Task:** `2026-08-30-p1-path-engine` Task 15

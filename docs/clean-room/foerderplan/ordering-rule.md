@@ -3,7 +3,7 @@
 | Feld | Wert |
 |---|---|
 | **Titel** | Reihenfolgeregel für Förderplan-Empfehlungen |
-| **Status** | DRAFT — awaiting Jakob's sign-off |
+| **Status** | ✅ FREIGEGEBEN — Jakob, 2026-09-04 |
 | **Datum** | 2026-08-29 |
 | **Owner** | Jakob |
 | **Ersetzt** | die Alt-Sortierung „Kategorienreihenfolge → `card_number` ASC" (tasks.md, R4.2) |

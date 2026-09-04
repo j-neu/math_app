@@ -1,6 +1,6 @@
 # ADR 0007 — Why the Schulz diagnostic is out of product scope
 
-**Status:** ✅ DECIDED (provisional — Jakob to confirm)
+**Status:** ✅ DECIDED — confirmed by Jakob, 2026-09-04
 **Date:** 2026-08-29
 **Owner:** Jakob
 **Task:** `tasks.md` R1.8

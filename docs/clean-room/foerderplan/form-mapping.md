@@ -3,7 +3,7 @@
 | Feld | Wert |
 |---|---|
 | **Titel** | Formular-Zuordnung: Ist / Soll / Lernweg / Absprachen / Reflexion |
-| **Status** | DRAFT — awaiting Jakob's sign-off |
+| **Status** | ✅ FREIGEGEBEN — Jakob, 2026-09-04 |
 | **Datum** | 2026-08-29 |
 | **Owner** | Jakob |
 | **Bezug** | tasks.md R6.1 · ADR 0001 (`docs/clean-room/decisions/0001-foerderplan-form-licence.md`) |

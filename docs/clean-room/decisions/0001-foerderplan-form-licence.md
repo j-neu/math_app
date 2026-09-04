@@ -1,9 +1,20 @@
 # ADR 0001 — Licence basis for the Förderplan form
 
-**Status:** ⏳ OPEN — verification not yet obtained
+**Status:** ✅ RESOLVED — outcome (b), fallback taken. Jakob, 2026-09-04
 **Date raised:** 2026-08-29
+**Date resolved:** 2026-09-04
 **Owner:** Jakob
-**Task:** `tasks.md` R0.7 (checkbox stays unchecked until this ADR resolves)
+**Task:** `tasks.md` R0.7 — closed
+
+## Resolution (2026-09-04)
+
+**Outcome (b): we ship our own five-column layout. No SenBJF licence is needed, and no enquiry will be sent.**
+
+The question this ADR raised — "may we reproduce SenBJF's specific form?" — became moot because R6.2 never reproduced it. What shipped is our own five-column layout built on the standard headings, and R6.2's own acceptance test requires "no protected title or authority name anywhere in the document" (verified: `grep -ri "SenBJF"` across `dashboard`, `backend`, `math_app/lib` → 0 hits).
+
+Choosing (b) up front means the licence question never has to be answered. That is strictly safer than (a) and costs nothing functionally — the column headings are standard German pedagogical vocabulary, not SenBJF inventions.
+
+**Consequence:** the Förderplan layout is now ours. Do not reintroduce a pixel-reproduction of the SenBJF form later without reopening this ADR.
 
 ## Context
 
@@ -46,8 +57,8 @@ Because the fallback is cheap and safe, **this does not block R1 or R2**. It mus
 
 | Field | Value |
 |---|---|
-| Source publication checked | *(not yet)* |
-| Licence/terms found | *(not yet)* |
-| Enquiry sent to SenBJF on | *(not yet)* |
-| Reply received on | *(not yet)* |
-| Outcome | *(open)* |
+| Source publication checked | n/a — fallback taken before verification was needed |
+| Licence/terms found | n/a |
+| Enquiry sent to SenBJF on | never sent; made unnecessary by (b) |
+| Reply received on | n/a |
+| Outcome | **(b) — own five-column layout, shipped in R6.2** |

@@ -3,7 +3,7 @@
 | Feld | Wert |
 |---|---|
 | **Titel** | Konstruktkarte der Diagnostik — Domänen A–D |
-| **Status** | DRAFT — awaiting Jakob's sign-off |
+| **Status** | ✅ FREIGEGEBEN — Jakob, 2026-09-04 |
 | **Datum** | 2026-08-29 |
 | **Owner** | Jakob |
 | **Ersetzt** | die Kategorienstruktur des bisherigen Diagnostikums. Ab sofort ist allein diese Karte die verbindliche Grundlage für Item-Entwicklung, Skill-Katalog und Förderplan-Zuordnung (tasks.md, R1.3). |

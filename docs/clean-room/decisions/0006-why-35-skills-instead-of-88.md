@@ -1,6 +1,6 @@
 # ADR 0006 — Why ~35 skills instead of 88
 
-**Status:** ✅ DECIDED (provisional — Jakob to confirm)
+**Status:** ✅ DECIDED — confirmed by Jakob, 2026-09-04
 **Date:** 2026-08-29
 **Owner:** Jakob
 **Task:** `tasks.md` R1.8

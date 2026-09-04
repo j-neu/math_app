@@ -87,8 +87,17 @@ Ran against the LIVE product (live Supabase + local dashboard + local Flutter we
 
 ---
 
+### 2026-09-04 — 59-item delta applied; runtime CSV found stale beyond the item count
+
+- **A1.5-01 retired.** `scripts/generate_diagnostic_csv.py` had `A1.5-01` hardcoded in `CORE_ORDER` and asserted `len(CORE_ORDER) == 60`, so it would have failed against the item bank (the item file was already deleted at R2.9). Generator updated to 59; CSV regenerated to 59 core / 32 deep-dive.
+- **Independence sidecar re-keyed.** It keys on row index, not item ID: dropping A1.5-01 (row 8) moved the A3.3-02 adjudication from `20` to `19`, exactly as predicted. Verified by reading the row back. Both banks exit 0 under `--strict`.
+- **BUG FOUND — the committed CSV was stale in 22 prompts, not just the count.** Regenerating surfaced that **22 of 59 core prompts** differed from the signed item files: R2.9 shortened the German wording of the visual items (the picture carries the description, so the prompt no longer repeats it — e.g. A2.1-01 "Gleich erscheint für einen kurzen Moment ein Rechenrahmen. Merke dir genau, wie viele Perlen du siehst…" → "Schau genau hin! Wie viele Perlen waren es?"), and the CSV was never regenerated. **The live diagnostic has been showing prompt text the signed bank no longer specifies.** Same class of drift as the earlier `question_count` bug: a derived artifact not regenerated after its source changed.
+- **BUG FOUND — mangled German in 9 signed item files.** The R2.9 edits left artefacts that would have shipped to children: doubled spaces from a deleted word (A1.1-01/A1.1-02 "von der Zahl 12  weiter", D1.2-01) and prompts opening with `„` but closing with a straight `"` (all A1.x + D1.x). Corrected mechanically — typography only, no wording, meaning, numbers or provenance touched. Re-scan → 0 defects.
+- **Migration written, NOT applied:** `20260904000000_cleanroom_v1_core_59.sql`. It **retires** the A1.5-01 row (`tier='retired'`, parked at 900) rather than deleting it, because `diagnostic_results.question_id` cascades on delete and a delete would destroy existing pilot answers. It renumbers core to 1..59 and deep-dive to 60..91 — mandatory, because the client posts `question_number` from the CSV's ListNumber and `diagnostic-results` resolves the question UUID by that number, so a mismatch would file answers against the wrong question. Pre-flight guards abort if the row at 8 is not A1.5-01, if the tier counts are unexpected, or if any session is `in_progress`; post-conditions verify 59/32/1 and gapless numbering inside the transaction.
+- **Gates green after the change:** `flutter test` 455/455 · `flutter analyze` 0 errors (335 style lints, up from the 323 baseline as P2–P4 added code) · dashboard `tsc` exit 0 · provenance / independence (both banks) / mapping / specs / skill-descriptions all pass.
+
 ## Open items / decisions
-- [ ] 59-vs-60 core item count (Jakob's R2.9 sign-off determines final state).
+- [x] 59-vs-60 core item count — **RESOLVED 2026-09-04.** A1.5-01 struck per R2.9. CSV regenerated to 59 (generator's self-check now expects 59), independence sidecar re-keyed 20→19, Flutter test updated, migration `20260904000000_cleanroom_v1_core_59.sql` written (retires the row rather than deleting it, because `diagnostic_results.question_id` cascades). **Migration not yet applied to live — Jakob's step.**
 - [ ] Deploy the Flutter web app with the new practice runtime + teacher console to Vercel (local verification done; production rollout is Jakob's step).
 - [ ] F5 abandoned-session handling: document-only note today; product decision needed (abandon timeout vs resumable state).
 - [ ] Live re-deploy of the dashboard after P4 changes (next push to the portal repo).

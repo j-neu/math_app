@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-08-29 (clean-room rewrite: R0 containment + R1–R7 foundation/migration done)
+**Last updated:** 2026-09-04 (clean-room rewrite: all Jakob sign-offs given; R7.5 still blocked on four external-artifact gates — see Active)
 
 One-screen view of what's shipped, what's active, and what's paused. For the doc map, see [DOCS_INDEX.md](DOCS_INDEX.md). For the active plan, see [phase1_school_platform.md](phase1_school_platform.md).
 
@@ -38,19 +38,17 @@ Everything below is still accurate about the **infrastructure**. It is out of da
 
 Work in flight or queued in priority order. The clean-room rewrite's remaining tasks are **manual sign-off / deploy** steps (see `tasks.md` for the full status per checkbox):
 
-1. **Jakob sign-offs** (required before the new bank is "final"): R2.9 (review all 92 items), R1.3/R1.4/R1.8, R3.1–R3.3, R4.1–R4.3, R6.1/R6.2, ordering-rule and form-mapping docs. Signing happens per artifact in `docs/clean-room/provenance.csv` (`reviewed_by`, `reviewed_on`).
-2. **R6.4 full-flow acceptance test** — deploy the preview and run the whole teacher→student→Förderplan flow on iPad Safari; archive the reference PDF at `docs/clean-room/acceptance/foerderplan-example.pdf`.
-3. **R5.4/R6 manual deploy** — deploy the updated edge functions (`foerderplan-generate`, `foerderplan-kurz-pdf`, `foerderplan-pdf`) and the dashboard (`wissenschaftliche-grundlagen` page, domain-based category views), then re-run the Phase D verification smoke test.
-4. **R7.2 manual read** — landing-page equivalence-claim review (code grep already clean).
-5. **R7.3 provenance gate** — `python scripts/check_provenance.py --all` exits zero once all artifacts carry a reviewer signature.
-6. **R7.4 Fachanwalt review** — send rewrite.md + charter + construct map + blueprint + item samples + provenance log; file the opinion at `docs/clean-room/decisions/legal-opinion.md`.
-7. **R7.5 lift the freeze** — only after R0–R7 all check.
-8. **R0.7 / ADR 0001** — SenBJF form licence verification (fallback: our own five-column layout is already the R6.2 implementation).
-9. **Fill legal placeholders** in `dashboard/app/impressum/page.tsx` and `dashboard/app/datenschutz/page.tsx` (`[NAME/ADRESSE/EMAIL]`).
+1. ~~**Jakob sign-offs**~~ — **DONE.** R2.9 completed 2026-08-30 (all 127 provenance rows carry `reviewed_by=Jakob`); R1.3/R1.4/R1.8, R3.1–R3.3, R4.1–R4.3, R6.1/R6.2, ordering-rule, form-mapping and ADRs 0003–0007/0009 signed off 2026-09-04. Mechanical gates R2.11 and R7.3 both pass. **Carried forward:** the R2.9 review struck A1.5-01, so the blueprint says 59 core items while the runtime CSV and the live `cleanroom-v1` row still say 60 — resolve before launch.
+2. **Resolve the 59-vs-60 delta** — apply the R2.9 removal of A1.5-01 to the runtime CSV and the live `cleanroom-v1` row, then re-run `check_provenance.py --all` and `check_item_independence.py --strict` (the independence sidecar keys on row index and **must be re-keyed** after any regeneration). Blocks item 3.
+3. **R6.4 full-flow acceptance test** — deploy the preview and run the whole teacher→student→Förderplan flow on an **Android tablet in Chrome** (device corrected 2026-09-04; the pilot is Android, not iPad); archive the reference PDF at `docs/clean-room/acceptance/foerderplan-example.pdf`. Do this after item 2.
+4. **R5.4/R6 manual deploy** — deploy the updated edge functions (`foerderplan-generate`, `foerderplan-kurz-pdf`, `foerderplan-pdf`) and the dashboard (`wissenschaftliche-grundlagen` page, domain-based category views), then re-run the Phase D verification smoke test.
+5. ~~R7.2 / R7.3 / R0.7~~ — **all closed 2026-09-04.** R7.2 both halves signed; R7.3 gate passes; R0.7 closed via ADR 0001 outcome (b) — we ship our own five-column layout, so no SenBJF licence is needed.
+6. ~~R7.4 Fachanwalt / R7.5 lift the freeze~~ — **moved to `tasks.md` Phase R9**, deferred until the build is production-ready. Neither blocks build work. The non-commercial posture stays in force meanwhile.
+7. **Fill legal placeholders** in `dashboard/app/impressum/page.tsx` and `dashboard/app/datenschutz/page.tsx` (`[NAME/ADRESSE/EMAIL]`).
 10. **AVV/DPA signature** with Supabase (`supabase.com/legal/dpa`) and with each pilot school before data processing.
 11. **One-page German teacher onboarding document.**
-12. **Cross-browser smoke** of the Flutter web client (iPad Safari, Android Chrome, Firefox) — deferred to pilot day-1 unless something specific surfaces sooner.
-13. **Phase E pilot scheduling** — real classroom at one or two schools once items 1–3 land.
+12. **Cross-browser smoke** of the Flutter web client — **Android Chrome is the primary target** (pilot devices); Firefox and iPad Safari best-effort. Deferred to pilot day-1 unless something specific surfaces sooner.
+13. **Phase E pilot scheduling** — real classroom at one or two schools once items 2–4 land.
 14. ~~Schulz diagnostic integration~~ — **dropped** 2026-08-29 (`tasks.md` R0.6). CC BY-ND; revisit only with a direct licence from LISUM/Schulz.
 
 ## Paused

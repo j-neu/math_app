@@ -1,7 +1,7 @@
 # tasks.md — Clean-Room Rewrite: Immediate Task List
 
 **Created:** 2026-08-29
-**Status:** ACTIVE — highest priority. Blocks all commercial activity.
+**Status:** R0–R7 **CLOSED for build purposes** (2026-09-04). Nothing in this list blocks the gauntlet build. The outside-reviewer work and the commercial switch are deferred to **Phase R9**; the non-commercial posture stays in force until R9.3, which is a decision about invoicing, not about building.
 **Owner:** Jakob (solo, + Claude drafting)
 **Supersedes as current focus:** `phase1_school_platform.md` Phase D/E (pilot continues as a *research partnership*, not as a sale)
 **Strategy document:** `rewrite.md` (the why and the legal reasoning; this file is the what and the when)
@@ -71,8 +71,9 @@ Cheap, fast, removes the most visible exposure. None of it depended on the bibli
   **Test (code):** `git ls-files | grep -i schulz` returns nothing; `grep -ri schulz dashboard backend math_app/lib` returns nothing.
   **Status note (2026-08-29):** The Schulz *diagnostic* is fully removed (archived to `_sources_private/`, zero references to it in shipped code). The R7.1 "Wissenschaftliche Grundlagen" work later added legitimate §51 UrhG *book* citations — "Wartha & Schulz (2019)" in the PDF footers and "Wartha 2019" (Eintrag A2) in `skip_rules.dart`'s doc comment — which post-date and supersede the blanket grep in this test; they reference the scientific book, not the dropped instrument.
 
-- [ ] **R0.7 — Verify the Förderplan form's licence and record the basis** ⏳ ADR raised, verification outstanding
+- [x] **R0.7 — Verify the Förderplan form's licence and record the basis** ✅ 2026-09-04 — closed via fallback (b)
   **Description:** The target form is watermarked *SenBildJugFam 2017*. Confirm in writing that reuse and redistribution inside a third-party product is permitted — check the source publication's terms, and if unclear send one email to SenBJF asking explicitly. If permission is not obtainable, fall back to our own form built on the standard headings (Ist / Soll / Lernweg / Absprachen / Reflexion), which are generic pedagogical vocabulary — only the specific layout would be protected.
+  **Status:** Closed without needing the licence. R6.2 already ships **our own** five-column layout, so SenBJF's form is never reproduced and the question is moot. ADR 0001 records outcome (b); no enquiry sent, none needed. Verified: `grep -ri "SenBJF" dashboard backend math_app/lib` → 0. **Do not reintroduce a pixel-reproduction of the SenBJF form without reopening ADR 0001.**
   **Test (manual):** `docs/clean-room/decisions/0001-foerderplan-form-licence.md` exists and contains either the permitting clause verbatim with its source URL, or the sent enquiry with date plus a stated fallback decision.
 
 - [x] **R0.8 — Decide and record the git-history position**
@@ -83,7 +84,7 @@ Cheap, fast, removes the most visible exposure. None of it depended on the bibli
 
 ## Phase R1 — Foundation
 
-**Status:** R1.1 ✅ ordered. R1.2–R1.8 drafted and verified 2026-08-29 by subagents; items marked ✅ have their code/manual tests passed. Items with a **⏳ sign-off** note are drafts awaiting Jakob's pedagogical sign-off in the document header — they are NOT final until that happens.
+**Status:** R1.1 ✅ ordered. R1.2–R1.8 drafted and verified 2026-08-29 by subagents; items marked ✅ have their code/manual tests passed. **All R1 sign-offs were given by Jakob on 2026-09-04**; the construct map, blueprint and ADRs 0003–0007 now carry a signed status in their own headers.
 
 - [x] **R1.1 — Acquire the core bibliography** (gate removed 2026-08-29: all four books ordered; item writing proceeds in parallel)
   **Description:** Obtain, in a form we can cite by chapter and page: Padberg/Benz *Didaktik der Arithmetik*; Wartha/Schulz *Rechenproblemen vorbeugen*; Selter/Spiegel *Wie Kinder rechnen*; Schipper *Handbuch für den Mathematikunterricht an Grundschulen*. Download now as free supplements: KMK Bildungsstandards Mathematik Primarstufe, Rahmenlehrplan Berlin-Brandenburg Teil C Mathematik, and the available Krajewski / Moser Opitz / Gaidoschik papers.
@@ -94,12 +95,12 @@ Cheap, fast, removes the most visible exposure. None of it depended on the bibli
   **Status:** Document written (every source has a stated purpose). Jakob confirms "no source appears that has not actually been read" before this is truly final.
   **Test (manual):** Every source has a stated purpose; no source appears that has not actually been read.
 
-- [x] **R1.3 — Write the construct map** ⏳ sign-off
+- [x] **R1.3 — Write the construct map** ✅ signed off 2026-09-04
   **Description:** `docs/clean-room/01-construct-map.md` — Domains A–D with numbered constructs (A1.1 … D1.2), each with a definition in our own words and a citation to R1.2. Start from `rewrite.md` §4 as a draft, then verify each construct against the acquired literature and adjust. From here on, the map — not the old CSV — is the source of truth.
-  **Status:** Draft complete (154 lines, 31 constructs, all cited, no forbidden names). `grep -i "imint\|pikas\|schulz"` → 0. Awaiting Jakob's sign-off in the header.
+  **Status:** Draft complete (154 lines, 31 constructs, all cited, no forbidden names). `grep -i "imint\|pikas\|schulz"` → 0. Signed off by Jakob 2026-09-04 (header status: FREIGEGEBEN).
   **Test (manual):** Every construct has (a) a one-sentence definition, (b) at least one literature citation with chapter/page, (c) no citation to iMINT, PIKAS or Schulz. Jakob signs off in the document header.
 
-- [x] **R1.4 — Write the two-tier blueprint** ⏳ sign-off
+- [x] **R1.4 — Write the two-tier blueprint** ✅ signed off 2026-09-04
   **Description:** `docs/clean-room/02-blueprint.md` — the core 60-item test (items per construct with a rationale for each allocation) plus the optional deep-dive blocks (which domains get one, how many items each, when a teacher would add one). Include sequencing rules and difficulty-distribution targets. Item counts must be our editorial choice with stated reasoning, not a copy of any existing instrument's allocation.
   **Status:** Draft complete (103 lines). Core allocation sums to exactly 60; deep-dive blocks defined with entry criteria; §Break-off table written so an implementer can turn it into Dart. Awaiting Jakob's sign-off.
   **Test (manual):** Core item counts sum to 60; every allocation has a written rationale; an administration-time estimate is stated; deep-dive blocks are defined with entry criteria; cross-checked against R1.3 so no construct in the map is unmeasured in either tier.
@@ -119,7 +120,7 @@ Cheap, fast, removes the most visible exposure. None of it depended on the bibli
   **Status:** Done. 329 flags for 92 items when run legacy-vs-itself (100% detection); 0 flags on a hand-made clean fixture; `--strict` exits 1 unadjudicated / 0 adjudicated. Note: the legacy CSV was copied to `_sources_private/` (gitignored) so the script's default `--legacy` path works; the `math_app/Research/` original is archived properly in R5.1.
   **Test (code):** Run with the current 92-item CSV as *both* inputs — must flag ~100% of items, proving detection works. Run against a hand-made clean fixture — must flag 0.
 
-- [x] **R1.8 — Write decision records for the structural choices** ⏳ sign-off
+- [x] **R1.8 — Write decision records for the structural choices** ✅ signed off 2026-09-04
   **Description:** `docs/clean-room/decisions/` — at minimum: why 60 core items, why the two-tier shape, why Domains A–D rather than the legacy five categories, why ~35 skills instead of 88, why Schulz is dropped.
   **Status:** Done. ADRs `0003`–`0007` written (provisional status), following the 0001/0002 layout, referencing the bibliography. Awaiting Jakob's confirmation.
   **Test (manual):** One ADR per decision, each stating context / decision / reasoning / date, referencing R1.2 sources where relevant.
@@ -130,77 +131,78 @@ Cheap, fast, removes the most visible exposure. None of it depended on the bibli
 
 Each drafting task: Claude writes the items **and** one `docs/clean-room/items/<ID>.md` provenance file per item using the `rewrite.md` §6 template. Each review task: Jakob approves, edits or rejects every item and signs its provenance row.
 
-**Status (2026-08-29):** All 92 items drafted (60 core + 32 deep-dive) by parallel subagents and verified: `check_provenance.py` → OK/0; full-bank `check_item_independence.py` → 1 flag (A3.3-02, adjudicated via sidecar, strict OK/0); all 13 template fields present in every item file; core counts match the blueprint allocation (sum 60). **All drafting checkboxes below are marked done pending Jakob's R2.9 review — the items are DRAFTS, not signed off.**
+**Status (2026-08-29):** All 92 items drafted (60 core + 32 deep-dive) by parallel subagents and verified: `check_provenance.py` → OK/0; full-bank `check_item_independence.py` → 1 flag (A3.3-02, adjudicated via sidecar, strict OK/0); all 13 template fields present in every item file; core counts match the blueprint allocation (sum 60). **R2.9 review completed 2026-08-30:** all 127 provenance rows carry `reviewed_by=Jakob`. The review struck A1.5-01 as redundant, taking the core tier from 60 to **59** — the runtime CSV and live `cleanroom-v1` row still say 60, which is the open 59-vs-60 delta tracked in `GAUNTLET_PROGRESS.md`.
 
-- [x] **R2.1 — Draft Domain A1 items (Zählkompetenz)** ⏳ awaiting R2.9 sign-off
+- [x] **R2.1 — Draft Domain A1 items (Zählkompetenz)** ✅ signed off 2026-08-30 (R2.9)
   **Description:** Items per the R1.4 allocation. Cover forward/backward counting from an arbitrary start, step-counting, Vorgänger/Nachfolger, Zehnerübergang. Numbers chosen deliberately away from the legacy set.
   **Status:** Done. 8 items (A1.1-01/02, A1.2-01/02, A1.3-01/02, A1.4-01, A1.5-01), starts spread across ZR20/ZR100 (12, 48, 21, 59, 26, 45, 37, 17). Independence → 0 flags.
   **Test (code):** `check_provenance.py` clean for all A1 IDs; `check_item_independence.py` reports zero unadjudicated flags for A1.
 
-- [x] **R2.2 — Draft Domain A2 items (Anzahlerfassung)** ⏳ awaiting R2.9 sign-off
+- [x] **R2.2 — Draft Domain A2 items (Anzahlerfassung)** ✅ signed off 2026-08-30 (R2.9)
   **Description:** Subitizing and structured quantity recognition. Visual configurations must be newly designed and specified as explicit coordinates or a generation rule in the item file — not "like the old one but different". Prefer 10-frame / Rekenrek / finger patterns over the legacy dice configurations.
   **Status:** Done. 4 items (A2.1-01 Rekenrek-flash subitizing; A2.2-01/02 Zehnerfeld 5+1 + Fingerbild 5+3; A2.3-01 Zehnerfeld comparison 6 vs 8), explicit coordinate specs. Independence → 0 flags. No dice anywhere.
   **Test (code):** Provenance and independence clean for A2; every visual item file contains a complete specification of its arrangement.
 
-- [x] **R2.3 — Draft Domain A3 items (Zahlzerlegung)** ⏳ awaiting R2.9 sign-off
+- [x] **R2.3 — Draft Domain A3 items (Zahlzerlegung)** ✅ signed off 2026-08-30 (R2.9)
   **Description:** Part-part-whole in ZR10, flexible decomposition, doubles and near-doubles relationships, tested in both directions (decompose and compose).
   **Status:** Done. 8 items (A3.1-01..03, A3.2-01..03, A3.3-01/02), both directions covered. Independence → 1 flag (A3.3-02: pair 4+5 forced by Nachbaraufgabe-to-double construct; adjudicated in sidecar with reasoning).
   **Test (code):** Provenance and independence clean for A3.
 
-- [x] **R2.4 — Draft Domain B items (Stellenwertverständnis)** ⏳ awaiting R2.9 sign-off
+- [x] **R2.4 — Draft Domain B items (Stellenwertverständnis)** ✅ signed off 2026-08-30 (R2.9)
   **Description:** B1 Bündelung/Entbündelung and B2 Zahldarstellung (Stellenwerttafel, Zahlenstrahl, non-standard forms). Replaces the legacy Stellenwerte block including its Zahlendiktat item — use a different auditory format, or drop audio from the core tier and place it in a deep-dive block.
   **Status:** Done. 8 items (B1.1-01, B1.2-01/02 Stäbchen 34/41, B1.3-01, B2.1-01/02 Tafel 47/60, B2.2-01 Zahlenstrahl 0–100, B2.3-01 "1 Z + 14 E"). No audio in the core tier — the auditory Zahlendiktat moved to Deep-Dive B (DDB-06). Independence → 0 flags.
   **Test (code):** Provenance and independence clean for B1 and B2.
 
-- [x] **R2.5 — Draft Domain C1+C2 items (Grundaufgaben ZR10, Strategien ZR20)** ⏳ awaiting R2.9 sign-off
+- [x] **R2.5 — Draft Domain C1+C2 items (Grundaufgaben ZR10, Strategien ZR20)** ✅ signed off 2026-08-30 (R2.9)
   **Description:** Automatised facts, doubles, halving, complements to 10; then Zehnerübergang in both operations. Response-time capture is part of the item spec wherever strategy inference is intended (cite Selter).
   **Status:** Done. 16 items (C1.1-01..04: 3+4, 6−6, 2+8, 10−4; C1.2-01/02; C1.3-01/02; C2.1-01..03: 7+6, 8+5, 9+7; C2.2-01/02; C2.3-01..03: 13−8, 12−9, 15−6). Reaktionszeiterfassung + Selter & Spiegel 1997 cited on all C2 items. Independence → 0 flags.
   **Test (code):** Provenance and independence clean for C1 and C2. The independence check needs particular attention here — operand collisions are most likely in this range.
 
-- [x] **R2.6 — Draft Domain C3+C4 items (ZR100, flexibles Rechnen)** ⏳ awaiting R2.9 sign-off
+- [x] **R2.6 — Draft Domain C3+C4 items (ZR100, flexibles Rechnen)** ✅ signed off 2026-08-30 (R2.9)
   **Description:** Stellenweise / schrittweise / Hilfsaufgaben / Zerlegung, plus items designed to reveal strategy choice rather than correctness alone.
   **Status:** Done. 14 items (C3.1-01..03, C3.2-01..03, C3.3-01/02, C3.4-01/02, C4.1-01/02, C4.2-01/02), varied ZR100 operands. C4 items all carry "Aufgabe + Strategieabfrage ('Wie hast du gerechnet?') + Reaktionszeiterfassung". Independence → 0 flags (one C3.3-01 anchor re-anchored from 30+40 to 20+50 to avoid a collision).
   **Test (code):** Provenance and independence clean for C3 and C4.
 
-- [x] **R2.7 — Draft Domain D items (Sachsituationen)** ⏳ awaiting R2.9 sign-off
+- [x] **R2.7 — Draft Domain D items (Sachsituationen)** ✅ signed off 2026-08-30 (R2.9)
   **Description:** Per the R1.4 allocation. Contexts must be original — no reused story scenarios.
   **Status:** Done. 2 items (D1.1-01 Schwimmbad 8+5 Bahnen; D1.2-01 Schulgarten 9+4 Bohnenpflanzen), original contexts. Independence → 0 flags.
   **Test (code):** Provenance and independence clean for D.
 
-- [x] **R2.8 — Draft the optional deep-dive blocks** ⏳ awaiting R2.9 sign-off
+- [x] **R2.8 — Draft the optional deep-dive blocks** ✅ signed off 2026-08-30 (R2.9)
   **Description:** One block per domain that warrants it, per R1.4. Same item template and provenance requirements as the core tier.
   **Status:** Done. 32 items (DDA-01..10 Zahlbegriff, DDB-01..06 Stellenwert incl. DDB-06 auditory Zahlendiktat in eigener Form, DDC-01..10 Rechenstrategien, DDD-01..06 Sachsituationen — original contexts distinct from core D). Entry criteria referenced from the blueprint in each item's rationale. Independence → 0 flags.
   **Test (code):** Provenance and independence clean for all deep-dive IDs; each block documents its entry criterion ("add this block when the core tier shows X").
 
-- [ ] **R2.9 — Jakob reviews the full item bank**
+- [x] **R2.9 — Jakob reviews the full item bank** ✅ 2026-08-30
   **Description:** Every core and deep-dive item read for didactic soundness, age-appropriateness, German wording, and — critically — whether it reads as a paraphrase of something he has seen. Anything that does gets rewritten, not tweaked.
+  **Status:** Done 2026-08-30 (checkbox was stale; verified 2026-09-04). `provenance.csv` holds 127 rows — 59 core items, 32 deep-dive items, 36 skills — and **all 127 carry `reviewed_by=Jakob`, `reviewed_on=2026-08-30`**; zero pending. The review changed the bank: A1.5-01 was struck as redundant against A1.1-02, taking the core tier from 60 to 59 (recorded in `02-blueprint.md` and `decisions/0003`). **Open delta:** the runtime CSV and the live `cleanroom-v1` row still carry 60 core items — see the 59-vs-60 open item in `GAUNTLET_PROGRESS.md`.
   **Test (manual):** Every row in `provenance.csv` carries `reviewed_by=Jakob` and a date. Zero items left in "pending" state.
 
-- [ ] **R2.10 — External expert review**
-  **Description:** Send the item bank to 2–3 Grundschullehrer/Sonderpädagogen for didactic review. Record the feedback and the changes it caused.
-  **Test (manual):** `docs/clean-room/04-item-development-log.md` names each reviewer (name, credentials, date) and logs what their feedback changed.
+- **R2.10 — External expert review** → **moved to Phase R9.** Deferred until the build is production-ready (Jakob, 2026-09-04). Does not block R3–R8 or any gauntlet work.
 
-- [ ] **R2.11 — Final independence adjudication**
+- [x] **R2.11 — Final independence adjudication** ✅ 2026-09-04
   **Description:** Run `check_item_independence.py` over the completed bank. Every flag is either resolved by rewriting the item, or adjudicated in writing with reasoning ("the construct forces this operand range; the specific pair, wording and format all differ").
-  **Test (code):** `python scripts/check_item_independence.py --strict` exits zero, meaning every flag is either gone or carries an adjudication entry.
+  **Status:** Both banks pass strict. Core (60 items): 2 flags / 1 item — A3.3-02, operand pair 4 + 5 against legacy item 50, forced by the construct (the Nachbaraufgabe to 4 + 4 can only be 4 + 5); stimulus and framing differ. Deep-dive (32 items): 0 flags. The gate was failing only because the machine-readable sidecar was missing — the adjudication itself was already written and signed in `docs/clean-room/items/A3.3-02.md` and transcribed into `math_app/Research/diagnostic_core_v1.adjudicated` on 2026-09-04.
+  **⚠️ Re-key required after any CSV regeneration:** the runtime CSV has no item-ID column, so the sidecar keys on row index (`20`). Applying the 59-vs-60 delta shifts every index after A1.5-01. Re-run both commands below after regenerating.
+  **Test (code):** `python scripts/check_item_independence.py --new math_app/Research/diagnostic_core_v1.csv --strict` and the same for `diagnostic_deepdive_v1.csv` — both exit 0 (verified 2026-09-04).
 
 ---
 
 ## Phase R3 — Skill catalog rewrite
 
-**Status (2026-08-29):** Done by subagent, verified. 36 skills derived from the construct map (31 constructs + 5 didactic splits). `check_skill_descriptions.py` → 0 shared 6-word runs vs legacy, exit 0. `check_provenance.py` (now covering items + skills) → OK/0. New CSV `docs/clean-room/skills/skills_taxonomy.csv` parses at 36 rows, header exactly per spec. **All drafting done; Jakob's sign-off outstanding before the catalog ships (R5).**
+**Status (2026-08-29):** Done by subagent, verified. 36 skills derived from the construct map (31 constructs + 5 didactic splits). `check_skill_descriptions.py` → 0 shared 6-word runs vs legacy, exit 0. `check_provenance.py` (now covering items + skills) → OK/0. New CSV `docs/clean-room/skills/skills_taxonomy.csv` parses at 36 rows, header exactly per spec. **Signed off by Jakob 2026-09-04.**
 
-- [x] **R3.1 — Define the new skill set and ID scheme** ⏳ sign-off
+- [x] **R3.1 — Define the new skill set and ID scheme** ✅ signed off 2026-09-04
   **Description:** Derive ~30–40 förderbare Skills from the construct map (R1.3). IDs follow the construct map (`A3.1`, `C2.2`), not the legacy `Z1`/`C1.1`/`counting_3` schemes. Drop `card_number` entirely — we ship no cards.
   **Status:** Done. 36 skills (A: 13, B: 6, C: 15, D: 2). Splits (suffixed a/b): A1.1, A1.2, C1.1, C3.1, C3.4. One file per skill in `docs/clean-room/skills/`. No legacy ID anywhere (`counting_|basic_strategy_|card_number|^[ZPSO]\d` → 0 hits).
   **Test (manual):** `docs/clean-room/skills/` holds one file per skill; every skill traces to at least one construct in R1.3; no legacy ID appears anywhere.
 
-- [x] **R3.2 — Write all skill titles and descriptions** ⏳ sign-off
+- [x] **R3.2 — Write all skill titles and descriptions** ✅ signed off 2026-09-04
   **Description:** German and English title plus a 1–2 sentence description per skill, stating what the child *can do* rather than what activity teaches it. This is the highest-risk text in the catalog — legacy phrasing leaks here most easily.
   **Status:** Done. New `scripts/check_skill_descriptions.py` diffs every `description_de` against the legacy CSV; result "OK: no shared 6-word runs", exit 0. Note: when R5.1 swapped the runtime `math_app/Research/skills_taxonomy.csv` to the new taxonomy, the legacy 88-skill catalog was archived to `_sources_private/skills_taxonomy_legacy.csv` (recovered from git) and the checker's `--legacy` default re-pointed there, so the independence diff still compares against the true legacy text.
   **Test (code):** A script diffs every new `description_de` against the archived `skills_taxonomy.csv`; zero descriptions share a 6-word run with any legacy description.
 
-- [x] **R3.3 — Produce the new `skills_taxonomy.csv`** ⏳ sign-off
+- [x] **R3.3 — Produce the new `skills_taxonomy.csv`** ✅ signed off 2026-09-04
   **Description:** Columns `skill_id, domain, construct_id, color, title_de, title_en, description_de, description_en`. No `card_number`.
   **Status:** Done at `docs/clean-room/skills/skills_taxonomy.csv` (36 rows; legacy `math_app/Research/skills_taxonomy.csv` left untouched — runtime swap is R5). `check_provenance.py` finds a provenance row (type=skill) for every skill_id; 36 skill files ↔ CSV ↔ provenance 1:1.
   **Test (code):** CSV parses; row count matches R3.1; `check_provenance.py` finds a provenance row for every `skill_id`.
@@ -211,17 +213,17 @@ Each drafting task: Claude writes the items **and** one `docs/clean-room/items/<
 
 **Status (2026-08-29):** R4.1, R4.2, R4.3 all done and verified. `check_mapping.py` → 92 entries, all skill IDs valid, exit 0. Ordering rule documented + Dart implementation, 4/4 unit tests. Text templates rewritten in Dart + 2 TS ports; snapshot test 4/4; `flutter analyze` no new issues; `npx tsc --noEmit` clean.
 
-- [x] **R4.1 — Build the if-wrong → recommend mapping** ⏳ sign-off
+- [x] **R4.1 — Build the if-wrong → recommend mapping** ✅ signed off 2026-09-04
   **Description:** For every item in the new bank, decide independently which 1–3 skills a failure implies, with a written reasoning chain per item (likely cause → skill gap → priority order). The source is our own construct map plus the bibliography.
   **Status:** Done. `docs/clean-room/foerderplan/mapping-rationale.md` has 92 entries (one per item ID) in cause → gap → priority-skills → reasoning format. 41 items needed a/b-suffix resolution (unsuffixed construct IDs in item Maps-to-skills fields mapped to taxonomy suffix IDs, e.g. A1.1→A1.1a/A1.1b). New `scripts/check_mapping.py` → "92 Einträge, 92 Items, 36 Skill-IDs", exit 0. `check_provenance.py` still OK.
   **Test (code):** `docs/clean-room/foerderplan/mapping-rationale.md` has an entry per item ID; a script asserts every item maps to at least one skill and every mapped skill ID exists in R3.3.
 
-- [x] **R4.2 — Define the recommendation ordering rule** ⏳ sign-off
+- [x] **R4.2 — Define the recommendation ordering rule** ✅ signed off 2026-09-04
   **Description:** Replace the legacy "category order → card_number ASC" ordering (card_number no longer exists). Define our own pedagogical sequencing rule and document its basis.
   **Status:** Done. Rule documented in `docs/clean-room/foerderplan/ordering-rule.md` (canonical 31-construct order from the construct map/blueprint, suffix tie-break, deterministic fallback, priority overrides within a construct only). Dart implementation `math_app/lib/services/skill_recommendation_order.dart` (`canonicalConstructOrder`, `compareRecommendations`, `sortSkillIds`). `flutter test test/skill_recommendation_order_test.dart` → 4/4 passed; analyze clean. Integration into the edge functions/Dart service is R4.3/R5.4.
   **Test (code):** A unit test feeds a fixture result set and asserts the recommended-skill order matches the documented rule.
 
-- [x] **R4.3 — Rewrite the Ist / Soll / Lernweg text generation** ⏳ sign-off
+- [x] **R4.3 — Rewrite the Ist / Soll / Lernweg text generation** ✅ signed off 2026-09-04
   **Description:** `kurz_foerderplan_service.dart` and its TypeScript ports build the three columns from templates. Rewrite those templates against the new taxonomy and neutral wording — this completes R0.3 properly rather than merely deleting one string.
   **Status:** Done. `kurz_foerderplan_service.dart` rewritten: groups by Domäne A–D (skill-ID prefix `^[A-D]\d`, labels "Domäne A — Zahlbegriff" etc.), sorts skills within a domain via `sortSkillIds`, neutral Ist/Soll/Lernweg wording, graceful legacy fallback (non-matching IDs group by their own `category`, no crash on null stats). Mirrored into `foerderplan-kurz-pdf/index.ts` (domain colors A emerald / B blue / C red / D purple + legacy color fallback) and `foerderplan-kurz-docx/route.ts`. Models and `foerderplan-generate` data logic untouched (R5.4). Snapshot test `math_app/test/kurz_foerderplan_service_test.dart` → 4/4 (no legacy category names, no Karte, no protected title; A–D order; legacy fallback). `flutter analyze` no new issues; `npx tsc --noEmit` clean.
   **Test (code):** A snapshot test renders a fixture Förderplan and asserts the Ist/Soll/Lernweg text contains no legacy category name, no card reference and no protected title.
@@ -273,37 +275,36 @@ Each drafting task: Claude writes the items **and** one `docs/clean-room/items/<
   **Status:** Done. Buttons already present ("Förderplan (PDF)" / "Förderplan (Word)" + "Als PDF exportieren"). Fixed the download filenames: `foerderplan-kurz-pdf/route.ts` and `foerderplan-pdf/route.ts` now resolve the student display_name (session → students lookup) and send `Foerderplan_<Name>.pdf` / `.docx` with whitespace/illegal-char sanitization and a `Foerderplan.pdf` fallback. `npx tsc --noEmit` clean; grep `filename="Foerderplan.pdf"` (generic) → 0; `SenBJF` in dashboard → 0.
   **Test (manual):** From a fresh teacher login: open a completed session → one click → the correct PDF downloads with the expected filename. Same for the Word variant if kept.
 
-- [ ] **R6.4 — Full-flow acceptance test**
-  **Description:** The end-to-end proof: teacher creates a class → student ticket → child completes the new 60-item diagnostic in the browser → teacher opens the Förderplan → downloads the filled form.
-  **Test (manual):** Complete the whole flow on the deployed preview on a real device (iPad Safari), and archive the resulting PDF as `docs/clean-room/acceptance/foerderplan-example.pdf` as the reference output.
+- [ ] **R6.4 — Full-flow acceptance test** — 🔨 **build task, not a gate.** Target device corrected 2026-09-04.
+  **Description:** The end-to-end proof: teacher creates a class → student ticket → child completes the new core diagnostic in the browser → teacher opens the Förderplan → downloads the filled form.
+  **Device (changed 2026-09-04):** **Android tablet + Chrome** is the real target — the pilot runs on Android tablets, so the original "iPad Safari" spec tested the wrong device. iOS Safari drops to best-effort; re-add it only if an iPad school appears.
+  **Note:** This is a quality check on the build, not a legal gate — it belongs to the gauntlet (P6 publish hardening), and it is the acceptance run for whichever bank is live, so do it **after** the 59-vs-60 delta is resolved or the reference PDF will be stale on arrival.
+  **Test (manual):** Complete the whole flow on the deployed preview on a real **Android tablet in Chrome**, and archive the resulting PDF as `docs/clean-room/acceptance/foerderplan-example.pdf` as the reference output.
 
 ---
 
 ## Phase R7 — Legal and marketing close-out
 
-**Status (2026-08-29):** R7.1 done + verified. R7.2 code-test half done (grep clean) — manual landing-page read pending. R7.3–R7.5 gated on Jakob's sign-offs and the Fachanwalt (manual).
+**Status (2026-09-04):** R7.1 done + verified. R7.2 ✅ both halves done. R7.3 ✅ `check_provenance.py --all` exit 0. R7.4 and R7.5 moved to **Phase R9** (deferred until the build is production-ready). **Phase R7 is closed for build purposes.**
 
 - [x] **R7.1 — "Wissenschaftliche Grundlagen" page**
   **Description:** A page in the dashboard, plus a line in the PDF footer, listing the bibliography from R1.2. Standard academic citation, protective under §51 UrhG.
   **Status:** Done. New `dashboard/app/wissenschaftliche-grundlagen/page.tsx` (sections A/B/C per `03-bibliography.md`, `Author (Year). Title. Place: Publisher.` format, links for online sources), footer link added in `dashboard/app/layout.tsx`. PDF footers: `foerderplan-pdf/index.ts` (last page) and `foerderplan-kurz-pdf/index.ts` (pages 1–2) carry "Wissenschaftliche Grundlagen: Padberg & Benz (2021); Wartha & Schulz (2019)" at 7 pt. `npx tsc --noEmit` clean; `next build` succeeded (15/15 pages). Grep iMINT/PIKAS/SenBJF/LISUM in page+layout+edge functions → 0 (Wartha & Schulz appear only as bibliographic authors of the A2 book — a §51 citation, not the dropped diagnostic).
   **Test (manual):** Page reachable from the dashboard footer; content matches `03-bibliography.md`; German throughout.
 
-- [ ] **R7.2 — Marketing copy review against UWG §5**
+- [x] **R7.2 — Marketing copy review against UWG §5** ✅ 2026-09-04
   **Description:** Sweep every user-facing string, the landing page and any pilot-school communication for named authorities implying endorsement, protected work titles, and equivalence claims ("gleichwertig", "validiert", "ersetzt"). The permitted register is "auf Grundlage der Forschung von …", "orientiert an …".
-  **Status:** Code-test half done 2026-08-29: `grep -rniE "imint|pikas|senbjf|lisum|denkenden rechnen|gleichwertig|validiert" dashboard math_app/lib` → 0 hits. **Manual half pending:** Jakob reads the landing page and confirms no equivalence claim remains.
+  **Status:** Both halves done. Code test 2026-08-29: `grep -rniE "imint|pikas|senbjf|lisum|denkenden rechnen|gleichwertig|validiert" dashboard math_app/lib` → 0 hits. Manual read signed off by Jakob 2026-09-04 — no equivalence claim remains on the landing page. Re-run the grep before any launch push, and re-read the page after any marketing copy change.
   **Test (code):** `grep -rniE "imint|pikas|senbjf|lisum|denkenden rechnen|gleichwertig|validiert" dashboard math_app/lib` returns nothing. **Test (manual):** Jakob reads the landing page and confirms no equivalence claim remains.
 
-- [ ] **R7.3 — Provenance completeness gate**
+- [x] **R7.3 — Provenance completeness gate** ✅ 2026-09-04
   **Description:** Final run of the audit trail across the entire shipped artifact set — every item, every skill, every mapping rule.
+  **Status:** Passing. `python scripts/check_provenance.py --all` → `OK`, exit 0 (verified 2026-09-04). All 127 artifacts carry a source citation and a reviewer signature. Re-run this gate after any change to the item bank or skill catalog — in particular after the 59-vs-60 delta is resolved.
   **Test (code):** `python scripts/check_provenance.py --all` exits zero: every shipped artifact has a provenance row with a source citation and a reviewer signature.
 
-- [ ] **R7.4 — Fachanwalt review**
-  **Description:** Send `rewrite.md`, the charter, the construct map, the blueprint, a sample of item files and the provenance log to a Fachanwalt für Urheberrecht. Ask specifically about the construct-map overlap with the legacy category structure, the form reuse (R0.7), and the marketing register.
-  **Test (manual):** Written opinion received and filed at `docs/clean-room/decisions/legal-opinion.md`. Any required changes are tracked as new checkboxes here before launch.
+- **R7.4 — Fachanwalt review** → **moved to Phase R9.** Deferred until the build is production-ready (Jakob, 2026-09-04). Does not block any build work.
 
-- [ ] **R7.5 — Lift the commercial freeze**
-  **Description:** Only once R0–R7 are all checked: remove the freeze note from R0.1 and record the date the product became sellable.
-  **Test (manual):** Every checkbox above is checked; `docs/clean-room/00-charter.md` records the completion date and what shipped.
+- **R7.5 — Lift the commercial freeze** → **moved to Phase R9.** It is not a build gate: nothing in the gauntlet needs it, because building, deploying and piloting all happen fine under the free / school-internal posture. It only governs the day you start charging.
 
 ---
 
@@ -316,6 +317,31 @@ Each drafting task: Claude writes the items **and** one `docs/clean-room/items/<
 - [ ] **R8.2 — Rewrite or archive the practice framework docs**
   **Description:** `IMINT_TO_APP_FRAMEWORK.md` is explicitly a "how to translate iMINT/PIKAS cards" document. Rewrite it against our own construct map, or archive it.
   **Test (code):** `grep -ril "imint\|pikas" *.md` returns only `rewrite.md`, `tasks.md` and files under `Archive/`.
+
+---
+
+## Phase R9 — Pre-launch review (deferred by decision, 2026-09-04)
+
+**Nothing in this phase blocks the build.** Jakob's call: get the app to production-ready first, then bring in outside reviewers. R0–R8 and the whole gauntlet (P1–P6) proceed at full speed without touching anything here.
+
+**What this phase *is*:** the three things that need a person outside this repo, plus the switch that turns on selling. They were moved here rather than deleted because other documents compute off them — `00-charter.md`, `STATUS.md` and `README.md` all say the product is non-commercial "until the rewrite list completes", and R9.3's test is "every checkbox above is checked". Delete these lines and that sentence resolves to *true* by accident, which is the one outcome nobody wants.
+
+**Order:** R9.1 and R9.2 can run in parallel once the build is stable. R9.3 is last and depends on both.
+
+- [ ] **R9.1 — External expert review** *(was R2.10)*
+  **Description:** Send the item bank to 2–3 Grundschullehrer/Sonderpädagogen for didactic review. Record the feedback and the changes it caused.
+  **Prerequisite:** the item bank is final — in particular the 59-vs-60 delta is resolved. Reviewing a bank that is about to change wastes the reviewers' goodwill, and you get one first impression per expert.
+  **Test (manual):** `docs/clean-room/04-item-development-log.md` names each reviewer (name, credentials, date) and logs what their feedback changed.
+
+- [ ] **R9.2 — Fachanwalt review** *(was R7.4)*
+  **Description:** Send `rewrite.md`, the charter, the construct map, the blueprint, a sample of item files and the provenance log to a Fachanwalt für Urheberrecht. Ask specifically about the construct-map overlap with the legacy category structure, the Förderplan layout (ADR 0001 resolved to our own layout — confirm that holds), and the marketing register.
+  **Why it survives the deferral:** this is the review that tells you whether the clean-room rewrite actually worked. Every hour spent on R0–R8 is an investment whose payoff this opinion confirms or corrects — and corrections are far cheaper to absorb before schools are using the thing at scale.
+  **Test (manual):** Written opinion received and filed at `docs/clean-room/decisions/legal-opinion.md`. Any required changes are tracked as new checkboxes before launch.
+
+- [ ] **R9.3 — Lift the commercial freeze** *(was R7.5)*
+  **Description:** Remove the freeze note from R0.1 and record the date the product became sellable.
+  **Not a build gate.** Building, deploying, and running pilots are all fine under the current free / school-internal / research-partnership posture. This checkbox governs exactly one thing: the first invoice.
+  **Test (manual):** R9.1 and R9.2 are both closed and every checkbox above is checked; `docs/clean-room/00-charter.md` records the completion date and what shipped.
 
 ---
 

@@ -1,6 +1,6 @@
 # ADR 0004 — Why the test has a two-tier shape (core + deep-dive blocks)
 
-**Status:** ✅ DECIDED (provisional — Jakob to confirm)
+**Status:** ✅ DECIDED — confirmed by Jakob, 2026-09-04
 **Date:** 2026-08-29
 **Owner:** Jakob
 **Task:** `tasks.md` R1.8

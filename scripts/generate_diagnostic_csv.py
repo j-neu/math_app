@@ -353,6 +353,29 @@ def parse_taxonomy_skill_ids() -> set[str]:
     return {row[0] for row in rows[1:] if row and row[0].strip()}
 
 
+def strip_quotation_wrapping(text: str) -> str:
+    """Strip one layer of wrapping quotation marks from a prompt.
+
+    Every item's Wording (German) field wraps the whole prompt in „…", "…"
+    or »…« — a holdover from assessor-script authoring with no meaning in a
+    UI that renders the text directly (diagnostic usability rework §4.2).
+    Only the outermost pair is removed; a nested quote inside the prompt
+    (e.g. a quoted sub-instruction in the C4.x items) is left alone.
+    """
+    s = text.strip()
+    if len(s) < 2:
+        return s
+    pairs = {
+        "„": {"“", "”", '"'},
+        '"': {'"'},
+        "»": {"«"},
+    }
+    valid_closers = pairs.get(s[0])
+    if valid_closers and s[-1] in valid_closers:
+        return s[1:-1].strip()
+    return s
+
+
 def build_rows(order: list[str]) -> list[list[str]]:
     recommendations = parse_recommendations()
     rows: list[list[str]] = []
@@ -360,7 +383,7 @@ def build_rows(order: list[str]) -> list[list[str]]:
         fields = parse_item(item_id)
         stimulus = fields.get("Stimulus type", "")
         visual = item_id in EXPECTED_VISUAL_ITEMS
-        wording = fields.get("Wording (German)", "")
+        wording = strip_quotation_wrapping(fields.get("Wording (German)", ""))
 
         difficulty_raw = fields.get("Difficulty target", "").lower().split()
         difficulty = difficulty_raw[0] if difficulty_raw else "medium"
@@ -449,15 +472,35 @@ def main() -> int:
             print(f"  - {e}")
         return 1
 
-    for path, order, label in (
-        (OUT_CORE, CORE_ORDER, "core"),
-        (OUT_DEEP, DEEP_ORDER, "deep-dive"),
+    # Only build rows once every structural check above has passed —
+    # build_rows reads every item file and would raise on a missing one.
+    core_rows = build_rows(CORE_ORDER)
+    deep_rows = build_rows(DEEP_ORDER)
+
+    # 6. Prompt hygiene: no generated prompt keeps its item-file quote
+    # wrapping (stripped above) — regression guard, usability rework §4.2.
+    quote_starts = ("„", '"', "»", "“", "”", "«")
+    hygiene_errors = [
+        f"{label} item {row[0]} prompt still starts with a quote: {row[5]!r}"
+        for rows, label in ((core_rows, "core"), (deep_rows, "deep-dive"))
+        for row in rows
+        if row[5] and row[5][0] in quote_starts
+    ]
+    if hygiene_errors:
+        print("generate_diagnostic_csv.py FAILED:")
+        for e in hygiene_errors:
+            print(f"  - {e}")
+        return 1
+
+    for path, rows, label in (
+        (OUT_CORE, core_rows, "core"),
+        (OUT_DEEP, deep_rows, "deep-dive"),
     ):
         with path.open("w", encoding="utf-8", newline="") as f:
             writer = csv.writer(f, lineterminator="\n")
             writer.writerow(HEADER)
-            writer.writerows(build_rows(order))
-        print(f"Wrote {path} ({len(order)} {label} questions)")
+            writer.writerows(rows)
+        print(f"Wrote {path} ({len(rows)} {label} questions)")
 
     return 0
 

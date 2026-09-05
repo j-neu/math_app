@@ -195,7 +195,7 @@ class AnswerGrading {
     final input = userAnswer.trim();
     if (input.isEmpty) return false;
     final spec = kAnswerSpecs[question.listNumber];
-    final mode = spec?.mode ?? _modeByShape(question);
+    final mode = modeFor(question);
     return switch (mode) {
       DiagnosticAnswerMode.number => _gradeNumber(input, spec, question),
       DiagnosticAnswerMode.sequence => _gradeSequence(input, spec, question),

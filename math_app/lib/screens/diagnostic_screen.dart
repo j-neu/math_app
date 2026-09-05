@@ -1024,7 +1024,9 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
         ),
       );
     }
-    _responseTimer?.resume();
+    // If the screen went away while the dialog was open, do not re-arm a
+    // response timer against a defunct context.
+    if (mounted) _responseTimer?.resume();
   }
 
   Future<void> _playAudio(String audioUrl) async {

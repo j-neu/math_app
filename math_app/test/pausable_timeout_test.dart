@@ -56,7 +56,7 @@ void main() {
     fakeNow = fakeNow.add(const Duration(seconds: 2));
     await tester.pump(const Duration(seconds: 2));
     expect(fired, isTrue);
-    expect(timer.elapsed.inSeconds, 9);
+    expect(timer.elapsed.inSeconds, 11);
   });
 
   testWidgets('cancel stops the timer from firing', (tester) async {

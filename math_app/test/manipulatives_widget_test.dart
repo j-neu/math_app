@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:math_app/widgets/manipulatives/dienes_place_value.dart';
 import 'package:math_app/widgets/manipulatives/fingerbild.dart';
 import 'package:math_app/widgets/manipulatives/rekenrek.dart';
 import 'package:math_app/widgets/manipulatives/staebchen.dart';
@@ -131,6 +132,25 @@ void main() {
     await tester.tap(find.byType(GestureDetector));
     await tester.pump();
     expect(find.text('13 einzelne Stäbchen'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+      'DienesPlaceValueWidget renders 0 and mixed tens/ones without throwing',
+      (tester) async {
+    await pumpWidget(tester, const DienesPlaceValueWidget(tens: 0, ones: 0));
+    expect(tester.takeException(), isNull);
+    await pumpWidget(tester, const DienesPlaceValueWidget(tens: 5, ones: 11));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('DienesOeffnenWidget opens the rod into ten units on tap',
+      (tester) async {
+    await pumpWidget(tester, const DienesOeffnenWidget());
+    expect(tester.takeException(), isNull);
+    await tester.tap(find.byType(GestureDetector));
+    await tester.pump();
+    expect(find.text('13 einzelne Einer'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

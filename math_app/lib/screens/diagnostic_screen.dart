@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:math_app/widgets/manipulatives/fingerbild.dart';
 import 'package:math_app/widgets/manipulatives/rekenrek.dart';
-import 'package:math_app/widgets/manipulatives/staebchen.dart';
+import 'package:math_app/widgets/manipulatives/dienes_place_value.dart';
 import 'package:math_app/widgets/manipulatives/stellenwerttafel.dart';
 import 'package:math_app/widgets/manipulatives/zahlenstrahl.dart';
 import 'package:math_app/widgets/manipulatives/zehnerfeld.dart';
@@ -1061,7 +1061,8 @@ Widget buildVisualDisplay(
   TextEditingController? controller,
 }) {
   switch (question.questionText.trim()) {
-    // A2.1-01 — Rekenrek flash: 4 beads on the top rod, 800 ms.
+    // A2.1-01 — Rekenrek flash: 4 beads on the top rod, flash presentation
+    // gated behind Bereit.
     case 'A2.1-01':
       return const RekenrekFlashWidget(topLeft: 4, bottomLeft: 0);
     // A2.2-01 — Zehnerfeld 5×2: top row full + first cell of second row (5+1).
@@ -1073,15 +1074,15 @@ Widget buildVisualDisplay(
     // A2.3-01 — two Zehnerfelder: 6 (5+1) vs 8 (5+3).
     case 'A2.3-01':
       return const VergleichZehnerfelderWidget();
-    // B1.2-01 — 34 Stäbchen: 3 bundles + 4 singles, gap between groups.
+    // B1.2-01 — 34 as 3 Zehner-Stangen + 4 Einer-Würfel, gap between groups.
     case 'B1.2-01':
-      return const StaebchenWidget(bundles: 3, singles: 4);
-    // B1.2-02 — 41 Stäbchen: 3 bundles + 11 singles (rebundling needed).
+      return const DienesPlaceValueWidget(tens: 3, ones: 4);
+    // B1.2-02 — 41 as 3 Zehner-Stangen + 11 Einer-Würfel (rebundling needed).
     case 'B1.2-02':
-      return const StaebchenWidget(bundles: 3, singles: 11);
-    // B1.3-01 — 13 = 1 bundle + 3 singles; tapping the bundle opens it.
+      return const DienesPlaceValueWidget(tens: 3, ones: 11);
+    // B1.3-01 — 13 = 1 Zehner-Stange + 3 Einer; tapping the rod opens it.
     case 'B1.3-01':
-      return const StaebchenOeffnenWidget();
+      return const DienesOeffnenWidget();
     // B2.1-01 — Stellenwerttafel (Z|E) with 47 above, empty entry cells.
     case 'B2.1-01':
       return const StellenwerttafelWidget(numberAbove: '47');
@@ -1100,13 +1101,13 @@ Widget buildVisualDisplay(
     // DDA-06 — two Rekenreks, 8 vs 5 comparison.
     case 'DDA-06':
       return const VergleichRekenrekWidget();
-    // DDB-01 — 56 Stäbchen: 5 bundles + 6 singles.
+    // DDB-01 — 56 as 5 Zehner-Stangen + 6 Einer-Würfel.
     case 'DDB-01':
-      return const StaebchenWidget(bundles: 5, singles: 6);
-    // DDB-02 — 25 as 2 bundles + 5 singles; the item file keeps the initial
-    // arrangement visible and the exchange to 1 Z + 15 E is the task.
+      return const DienesPlaceValueWidget(tens: 5, ones: 6);
+    // DDB-02 — 25 as 2 Zehner-Stangen + 5 Einer; the item file keeps the
+    // initial arrangement visible and the exchange to 1 Z + 15 E is the task.
     case 'DDB-02':
-      return const StaebchenWidget(bundles: 2, singles: 5);
+      return const DienesPlaceValueWidget(tens: 2, ones: 5);
     // DDB-04 — Stellenwerttafel reading 5 Z + 8 E → 58.
     case 'DDB-04':
       return const StellenwerttafelWidget(tensValue: 5, onesValue: 8);

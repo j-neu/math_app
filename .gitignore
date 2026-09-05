@@ -1,3 +1,4 @@
 _sources_private/
 .playwright-mcp/
+__pycache__/
 

@@ -14,11 +14,11 @@ Numeris — diagnostic + Förderplan + (new) adaptive learning path and practice
 | WS | Scope | Builder | Critic | Status |
 |---|---|---|---|---|
 | P1 | Path engine + child identity (backend + Flutter scaffolding) | SDD (pre-gauntlet) | adversarial SDD reviews | DONE + deployed 2026-08-31 |
-| P2 | Practice runtime (spec interpreter, 16 templates, manipulative widgets, feedback, session flow) | TBD | TBD | PLANNED |
-| P3 | 36 skill specs (JSON + provenance, E-I-S × 3 levels, ~8 problems) | TBD | TBD | PLANNED |
-| P4 | Teacher console (path review/activate, progress views, re-test) | TBD | TBD | PLANNED |
-| P5/P6 | Art direction/engagement, publish hardening | TBD | TBD | PLANNED |
-| IG | Integration gauntlet (real users, full journey) | controller | fresh-context | PENDING |
+| P2 | Practice runtime (spec interpreter, 16 templates, manipulative widgets, feedback, session flow) | gauntlet | critic → fixes → re-review | **DONE + deployed 2026-08-31.** 9/10 findings addressed, re-verified against code (not the fixer's claim); 1 open (Flutter web a11y automation is a tooling limit, not a product bug). *This row said PLANNED until 2026-09-05 despite being merged to `main` since 2026-08-31 — verify against `git log`, not this table, before reporting status.* |
+| P3 | 36 skill specs (JSON + provenance, E-I-S × 3 levels, ~8 problems) | gauntlet | critic → fixes → re-review | **DONE + deployed 2026-08-31.** 18/18 findings addressed and hand-verified. Re-reviewer found 1 new bug (`A1.2b` L2 boundary-crossing) that a later duplicate-count fix (2026-09-01) silently reintroduced; fixed 2026-09-05, needs a client redeploy to go live. *This row said PLANNED until 2026-09-05 — same discrepancy as P2.* |
+| P4 | Teacher console (path review/activate, progress views, re-test) | gauntlet | critic → fixes | **DONE + deployed 2026-09-01.** 10 findings (1 High: multi-path dead end; 1 High: cookie banner blocking mobile taps) all fixed. *This row said PLANNED until 2026-09-05 — same discrepancy as P2/P3.* |
+| P5/P6 | Art direction/engagement, publish hardening | TBD | TBD | **PLANNED, genuinely not started.** No `adhd guidelines.md` pass on this feature specifically, no perf/load testing, and — unlike the diagnostic — no physical-device test has ever been run on P1–P4 (every critic round used desktop-emulated viewports). |
+| IG | Integration gauntlet (real users, full journey) | controller | fresh-context | **DONE 2026-09-01** (see Evidence log). Ran 3 live journeys across P1–P4; found 1 Critical (F1, fixed same day) + 5 more findings (4 fixed, F5 deferred to a 2026-09-05 product decision: timeout-based cleanup, not yet implemented). |
 
 ---
 
@@ -97,10 +97,10 @@ Ran against the LIVE product (live Supabase + local dashboard + local Flutter we
 - **Gates green after the change:** `flutter test` 455/455 · `flutter analyze` 0 errors (335 style lints, up from the 323 baseline as P2–P4 added code) · dashboard `tsc` exit 0 · provenance / independence (both banks) / mapping / specs / skill-descriptions all pass.
 
 ## Open items / decisions
-- [x] 59-vs-60 core item count — **RESOLVED 2026-09-04.** A1.5-01 struck per R2.9. CSV regenerated to 59 (generator's self-check now expects 59), independence sidecar re-keyed 20→19, Flutter test updated, migration `20260904000000_cleanroom_v1_core_59.sql` written (retires the row rather than deleting it, because `diagnostic_results.question_id` cascades). **Migration not yet applied to live — Jakob's step.**
-- [ ] Deploy the Flutter web app with the new practice runtime + teacher console to Vercel (local verification done; production rollout is Jakob's step).
-- [ ] F5 abandoned-session handling: document-only note today; product decision needed (abandon timeout vs resumable state).
-- [ ] Live re-deploy of the dashboard after P4 changes (next push to the portal repo).
+- [x] 59-vs-60 core item count — **RESOLVED 2026-09-04, live-verified 2026-09-05.** A1.5-01 struck per R2.9. CSV regenerated to 59 (generator's self-check now expects 59), independence sidecar re-keyed 20→19, Flutter test updated. Migrations `20260904000000_cleanroom_v1_core_59.sql` + `20260904000001_cleanroom_v1_sync_prompts.sql` were **already applied to live** (this row's "not yet applied — Jakob's step" was stale): `supabase migration list` shows both; live REST shows `cleanroom-v1` `question_count=59`, 59 core gapless 1–59 + 32 deep-dive gapless 60–91 + A1.5-01 retired at 900, 0 content prompt mismatches vs the runtime CSV. **Residual:** all 59 live core `prompt_de` rows still carry the quote-wrapping that Workstream-A Task 2 stripped from the runtime CSV (quote-only, 0 content drift) — child client vs teacher DB now differ cosmetically; decision recorded in STATUS.md Active item 2.
+- [x] Deploy the Flutter web app with the new practice runtime + teacher console to Vercel — **DONE 2026-09-04/05.** `prozedia-app` production deployed (CLI + git-connected auto-build from `main`).
+- [ ] F5 abandoned-session handling: **decided 2026-09-05** (timeout-based cleanup, server-side scheduled job marks a session `abandoned` after N days of no activity). **Not yet implemented** — queued backlog item.
+- [x] Live re-deploy of the dashboard after P4 changes — **DONE 2026-09-04** (`prozedia-portal` production rebuilt from the `main` push).
 
 ### 2026-09-01 — Final fresh-context integration critic + fixes
 The final critic exercised the real product (all three journeys passed) and found 1 Critical + 3 Important + 2 Minor, all addressed at `a2625c1` + backend deploys:

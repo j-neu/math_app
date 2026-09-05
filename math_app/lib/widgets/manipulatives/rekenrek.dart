@@ -33,6 +33,7 @@ class RekenrekWidget extends StatelessWidget {
         border: Border.all(color: Colors.brown.shade400),
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           for (var i = 0; i < leftCount; i++) _bead(red: true),
           const SizedBox(width: 20),
@@ -55,13 +56,19 @@ class RekenrekWidget extends StatelessWidget {
   }
 }
 
-/// Rekenrek flash presentation for A2.1-01: the frame is shown for exactly
-/// 800 ms and then fades out so the child answers from memory.
+enum _FlashStage { ready, fixation, countdown, flash, hidden }
+
+/// Rekenrek flash presentation for A2.1-01. The child starts it
+/// deliberately (Bereit), sees a fixation point and a 3-2-1 countdown, then
+/// the frame shows for 1500 ms and fades out — replacing the old
+/// build-triggered 800 ms flash, which fired in the corner before the child
+/// was looking (diagnostic usability rework §4.5).
 class RekenrekFlashWidget extends StatefulWidget {
   final int topLeft;
   final int bottomLeft;
 
   const RekenrekFlashWidget({
+    super.key,
     required this.topLeft,
     required this.bottomLeft,
   });
@@ -71,16 +78,14 @@ class RekenrekFlashWidget extends StatefulWidget {
 }
 
 class _RekenrekFlashWidgetState extends State<RekenrekFlashWidget> {
-  Timer? _timer;
-  bool _visible = true;
+  static const _fixationDuration = Duration(milliseconds: 500);
+  static const _countdownTick = Duration(milliseconds: 700);
+  static const _flashDuration = Duration(milliseconds: 1500);
+  static const _fadeDuration = Duration(milliseconds: 200);
 
-  @override
-  void initState() {
-    super.initState();
-    _timer = Timer(const Duration(milliseconds: 800), () {
-      if (mounted) setState(() => _visible = false);
-    });
-  }
+  _FlashStage _stage = _FlashStage.ready;
+  int _countdownValue = 3;
+  Timer? _timer;
 
   @override
   void dispose() {
@@ -88,16 +93,65 @@ class _RekenrekFlashWidgetState extends State<RekenrekFlashWidget> {
     super.dispose();
   }
 
+  void _start() {
+    setState(() => _stage = _FlashStage.fixation);
+    _timer = Timer(_fixationDuration, _beginCountdown);
+  }
+
+  void _beginCountdown() {
+    if (!mounted) return;
+    setState(() {
+      _stage = _FlashStage.countdown;
+      _countdownValue = 3;
+    });
+    _timer = Timer(_countdownTick, _tickCountdown);
+  }
+
+  void _tickCountdown() {
+    if (!mounted) return;
+    if (_countdownValue > 1) {
+      setState(() => _countdownValue--);
+      _timer = Timer(_countdownTick, _tickCountdown);
+    } else {
+      setState(() => _stage = _FlashStage.flash);
+      _timer = Timer(_flashDuration, () {
+        if (mounted) setState(() => _stage = _FlashStage.hidden);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AnimatedOpacity(
-      opacity: _visible ? 1 : 0,
-      duration: const Duration(milliseconds: 200),
-      child: RekenrekWidget(
-        topLeft: widget.topLeft,
-        bottomLeft: widget.bottomLeft,
-      ),
-    );
+    switch (_stage) {
+      case _FlashStage.ready:
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.center_focus_strong,
+                size: 32, color: Colors.black54),
+            const SizedBox(height: 16),
+            FilledButton(onPressed: _start, child: const Text('Bereit')),
+          ],
+        );
+      case _FlashStage.fixation:
+        return const Text('+',
+            style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold));
+      case _FlashStage.countdown:
+        return Text(
+          '$_countdownValue',
+          style: const TextStyle(fontSize: 64, fontWeight: FontWeight.bold),
+        );
+      case _FlashStage.flash:
+        return RekenrekWidget(
+            topLeft: widget.topLeft, bottomLeft: widget.bottomLeft);
+      case _FlashStage.hidden:
+        return AnimatedOpacity(
+          opacity: 0,
+          duration: _fadeDuration,
+          child: RekenrekWidget(
+              topLeft: widget.topLeft, bottomLeft: widget.bottomLeft),
+        );
+    }
   }
 }
 

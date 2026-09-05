@@ -7,11 +7,9 @@ import 'package:math_app/screens/diagnostic_screen.dart';
 ///
 /// `buildVisualDisplay` is the public switch behind
 /// `DiagnosticScreen._buildVisualDisplay`; pumping every item ID proves each
-/// arrangement builds without throwing. A2.1-01 additionally exercises the
-/// 800 ms Rekenrek flash timer, which is flushed with an explicit pump.
+/// arrangement builds without throwing.
 void main() {
   const visualItemIds = [
-    'A2.1-01',
     'A2.2-01',
     'A2.2-02',
     'A2.3-01',
@@ -51,11 +49,29 @@ void main() {
         ),
       );
       await tester.pump();
-      // Flush the A2.1-01 Rekenrek flash timer (800 ms) plus its fade-out.
-      await tester.pump(const Duration(seconds: 1));
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets('A2.1-01 flash requires Bereit and completes without throwing',
+      (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Center(child: buildVisualDisplay(questionFor('A2.1-01'))),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.tap(find.text('Bereit'));
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(milliseconds: 700));
+    await tester.pump(const Duration(milliseconds: 700));
+    await tester.pump(const Duration(milliseconds: 700));
+    await tester.pump(const Duration(milliseconds: 1500));
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('DDB-05 tap places the marker and writes the snapped value',
       (tester) async {

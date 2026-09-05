@@ -42,19 +42,39 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('RekenrekFlashWidget flashes for 800 ms then fades out',
-      (tester) async {
+  testWidgets(
+      'RekenrekFlashWidget never flashes on build; Bereit runs fixation, '
+      'countdown, a 1500 ms flash, then fades', (tester) async {
     await pumpWidget(
       tester,
       const RekenrekFlashWidget(topLeft: 4, bottomLeft: 0),
     );
-    expect(
-      tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity)).opacity,
-      1,
-    );
-    // Flush the 800 ms timer plus the 200 ms fade.
-    await tester.pump(const Duration(seconds: 1));
-    await tester.pump(const Duration(milliseconds: 300));
+
+    // Never on build: no beads, just the Bereit prompt.
+    expect(find.byType(AnimatedOpacity), findsNothing);
+    expect(find.byWidgetPredicate((w) => w is RekenrekWidget), findsNothing);
+    expect(find.text('Bereit'), findsOneWidget);
+
+    await tester.tap(find.text('Bereit'));
+    await tester.pump();
+
+    // Fixation point, then a 3-2-1 countdown.
+    expect(find.text('+'), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('3'), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 700));
+    expect(find.text('2'), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 700));
+    expect(find.text('1'), findsOneWidget);
+
+    // Flash begins only once the countdown completes.
+    await tester.pump(const Duration(milliseconds: 700));
+    expect(find.byWidgetPredicate((w) => w is RekenrekWidget), findsOneWidget);
+
+    // Stays visible for 1500 ms, then fades over 200 ms.
+    await tester.pump(const Duration(milliseconds: 1400));
+    expect(find.byWidgetPredicate((w) => w is RekenrekWidget), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 100));
     expect(
       tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity)).opacity,
       0,

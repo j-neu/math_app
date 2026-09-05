@@ -226,3 +226,16 @@ The entry above was written mid-slice; Tasks 7–10 have since completed. All te
 **Gates (run fresh after Task 10):** `flutter test` **496/496** · `flutter analyze` **0 errors** (336 issues — the exact pre-Task-1 baseline, no new lints from Tasks 7–10). Commits `94847c6` → `dc1866a`, working tree clean except an untracked `scripts/__pycache__/`.
 
 **Still open:** (1) Task 10's manual browser smoke (`flutter run -d chrome`: prompt once, A2.1-01 Bereit→countdown→flash, Hilfe button pauses the clock past the normal budget) — Jakob's step; (2) the **final whole-branch review** before this lands; (3) updating the ledger's parked-minor list for Task 10's review if anything surfaces. Then the branch is ready to merge or rebase onto `gauntlet/p2-p3-p4`/`main` per Jakob's call — it is not yet merged anywhere, and no Workstream B/C/D work has started (`cleanroom-v1` and its pilot sessions untouched).
+
+### 2026-09-05 (landing) — Workstream A whole-branch review APPROVE WITH MINORS; merged to `main`
+
+The final whole-branch review ran as a fresh-context reviewer (no prior session context). It re-ran the gates itself rather than trusting the ledger: `flutter analyze` → 0 errors (336 issues, the exact recorded baseline); `flutter test` → **496/496**; `python scripts/generate_diagnostic_csv.py` → exit 0 and **byte-idempotent** (neither CSV dirtied). It then read every code change in `5de1417..HEAD` against the plan/design doc.
+
+**Findings: 0 Critical, 0 Important, 3 Minor.** Two fixed in commit `5d86e6c`:
+- **M1** `answer_grading.dart` — `grade()` computed its mode as `spec?.mode ?? _modeByShape(...)`, which can never yield `DiagnosticAnswerMode.sort` (only `modeFor()` checked `AnswerFormat.sort`), so the Task-5 sort grading arm was dead and the sort fixture passed only coincidentally through the sequence fallback. Fixed by routing `grade()` through `modeFor()`; behavior for all 91 live items is unchanged (none carry `AnswerFormat=sort`), and the existing sort fixture now genuinely exercises the sort path.
+- **M2** `diagnostic_screen.dart` `_showHilfe` — resumed the response timer unconditionally after the dialog closed; if the screen were disposed while the dialog was open, `resume()` would re-arm a timer whose `onTimeout` touches a defunct context. Guarded the resume with `if (mounted)`.
+- **M3** (deferred, pre-existing): unused `label` local at `diagnostic_answer_widgets.dart:24` (also makes `answerFieldLabel` dead). Already tracked as a Task-3/5 parked minor in the SDD ledger; out of Workstream-A scope.
+
+Gates re-run after the fixes: `flutter analyze` 0 errors (336 baseline) · `flutter test` **496/496**. Verdict: clean.
+
+**Landing:** `diagnostic/usability-rework` was 17 commits ahead of `main` with `main` an ancestor (no divergence), so `main` was **fast-forwarded `45516c7..5d86e6c` and pushed to `origin/main`**. The range touches only `math_app/`, `scripts/generate_diagnostic_csv.py`, and docs — no dashboard or backend file, so the git-connected `prozedia-portal` rebuild is content-identical. The Flutter web child client is **not** yet rebuilt/redeployed (CLI-only `prozedia-app` deploy) — that and the manual smoke of the interaction fixes on the deployed client remain Jakob's steps. Workstreams B/C/D remain unstarted; `cleanroom-v1` and every pilot session on it are untouched.

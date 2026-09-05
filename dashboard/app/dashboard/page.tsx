@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { NewClassForm } from "@/components/NewClassForm";
+import { DeleteClassButton } from "@/components/DeleteClassButton";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -38,21 +39,30 @@ export default async function DashboardPage() {
           {classes.map((c) => {
             const studentCount = (c.students as unknown as { count: number }[])[0]?.count ?? 0;
             return (
-              <Link
+              <div
                 key={c.id}
-                href={`/dashboard/klassen/${c.id}`}
-                className="bg-white border border-gray-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-sm transition-all group"
+                className="relative bg-white border border-gray-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-sm transition-all group"
               >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="font-semibold text-lg group-hover:text-blue-600 transition-colors">{c.name}</p>
-                    {c.grade && <p className="text-sm text-gray-500">Klasse {c.grade}</p>}
-                  </div>
-                  <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
+                <Link
+                  href={`/dashboard/klassen/${c.id}`}
+                  className="block pr-24"
+                >
+                  <p className="font-semibold text-lg group-hover:text-blue-600 transition-colors">{c.name}</p>
+                  {c.grade && <p className="text-sm text-gray-500">Klasse {c.grade}</p>}
+                </Link>
+                <div className="absolute top-4 right-4 flex items-center gap-2">
+                  <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full whitespace-nowrap">
                     {studentCount} {studentCount === 1 ? "Schüler/in" : "Schüler/innen"}
                   </span>
+                  <DeleteClassButton
+                    classId={c.id}
+                    className={c.name}
+                    studentCount={studentCount}
+                    redirectAfter="/dashboard"
+                    compact
+                  />
                 </div>
-              </Link>
+              </div>
             );
           })}
         </div>

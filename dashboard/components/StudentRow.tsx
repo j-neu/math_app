@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import QRCode from "react-qr-code";
 import { createClient } from "@/lib/supabase/client";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 // 32-char charset: uppercase letters + digits, no 0/O/1/I/L to avoid misreads
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -52,6 +53,7 @@ export function StudentRow({ student, diagnosticId, totalQuestions }: Props) {
   const [isResumeTicket, setIsResumeTicket] = useState(false);
   const [abbreviatedMode, setAbbreviatedMode] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const router = useRouter();
 
   const sessions = student.diagnostic_sessions ?? [];
@@ -164,10 +166,19 @@ export function StudentRow({ student, diagnosticId, totalQuestions }: Props) {
   }
 
   async function deleteStudent() {
-    if (!confirm(`Schüler/in "${student.display_name}" wirklich löschen?`)) return;
     setDeleting(true);
     const supabase = createClient();
-    await supabase.from("students").delete().eq("id", student.id);
+    const { error } = await supabase.from("students").delete().eq("id", student.id);
+    setDeleting(false);
+    if (error) {
+      throw new Error(
+        error.message.includes("row-level security") ||
+          error.message.includes("permission denied")
+          ? "Sie haben keine Berechtigung, diese/n Schüler/in zu löschen."
+          : error.message,
+      );
+    }
+    setConfirmDelete(false);
     router.refresh();
   }
 
@@ -253,15 +264,33 @@ export function StudentRow({ student, diagnosticId, totalQuestions }: Props) {
           )}
 
           <button
-            onClick={deleteStudent}
+            onClick={() => setConfirmDelete(true)}
             disabled={deleting}
-            className="text-sm text-gray-400 hover:text-red-600 px-2 py-1.5 transition-colors"
+            className="text-sm border border-gray-200 hover:border-red-400 text-gray-500 hover:text-red-600 disabled:opacity-50 px-3 py-1.5 rounded-lg transition-colors"
             title="Schüler/in löschen"
           >
-            ✕
+            {deleting ? "…" : "Löschen"}
           </button>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmDelete}
+        title={`„${student.display_name}“ löschen?`}
+        body={
+          <>
+            <p>
+              Die/der Schüler/in wird mit allen Diagnose-Ergebnissen,
+              Förderplänen und Lernpfaden dauerhaft gelöscht.
+            </p>
+            <p className="mt-1">Das kann nicht rückgängig gemacht werden.</p>
+          </>
+        }
+        confirmLabel="Schüler/in löschen"
+        busyLabel={deleting ? "Wird gelöscht…" : undefined}
+        onConfirm={deleteStudent}
+        onCancel={() => setConfirmDelete(false)}
+      />
 
       {/* QR code modal */}
       {showQr && ticketUrl && (

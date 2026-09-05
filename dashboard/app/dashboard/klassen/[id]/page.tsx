@@ -6,6 +6,7 @@ import { AddStudentForm } from "@/components/AddStudentForm";
 import { BulkQrButton } from "@/components/BulkQrButton";
 import { PathStatusRow } from "@/components/PathStatusRow";
 import { ClassCodePanel } from "@/components/ClassCodePanel";
+import { DeleteClassButton } from "@/components/DeleteClassButton";
 import { getClassLearningPaths } from "@/lib/lernpfad/queries";
 import type { ClassPathRow } from "@/lib/lernpfad/queries";
 import { pathCounts } from "@/lib/lernpfad/stats";
@@ -156,6 +157,12 @@ export default async function KlasseDetailPage({ params }: Props) {
             studentCount={students?.length ?? 0}
           />
           <AddStudentForm classId={params.id} />
+          <DeleteClassButton
+            classId={params.id}
+            className={klass.name}
+            studentCount={students?.length ?? 0}
+            redirectAfter="/dashboard"
+          />
         </div>
       </div>
 

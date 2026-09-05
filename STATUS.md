@@ -1,6 +1,6 @@
 # Project Status
 
-**Last updated:** 2026-09-04 (clean-room rewrite: all Jakob sign-offs given; R7.5 still blocked on four external-artifact gates — see Active)
+**Last updated:** 2026-09-05 (diagnostic usability rework: design doc written, Workstream A in progress — see Active)
 
 One-screen view of what's shipped, what's active, and what's paused. For the doc map, see [DOCS_INDEX.md](DOCS_INDEX.md). For the active plan, see [phase1_school_platform.md](phase1_school_platform.md).
 
@@ -36,7 +36,11 @@ Everything below is still accurate about the **infrastructure**. It is out of da
 
 ## Active
 
-Work in flight or queued in priority order. The clean-room rewrite's remaining tasks are **manual sign-off / deploy** steps (see `tasks.md` for the full status per checkbox):
+Work in flight or queued in priority order.
+
+**Diagnostic usability rework (in progress, since 2026-09-05).** Reviewing the running diagnostic surfaced real defects: the prompt renders twice per item, prompts carry meaningless quote-wrapping, some counting-sequence items are structurally unenterable, the A2.1-01 Rekenrek flash fires before the child is looking, a Stäbchen bundle renders too small to count, a working sort widget sits unwired, the response-time timeout ignores how many boxes an item has, and a written `Hilfetext` help field never reaches the app. Design doc: `docs/superpowers/specs/2026-09-05-diagnostic-usability-rework-design.md`. Workstream A (interaction layer, no item content) is being implemented task-by-task via subagent-driven development — plan at `docs/superpowers/plans/2026-09-05-diagnostic-interaction-layer.md`, evidence log in `GAUNTLET_PROGRESS.md`. Ships eventually as a new `cleanroom-v2` bank once Workstreams B (67-item revision)/C (integrity gates)/D (migration+deploy) follow; `cleanroom-v1` and its pilot sessions are untouched throughout.
+
+The clean-room rewrite's remaining tasks below are **manual sign-off / deploy** steps (see `tasks.md` for the full status per checkbox):
 
 1. ~~**Jakob sign-offs**~~ — **DONE.** R2.9 completed 2026-08-30 (all 127 provenance rows carry `reviewed_by=Jakob`); R1.3/R1.4/R1.8, R3.1–R3.3, R4.1–R4.3, R6.1/R6.2, ordering-rule, form-mapping and ADRs 0003–0007/0009 signed off 2026-09-04. Mechanical gates R2.11 and R7.3 both pass. **Delta resolved on the runtime side 2026-09-04:** the runtime CSV is regenerated to 59 core items and the independence sidecar is re-keyed (`20`→`19`); only the live `cleanroom-v1` row still says 60.
 2. **Apply the 59-vs-60 migrations to live** — the runtime side of the A1.5-01 removal is done. What remains is applying `20260904000000_cleanroom_v1_core_59.sql` (retire A1.5-01, renumber core 1–59 / deep-dive 60–91) and `20260904000001_cleanroom_v1_sync_prompts.sql` (27 drifted `prompt_de` rows) to the live project, then querying the live table to confirm 59/32/1 and gapless numbering. Blocks item 3.

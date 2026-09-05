@@ -20,6 +20,7 @@ import '../services/diagnostic_shortening.dart';
 import '../services/answer_grading.dart';
 import '../services/diagnostic_report_generator.dart';
 import '../services/api_service.dart';
+import '../services/pausable_timeout.dart';
 import '../services/user_service.dart';
 import '../screens/diagnostic_complete_screen.dart';
 import '../screens/diagnostic_report_screen.dart';
@@ -85,9 +86,9 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   // drives the disabled-Weiter progress state.
   bool _savingAnswer = false;
 
-  // Timeout and timing tracking (varies by question type)
-  DateTime? _questionStartTime;
-  Timer? _timeoutTimer;
+  // Response-time budget for the current question. Paused while the Hilfe
+  // panel is open, so reading a hint does not count against the child.
+  PausableTimeout? _responseTimer;
   final AudioPlayer _audioPlayer = AudioPlayer();
   String? _audioTempFilePath;
 
@@ -194,7 +195,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
 
   @override
   void dispose() {
-    _timeoutTimer?.cancel();
+    _responseTimer?.cancel();
     _textController.dispose();
     _audioPlayer.dispose();
     super.dispose();
@@ -209,27 +210,23 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   /// Start timer for the current question (runs silently in background)
   void _startQuestionTimer(List<DiagnosticQuestion> questions) {
     if (_currentQuestionIndex >= questions.length) return;
-    
-    _questionStartTime = DateTime.now();
-    _timeoutTimer?.cancel();
 
-    // Determine timeout based on question type
     final question = questions[_currentQuestionIndex];
 
     if (question.audioAsset != null) {
       _playAudio(question.audioAsset!);
     }
 
-    // Timer that fires after the response-time budget
-    _timeoutTimer = Timer(Duration(seconds: _timeoutSecondsFor(question)), () {
-      _handleTimeout(questions);
-    });
+    _responseTimer = PausableTimeout(
+      budget: Duration(seconds: _timeoutSecondsFor(question)),
+      onTimeout: () => _handleTimeout(questions),
+    )..start();
   }
 
   /// Handle timeout - show popup asking if child wants to skip
   void _handleTimeout(List<DiagnosticQuestion> questions) {
     // Stop the timer so it doesn't keep firing
-    _timeoutTimer?.cancel();
+    _responseTimer?.cancel();
 
     // Show dialog asking if they want to skip
     showDialog(
@@ -272,7 +269,8 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     if (_savingAnswer) return;
 
     final question = questions[_currentQuestionIndex];
-    final responseTime = DateTime.now().difference(_questionStartTime!).inSeconds.toDouble();
+    final responseTime =
+        _responseTimer!.elapsed.inSeconds.toDouble();
 
     // Record as timeout/skipped
     final result = DiagnosticResult(
@@ -397,12 +395,10 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
 
   Future<void> _nextQuestionInner(List<DiagnosticQuestion> questions) async {
     // Stop the timer
-    _timeoutTimer?.cancel();
+    _responseTimer?.cancel();
 
-    // Calculate response time
-    final responseTime = _questionStartTime != null
-        ? DateTime.now().difference(_questionStartTime!).inSeconds.toDouble()
-        : 0.0;
+    // Calculate response time (net of any Hilfe pause)
+    final responseTime = _responseTimer?.elapsed.inSeconds.toDouble() ?? 0.0;
 
     // Save the answer from the controller
     final userAnswer = _textController.text.trim();
@@ -909,7 +905,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
           final question = questions[_currentQuestionIndex];
 
           // Start timer if not already started
-          if (_questionStartTime == null) {
+          if (_responseTimer == null) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               _startQuestionTimer(questions);
             });
@@ -926,6 +922,15 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
                   ),
                   const SizedBox(height: 20),
                   QuestionPrompt(question: question),
+                  if (question.hilfetext != null &&
+                      question.hilfetext!.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    OutlinedButton.icon(
+                      icon: const Icon(Icons.help_outline),
+                      label: const Text('Hilfe'),
+                      onPressed: () => _showHilfe(question.hilfetext!),
+                    ),
+                  ],
                   const SizedBox(height: 20),
                   if (question.audioAsset != null) ...[
                     _buildAudioReplayButton(question.audioAsset!),
@@ -997,6 +1002,29 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
       label: const Text('Nochmal anhören'),
       onPressed: () => _playAudio(audioUrl),
     );
+  }
+
+  /// Opens the on-demand task explanation behind the Hilfe button and pauses
+  /// the response-time budget while it is open — reading a hint must not cost
+  /// the child their answer time (diagnostic usability rework §4.9).
+  Future<void> _showHilfe(String hilfetext) async {
+    _responseTimer?.pause();
+    if (mounted) {
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Hilfe'),
+          content: Text(hilfetext),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Schließen'),
+            ),
+          ],
+        ),
+      );
+    }
+    _responseTimer?.resume();
   }
 
   Future<void> _playAudio(String audioUrl) async {

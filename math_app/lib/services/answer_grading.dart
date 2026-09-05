@@ -37,15 +37,17 @@ class AnswerSpec {
   final int? rows;
   final List<String>? choiceOptions;
   final String? choiceAnswer;
+  final String? anchor;
 
   const AnswerSpec.number(this.expectedNumbers)
       : mode = DiagnosticAnswerMode.number,
         target = null,
         rows = null,
         choiceOptions = null,
-        choiceAnswer = null;
+        choiceAnswer = null,
+        anchor = null;
 
-  const AnswerSpec.sequence(this.expectedNumbers)
+  const AnswerSpec.sequence(this.expectedNumbers, {this.anchor})
       : mode = DiagnosticAnswerMode.sequence,
         target = null,
         rows = null,
@@ -56,20 +58,23 @@ class AnswerSpec {
       : mode = DiagnosticAnswerMode.pairRows,
         expectedNumbers = const [],
         choiceOptions = null,
-        choiceAnswer = null;
+        choiceAnswer = null,
+        anchor = null;
 
   const AnswerSpec.choice(this.choiceOptions, this.choiceAnswer)
       : mode = DiagnosticAnswerMode.choice,
         expectedNumbers = const [],
         target = null,
-        rows = null;
+        rows = null,
+        anchor = null;
 
   const AnswerSpec.freeText(this.expectedNumbers)
       : mode = DiagnosticAnswerMode.freeText,
         target = null,
         rows = null,
         choiceOptions = null,
-        choiceAnswer = null;
+        choiceAnswer = null,
+        anchor = null;
 }
 
 /// Per-item expectations (keyed by CSV ListNumber). Every entry here is a
@@ -77,6 +82,17 @@ class AnswerSpec {
 /// numeric result(s) the app can grade. Items NOT listed fall back to the
 /// generic shape rules in [AnswerGrading.specFor].
 const Map<int, AnswerSpec> kAnswerSpecs = {
+  // A1.x counting sequences: the given start is shown as static text ahead
+  // of the boxes (§4.3) so the child can't try to re-type it and run out of
+  // boxes before the target (the A1.2-01 bug the usability rework fixes).
+  1: AnswerSpec.sequence([13, 14, 15, 16, 17, 18, 19, 20], anchor: '12'),
+  2: AnswerSpec.sequence(
+      [49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63],
+      anchor: '48'),
+  3: AnswerSpec.sequence([20, 19, 18, 17, 16], anchor: '21'),
+  4: AnswerSpec.sequence([58, 57, 56, 55, 54, 53, 52, 51], anchor: '59'),
+  5: AnswerSpec.sequence([28, 30, 32, 34], anchor: '26'),
+  6: AnswerSpec.sequence([40, 35, 30, 25, 20], anchor: '45'),
   // Place-value reads the child states in order: "5 Zehner, 8 Einer.",
   // "41 Stäbchen; 4 Zehner und 1 Einer", "Z-Spalte 4, E-Spalte 7".
   20: AnswerSpec.sequence([5, 8]),
@@ -283,6 +299,11 @@ class AnswerGrading {
     final n = intsIn(q.correctAnswer).length;
     return n < 1 ? 1 : n;
   }
+
+  /// Given start shown as static text ahead of the boxes, when the item
+  /// carries one (diagnostic usability rework §4.3).
+  static String? sequenceAnchor(DiagnosticQuestion q) =>
+      kAnswerSpecs[q.listNumber]?.anchor;
 
   /// Sum target + row count for decomposition items.
   static int pairTarget(DiagnosticQuestion q) {

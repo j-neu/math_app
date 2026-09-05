@@ -28,6 +28,7 @@ class DiagnosticAnswerInput extends StatelessWidget {
       case DiagnosticAnswerMode.sequence:
         return _SequenceFields(
           fieldCount: AnswerGrading.sequenceLength(question),
+          anchor: AnswerGrading.sequenceAnchor(question),
           controller: controller,
           onSubmit: onSubmit,
         );
@@ -93,11 +94,13 @@ class _NumberField extends StatelessWidget {
 /// answers). Values are joined ", " into [controller].
 class _SequenceFields extends StatefulWidget {
   final int fieldCount;
+  final String? anchor;
   final TextEditingController controller;
   final VoidCallback? onSubmit;
 
   const _SequenceFields({
     required this.fieldCount,
+    this.anchor,
     required this.controller,
     this.onSubmit,
   });
@@ -158,6 +161,9 @@ class _SequenceFieldsState extends State<_SequenceFields> {
         alignment: WrapAlignment.center,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
+          if (widget.anchor != null)
+            Text('${widget.anchor},',
+                style: Theme.of(context).textTheme.titleLarge),
           ...List.generate(widget.fieldCount, (index) {
             final isLast = index == widget.fieldCount - 1;
             return SizedBox(

@@ -92,4 +92,42 @@ void main() {
     expect(AnswerGrading.grade(userAnswer: controller.text, question: question),
         isTrue);
   });
+
+  testWidgets(
+      'Q3 backward count shows the given start as static text ahead of the boxes',
+      (tester) async {
+    final question = q(3);
+    final controller = await pumpFor(tester, question);
+
+    expect(find.text('21,'), findsOneWidget);
+    final fields = find.byType(TextField);
+    expect(fields, findsNWidgets(5));
+
+    const answers = ['20', '19', '18', '17', '16'];
+    for (var i = 0; i < answers.length; i++) {
+      await tester.enterText(fields.at(i), answers[i]);
+    }
+    await tester.pump();
+    expect(
+      AnswerGrading.grade(userAnswer: controller.text, question: question),
+      isTrue,
+    );
+  });
+
+  testWidgets('sequence input still renders exactly 6 boxes at the item cap',
+      (tester) async {
+    final question = DiagnosticQuestion(
+      listNumber: 9002,
+      sourceType: QuestionType.text,
+      questionText: 'Test',
+      answerFormat: AnswerFormat.single,
+      correctAnswer: '1, 2, 3, 4, 5, 6',
+      german: 'Test',
+      english: 'Test',
+      ifWrongPracticeSkills: const [],
+    );
+    await pumpFor(tester, question);
+    expect(AnswerGrading.modeFor(question), DiagnosticAnswerMode.sequence);
+    expect(find.byType(TextField), findsNWidgets(6));
+  });
 }

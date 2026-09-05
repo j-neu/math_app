@@ -926,28 +926,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: 20),
-                  // For non-image questions, display questionText in very large font
-                  if (question.sourceType == QuestionType.text)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Text(
-                        question.questionText,
-                        style: const TextStyle(
-                          fontSize: 48,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  const SizedBox(height: 20),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Text(
-                      question.german,
-                      style: Theme.of(context).textTheme.titleLarge,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
+                  QuestionPrompt(question: question),
                   const SizedBox(height: 20),
                   if (question.audioAsset != null) ...[
                     _buildAudioReplayButton(question.audioAsset!),
@@ -1042,6 +1021,31 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
       source = AssetSource('Research/zahlen_diktat.mp3');
     }
     await _audioPlayer.play(source);
+  }
+}
+
+/// The child-facing prompt: the German wording, rendered once. Before the
+/// diagnostic usability rework, `questionText` duplicated this for every
+/// text item; `questionText` keeps its separate role as the item-ID key for
+/// visual items (see [buildVisualDisplay]) and is not rendered here.
+///
+/// Public (top-level) so widget tests can pump it without instantiating the
+/// full [DiagnosticScreen], matching [buildVisualDisplay]'s pattern.
+class QuestionPrompt extends StatelessWidget {
+  final DiagnosticQuestion question;
+
+  const QuestionPrompt({super.key, required this.question});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: Text(
+        question.german,
+        style: Theme.of(context).textTheme.titleLarge,
+        textAlign: TextAlign.center,
+      ),
+    );
   }
 }
 

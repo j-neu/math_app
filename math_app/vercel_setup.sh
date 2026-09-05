@@ -12,5 +12,9 @@ mkdir -p .vercel_flutter
 tar -xJf .vercel_flutter.tar.xz -C .vercel_flutter --strip-components=1
 rm .vercel_flutter.tar.xz
 
+# The archive's files are owned by a different uid than the build user, so
+# git (which the Flutter tool invokes inside its own repo) refuses to run.
+git config --global --add safe.directory '*' || true
+
 .vercel_flutter/bin/flutter config --no-analytics >/dev/null
 .vercel_flutter/bin/flutter --version

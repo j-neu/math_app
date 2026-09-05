@@ -306,6 +306,19 @@ class AnswerGrading {
     return n < 1 ? 1 : n;
   }
 
+  /// Total answer boxes [q]'s input renders — used for the response-time
+  /// budget `max(15, 5 × boxCount)` (diagnostic usability rework §4.6).
+  static int boxCount(DiagnosticQuestion q) {
+    return switch (modeFor(q)) {
+      DiagnosticAnswerMode.number => 1,
+      DiagnosticAnswerMode.sequence => sequenceLength(q),
+      DiagnosticAnswerMode.pairRows => pairRows(q) * 2,
+      DiagnosticAnswerMode.choice => 1,
+      DiagnosticAnswerMode.sort => sortItems(q).length,
+      DiagnosticAnswerMode.freeText => 1,
+    };
+  }
+
   /// Given start shown as static text ahead of the boxes, when the item
   /// carries one (diagnostic usability rework §4.3).
   static String? sequenceAnchor(DiagnosticQuestion q) =>

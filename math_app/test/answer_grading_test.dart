@@ -157,4 +157,28 @@ void main() {
           isTrue);
     });
   });
+
+  group('boxCount — response-time budget input', () {
+    final all = loadCore();
+
+    test('number mode is one box', () {
+      expect(AnswerGrading.boxCount(q(all, 36)), 1);
+    });
+
+    test('sequence mode is the expected-number count', () {
+      expect(AnswerGrading.boxCount(q(all, 1)), 8);
+    });
+
+    test('pairRows mode is two boxes per row', () {
+      expect(AnswerGrading.boxCount(q(all, 15)), 6);
+    });
+
+    test('choice mode is one box', () {
+      expect(AnswerGrading.boxCount(q(all, 11)), 1);
+    });
+
+    test('freeText mode is one box', () {
+      expect(AnswerGrading.boxCount(q(all, 58)), 1);
+    });
+  });
 }

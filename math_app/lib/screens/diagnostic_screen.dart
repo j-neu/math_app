@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io' show File;
+import 'dart:math' show max;
 import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -85,8 +86,6 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   bool _savingAnswer = false;
 
   // Timeout and timing tracking (varies by question type)
-  static const int timeoutSecondsSingle = 20; // Single-field questions
-  static const int timeoutSecondsMultiple = 60; // Multiple/Sort questions
   DateTime? _questionStartTime;
   Timer? _timeoutTimer;
   final AudioPlayer _audioPlayer = AudioPlayer();
@@ -201,6 +200,12 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     super.dispose();
   }
 
+  /// Response-time budget for [question]: floor 15 s, else 5 s per answer
+  /// box (diagnostic usability rework §4.6) — a multi-box item gets
+  /// proportionally more time than a one-number calculation.
+  int _timeoutSecondsFor(DiagnosticQuestion question) =>
+      max(15, 5 * AnswerGrading.boxCount(question));
+
   /// Start timer for the current question (runs silently in background)
   void _startQuestionTimer(List<DiagnosticQuestion> questions) {
     if (_currentQuestionIndex >= questions.length) return;
@@ -215,12 +220,8 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
       _playAudio(question.audioAsset!);
     }
 
-    final timeoutDuration = question.answerFormat == AnswerFormat.single
-        ? timeoutSecondsSingle
-        : timeoutSecondsMultiple;
-
-    // Timer that fires after appropriate timeout
-    _timeoutTimer = Timer(Duration(seconds: timeoutDuration), () {
+    // Timer that fires after the response-time budget
+    _timeoutTimer = Timer(Duration(seconds: _timeoutSecondsFor(question)), () {
       _handleTimeout(questions);
     });
   }
@@ -411,10 +412,8 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     final currentQuestion = questions[_currentQuestionIndex];
     final textCorrect = _checkAnswer(currentQuestion, userAnswer);
 
-    // Determine time threshold based on question type
-    final timeThreshold = currentQuestion.answerFormat == AnswerFormat.single
-        ? timeoutSecondsSingle
-        : timeoutSecondsMultiple;
+    // Determine time threshold based on the item's answer boxes
+    final timeThreshold = _timeoutSecondsFor(currentQuestion);
 
     // Answer is considered FAILED if:
     // 1. Text answer is wrong, OR

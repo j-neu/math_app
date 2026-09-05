@@ -121,6 +121,7 @@ HEADER = [
     "SkipGroup",
     "Zahlenraum",
     "AudioAsset",
+    "Hilfetext",
 ]
 
 # Blueprint §Sequenzregeln order: constructs A1->A2->A3->B1->B2->C1->C2->C3->
@@ -384,6 +385,9 @@ def build_rows(order: list[str]) -> list[list[str]]:
         stimulus = fields.get("Stimulus type", "")
         visual = item_id in EXPECTED_VISUAL_ITEMS
         wording = strip_quotation_wrapping(fields.get("Wording (German)", ""))
+        hilfetext = strip_quotation_wrapping(
+            fields.get("Hilfetext (optional, z. B. Hilfe-Button)", "")
+        )
 
         difficulty_raw = fields.get("Difficulty target", "").lower().split()
         difficulty = difficulty_raw[0] if difficulty_raw else "medium"
@@ -409,6 +413,7 @@ def build_rows(order: list[str]) -> list[list[str]]:
             "",
             zr,
             "",
+            hilfetext,
         ])
     return rows
 

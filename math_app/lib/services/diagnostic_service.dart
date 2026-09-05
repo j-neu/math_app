@@ -1,17 +1,20 @@
 import 'package:csv/csv.dart';
 import 'package:flutter/services.dart';
 import '../models/diagnostic_question.dart';
-import 'diagnostic_shortening.dart';
+import 'diagnostic_shortening.dart' show ConstructGates, difficultyFrom, constructFrom;
 
 /// Loads the clean-room diagnostic item bank.
 ///
 /// The runtime asset is `Research/diagnostic_core_v1.csv` (the 59-item core
 /// test, tasks.md R5.1). The optional deep-dive blocks live in the sibling
 /// `Research/diagnostic_deepdive_v1.csv` and are not loaded by the core
-/// diagnostic flow. Both files reuse the legacy 13-column schema
+/// diagnostic flow. Both files use a 14-column schema
 /// (ListNumber,SourceType,QuestionText,AnswerFormat,CorrectAnswer,German,
 /// English,IfWrong_practice_skills,Ifwrong_skip,Notes,SkipGroup,Zahlenraum,
-/// AudioAsset), so the parser column indexes are unchanged.
+/// AudioAsset,Hilfetext), so the parser column indexes are unchanged for the
+/// first 13 columns; Hilfetext (index 13) is new and optional — rows without
+/// it (none, after this change regenerates both files) still parse via the
+/// `row.length > 13` guard.
 class DiagnosticService {
   Future<List<DiagnosticQuestion>> loadQuestions() async {
     final rawData =
@@ -46,6 +49,7 @@ class DiagnosticService {
         final skipGroupRaw = row.length > 10 ? row[10].toString().trim() : '';
         final zahlenraumRaw = row.length > 11 ? row[11].toString().trim() : '';
         final audioAssetRaw = row.length > 12 ? row[12].toString().trim() : '';
+        final hilfetextRaw = row.length > 13 ? row[13].toString().trim() : '';
         final notes = row.length > 9 ? row[9].toString() : '';
         questions.add(
           DiagnosticQuestion(
@@ -64,6 +68,7 @@ class DiagnosticService {
             audioAsset: audioAssetRaw.isEmpty ? null : audioAssetRaw,
             constructId: constructFrom(notes),
             difficulty: difficultyFrom(notes),
+            hilfetext: hilfetextRaw.isEmpty ? null : hilfetextRaw,
           ),
         );
       } catch (e) {

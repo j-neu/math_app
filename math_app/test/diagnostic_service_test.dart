@@ -79,4 +79,20 @@ void main() {
     ]));
     expect(visualIds, isNot(contains('img2113.jpg')));
   });
+
+  test('Hilfetext parses for curated items and stays null otherwise', () {
+    DiagnosticQuestion byNumber(List<DiagnosticQuestion> qs, int n) =>
+        qs.firstWhere((q) => q.listNumber == n);
+
+    // A2.1-01 is core item 8 and has a written Hilfetext.
+    expect(byNumber(coreQuestions, 8).hilfetext, isNotNull);
+    expect(byNumber(coreQuestions, 8).hilfetext, contains('Rechenrahmen'));
+    // A1.1-01 (item 1) has none.
+    expect(byNumber(coreQuestions, 1).hilfetext, isNull);
+
+    // DDA-04 is deep-dive item 4 and has a written Hilfetext.
+    expect(byNumber(deepDiveQuestions, 4).hilfetext, isNotNull);
+    // DDA-01 (deep-dive item 1) has none.
+    expect(byNumber(deepDiveQuestions, 1).hilfetext, isNull);
+  });
 }

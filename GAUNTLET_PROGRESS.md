@@ -248,3 +248,14 @@ Jakob reported no visible change in the browser after the `main` push — correc
 - Production alias verified: `https://prozedia-app.vercel.app` serves the new deployment (`x-vercel-id: fra1::xff5h-1788602320386-984599ee17cf`, 200 on `flutter_bootstrap.js`).
 
 The interaction-layer fixes (prompt once, quote-free prompts, sequence anchors, Bereit-gated Rekenrek flash, sort mode, box-scaled time budget, Dienes place-value visuals, Hilfe button pausing the clock) are now live for the child diagnostic. Manual smoke on the deployed client remains Jakob's step; a hard reload is needed where `main.dart.js` is cached.
+
+### 2026-09-05 (infra) — `prozedia-app` connected to GitHub; git pushes now auto-deploy the Flutter client
+
+Jakob asked to connect `prozedia-app` to the GitHub repo so pushes reach the child client the way they reach the dashboard. Done and verified end to end:
+- **Connected:** `vercel git connect https://github.com/j-neu/math_app` → project linked (`link.type=github`, `j-neu/math_app`, production branch `main`).
+- **Build settings configured via the Vercel API** (PATCH `v9/projects/prj_W7hwUrQYyqlUVEKWyUs6sOrCkc3Z`): `rootDirectory = math_app`, `installCommand = bash vercel_setup.sh`, `buildCommand = .vercel_flutter/bin/flutter build web --release --no-tree-shake-icons`, `outputDirectory = build/web`. `math_app/vercel_setup.sh` (commit `4cae983`, fixed `46ee18d`) downloads the pinned Flutter Linux SDK 3.35.1 into the build container and adds the git `safe.directory` exception the archive's uid mismatch triggers.
+- **Preview-tested before touching production:** pushed test branch `vercel/auto-build-test`. First attempt `4cae983` failed (git dubious-ownership on the extracted SDK); fix `46ee18d` built **READY** (this is the stale failure notification GitHub posted — superseded by `46ee18d`). Preview is behind Vercel preview-deployment protection; verified the real content with the CLI's authenticated `vercel curl` (index contains `flutter_bootstrap`, `main.dart.js` ~3.2 MB).
+- **First git production build:** merged the script to `main` and pushed (`ec184e5..46ee18d`) → deployment `prozedia-gufgft8mm…` built and went **READY (production)**; `https://prozedia-app.vercel.app` now serves it (`x-vercel-id: fra1::g7cgr-1788603757866-087e1897c356`, `main.dart.js` 3,319,737 B — byte-identical to the local build).
+- Test branch deleted locally and on origin.
+
+**Behaviour now:** every push to `main` that touches the repo builds and deploys the child client automatically (~3 min incl. the ~1.4 GB SDK download per build; no build cache). An Ignored Build Step to skip doc-only pushes is **not** set — the project API rejects `ignoreCommand` on PATCH (dashboard-only setting); worth adding in the Vercel project settings if doc-only pushes should stop triggering Flutter builds. `prozedia-portal` (dashboard) still auto-deploys as before. First smoke of the interaction fixes on the now-auto-deployed client remains Jakob's step.

@@ -239,3 +239,12 @@ The final whole-branch review ran as a fresh-context reviewer (no prior session 
 Gates re-run after the fixes: `flutter analyze` 0 errors (336 baseline) · `flutter test` **496/496**. Verdict: clean.
 
 **Landing:** `diagnostic/usability-rework` was 17 commits ahead of `main` with `main` an ancestor (no divergence), so `main` was **fast-forwarded `45516c7..5d86e6c` and pushed to `origin/main`**. The range touches only `math_app/`, `scripts/generate_diagnostic_csv.py`, and docs — no dashboard or backend file, so the git-connected `prozedia-portal` rebuild is content-identical. The Flutter web child client is **not** yet rebuilt/redeployed (CLI-only `prozedia-app` deploy) — that and the manual smoke of the interaction fixes on the deployed client remain Jakob's steps. Workstreams B/C/D remain unstarted; `cleanroom-v1` and every pilot session on it are untouched.
+
+### 2026-09-05 (deploy) — Child client rebuilt and deployed to `prozedia-app` production
+
+Jakob reported no visible change in the browser after the `main` push — correct, because pushes to `main` only auto-deploy the git-connected dashboard (`prozedia-portal`); the child Flutter client is a CLI-only Vercel project. Deployed the merged build:
+- `flutter build web --no-tree-shake-icons` from `math_app/` (post-merge `main`) → **√ Built build\web**.
+- `vercel --prod --yes` from `math_app/build/web` (linked project `prozedia-app`, `prj_W7hwUrQYyqlUVEKWyUs6sOrCkc3Z`) → **Ready in 8s**, deployment `prozedia-3d08t2r5o-j-neus-projects.vercel.app`.
+- Production alias verified: `https://prozedia-app.vercel.app` serves the new deployment (`x-vercel-id: fra1::xff5h-1788602320386-984599ee17cf`, 200 on `flutter_bootstrap.js`).
+
+The interaction-layer fixes (prompt once, quote-free prompts, sequence anchors, Bereit-gated Rekenrek flash, sort mode, box-scaled time budget, Dienes place-value visuals, Hilfe button pausing the clock) are now live for the child diagnostic. Manual smoke on the deployed client remains Jakob's step; a hard reload is needed where `main.dart.js` is cached.

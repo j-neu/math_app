@@ -21,6 +21,9 @@ enum DiagnosticAnswerMode {
   /// One of a small set of words (e.g. "rechts"/"links").
   choice,
 
+  /// Numbers dragged into order (e.g. "Zahlen der Größe nach ordnen").
+  sort,
+
   /// Free text (equations, sentences) with tolerant normalization.
   freeText,
 }
@@ -163,6 +166,7 @@ class AnswerGrading {
   static DiagnosticAnswerMode modeFor(DiagnosticQuestion q) {
     final spec = kAnswerSpecs[q.listNumber];
     if (spec != null) return spec.mode;
+    if (q.answerFormat == AnswerFormat.sort) return DiagnosticAnswerMode.sort;
     return _modeByShape(q);
   }
 
@@ -198,6 +202,8 @@ class AnswerGrading {
       DiagnosticAnswerMode.pairRows =>
         _gradePairs(input, spec!.target!, spec.rows!),
       DiagnosticAnswerMode.choice => _gradeChoice(input, spec, question),
+      DiagnosticAnswerMode.sort =>
+        _sameList(intsIn(input), sortItems(question)),
       DiagnosticAnswerMode.freeText =>
         spec != null ? _gradeFreeText(input, spec) : gradePhrase(input, question.correctAnswer),
     };
@@ -316,6 +322,10 @@ class AnswerGrading {
     return spec?.rows ?? 0;
   }
 
+  /// Numbers a `DiagnosticAnswerMode.sort` item expects in final order — the
+  /// numbers found in [DiagnosticQuestion.correctAnswer], in that order.
+  static List<int> sortItems(DiagnosticQuestion q) => intsIn(q.correctAnswer);
+
   /// Tap options for choice-mode items. Options are not stored in the CSV; they
   /// are derived from the German prompt (e.g. "… links oder rechts?") or, when
   /// nothing can be derived, left empty (the caller then falls back to a text
@@ -337,5 +347,6 @@ String answerFieldLabel(DiagnosticAnswerMode mode) => switch (mode) {
       DiagnosticAnswerMode.sequence => 'Trage die Zahlen in der richtigen Reihenfolge ein.',
       DiagnosticAnswerMode.pairRows => 'Schreibe jede Zerlegung in eine eigene Zeile.',
       DiagnosticAnswerMode.choice => 'Tippe deine Antwort an.',
+      DiagnosticAnswerMode.sort => 'Ziehe die Zahlen in die richtige Reihenfolge.',
       DiagnosticAnswerMode.freeText => 'Schreibe deine Antwort auf.',
     };

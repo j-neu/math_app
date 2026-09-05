@@ -114,6 +114,36 @@ void main() {
     );
   });
 
+  DiagnosticQuestion sortQuestion() => DiagnosticQuestion(
+        listNumber: 9001,
+        sourceType: QuestionType.text,
+        questionText: 'Sortiere',
+        answerFormat: AnswerFormat.sort,
+        correctAnswer: '3, 12, 27',
+        german: 'Bringe die Zahlen der Größe nach: klein zuerst.',
+        english: 'Test',
+        ifWrongPracticeSkills: const [],
+      );
+
+  testWidgets(
+      'sort item: shuffles away from the solution and grades order-exact',
+      (tester) async {
+    final question = sortQuestion();
+    final controller = await pumpFor(tester, question);
+
+    expect(AnswerGrading.modeFor(question), DiagnosticAnswerMode.sort);
+    expect(find.byType(Card), findsNWidgets(3));
+    expect(controller.text, isNot('3, 12, 27'));
+    expect(
+      AnswerGrading.grade(userAnswer: '3, 12, 27', question: question),
+      isTrue,
+    );
+    expect(
+      AnswerGrading.grade(userAnswer: '12, 3, 27', question: question),
+      isFalse,
+    );
+  });
+
   testWidgets('sequence input still renders exactly 6 boxes at the item cap',
       (tester) async {
     final question = DiagnosticQuestion(

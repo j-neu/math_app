@@ -51,6 +51,12 @@ class DiagnosticAnswerInput extends StatelessWidget {
           controller: controller,
           onSubmit: onSubmit,
         );
+      case DiagnosticAnswerMode.sort:
+        return _SortFields(
+          items:
+              AnswerGrading.sortItems(question).map((n) => n.toString()).toList(),
+          controller: controller,
+        );
       case DiagnosticAnswerMode.freeText:
         return _FreeField(controller: controller, onSubmit: onSubmit);
     }
@@ -408,6 +414,73 @@ class _FreeField extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Drag-to-reorder input for `DiagnosticAnswerMode.sort` items. Shuffles on
+/// entry; a shuffle that already matches the solution is re-rolled so the
+/// item can't be answered by leaving it alone (diagnostic usability rework
+/// §4.8).
+class _SortFields extends StatefulWidget {
+  final List<String> items;
+  final TextEditingController controller;
+
+  const _SortFields({required this.items, required this.controller});
+
+  @override
+  State<_SortFields> createState() => _SortFieldsState();
+}
+
+class _SortFieldsState extends State<_SortFields> {
+  late List<String> _order;
+
+  @override
+  void initState() {
+    super.initState();
+    _order = List.of(widget.items);
+    if (_order.length > 1) {
+      final solution = _order.join(',');
+      do {
+        _order.shuffle();
+      } while (_order.join(',') == solution);
+    }
+    _sync();
+  }
+
+  void _sync() => widget.controller.text = _order.join(', ');
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 320),
+      child: ReorderableListView(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        onReorder: (oldIndex, newIndex) {
+          setState(() {
+            if (newIndex > oldIndex) newIndex -= 1;
+            final item = _order.removeAt(oldIndex);
+            _order.insert(newIndex, item);
+            _sync();
+          });
+        },
+        children: [
+          for (final value in _order)
+            Card(
+              key: ValueKey(value),
+              margin: const EdgeInsets.symmetric(vertical: 4),
+              child: ListTile(
+                leading: const Icon(Icons.drag_handle),
+                title: Text(
+                  value,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

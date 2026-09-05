@@ -36,6 +36,8 @@ void main() {
         return pairs.join('; ');
       case DiagnosticAnswerMode.choice:
         return question.correctAnswer.trim();
+      case DiagnosticAnswerMode.sort:
+        return AnswerGrading.sortItems(question).join(', ');
       case DiagnosticAnswerMode.freeText:
         final expected = spec?.expectedNumbers;
         if (expected != null && expected.isNotEmpty) {

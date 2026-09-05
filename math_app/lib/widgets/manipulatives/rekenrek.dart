@@ -142,11 +142,15 @@ class _RekenrekFlashWidgetState extends State<RekenrekFlashWidget> {
           style: const TextStyle(fontSize: 64, fontWeight: FontWeight.bold),
         );
       case _FlashStage.flash:
-        return RekenrekWidget(
-            topLeft: widget.topLeft, bottomLeft: widget.bottomLeft);
       case _FlashStage.hidden:
+        // Same AnimatedOpacity instance across both stages (only the
+        // target `opacity` flips) so Flutter keeps the same element and
+        // runs didUpdateWidget — which is what actually starts the 1->0
+        // interpolation. Returning a *new* widget type per stage here
+        // would unmount/remount on the transition, so the animation
+        // would never play (it would just snap straight to the target).
         return AnimatedOpacity(
-          opacity: 0,
+          opacity: _stage == _FlashStage.hidden ? 0 : 1,
           duration: _fadeDuration,
           child: RekenrekWidget(
               topLeft: widget.topLeft, bottomLeft: widget.bottomLeft),

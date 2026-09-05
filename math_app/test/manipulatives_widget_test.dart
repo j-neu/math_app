@@ -79,6 +79,18 @@ void main() {
       tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity)).opacity,
       0,
     );
+    // The fade must actually interpolate rather than jump straight to 0:
+    // partway through the 200 ms fade the rendered opacity (the live
+    // animation value inside AnimatedOpacity's FadeTransition, not the
+    // target) should sit strictly between the two endpoints.
+    await tester.pump(const Duration(milliseconds: 100));
+    final midFade = tester
+        .widget<FadeTransition>(find.byType(FadeTransition))
+        .opacity
+        .value;
+    expect(midFade, greaterThan(0));
+    expect(midFade, lessThan(1));
+    await tester.pump(const Duration(milliseconds: 100));
     expect(tester.takeException(), isNull);
   });
 

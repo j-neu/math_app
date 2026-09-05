@@ -123,25 +123,15 @@ class _SequenceGapWidgetState extends State<SequenceGapWidget> {
       }
     }
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Wrap(
-          alignment: WrapAlignment.center,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: 4,
-          runSpacing: 8,
-          children: children,
-        ),
-        if (widget.problem.promptDe.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          Text(
-            widget.problem.promptDe,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-        ],
-      ],
+    // The instruction renders ONCE, in PracticeScreen's prompt card above the
+    // template (§3a 2026-09-05: a duplicated caption under the sequence was
+    // confirmed redundant clutter for a 7-year-old). No copy here.
+    return Wrap(
+      alignment: WrapAlignment.center,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 4,
+      runSpacing: 8,
+      children: children,
     );
   }
 }

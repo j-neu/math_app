@@ -160,25 +160,12 @@ class _EquationGapWidgetState extends State<EquationGapWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Wrap(
-          alignment: WrapAlignment.center,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: 2,
-          runSpacing: 8,
-          children: _equationParts(),
-        ),
-        if (widget.problem.promptDe.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          Text(
-            widget.problem.promptDe,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-        ],
-      ],
+    return Wrap(
+      alignment: WrapAlignment.center,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 2,
+      runSpacing: 8,
+      children: _equationParts(),
     );
   }
 }

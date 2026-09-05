@@ -458,13 +458,28 @@ class _PracticeScreenState extends State<PracticeScreen> {
       case PracticeState.correct:
         return _submitButton(true, 'Weiter', _advance);
       case PracticeState.incorrect:
+        // The retry is the emphasised action; "Weiter" (skip past the
+        // recorded wrong attempt without fixing) stays available but visually
+        // secondary — two equal primary buttons after an error read as
+        // ambiguous to a 7-year-old (§3a 2026-09-05).
         return Row(
           children: [
             Expanded(
               child: _submitButton(_lastValue.isNotEmpty, 'Nochmal', _submit),
             ),
-            const SizedBox(width: 12),
-            Expanded(child: _submitButton(true, 'Weiter', _advance)),
+            const SizedBox(width: 8),
+            Expanded(
+              child: SizedBox(
+                height: 56,
+                child: TextButton(
+                  onPressed: _advance,
+                  child: const Text(
+                    'Weiter',
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+            ),
           ],
         );
       default:

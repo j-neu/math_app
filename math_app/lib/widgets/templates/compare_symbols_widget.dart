@@ -120,14 +120,6 @@ class _CompareSymbolsWidgetState extends State<CompareSymbolsWidget> {
             _operatorButton('='),
           ],
         ),
-        if (widget.problem.promptDe.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          Text(
-            widget.problem.promptDe,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-        ],
       ],
     );
   }

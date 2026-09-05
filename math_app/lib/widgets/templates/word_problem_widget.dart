@@ -5,8 +5,10 @@ import 'answer_pad.dart';
 
 /// Symbolic template widget for `word_problem` (P2 plan §5 rule 16).
 ///
-/// Renders the finished German story sentence from `problem.promptDe` in a
-/// readable card and reports the typed result number via [onValueChanged].
+/// Collects the typed result number for the finished German story sentence.
+/// The story itself renders ONCE, in PracticeScreen's prompt card above the
+/// template (§3a 2026-09-05: a second copy inside this widget was confirmed
+/// redundant); [onValueChanged] is reported on every edit.
 class WordProblemWidget extends StatefulWidget {
   final Problem problem;
   final ValueChanged<String> onValueChanged;
@@ -43,33 +45,10 @@ class _WordProblemWidgetState extends State<WordProblemWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Card(
-          elevation: 0,
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Text(
-              widget.problem.promptDe,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w600,
-                height: 1.5,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        BigAnswerField(
-          controller: _controller,
-          onChanged: widget.onValueChanged,
-          hintText: '?',
-        ),
-      ],
+    return BigAnswerField(
+      controller: _controller,
+      onChanged: widget.onValueChanged,
+      hintText: '?',
     );
   }
 }

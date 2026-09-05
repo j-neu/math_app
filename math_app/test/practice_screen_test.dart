@@ -258,9 +258,9 @@ void main() {
     expect(find.text('Controller-Test'), findsOneWidget);
     expect(find.text('Aufgabe 1 von 8'), findsOneWidget);
     expect(find.text('Rechne'), findsOneWidget);
-    expect(find.text('Test-Prompt.'), findsWidgets,
-        reason: 'the prompt appears in the screen card (and inside the '
-            'equation widget)');
+    expect(find.text('Test-Prompt.'), findsOneWidget,
+        reason: 'the prompt appears exactly once, in the screen card '
+            '(never duplicated inside the template — §3a 2026-09-05)');
     expect(find.byKey(const ValueKey('progress-dot-0')), findsOneWidget);
     expect(find.byKey(const ValueKey('progress-dot-7')), findsOneWidget);
     final submit = find.widgetWithText(FilledButton, 'Weiter');
@@ -333,6 +333,14 @@ void main() {
     expect(find.text('Zähle noch einmal langsam.'), findsOneWidget);
     expect(tester.widget<TextField>(find.byType(TextField)).controller!.text,
         wrong, reason: 'the input stays for retry');
+
+    // After a wrong answer the retry is the emphasised action: Nochmal is the
+    // filled (primary) button, "Weiter" (skip past the recorded error) is a
+    // plain TextButton (§3a 2026-09-05).
+    expect(find.widgetWithText(FilledButton, 'Nochmal'), findsOneWidget);
+    expect(find.widgetWithText(FilledButton, 'Weiter'), findsNothing,
+        reason: '"Weiter" after an error must not look equal to "Nochmal"');
+    expect(find.widgetWithText(TextButton, 'Weiter'), findsOneWidget);
 
     // Retry with the correct answer: correct feedback, but the attempt for
     // this problem_index is NOT re-recorded.

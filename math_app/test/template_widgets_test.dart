@@ -135,7 +135,7 @@ void main() {
   });
 
   group('EquationSolveWidget', () {
-    testWidgets('renders equation and prompt, reports the typed result',
+    testWidgets('renders the equation and reports the typed result',
         (tester) async {
       final values = <String>[];
       final problem = _problem(
@@ -157,7 +157,9 @@ void main() {
       );
 
       expect(find.text('4 + 3 = ?'), findsOneWidget);
-      expect(find.text('Rechne im Kopf.'), findsOneWidget);
+      expect(find.text('Rechne im Kopf.'), findsNothing,
+          reason: 'the prompt is owned by PracticeScreen\'s card, never '
+              'duplicated inside the template (§3a 2026-09-05)');
 
       await tester.enterText(find.byType(TextField), '7');
       expect(values.last, '7');
@@ -629,7 +631,7 @@ void main() {
   });
 
   group('WordProblemWidget', () {
-    testWidgets('renders the story sentence and reports the typed result',
+    testWidgets('collects the typed result; the story stays in the screen card',
         (tester) async {
       final values = <String>[];
       const promptDe =
@@ -651,7 +653,9 @@ void main() {
         WordProblemWidget(problem: problem, onValueChanged: values.add),
       );
 
-      expect(find.text(promptDe), findsOneWidget);
+      expect(find.text(promptDe), findsNothing,
+          reason: 'the story is owned by PracticeScreen\'s card, never '
+              'duplicated inside the template (§3a 2026-09-05)');
       await tester.enterText(find.byType(TextField), '5');
       expect(values.last, '5');
     });

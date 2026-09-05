@@ -75,14 +75,6 @@ class _EquationSolveWidgetState extends State<EquationSolveWidget> {
           textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 38, fontWeight: FontWeight.bold),
         ),
-        if (widget.problem.promptDe.isNotEmpty) ...[
-          const SizedBox(height: 8),
-          Text(
-            widget.problem.promptDe,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-        ],
         const SizedBox(height: 16),
         BigAnswerField(
           controller: _controller,

@@ -146,14 +146,6 @@ class _StrategyChoiceWidgetState extends State<StrategyChoiceWidget> {
           const SizedBox(height: 16),
           ..._strategies.map(_strategyButton),
         ],
-        if (widget.problem.promptDe.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          Text(
-            widget.problem.promptDe,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-        ],
       ],
     );
   }

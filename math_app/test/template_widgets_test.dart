@@ -1337,159 +1337,151 @@ void main() {
           (rect.width - 32) * (value - lo) / (hi - lo);
     }
 
-    testWidgets('renders the line and reports the tapped run in order',
-        (tester) async {
+    Problem downProblem() => _problem(
+          template: 'numberline_step',
+          display: {
+            'range': [0, 20],
+            'start': 15,
+            'target': 12,
+            'step': 1,
+            'direction': 'down',
+          },
+          expected: ['14', '13', '12'],
+        );
+
+    Problem upProblem() => _problem(
+          template: 'numberline_step',
+          display: {
+            'range': [0, 20],
+            'start': 10,
+            'target': 13,
+            'step': 1,
+            'direction': 'up',
+          },
+          expected: ['11', '12', '13'],
+        );
+
+    testWidgets(
+        'shows the start number and steps one number per tap anywhere in the '
+        'counting direction', (tester) async {
       final values = <String>[];
       await _pumpApp(
         tester,
-        NumberlineStepWidget(
-          problem: _problem(
-            template: 'numberline_step',
-            display: {
-              'range': [0, 20],
-              'start': 10,
-              'target': 13,
-              'step': 1,
-              'direction': 'up',
-            },
-            expected: ['11', '12', '13'],
-          ),
-          onValueChanged: values.add,
-        ),
+        NumberlineStepWidget(problem: downProblem(), onValueChanged: values.add),
+      );
+
+      expect(values, isEmpty, reason: 'no step yet');
+      // The child sees where they stand before any tap.
+      expect(
+        find.text('15'),
+        findsOneWidget,
+        reason: 'large read-out shows the start number',
       );
 
       final line = tester.getRect(
         find.byKey(const ValueKey('numberline-step-line')),
       );
-      expect(values, isEmpty, reason: 'no tick tapped yet');
+      // Any tap LEFT of the current number (15) counts as one step back —
+      // far from the exact 14 tick, to prove no precision is needed.
+      await tester.tapAt(Offset(line.left + 4, line.center.dy));
+      await tester.pump();
+      expect(values.last, '14');
+      expect(find.text('14'), findsOneWidget, reason: 'read-out steps down');
 
-      await tester.tapAt(Offset(dxForValue(tester, 11, 0, 20), line.center.dy));
+      await tester.tapAt(Offset(line.left + 4, line.center.dy));
       await tester.pump();
-      expect(values.last, '11');
-      await tester.tapAt(Offset(dxForValue(tester, 12, 0, 20), line.center.dy));
+      expect(values.last, '14,13');
+      expect(find.text('13'), findsOneWidget);
+
+      await tester.tapAt(Offset(line.left + 4, line.center.dy));
       await tester.pump();
-      expect(values.last, '11,12');
-      await tester.tapAt(Offset(dxForValue(tester, 13, 0, 20), line.center.dy));
-      await tester.pump();
-      expect(values.last, '11,12,13', reason: 'full run once the target is hit');
+      expect(values.last, '14,13,12', reason: 'full run once the target is hit');
+      expect(find.text('12'), findsOneWidget);
     });
 
-    testWidgets('only the next required tick registers; wrong taps are ignored',
-        (tester) async {
+    testWidgets(
+        'wrong-direction taps do not advance and show a non-punitive cue; a '
+        'tap on the current number is a no-op', (tester) async {
       final values = <String>[];
       await _pumpApp(
         tester,
-        NumberlineStepWidget(
-          problem: _problem(
-            template: 'numberline_step',
-            display: {
-              'range': [0, 20],
-              'start': 10,
-              'target': 13,
-              'step': 1,
-              'direction': 'up',
-            },
-            expected: ['11', '12', '13'],
-          ),
-          onValueChanged: values.add,
-        ),
+        NumberlineStepWidget(problem: downProblem(), onValueChanged: values.add),
       );
 
       final line = tester.getRect(
         find.byKey(const ValueKey('numberline-step-line')),
       );
+      // Tapping to the RIGHT of the current number (toward 20) is backward-
+      // counting in the wrong direction.
+      await tester.tapAt(Offset(line.right - 4, line.center.dy));
+      await tester.pump();
+      expect(values, isEmpty, reason: 'wrong direction never advances');
+      expect(
+        find.text('Tippe weiter links.'),
+        findsOneWidget,
+        reason: 'immediate cue names the correct side',
+      );
+
+      // Tapping the number the child stands on is not an error — no cue.
       await tester.tapAt(Offset(dxForValue(tester, 15, 0, 20), line.center.dy));
       await tester.pump();
-      expect(values, isEmpty, reason: 'tapping ahead of the run is ignored');
-      await tester.tapAt(Offset(dxForValue(tester, 13, 0, 20), line.center.dy));
-      await tester.pump();
-      expect(values, isEmpty, reason: 'tapping the target first is ignored');
+      expect(values, isEmpty);
+      expect(find.text('Tippe weiter links.'), findsOneWidget,
+          reason: 'the earlier cue stays until the child steps correctly');
 
-      await tester.tapAt(Offset(dxForValue(tester, 11, 0, 20), line.center.dy));
-      await tester.pump();
-      await tester.tapAt(Offset(dxForValue(tester, 11, 0, 20), line.center.dy));
-      await tester.pump();
-      expect(values.last, '11', reason: 're-tapping the same tick does nothing');
-      await tester.tapAt(Offset(dxForValue(tester, 13, 0, 20), line.center.dy));
-      await tester.pump();
-      expect(values.last, '11', reason: 'skipping 12 keeps the run at 11');
-    });
-
-    testWidgets('direction down reports the descending run', (tester) async {
-      final values = <String>[];
-      await _pumpApp(
-        tester,
-        NumberlineStepWidget(
-          problem: _problem(
-            template: 'numberline_step',
-            display: {
-              'range': [0, 20],
-              'start': 15,
-              'target': 12,
-              'step': 1,
-              'direction': 'down',
-            },
-            expected: ['14', '13', '12'],
-          ),
-          onValueChanged: values.add,
-        ),
-      );
-
-      final line = tester.getRect(
-        find.byKey(const ValueKey('numberline-step-line')),
-      );
+      // A step in the right direction clears the cue.
       await tester.tapAt(Offset(dxForValue(tester, 14, 0, 20), line.center.dy));
       await tester.pump();
-      await tester.tapAt(Offset(dxForValue(tester, 13, 0, 20), line.center.dy));
-      await tester.pump();
-      await tester.tapAt(Offset(dxForValue(tester, 12, 0, 20), line.center.dy));
-      await tester.pump();
-      expect(values.last, '14,13,12');
+      expect(values.last, '14');
+      expect(find.text('Tippe weiter links.'), findsNothing);
     });
 
-    testWidgets('step 2 taps every other number', (tester) async {
+    testWidgets('forward runs advance to the right with their own cue',
+        (tester) async {
       final values = <String>[];
       await _pumpApp(
         tester,
-        NumberlineStepWidget(
-          problem: _problem(
-            template: 'numberline_step',
-            display: {
-              'range': [0, 20],
-              'start': 6,
-              'target': 12,
-              'step': 2,
-              'direction': 'up',
-            },
-            expected: ['8', '10', '12'],
-          ),
-          onValueChanged: values.add,
-        ),
+        NumberlineStepWidget(problem: upProblem(), onValueChanged: values.add),
       );
 
       final line = tester.getRect(
         find.byKey(const ValueKey('numberline-step-line')),
       );
-      for (final v in [8, 10, 12]) {
-        await tester.tapAt(Offset(dxForValue(tester, v, 0, 20), line.center.dy));
+      await tester.tapAt(Offset(line.left + 4, line.center.dy));
+      await tester.pump();
+      expect(values, isEmpty, reason: 'tapping left is wrong for a forward run');
+      expect(find.text('Tippe weiter rechts.'), findsOneWidget);
+
+      await tester.tapAt(Offset(line.right - 4, line.center.dy));
+      await tester.pump();
+      expect(values.last, '11');
+      expect(find.text('Tippe weiter rechts.'), findsNothing);
+    });
+
+    testWidgets('the run never overshoots: taps after the target do nothing',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        NumberlineStepWidget(problem: downProblem(), onValueChanged: values.add),
+      );
+      final line = tester.getRect(
+        find.byKey(const ValueKey('numberline-step-line')),
+      );
+      for (var i = 0; i < 3; i++) {
+        await tester.tapAt(Offset(line.left + 4, line.center.dy));
         await tester.pump();
       }
-      expect(values.last, '8,10,12');
+      expect(values.last, '14,13,12');
+      await tester.tapAt(Offset(line.left + 4, line.center.dy));
+      await tester.pump();
+      expect(values.last, '14,13,12', reason: 'extra taps are ignored');
+      expect(find.text('12'), findsOneWidget, reason: 'read-out stays on target');
     });
 
     testWidgets('a new problem resets the run and reports ""', (tester) async {
       final values = <String>[];
-      final first = _problem(
-        template: 'numberline_step',
-        display: {
-          'range': [0, 20],
-          'start': 10,
-          'target': 13,
-          'step': 1,
-          'direction': 'up',
-        },
-        expected: ['11', '12', '13'],
-      );
+      final first = downProblem();
       final second = _problem(
         template: 'numberline_step',
         display: {
@@ -1508,17 +1500,16 @@ void main() {
       final lineRect = tester.getRect(
         find.byKey(const ValueKey('numberline-step-line')),
       );
-      await tester.tapAt(
-        Offset(dxForValue(tester, 11, 0, 20), lineRect.center.dy),
-      );
+      await tester.tapAt(Offset(lineRect.left + 4, lineRect.center.dy));
       await tester.pump();
-      expect(values.last, '11');
+      expect(values.last, '14');
 
       await _pumpApp(
         tester,
         NumberlineStepWidget(problem: second, onValueChanged: values.add),
       );
       expect(values.last, '');
+      expect(find.text('5'), findsOneWidget, reason: 'new start shown');
     });
   });
 

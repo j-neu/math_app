@@ -300,6 +300,68 @@ void main() {
     await tester.pump(const Duration(seconds: 2)); // flush the auto-advance timer
   });
 
+  testWidgets(
+      'numberline_step: "Weiter" stays disabled until the full run is tapped — '
+      'a partial run can never be submitted (§3a 2026-09-06)', (tester) async {
+    final backend = _Backend();
+    final service = LearningPathService(client: backend.client);
+    final spec = _spec(1, 'numberline_step', {
+      'range': [0, 20],
+      'start_range': [15, 15],
+      'target': 12,
+      'step': 1,
+      'direction': 'down',
+    });
+    final controller = PracticeController(
+      token: 'tok',
+      spec: spec,
+      level: 1,
+      service: service,
+    );
+    await _pumpScreen(tester, controller, spec, level: 1);
+
+    expect(find.text('Test-Prompt.'), findsOneWidget);
+    expect(find.text('15'), findsOneWidget,
+        reason: 'the tap-line shows the start number in its read-out');
+    final submit = find.widgetWithText(FilledButton, 'Weiter');
+    expect(tester.widget<FilledButton>(submit).onPressed, isNull,
+        reason: 'nothing tapped yet — submit disabled');
+
+    final line = tester.getRect(
+      find.byKey(const ValueKey('numberline-step-line')),
+    );
+    // Step 1 of 3 (14). The run is partial: Weiter must stay disabled.
+    await tester.tapAt(Offset(line.left + 4, line.center.dy));
+    await tester.pump();
+    expect(find.text('14'), findsOneWidget);
+    expect(tester.widget<FilledButton>(submit).onPressed, isNull,
+        reason: 'a partial run (14) is not an answer — no premature submit');
+
+    // Step 2 of 3 (13). Still partial.
+    await tester.tapAt(Offset(line.left + 4, line.center.dy));
+    await tester.pump();
+    expect(find.text('13'), findsOneWidget);
+    expect(tester.widget<FilledButton>(submit).onPressed, isNull);
+
+    // Step 3 of 3: the run reaches the target → the button unlocks.
+    await tester.tapAt(Offset(line.left + 4, line.center.dy));
+    await tester.pump();
+    expect(find.text('12'), findsOneWidget);
+    expect(tester.widget<FilledButton>(submit).onPressed, isNotNull,
+        reason: 'only the full run 14,13,12 is submittable');
+
+    await tester.tap(submit);
+    await tester.pump();
+    await tester.pump();
+    expect(find.text(_praise[0]), findsOneWidget,
+        reason: 'a completed tap-line run is correct by construction');
+    expect(backend.receivedAttempts, hasLength(1));
+    expect(backend.receivedAttempts.single['was_correct'], isTrue);
+    expect(backend.receivedAttempts.single['answer'], '14,13,12');
+
+    await tester.pump(const Duration(seconds: 2)); // flush the auto-advance timer
+  });
+
   testWidgets('wrong answer: hint shown, retry records no second attempt, '
       '"Weiter" advances', (tester) async {
     final backend = _Backend();

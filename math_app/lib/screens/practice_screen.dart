@@ -138,6 +138,22 @@ class _PracticeScreenState extends State<PracticeScreen> {
     setState(() {});
   }
 
+  /// Whether the current value is a submittable answer. Every template
+  /// reports a value as soon as input exists; the submit button follows.
+  /// The tap-line (`numberline_step`) is the exception (§3a 2026-09-06): its
+  /// steps are correct by construction, so a partial run is not an answer —
+  /// submitting mid-run would record a wrong attempt and let a single lucky
+  /// tick skip the whole counting task. The full run must be tapped first.
+  bool get _canSubmit {
+    if (_lastValue.isEmpty) return false;
+    final problem = _controller.currentProblem;
+    if (problem == null) return false;
+    if (problem.template == 'numberline_step') {
+      return _lastValue == problem.expected.join(',');
+    }
+    return true;
+  }
+
   Future<void> _submit() async {
     if (_lastValue.isEmpty) return;
     await _controller.submit(_lastValue);
@@ -451,7 +467,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
       case PracticeState.ready:
       case PracticeState.submitting:
         return _submitButton(
-          _lastValue.isNotEmpty && state == PracticeState.ready,
+          _canSubmit && state == PracticeState.ready,
           'Weiter',
           _submit,
         );

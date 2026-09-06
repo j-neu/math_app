@@ -140,15 +140,24 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   /// Whether the current value is a submittable answer. Every template
   /// reports a value as soon as input exists; the submit button follows.
-  /// The tap-line (`numberline_step`) is the exception (§3a 2026-09-06): its
-  /// steps are correct by construction, so a partial run is not an answer —
-  /// submitting mid-run would record a wrong attempt and let a single lucky
-  /// tick skip the whole counting task. The full run must be tapped first.
+  /// Two templates are exceptions where the manipulative's partial state is
+  /// not an answer, so submission is gated on the canonical full state:
+  ///  * `numberline_step` (§3a 2026-09-06): its steps are correct by
+  ///    construction, so a partial run must never be submitted — a single
+  ///    lucky tick would otherwise skip the whole counting task.
+  ///  * `bundle_sticks` (§3a 2026-09-06): every loose-stick tap creates a full
+  ///    Zehner bundle, so *any* live Z/E split with `10*Z + E == count` is
+  ///    arithmetically true and would be graded correct. Without a gate, one
+  ///    tap per problem records `was_correct` and the level is "mastered"
+  ///    without the child ever bundling all tens — the skill the level exists
+  ///    to exercise. The canonical fully-bundled split (all possible Zehner
+  ///    formed, leftovers < 10) must be reached first.
   bool get _canSubmit {
     if (_lastValue.isEmpty) return false;
     final problem = _controller.currentProblem;
     if (problem == null) return false;
-    if (problem.template == 'numberline_step') {
+    if (problem.template == 'numberline_step' ||
+        problem.template == 'bundle_sticks') {
       return _lastValue == problem.expected.join(',');
     }
     return true;

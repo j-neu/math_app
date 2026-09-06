@@ -362,6 +362,92 @@ void main() {
     await tester.pump(const Duration(seconds: 2)); // flush the auto-advance timer
   });
 
+  testWidgets(
+      'bundle_sticks: one partial bundle is NOT submittable — the full '
+      'canonical Z/E split must be reached before "Weiter" unlocks '
+      '(§3a 2026-09-06)', (tester) async {
+    final backend = _Backend();
+    final service = LearningPathService(client: backend.client);
+    final spec = _spec(1, 'bundle_sticks', {
+      'count_range': [15, 15],
+    });
+    final controller = PracticeController(
+      token: 'tok',
+      spec: spec,
+      level: 1,
+      service: service,
+    );
+    await _pumpScreen(tester, controller, spec, level: 1);
+
+    expect(find.text('Test-Prompt.'), findsOneWidget);
+    final submit = find.widgetWithText(FilledButton, 'Weiter');
+    expect(tester.widget<FilledButton>(submit).onPressed, isNull,
+        reason: 'nothing bundled yet — submit disabled');
+
+    // First bundle: 15 sticks → 1 Zehner, 5 Einer is the CANONICAL split, so
+    // one tap does complete this problem. Tap a loose stick to reach it.
+    await tester.tap(find.byKey(const ValueKey('stick-0')));
+    await tester.pump();
+    expect(find.text('1 Zehner, 5 Einer'), findsOneWidget);
+    expect(tester.widget<FilledButton>(submit).onPressed, isNotNull,
+        reason: 'the canonical split (1 Zehner, 5 Einer) is the full answer');
+
+    await tester.tap(submit);
+    await tester.pump();
+    await tester.pump();
+    expect(backend.receivedAttempts, hasLength(1));
+    expect(backend.receivedAttempts.single['was_correct'], isTrue);
+    expect(backend.receivedAttempts.single['answer'], '1 Zehner, 5 Einer');
+
+    await tester.pump(const Duration(seconds: 2)); // flush the auto-advance timer
+  });
+
+  testWidgets(
+      'bundle_sticks: 25 sticks need two bundles — a single Zehner bundle is '
+      'a partial state and must NOT be submittable (§3a 2026-09-06)',
+      (tester) async {
+    final backend = _Backend();
+    final service = LearningPathService(client: backend.client);
+    final spec = _spec(1, 'bundle_sticks', {
+      'count_range': [25, 25],
+    });
+    final controller = PracticeController(
+      token: 'tok',
+      spec: spec,
+      level: 1,
+      service: service,
+    );
+    await _pumpScreen(tester, controller, spec, level: 1);
+
+    final submit = find.widgetWithText(FilledButton, 'Weiter');
+    expect(tester.widget<FilledButton>(submit).onPressed, isNull);
+
+    // One bundle of ten from 25 → "1 Zehner, 15 Einer": arithmetically true
+    // (10+15 == 25) but NOT the canonical split. Must stay gated — this was
+    // the live finding: a single tap recorded was_correct on the real level.
+    await tester.tap(find.byKey(const ValueKey('stick-0')));
+    await tester.pump();
+    expect(find.text('1 Zehner, 15 Einer'), findsOneWidget);
+    expect(tester.widget<FilledButton>(submit).onPressed, isNull,
+        reason: 'a partial bundle (1 Zehner, 15 Einer) is not the answer');
+
+    // Second bundle → canonical "2 Zehner, 5 Einer": now submittable.
+    await tester.tap(find.byKey(const ValueKey('stick-0')));
+    await tester.pump();
+    expect(find.text('2 Zehner, 5 Einer'), findsOneWidget);
+    expect(tester.widget<FilledButton>(submit).onPressed, isNotNull,
+        reason: 'only the canonical fully-bundled split is submittable');
+
+    await tester.tap(submit);
+    await tester.pump();
+    await tester.pump();
+    expect(backend.receivedAttempts, hasLength(1));
+    expect(backend.receivedAttempts.single['was_correct'], isTrue);
+    expect(backend.receivedAttempts.single['answer'], '2 Zehner, 5 Einer');
+
+    await tester.pump(const Duration(seconds: 2)); // flush the auto-advance timer
+  });
+
   testWidgets('wrong answer: hint shown, retry records no second attempt, '
       '"Weiter" advances', (tester) async {
     final backend = _Backend();

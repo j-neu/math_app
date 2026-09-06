@@ -151,8 +151,12 @@ cd backend && deno check supabase/functions/**/*.ts   # also: deno task check
 # NULL) are unchanged. `backend/deno.json` (+ deno.lock) added so the gate is a
 # canonical, reproducible command. History: d23d0ad recorded this gate clean on
 # 2026-09-01; Deno 2.9.6 / TypeScript 6.0.3 then flagged 4 errors (two genuine
-# TS lib drift, two loose casts). Deploy of the two fixed edge functions is
-# Jakob's step (deployed binaries still ship the old code until redeployed).
+# TS lib drift, two loose casts). Deploy status (verified 2026-09-05): the last
+# code change touching these functions is `611e41d` (2026-09-04 20:33 UTC); all
+# 9 edge functions were batch-deployed 2026-09-04 20:44 UTC (`supabase
+# functions list`), so the live binaries include the fixes. The older note that
+# "deploy of the two fixed edge functions is Jakob's step (deployed binaries
+# still ship the old code until redeployed)" is historical.
 
 # Clean-room integrity
 python scripts/check_provenance.py --all

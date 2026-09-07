@@ -12,6 +12,8 @@ One stop for every `.md` file in this repo. Read this first; jump from here.
 
 ## ⭐ Start here
 
+- [docs/clean-room/v2/10-deckungsmatrix.md](docs/clean-room/v2/10-deckungsmatrix.md) — 🟢 **DAS WURZELARTEFAKT.** 20 Stränge × ZR10/ZR20/ZR100 × enaktiv/ikonisch/symbolisch, 152 lebende Zellen mit Quelle und Fehlerbild, 28 begründete Ausnahmen. Von Jakob am 2026-09-07 freigegeben (Gate 1). **Bei jeder inhaltlichen Frage gilt sie.**
+- [docs/clean-room/v2/README.md](docs/clean-room/v2/README.md) — 🟢 Was im v2-Baum liegt, welche Gates laufen und in welcher Reihenfolge.
 - [docs/superpowers/specs/2026-09-07-diagnostik-v2-design.md](docs/superpowers/specs/2026-09-07-diagnostik-v2-design.md) — 🟢 **DER AKTUELLE PLAN.** Neuaufbau von Diagnostik und Übungsinhalten: Deckungsmatrix als Wurzelartefakt, Itemregeln, Rückkehr der handgebauten Übungs-Engine, Gates, Reihenfolge.
 - [docs/clean-room/00-v1-assessment.md](docs/clean-room/00-v1-assessment.md) — 🟢 Warum v1 verworfen wurde. Die Befunde, gegen die CSVs und die Konstruktkarte verifiziert.
 - [STATUS.md](STATUS.md) — 🟢 Was läuft, was steht, was abgelöst ist. Der Kopfstatus.
@@ -75,8 +77,10 @@ Nicht löschen (sie sind die Prüfspur), aber nichts davon fortschreiben und nic
 
 Bei Widersprüchen gilt in dieser Reihenfolge:
 
-**v2-Entwurf** > `docs/clean-room/00-v1-assessment.md` > `STATUS.md` > `rewrite.md` (rechtlich) > `phase1_school_platform.md` (Infrastruktur) > `TERMINOLOGY.md` > Rest.
+**Deckungsmatrix** > **v2-Entwurf** > `docs/clean-room/00-v1-assessment.md` > `STATUS.md` > `rewrite.md` (rechtlich) > `phase1_school_platform.md` (Infrastruktur) > `TERMINOLOGY.md` > Rest.
 
-Sobald die Deckungsmatrix (`docs/clean-room/v2/10-deckungsmatrix.md`) freigegeben ist, steht sie an der
-Spitze dieser Liste — für alle inhaltlichen Fragen ist dann sie die Quelle der Wahrheit, und der Entwurf
-beschreibt nur noch, wie sie zustande kam.
+Die Deckungsmatrix (`docs/clean-room/v2/10-deckungsmatrix.md`) ist seit ihrer Freigabe am 2026-09-07 die
+Quelle der Wahrheit für **alle inhaltlichen Fragen**: welche Konstrukte es gibt, in welchen Zahlenräumen
+und Repräsentationen sie geprüft werden und welches Fehlerbild dahintersteht. Der v2-Entwurf beschreibt
+nur noch, wie sie zustande kam und wie sie in Items, Übungen und Laufzeit übersetzt wird. Widerspricht
+ein späteres Artefakt der Matrix, ist das Artefakt falsch — nicht die Matrix.

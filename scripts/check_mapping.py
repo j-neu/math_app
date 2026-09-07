@@ -39,7 +39,7 @@ def load_skill_ids():
 def load_item_ids():
     ids = set()
     for path in ITEMS_DIR.glob("*.md"):
-        if path.name == "TEMPLATE.md":
+        if path.name in ("TEMPLATE.md", "README.md"):
             continue
         ids.add(path.stem)
     return ids

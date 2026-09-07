@@ -104,14 +104,14 @@ def skill_id_of_file(path: Path) -> str:
 
 
 def item_files(items_dir: Path) -> list[Path]:
-    """Item .md files, excluding TEMPLATE.md and names starting with '_'."""
+    """Item .md files, excluding TEMPLATE.md, README.md and names starting with '_'."""
     if not items_dir.is_dir():
         return []
     files = []
     for path in sorted(items_dir.iterdir()):
         if path.suffix.lower() != ".md":
             continue
-        if path.name == "TEMPLATE.md" or path.name.startswith("_"):
+        if path.name in ("TEMPLATE.md", "README.md") or path.name.startswith("_"):
             continue
         files.append(path)
     return files
@@ -132,10 +132,17 @@ def skill_files(skills_dir: Path) -> list[Path]:
 
 
 def split_by_type(rows: list[list[str]]) -> tuple[list[list[str]], list[list[str]]]:
-    """Split provenance rows into (skill rows, other rows)."""
+    """Split provenance rows into (skill rows, item rows).
+
+    Rows of any other type (v2 artefacts such as the Deckungsmatrix) are audit
+    entries without a file in items/ or skills/ and belong to neither list.
+    """
     skill_rows = [row for row in rows if len(row) > 1 and row[1] == "skill"]
-    other_rows = [row for row in rows if row not in skill_rows]
-    return skill_rows, other_rows
+    item_rows = [
+        row for row in rows
+        if len(row) > 1 and (row[1] == "item" or row[1].startswith("item-"))
+    ]
+    return skill_rows, item_rows
 
 
 def read_provenance(prov_path: Path) -> list[list[str]]:

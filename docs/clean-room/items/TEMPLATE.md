@@ -1,5 +1,8 @@
 # Item {Item ID}
 
+> ⛔ **VERWORFEN am 2026-09-07 — nur noch Protokoll, keine Arbeitsgrundlage.**
+> Dieses Artefakt gehört zum Clean-Room-Durchlauf v1 (`cleanroom-v1`), dessen Inhalt fachlich nicht trägt. Bewertung: `docs/clean-room/00-v1-assessment.md`. Aktuelle Grundlage: `docs/superpowers/specs/2026-09-07-diagnostik-v2-design.md` und, sobald vorhanden, `docs/clean-room/v2/10-deckungsmatrix.md`. Nichts hier wird fortgeschrieben; nichts rechnet mehr darauf.
+
 > One file per item. Copy this template, fill every field, and add a matching row to `docs/clean-room/provenance.csv` before the item ships. Per tasks.md rule 2, no item is "done" without its provenance file.
 
 **Item ID:** {Item ID, e.g. A1-04 — must match the filename stem `items/A1-04.md`}

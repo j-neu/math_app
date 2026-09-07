@@ -345,3 +345,50 @@ Jakob ruled on the four open decisions from the §3a run: **(1) strip the live `
 **Gates after all changes (final):** `flutter test` **499/499** · `flutter analyze` **0 errors / 336 issues** · dashboard `npx tsc --noEmit` exit 0 · `deno task check` exit 0 · provenance/independence/mapping/specs/skill-descriptions all OK (clean-room content untouched). Commits on `main`: `f9c593c` and `52b9a9d` this session (both auto-deployed); working tree clean.
 
 **Still open:** (1) the §3a physical-device smoke (no tablet) and R6.4; (2) P5 art nits, now including the loose-Stäbchen countability-at-390 visual question (screenshot archived for Jakob's vision review); (3) the unwired custom `bundling` widget shares the partial-bundle mechanic (recorded, not gated — no live spec uses it).
+
+### 2026-09-06 (decision) — Gauntlet closed — handoff to human-in-the-loop development
+
+**Decision:** the Numeris Gauntlet loop is **closed as of 2026-09-06**. This is the final gauntlet entry; no further automatic loop iterations will run. The project is back to ordinary human-in-the-loop development: every task starts from an explicit human request.
+
+**Step 1 — final verification pass, run fresh (§4 gates), not trusted from the ledger.** All gates run this session on HEAD `00b4f34` (clean tree):
+- `flutter test` (math_app) → **499/499 passed**
+- `flutter analyze` (math_app) → **0 errors / 336 issues** — the exact recorded baseline; no error-severity lines
+- dashboard `npx tsc --noEmit` → **exit 0**
+- backend `deno task check` (deno check supabase/functions/**/*.ts) → **exit 0**
+- `check_provenance.py --all` → **OK**
+- `check_item_independence.py --new diagnostic_core_v1.csv --strict` → **exit 0** (2 flags = the pre-existing A3.3-02 identical-operands adjudication, correctly keyed at item 19)
+- `check_item_independence.py --new diagnostic_deepdive_v1.csv --strict` → **exit 0** (0 flags)
+- `check_mapping.py` → **OK** (91 entries)
+- `check_specs.py` → **OK** (36 specs)
+- `check_skill_descriptions.py` → **OK**
+- `check_legal_pages.py` → **exit 1, red by design** (11 `[…]` operator-data tokens still unfilled — the standing launch veto)
+
+**Live-system re-verification (read-only, no fixture staged, no deploy):**
+- **Git:** local HEAD = `origin/main` = `00b4f34` (`docs(gauntlet): record B1.1 bundle_sticks gate fix shipped and live-verified (52b9a9d)`), working tree clean. `git diff 52b9a9d 00b4f34 -- math_app/` is empty, so the served code tree is the gate-carrying commit.
+- **`prozedia-app` production alias:** `https://prozedia-app.vercel.app` serves the newest Ready production deployment **`prozedia-673xrgcvw`** (per `vercel ls`: production environment, Ready, 51 m old at check — the auto-deploy triggered by the docs-only `00b4f34` push; direct deployment-URL fetches return the SPA shell, so bundle identity is verified via the alias). The alias's `main.dart.js` (3,319,841 B, real Dart JS) contains **both** tap-anywhere cue strings ("Tippe weiter links", "Tippe weiter rechts") → the A1.2b Stufe 1 redesign is in the served bundle. The A1.2b spec asset serves `"length": 6` and `"length": 8`, no `"length": 5` → the Zehnergrenze fix is live. Deep routes `/s/<uuid>` and `/lernen/<slug>` both **200** (catch-all rewrite intact). The B1.1/B1.2 bundle_sticks canonical-split gate shipped in `52b9a9d`; its deployment `prozedia-of8nuyxg7` was behaviourally verified live last session (partial bundle keeps "Weiter" disabled; canonical split submits `was_correct: true`), and the currently-serving bundle is built from the same `math_app/` tree (`git diff 52b9a9d 00b4f34 -- math_app/` empty).
+- **Supabase `cleanroom-v1` (service-role REST diff vs both signed CSVs):** `question_count=59`; 59 core gapless **1–59**; 32 deep-dive gapless **60–91**; A1.5-01 **retired at 900**; **0 prompt_de content mismatches**; **0 quote-wrapped rows**.
+- **Edge functions:** all 9 **ACTIVE** on `zzxqeqwffexythqzjkxr`, updated 2026-09-04 20:44 UTC (`supabase functions list` from `backend/`).
+
+**What could NOT be verified this session (stated, not shrunk):** no physical Android tablet exists at hand, so no real-finger device smoke — the standing open part of the §3a gate and of R6.4 (desktop-emulated viewports are not a substitute; this has been the recorded reason every §3a round stayed open). No teacher-dashboard credentials, so dashboard login/console flows were not re-exercised this session (their last live verification stands as recorded). No behavioural child run was staged this session *by design* — staging a fixture would be a new slice; the deployed-client behavioural claims rest on last session's live fixture runs plus this session's bundle-content + deployment-identity evidence above.
+
+**What the gauntlet produced across its three §3a child-development rounds** (each shipped to `main` and live-verified on the production alias — the loop's last confirmed output):
+1. **A1.2b Stufe 2 caption fix (2026-09-05):** duplicated instruction (prompt card + template caption) collapsed to a single render in all six affected templates; "Weiter" after a wrong answer de-emphasised to a secondary TextButton. Shipped in the Workstream-A deploy stream; live-verified 2026-09-05 at 390×844.
+2. **A1.2b Stufe 1 tap-anywhere redesign (2026-09-06):** the enaktiv Zahlenstrahl tap-line was unplayable alone (8.2 px tick spacing at 390 vs the 44 px floor, hidden start, silent wrong taps, single-tick "Weiter" bypass). Redesigned to tap-anywhere stepping in the shared `numberline_step` template: always-visible start read-out, one tap anywhere in the counting direction steps exactly one number, non-punitive direction cues, and "Weiter" unlocks only on the full run. Commit `e84f92f` → deployment `prozedia-q4knv271j`; live 8/8 run recorded exact expected runs.
+3. **B1.1/B1.2 bundle_sticks canonical-split gate (2026-09-06):** the evaluator accepted any Z/E split with `10·Z+E == count`, so one tap on a loose stick was graded fully correct and praised on the live project (recorded `was_correct: true` for "1 Zehner, 29 Einer" on count 39). `practice_screen._canSubmit` now requires the canonical fully-bundled split for `bundle_sticks`; partial bundles keep "Weiter" disabled. Commit `52b9a9d` → deployment `prozedia-of8nuyxg7`; live gate re-verified on the deployed client.
+
+**Open items — no longer gauntlet-gated; each becomes an ordinary product/QA task started by an explicit human instruction:**
+- **R6.4 physical-device acceptance** (no Android tablet yet): full teacher→child→Förderplan run on a real Android tablet in Chrome + archive `docs/clean-room/acceptance/foerderplan-example.pdf`. — `tasks.md` Phase R6 (R6.4 checkbox); `STATUS.md` Active #3; `phase1_school_platform.md` Phase-D steps 1–12 are the smoke script.
+- **F5 abandoned-session cleanup:** decided 2026-09-05 (server-side scheduled job marks a session `abandoned` after N days of no activity), **never implemented**; implementation needs an explicit deploy authorization. — `STATUS.md` P1–P4 bullet + this file's open-items history.
+- **P5 art/engagement pass**, including the loose-Stäbchen **countability-at-390 visual review** (5 px-wide sticks drawn in 44 px boxes) and the residual child-facing nits already logged (dense tick/label legibility at 390, target number not labelled on the line, "Lege" pill copy). Screenshots for Jakob's vision review: `%TEMP%\kilo\a12b-l1-gate-20260906\` (Stufe 1 round), `%TEMP%\kilo\a12b-l1-live-20260906.png`, `%TEMP%\kilo\b11-l1-gate-20260906.png`. — P5 row in this file's workstream table; `adhd guidelines.md` + `REWARDS_SYSTEM_QUICK_REF.md` are the standing UX authorities.
+- **Unwired custom `bundling` widget** shares the partial-bundle mechanic (`template_registry.dart` `'bundling'` → `BundlingWidget`, `template_evaluator.dart`): no live spec references it (its `expected` is empty, so any gate needs the canonical split computed, not string-compared). A grader audit as normal child-facing QA when the widget is ever wired. — `math_app/lib/practice/template_registry.dart:111`, `math_app/lib/practice/template_evaluator.dart:343`.
+- **Legal placeholders red by design** (`check_legal_pages.py`, 11 tokens) — launch veto until real operator data is entered; also the standing `/wissenschaftliche-grundlagen`/datenschutz items in `STATUS.md` Active.
+
+**Standing rules for human-in-the-loop development (recorded):**
+- Every task starts from an explicit human request. No standing operating prompt, no automatic loop.
+- Use the normal skills before creative work: brainstorming first, then test-driven development for implementation, systematic-debugging for bugs.
+- Never commit, push, or deploy without explicit authorization each time (a push to `main` auto-deploys the child client; ~3 min build).
+- Production data changes (including throwaway fixtures) need an explicit go.
+- Report lead: any live-system inconsistency found, fixed, or needing a decision.
+- The three §3a lessons stay valuable as QA habits, not as a loop: verify child-facing findings against code and tests before acting; state loudly when something cannot be done (no device/credentials/authorization); watch every practice-template grader for partial-state-as-correct holes.
+
+The git-connected auto-deploy behaviour (pushes to `main` build the child client; no ignored-build-step for doc-only pushes) is unchanged and remains a property of the repo, not of the gauntlet. This closing entry is written to the working tree only — committing/pushing it is Jakob's call.

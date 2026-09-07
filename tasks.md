@@ -4,6 +4,8 @@
 **Status:** R0–R7 **CLOSED for build purposes** (2026-09-04). Nothing in this list blocks the gauntlet build. The outside-reviewer work and the commercial switch are deferred to **Phase R9**; the non-commercial posture stays in force until R9.3, which is a decision about invoicing, not about building.
 **Owner:** Jakob (solo, + Claude drafting)
 **Supersedes as current focus:** `phase1_school_platform.md` Phase D/E (pilot continues as a *research partnership*, not as a sale)
+**⛔ Nachtrag 2026-09-07 — der inhaltliche Output dieser Liste ist verworfen.** R1–R6 haben ein Diagnostikum produziert, das fachlich nicht brauchbar ist (fehlende Konstrukte, u. a. Verdoppeln/Halbieren im ZR20/ZR100; zu komplexe, verfahrensvorschreibende Items). Die abgehakten Kästchen unten beschreiben weiterhin korrekt, *was getan wurde* — sie bedeuten nicht mehr, dass das Ergebnis trägt. Bewertung und Befunde: `docs/clean-room/00-v1-assessment.md`. Die Neuentwicklung (v2) bekommt eine eigene Spec und einen eigenen Plan; diese Datei bleibt als Protokoll des ersten Durchlaufs stehen.
+
 **Strategy document:** `rewrite.md` (the why and the legal reasoning; this file is the what and the when)
 
 ---
@@ -175,7 +177,7 @@ Each drafting task: Claude writes the items **and** one `docs/clean-room/items/<
 
 - [x] **R2.9 — Jakob reviews the full item bank** ✅ 2026-08-30
   **Description:** Every core and deep-dive item read for didactic soundness, age-appropriateness, German wording, and — critically — whether it reads as a paraphrase of something he has seen. Anything that does gets rewritten, not tweaked.
-  **Status:** Done 2026-08-30 (checkbox was stale; verified 2026-09-04). `provenance.csv` holds 127 rows — 59 core items, 32 deep-dive items, 36 skills — and **all 127 carry `reviewed_by=Jakob`, `reviewed_on=2026-08-30`**; zero pending. The review changed the bank: A1.5-01 was struck as redundant against A1.1-02, taking the core tier from 60 to 59 (recorded in `02-blueprint.md` and `decisions/0003`). **Delta fully resolved 2026-09-05:** runtime side fixed 2026-09-04 (CSV regenerated to 59, sidecar re-keyed `20`→`19`); the two migrations are confirmed applied to live, `cleanroom-v1` reports 59 core + 32 deep-dive + the retired A1.5-01 (REST-verified, gapless, 0 content mismatches vs the runtime CSV). See the 59-vs-60 open item in `GAUNTLET_PROGRESS.md` (now closed).
+  **Status:** Done 2026-08-30 (checkbox was stale; verified 2026-09-04). `provenance.csv` holds 127 rows — 59 core items, 32 deep-dive items, 36 skills — and **all 127 carry `reviewed_by=Jakob`, `reviewed_on=2026-08-30`**; zero pending. The review changed the bank: A1.5-01 was struck as redundant against A1.1-02, taking the core tier from 60 to 59 (recorded in `02-blueprint.md` and `decisions/0003`). **Delta fully resolved 2026-09-05:** runtime side fixed 2026-09-04 (CSV regenerated to 59, sidecar re-keyed `20`→`19`); the two migrations are confirmed applied to live, `cleanroom-v1` reports 59 core + 32 deep-dive + the retired A1.5-01 (REST-verified, gapless, 0 content mismatches vs the runtime CSV). See the 59-vs-60 open item in `Archive/GAUNTLET_PROGRESS.md` (now closed).
   **Test (manual):** Every row in `provenance.csv` carries `reviewed_by=Jakob` and a date. Zero items left in "pending" state.
 
 - **R2.10 — External expert review** → **moved to Phase R9.** Deferred until the build is production-ready (Jakob, 2026-09-04). Does not block R3–R8 or any gauntlet work.

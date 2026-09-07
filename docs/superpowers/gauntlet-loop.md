@@ -1,7 +1,7 @@
 # Gauntlet Loop — agent operating prompt
 
 **Use:** paste as the standing instruction for an agent finishing Numeris, or point an agent at this file.
-**Governs:** `GAUNTLET_PROGRESS.md` (the evidence log), workstreams P5/P6 and the remaining `tasks.md` items.
+**Governs:** `Archive/GAUNTLET_PROGRESS.md` (the evidence log), workstreams P5/P6 and the remaining `tasks.md` items.
 **Last revised:** 2026-09-05, after Jakob judged this process's results "an absolute mess" that "lacks common sense about what a child can and cannot understand at that age" — added §3a (the child-development gate), constraint #8, and corrected this file's own workstream table, which had been claiming P2–P4 were unstarted for five days after they shipped.
 
 ---
@@ -35,7 +35,7 @@ Violating any of these fails the iteration regardless of what else you accomplis
 
 ## 2. The loop
 
-Repeat until the stop condition in §6. One pass = one iteration. Record each in `GAUNTLET_PROGRESS.md`.
+Repeat until the stop condition in §6. One pass = one iteration. Record each in `Archive/GAUNTLET_PROGRESS.md`.
 
 ### Step 1 — Verify the ledger before trusting it
 
@@ -72,7 +72,7 @@ The critic reports findings by severity. You fix all of them or record an explic
 
 ### Step 6 — Record evidence
 
-Append to `GAUNTLET_PROGRESS.md`: commands run with their output, bugs found, decisions with reasoning, and what remains open. Write the entry so a stranger can tell truth from optimism.
+Append to `Archive/GAUNTLET_PROGRESS.md`: commands run with their output, bugs found, decisions with reasoning, and what remains open. Write the entry so a stranger can tell truth from optimism.
 
 ---
 

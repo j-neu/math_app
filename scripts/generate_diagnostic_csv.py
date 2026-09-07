@@ -133,8 +133,10 @@ CORE_ORDER = [
     "A1.3-01", "A1.3-02",
     "A1.4-01",
     # A1.5-01 removed by the R2.9 review (2026-08-30): redundant against
-    # A1.1-02, whose ZR100 counting sequence already crosses two Dekaden and
-    # therefore measures the Zehnerübergang. Core tier is 59, not 60.
+    # A1.1-02, whose ZR100 counting sequence crosses the 60 boundary (59 → 60)
+    # and therefore measures the Zehnerübergang. Core tier is 59, not 60.
+    # A1.1-02's range was shortened to 58–63 on 2026-09-07 (was 48–63); the
+    # 59 → 60 crossing that carries the A1.5 signal is unchanged.
     "A2.1-01",
     "A2.2-01", "A2.2-02",
     "A2.3-01",
@@ -205,9 +207,9 @@ MULTIPLE_ITEMS = {"A3.2-01", "A3.2-03", "D1.2-01", "DDA-07"}
 ENGLISH = {
     # --- Domain A ---
     "A1.1-01": "Count on from the number 12 up to the number 20.",
-    "A1.1-02": "Count on from the number 48 up to the number 63.",
+    "A1.1-02": "Count on from the number 58 up to the number 63.",
     "A1.2-01": "Count backwards from the number 21 down to the number 16.",
-    "A1.2-02": "Count backwards from the number 59 down to the number 51.",
+    "A1.2-02": "Count backwards from the number 52 down to the number 47.",
     "A1.3-01": "Count on in steps of two from the number 26. Name the next four numbers.",
     "A1.3-02": "Count backwards in steps of five from the number 45. Name the next five numbers.",
     "A1.4-01": "Which number comes directly before 37, and which number comes directly after 37?",

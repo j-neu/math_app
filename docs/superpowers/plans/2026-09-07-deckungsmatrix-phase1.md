@@ -14,6 +14,7 @@
 
 - **Python stdlib only.** No third-party imports in `scripts/`. Matches `check_provenance.py`, `check_mapping.py`, `check_item_independence.py`, `check_specs.py`, `check_skill_descriptions.py`.
 - **Checker contract:** exit `0` on success printing a German `OK: …` line; exit `1` on failure printing one `FAIL: …` line per problem. Module docstring names the spec section it enforces.
+- **No characters outside cp1252 in script output.** The Windows console this repo is developed on is cp1252: umlauts, `×` (U+00D7), `–` (U+2013) and `—` (U+2014) are fine, but an arrow `→` (U+2192) crashes the script on print. Use `->`. (Found the hard way in Task 1.)
 - **German** for the matrix, all content artifacts, and script output. Code identifiers and file names stay ASCII (`uebung`, not `übung`, in Python identifiers; the Markdown field label *is* `übung`).
 - **Never commit, push or deploy without Jakob's explicit authorization for that specific action.** The commit steps below are written out but are **gated**: run them only after he says so in that session. A push to `main` auto-deploys the child client.
 - **Do not open `_sources_private/`.** The single exception is the one-directional iMINT coverage audit, which is Phase 6, not this plan.
@@ -252,7 +253,7 @@ def main():
                 " ".join(row["skill_tags"]),
                 level_widgets_for(row["widget_class"]),
             ])
-    print(f"OK: {len(rows)} Übungen inventarisiert → {OUT.relative_to(ROOT)}")
+    print(f"OK: {len(rows)} Übungen inventarisiert -> {OUT.relative_to(ROOT)}")
     sys.exit(0)
 
 
@@ -268,7 +269,7 @@ Expected: PASS, 3 tests.
 - [ ] **Step 5: Generate the real inventory and eyeball it**
 
 Run: `python scripts/extract_exercise_inventory.py`
-Expected: `OK: 3x Übungen inventarisiert → docs/clean-room/v2/inventory_uebungen.csv` (around 30 rows).
+Expected: `OK: 27 Übungen inventarisiert -> docs/clean-room/v2/inventory_uebungen.csv` (around 30 rows).
 Then run: `python -c "import csv;rows=list(csv.DictReader(open('docs/clean-room/v2/inventory_uebungen.csv',encoding='utf-8')));print(len(rows));print([r['exercise_id'] for r in rows if r['exercise_id'].startswith('S3')])"`
 Expected: the `S3.x` doubling family (`S3.1`–`S3.7`) appears. If it does not, the parser is wrong — fix it before continuing, because the matrix's Verdoppeln row depends on this inventory.
 

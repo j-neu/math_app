@@ -1,0 +1,28 @@
+exercise_id,title,widget_class,skill_tags,level_widgets
+C1.1,Count the Dots,CountDotsExerciseV2,counting_1,7
+C1.2,Count the Objects,CountObjectsExercise,counting_1,7
+C2.1,Order Cards to 20,OrderCardsExercise,counting_2,5
+C3.1,Count Forward to 20,CountForwardExercise,counting_3,7
+C3.2,Count Forward to 50,CountForward50Exercise,counting_3,7
+C3.3,Count Forward to 100,CountForward100Exercise,counting_3,7
+C4.1,What Comes Next?,WhatComesNextExercise,counting_4 counting_5,8
+C5.1,Find Neighboring Numbers,FindNeighborsExercise,counting_5,4
+C10.1,Place Numbers on Line (0-20),PlaceNumbersExercise,counting_10 counting_11,5
+C10.2,Place Numbers on Line (0-100),PlaceNumbers100Exercise,counting_10 counting_11 number_range_100,5
+C6.0,Number Sequences on 100-Field,Count100FieldExercise,counting_8,8
+C6.1,Count in Steps of 2,CountSteps2Exercise,counting_6 counting_7,7
+C6.2,Count in Steps on 100-Field,CountSteps100FieldExercise,counting_8 counting_6 counting_7,3
+C6.3,Count Backwards Steps on 100-Field,CountStepsBackwards100FieldExercise,counting_8 counting_6 counting_7 counting_backward,3
+S1.1,Fingerblitz,FingerBlitzExercise,basic_strategy_1,5
+S1.2,Finger Klappen,FingerCalculationExercise,basic_strategy_2,6
+S1.4,More or Less (Hamstern),MoreLessExercise,basic_strategy_4,4
+S2.3,Opposite Change,OppositeChangeExercise,strategy_opposite_change_1,0
+S3.1,Verdoppeln mit Spiegel (ZR10),DoublingMirrorExercise,basic_strategy_7,6
+S3.2,Verdoppeln mit Spiegel (ZR20),DoublingMirrorExercise,basic_strategy_7,6
+S3.3,Verdoppeln mit Fingern,DoublingFingersExercise,basic_strategy_8,6
+S3.4,Verdoppeln am Rechenschiffchen,DoublingBoatExercise,basic_strategy_9 basic_strategy_10,6
+S3.5,Verdoppeln mit Fingern (ZR20),DoublingFingers20Exercise,basic_strategy_8 counting_20,6
+S3.6,Zehner verdoppeln,DoublingTensExercise,strategy_doubling_tens_1,6
+S3.7,Rechnen mit Zehnern,TensCalculationExercise,basic_strategy_11,7
+Z1,Decompose 10,Decompose10Exercise,decomposition_1 decomposition_3,4
+Z2,Make 10,Exercise,decomposition_3 decomposition_15,8

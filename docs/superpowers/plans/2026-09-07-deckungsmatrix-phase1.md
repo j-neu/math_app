@@ -10,6 +10,18 @@
 
 **Spec:** `docs/superpowers/specs/2026-09-07-diagnostik-v2-design.md`
 
+## Status
+
+**Abgeschlossen — Matrix von Jakob am 2026-09-07 signiert.** Ausgeführt über
+Kilo-CLI-Subagents statt der Checkbox-für-Checkbox-Ausführung, die dieses
+Dokument beschreibt; die Checkboxen unten bleiben deshalb unangetastet
+(`- [ ]`) statt nachträglich abgehakt zu werden — sie hätten sonst einen
+Ausführungsweg vorgetäuscht, der nicht stattgefunden hat. Ergebnis in den
+Commits `0855c45`, `4d39160`, `0bb23a6`; Deckungsmatrix in
+[10-deckungsmatrix.md](../../clean-room/v2/10-deckungsmatrix.md), Gate in
+`scripts/check_deckung.py`. Phase 2 (Ableitungen) baut darauf auf und ist
+ebenfalls abgeschlossen (`docs/superpowers/plans/2026-09-08-ableitungen-phase2.md`).
+
 ## Global Constraints
 
 - **Python stdlib only.** No third-party imports in `scripts/`. Matches `check_provenance.py`, `check_mapping.py`, `check_item_independence.py`, `check_specs.py`, `check_skill_descriptions.py`.

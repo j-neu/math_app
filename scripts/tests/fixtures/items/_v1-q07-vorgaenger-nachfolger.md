@@ -1,0 +1,21 @@
+# Item verdoppeln-halbieren.ZR20-01
+
+- **item-id:** verdoppeln-halbieren.ZR20-01
+- **konstrukt:** verdoppeln-halbieren.ZR20
+- **zelle:** verdoppeln-halbieren × ZR20 × symbolisch
+- **darstellung:** keine
+- **darstellung-konfiguration:** —
+- **blitz:** nein
+- **prompt:** Welche Zahl kommt vor 37?
+- **audio:** audio/v2/verdoppeln-halbieren.ZR20-01.mp3
+- **antwortfelder:**
+  - `antwort` — Antwort
+- **erwartete-antwort:**
+  - `vorgaenger` = 36
+  - `nachfolger` = 38
+- **fehlersignatur:**
+  - `36` — nur der Vorgänger wird genannt
+  - `38` — nur der Nachfolger wird genannt
+- **quelle:** v1-Bestand, nur als Regressionsfall
+- **eigenstaendigkeit:** Transkript eines v1-Items, ausschliesslich als Testfixture.
+- **reviewer:** —

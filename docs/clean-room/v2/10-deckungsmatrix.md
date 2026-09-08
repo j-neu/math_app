@@ -13,6 +13,13 @@ Itembank und Übungskatalog werden aus ihm abgeleitet, nie umgekehrt. Eine Zelle
 `freigegeben`, wenn sie ein Diagnostik-Item **und** eine Übung nennt; eine bewusst nicht
 abgedeckte Zelle trägt `–` und braucht eine Begründung unter `Ausnahmen:`.
 
+**Nachtrag 2026-09-08 (Phase 2).** Aus dieser Matrix sind
+[11-konstruktkarte.md](11-konstruktkarte.md) und [12-blueprint.md](12-blueprint.md)
+abgeleitet. Dabei ist die Freigaberegel präzisiert worden: die **Übung** gehört zur Zelle,
+das **Diagnostik-Item** zum Konstrukt (Strang × Zahlenraum). Eine Zelle ist `freigegeben`,
+wenn ihr Konstrukt ein Item hat und sie selbst eine Übung. Begründung und Zahlen stehen in
+12-blueprint.md. An den Zellen, Ausnahmen und Status dieser Matrix ändert das nichts.
+
 Grün heißt *abgedeckt*, nicht *dokumentiert*. Genau daran ist v1 gescheitert
 (siehe [00-v1-assessment.md](../00-v1-assessment.md)).
 

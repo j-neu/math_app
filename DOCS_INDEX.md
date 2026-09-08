@@ -13,6 +13,10 @@ One stop for every `.md` file in this repo. Read this first; jump from here.
 ## ⭐ Start here
 
 - [docs/clean-room/v2/10-deckungsmatrix.md](docs/clean-room/v2/10-deckungsmatrix.md) — 🟢 **DAS WURZELARTEFAKT.** 20 Stränge × ZR10/ZR20/ZR100 × enaktiv/ikonisch/symbolisch, 152 lebende Zellen mit Quelle und Fehlerbild, 28 begründete Ausnahmen. Von Jakob am 2026-09-07 freigegeben (Gate 1). **Bei jeder inhaltlichen Frage gilt sie.**
+- [docs/clean-room/v2/11-konstruktkarte.md](docs/clean-room/v2/11-konstruktkarte.md) — 🟢 54 Konstrukte (Strang × Zahlenraum), aus der Matrix erzeugt. Ersetzt `01-construct-map.md`.
+- [docs/clean-room/v2/12-blueprint.md](docs/clean-room/v2/12-blueprint.md) — 🟢 86 Items, Reihenfolge, Abkürzung, Blitz-Items. Aus der Konstruktkarte erzeugt. Ersetzt `02-blueprint.md`.
+- [docs/clean-room/v2/14-itemregeln.md](docs/clean-room/v2/14-itemregeln.md) — 🟢 Abnahmekriterien I1–I12 für ein Item, je Regel der v1-Defekt dahinter.
+- [docs/clean-room/v2/15-darstellungen.md](docs/clean-room/v2/15-darstellungen.md) — 🟢 Darstellungsschlüssel → Widget-Klasse → Manipulativ.
 - [docs/clean-room/v2/README.md](docs/clean-room/v2/README.md) — 🟢 Was im v2-Baum liegt, welche Gates laufen und in welcher Reihenfolge.
 - [docs/superpowers/specs/2026-09-07-diagnostik-v2-design.md](docs/superpowers/specs/2026-09-07-diagnostik-v2-design.md) — 🟢 **DER AKTUELLE PLAN.** Neuaufbau von Diagnostik und Übungsinhalten: Deckungsmatrix als Wurzelartefakt, Itemregeln, Rückkehr der handgebauten Übungs-Engine, Gates, Reihenfolge.
 - [docs/clean-room/00-v1-assessment.md](docs/clean-room/00-v1-assessment.md) — 🟢 Warum v1 verworfen wurde. Die Befunde, gegen die CSVs und die Konstruktkarte verifiziert.
@@ -77,10 +81,12 @@ Nicht löschen (sie sind die Prüfspur), aber nichts davon fortschreiben und nic
 
 Bei Widersprüchen gilt in dieser Reihenfolge:
 
-**Deckungsmatrix** > **v2-Entwurf** > `docs/clean-room/00-v1-assessment.md` > `STATUS.md` > `rewrite.md` (rechtlich) > `phase1_school_platform.md` (Infrastruktur) > `TERMINOLOGY.md` > Rest.
+**Deckungsmatrix** > **Konstruktkarte** > **Blueprint** > **v2-Entwurf** > `docs/clean-room/00-v1-assessment.md` > `STATUS.md` > `rewrite.md` (rechtlich) > `phase1_school_platform.md` (Infrastruktur) > `TERMINOLOGY.md` > Rest.
 
 Die Deckungsmatrix (`docs/clean-room/v2/10-deckungsmatrix.md`) ist seit ihrer Freigabe am 2026-09-07 die
 Quelle der Wahrheit für **alle inhaltlichen Fragen**: welche Konstrukte es gibt, in welchen Zahlenräumen
 und Repräsentationen sie geprüft werden und welches Fehlerbild dahintersteht. Der v2-Entwurf beschreibt
 nur noch, wie sie zustande kam und wie sie in Items, Übungen und Laufzeit übersetzt wird. Widerspricht
 ein späteres Artefakt der Matrix, ist das Artefakt falsch — nicht die Matrix.
+Konstruktkarte und Blueprint stehen über dem v2-Entwurf, weil sie aus der Matrix erzeugt
+werden und der Entwurf nur noch beschreibt, wie das zustande kam.

@@ -55,6 +55,25 @@ def load_known_items():
     return {p.stem for p in V2_ITEMS.glob("*.md") if p.stem not in ("README", "TEMPLATE")}
 
 
+def konstrukt_items_of(matrix):
+    """Konstrukt-ID -> Item-IDs, die in irgendeiner Zelle dieses Konstrukts stehen.
+
+    Ein Konstrukt ist ein (Strang x Zahlenraum)-Paar. Diagnostik gehoert zum
+    Konstrukt, Uebung zur Zelle (12-blueprint.md).
+    """
+    result = {}
+    for (strang, zr, rep), status in matrix.cells.items():
+        if status == "–":
+            continue
+        key = f"{strang}.{zr}"
+        result.setdefault(key, [])
+        block = matrix.blocks.get((strang, zr, rep), {})
+        for ref in split_refs(block.get("diagnostik", "")):
+            if ref not in result[key]:
+                result[key].append(ref)
+    return result
+
+
 STRAND_VOCAB_RE = re.compile(r"^- `([a-z0-9-]+)`\s+—\s+(.+)$", re.MULTILINE)
 STRAND_SECTION_RE = re.compile(r"^## Strang:\s*([a-z0-9-]+)\s*$", re.MULTILINE)
 TABLE_ROW_RE = re.compile(r"^\|\s*(ZR10|ZR20|ZR100)\s*\|(.+)\|\s*$", re.MULTILINE)
@@ -110,7 +129,7 @@ def parse_matrix(text):
     return m
 
 
-def validate(matrix, known_uebungen=None, known_items=None):
+def validate(matrix, known_uebungen=None, known_items=None, konstrukt_items=None):
     """Return a list of German error strings; empty means the gate passes."""
     errors = []
     section_strands = {key[0] for key in matrix.cells}
@@ -158,9 +177,15 @@ def validate(matrix, known_uebungen=None, known_items=None):
             if not block.get(name):
                 errors.append(f"{label}: Feld '{name}' fehlt oder ist leer")
         if status == "freigegeben":
-            for name in ("diagnostik", "übung"):
-                if block.get(name, LEER) == LEER:
-                    errors.append(f"{label}: Status 'freigegeben' verlangt einen Eintrag in '{name}'")
+            if block.get("übung", LEER) == LEER:
+                errors.append(f"{label}: Status 'freigegeben' verlangt einen Eintrag in 'übung'")
+            if konstrukt_items is not None:
+                key = f"{strand}.{zr}"
+                if not konstrukt_items.get(key):
+                    errors.append(
+                        f"{label}: Status 'freigegeben', aber das Konstrukt '{key}' "
+                        f"hat kein Diagnostik-Item"
+                    )
 
     for key in sorted(matrix.blocks):
         if key not in matrix.cells:
@@ -168,6 +193,17 @@ def validate(matrix, known_uebungen=None, known_items=None):
 
     for key in matrix.duplicate_blocks:
         errors.append(f"{key[0]} × {key[1]} × {key[2]}: Detailblock mehrfach vorhanden")
+
+    # R9 — ein Item steht nur in einer Zelle seines eigenen Konstrukts
+    for key in sorted(matrix.blocks):
+        strand, zr, rep = key
+        block = matrix.blocks[key]
+        for ref in split_refs(block.get("diagnostik", "")):
+            if not ref.startswith(f"{strand}.{zr}-"):
+                errors.append(
+                    f"{strand} × {zr} × {rep}: R9 — Item '{ref}' gehoert nicht zum "
+                    f"Konstrukt '{strand}.{zr}'"
+                )
 
     if known_uebungen is not None or known_items is not None:
         item_owner = {}
@@ -196,7 +232,12 @@ def main():
         print(f"FAIL: {MATRIX_PATH} nicht gefunden")
         sys.exit(1)
     matrix = parse_matrix(MATRIX_PATH.read_text(encoding="utf-8"))
-    errors = validate(matrix, known_uebungen=load_known_uebungen(), known_items=load_known_items())
+    errors = validate(
+        matrix,
+        known_uebungen=load_known_uebungen(),
+        known_items=load_known_items(),
+        konstrukt_items=konstrukt_items_of(matrix),
+    )
     live = sum(1 for status in matrix.cells.values() if status != "–")
     freigegeben = sum(1 for status in matrix.cells.values() if status == "freigegeben")
     print(f"check_deckung: {len(matrix.strands)} Stränge, {len(matrix.cells)} Zellen "

@@ -16,6 +16,19 @@ Freigegeben von Jakob am **2026-09-07** (Gate 1) — freigegeben ist damit die
   Je Zelle ein Detailblock mit Quelle, Fehlerbild, Diagnostik-Item und Übung;
   je bewusst nicht abgedeckter Zelle eine begründete Ausnahme. Handgeschrieben,
   hand-signiert, maschinengeprüft.
+- **11-konstruktkarte.md** — die 54 Konstrukte (Strang × Zahlenraum), jede
+  Repräsentation als Evidenzstufe darin. Präambel handgeschrieben; der Rumpf
+  zwischen den AUTOGEN-Marken wird aus der Matrix erzeugt. Ersetzt
+  `01-construct-map.md`.
+- **12-blueprint.md** — die Item-Zuteilung: je Konstrukt ein Kern-Item, 86
+  geplante Items, dazu Reihenfolge, Abkürzung und Blitz-Items. Regeln
+  handgeschrieben, Zuteilungstabelle erzeugt. Ersetzt `02-blueprint.md`.
+- **14-itemregeln.md** — die Abnahmekriterien I1–I12 für ein Item, je Regel
+  der v1-Defekt dahinter; *maschinell* oder *Gate 1*.
+- **15-darstellungen.md** — das Register `darstellung`-Schlüssel →
+  Widget-Klasse → Manipulativ.
+- **items/TEMPLATE.md** — das Itemdateiformat: jedes Feld, das
+  `check_item_quality.py` parst, mit gefülltem Beispiel.
 - **inventory_uebungen.csv** — erzeugtes Inventar des handgebauten
   Übungsbestands (aus `exercise_service.dart`). Die Spalte `übung:` der Matrix
   verweist auf `exercise_id` aus dieser Datei.
@@ -43,10 +56,26 @@ lässt das Deckungsgate scheitern.
 In dieser Reihenfolge nach jeder Änderung an Matrix oder Übungsbestand:
 
 ```bash
-python scripts/extract_exercise_inventory.py   # Inventar neu erzeugen
-python scripts/check_deckung.py                # Deckungsgate
-python -m unittest discover -s scripts/tests -v # Tests der Prüfskripte
+python scripts/extract_exercise_inventory.py   # Inventar aus exercise_service.dart neu erzeugen
+python scripts/check_deckung.py            # Matrix: Deckung, Ausnahmen, Detailblöcke, R1-R9
+python scripts/derive_ableitungen.py --check   # Konstruktkarte + Blueprint gegen die Matrix
+python scripts/check_item_quality.py       # Items gegen die Itemregeln I1-I12
+python -m unittest discover -s scripts/tests -p "test_*.py"
 ```
 
 Grün heißt *abgedeckt*, nicht *dokumentiert*. Ein Fehlschlag ist ein echtes Loch in
 der Matrix oder im Bestand — korrigiert wird das Artefakt, nie die Regel.
+
+## Was abgeleitet ist und was von Hand kommt
+
+`10-deckungsmatrix.md` ist von Hand geschrieben und von Jakob unterschrieben. Alles
+darunter fällt daraus:
+
+Matrix -> Konstruktkarte -> Blueprint -> Items/Übungen
+
+Der Rumpf von `11-konstruktkarte.md` und `12-blueprint.md` steht zwischen AUTOGEN-Marken
+und wird erzeugt; `--check` schlägt fehl, sobald er von der Matrix abweicht. Die Regeln
+oberhalb der Marken und die Dokumente 14/15 sind von Hand geschrieben.
+
+Stand: 20 Stränge, 180 Zellen, 152 lebend, 28 begründete Ausnahmen, **54 Konstrukte,
+86 geplante Items, 0 geschriebene Items** (Items sind Phase 3).

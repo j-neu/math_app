@@ -4,7 +4,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from check_deckung import parse_matrix
+from check_deckung import parse_matrix, konstrukt_items_of
 
 MATRIX = """\
 # 10 — Deckungsmatrix (v2)
@@ -145,10 +145,14 @@ class ValidateTest(unittest.TestCase):
         self.assertEqual(validate(parse_matrix(matrix_with(rows, extra))), [])
 
     def test_freigegeben_without_item_or_exercise_fails(self):
+        # Decision B (12-blueprint.md): die Uebung gehoert zur Zelle, das Diagnostik-Item
+        # zum Konstrukt. Vor Phase 2 verlangte diese Regel beides auf der Zelle.
         rows = ALL_OFFEN.replace("| ZR10 | offen", "| ZR10 | freigegeben")
         text = matrix_with(rows, blocks_for(ALL_KEYS))
-        errors = validate(parse_matrix(text))
-        self.assertTrue(any("freigegeben" in e and "diagnostik" in e for e in errors), errors)
+        errors = validate(parse_matrix(text), konstrukt_items={})
+        self.assertTrue(any("freigegeben" in e and "übung" in e for e in errors), errors)
+        self.assertTrue(
+            any("freigegeben" in e and "teststrang.ZR10" in e for e in errors), errors)
 
     def test_missing_strand_section_fails(self):
         text = matrix_with(ALL_OFFEN, blocks_for(ALL_KEYS)).replace(
@@ -184,3 +188,139 @@ class CrossReferenceTest(unittest.TestCase):
         text = matrix_with(ALL_OFFEN, blocks)
         errors = validate(parse_matrix(text), known_uebungen=set(), known_items={"V10-01"})
         self.assertTrue(any("mehreren Zellen" in e for e in errors), errors)
+
+
+FREIGEGEBEN_MATRIX = """\
+# 10 — Deckungsmatrix (v2)
+
+## Vokabular
+
+**Stränge:**
+- `verdoppeln-halbieren` — Verdoppeln und Halbieren als abrufbare Beziehung
+
+**Zahlenräume:** ZR10 · ZR20 · ZR100
+**Repräsentationen:** enaktiv · ikonisch · symbolisch
+**Status:** offen · entworfen · freigegeben · – (bewusst nicht abgedeckt)
+
+## Strang: verdoppeln-halbieren
+
+| Zahlenraum | enaktiv | ikonisch | symbolisch |
+|---|---|---|---|
+| ZR10 | offen | offen | offen |
+| ZR20 | freigegeben | offen | freigegeben |
+| ZR100 | offen | offen | offen |
+
+### verdoppeln-halbieren × ZR10 × enaktiv
+
+- **quelle:** RLP
+- **fehlerbild:** zaehlt statt zu verdoppeln
+- **diagnostik:** —
+- **übung:** S3.3
+
+### verdoppeln-halbieren × ZR10 × ikonisch
+
+- **quelle:** RLP
+- **fehlerbild:** zaehlt die Punkte einzeln
+- **diagnostik:** —
+- **übung:** —
+
+### verdoppeln-halbieren × ZR10 × symbolisch
+
+- **quelle:** RLP
+- **fehlerbild:** Kernaufgabe nicht abrufbar
+- **diagnostik:** —
+- **übung:** —
+
+### verdoppeln-halbieren × ZR20 × enaktiv
+
+- **quelle:** RLP
+- **fehlerbild:** nutzt die Fuenferstruktur nicht
+- **diagnostik:** —
+- **übung:** S3.4
+
+### verdoppeln-halbieren × ZR20 × ikonisch
+
+- **quelle:** RLP
+- **fehlerbild:** zaehlt am Zwanzigerfeld weiter
+- **diagnostik:** —
+- **übung:** S3.2
+
+### verdoppeln-halbieren × ZR20 × symbolisch
+
+- **quelle:** RLP
+- **fehlerbild:** Verdopplungen nicht automatisiert
+- **diagnostik:** verdoppeln-halbieren.ZR20-01
+- **übung:** S3.5
+
+### verdoppeln-halbieren × ZR100 × enaktiv
+
+- **quelle:** RLP
+- **fehlerbild:** verdoppelt Zehnerstangen zaehlend
+- **diagnostik:** —
+- **übung:** —
+
+### verdoppeln-halbieren × ZR100 × ikonisch
+
+- **quelle:** RLP
+- **fehlerbild:** liest das Hunderterfeld zeilenweise
+- **diagnostik:** —
+- **übung:** —
+
+### verdoppeln-halbieren × ZR100 × symbolisch
+
+- **quelle:** RLP
+- **fehlerbild:** rechnet stellenweise neu
+- **diagnostik:** —
+- **übung:** —
+"""
+
+
+class KonstruktFreigabeTest(unittest.TestCase):
+    def setUp(self):
+        self.matrix = parse_matrix(FREIGEGEBEN_MATRIX)
+        self.k_items = konstrukt_items_of(self.matrix)
+
+    def test_collects_item_ids_per_konstrukt(self):
+        self.assertEqual(
+            self.k_items["verdoppeln-halbieren.ZR20"],
+            ["verdoppeln-halbieren.ZR20-01"],
+        )
+        self.assertEqual(self.k_items["verdoppeln-halbieren.ZR10"], [])
+
+    def test_a_freigegeben_cell_may_borrow_its_item_from_a_sibling_cell(self):
+        # ZR20 x enaktiv has no diagnostik of its own but its Konstrukt does,
+        # and the cell has an exercise -> it may be freigegeben.
+        errors = validate(self.matrix, konstrukt_items=self.k_items)
+        self.assertEqual(
+            [e for e in errors if "ZR20 × enaktiv" in e], []
+        )
+
+    def test_a_freigegeben_cell_without_an_exercise_still_fails(self):
+        text = FREIGEGEBEN_MATRIX.replace(
+            "| ZR100 | offen | offen | offen |",
+            "| ZR100 | freigegeben | offen | offen |",
+        )
+        matrix = parse_matrix(text)
+        errors = validate(matrix, konstrukt_items=konstrukt_items_of(matrix))
+        self.assertTrue(
+            any("ZR100 × enaktiv" in e and "übung" in e for e in errors), errors
+        )
+
+    def test_a_freigegeben_cell_whose_konstrukt_has_no_item_fails(self):
+        text = FREIGEGEBEN_MATRIX.replace(
+            "- **diagnostik:** verdoppeln-halbieren.ZR20-01", "- **diagnostik:** —"
+        )
+        matrix = parse_matrix(text)
+        errors = validate(matrix, konstrukt_items=konstrukt_items_of(matrix))
+        self.assertTrue(
+            any("ZR20 × enaktiv" in e and "Konstrukt" in e for e in errors), errors
+        )
+
+    def test_r9_an_item_must_sit_in_a_cell_of_its_own_konstrukt(self):
+        text = FREIGEGEBEN_MATRIX.replace(
+            "- **diagnostik:** verdoppeln-halbieren.ZR20-01",
+            "- **diagnostik:** verdoppeln-halbieren.ZR100-01",
+        )
+        matrix = parse_matrix(text)
+        errors = validate(matrix, konstrukt_items=konstrukt_items_of(matrix))
+        self.assertTrue(any("R9" in e for e in errors), errors)

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:math_app/widgets/common/dienes_block_widget.dart';
 import 'package:math_app/widgets/manipulatives/dienes_place_value.dart';
 import 'package:math_app/widgets/manipulatives/fingerbild.dart';
 import 'package:math_app/widgets/manipulatives/rekenrek.dart';
@@ -150,8 +151,27 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.tap(find.byType(GestureDetector));
     await tester.pump();
-    expect(find.text('13 einzelne Einer'), findsOneWidget);
+    expect(find.text('13 einzelne Würfel'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+      'DienesOeffnenWidget colours the 10 newly-opened units, keeps the 3 '
+      'pre-existing ones default', (tester) async {
+    await pumpWidget(tester, const DienesOeffnenWidget());
+    await tester.tap(find.byType(GestureDetector));
+    await tester.pump();
+
+    final units = tester
+        .widgetList<DienesBlockWidget>(find.byType(DienesBlockWidget))
+        .where((w) => w.type == DienesType.unit)
+        .toList();
+    expect(units, hasLength(13));
+    expect(
+      units.where((w) => w.color == const Color(0xFF1E88E5)),
+      hasLength(10),
+    );
+    expect(units.where((w) => w.color == null), hasLength(3));
   });
 
   testWidgets('StellenwerttafelWidget renders 99 without throwing',
@@ -217,4 +237,37 @@ void main() {
     expect(controller.text, '75');
     expect(tester.takeException(), isNull);
   });
+
+  test('ZahlenstrahlPainter arrow head points down at the target', () {
+    final canvas = _RecordingCanvas();
+    const painter = ZahlenstrahlPainter(arrowAt: 80.0);
+    painter.paint(canvas, const Size(340, 110));
+
+    final path = canvas.paths.single;
+    const left = 16.0;
+    const right = 340.0 - 16.0;
+    const baseline = 110.0 * 0.6;
+    final x = left + (right - left) * (80 / 100.0);
+
+    // Apex sits just above the line and the head is wide near it.
+    expect(path.contains(Offset(x, baseline - 6)), isTrue);
+    expect(path.contains(Offset(x + 4, baseline - 12)), isTrue);
+    // A wrong (upward) arrow would instead fill the space high above the line.
+    expect(path.contains(Offset(x, baseline - 30)), isFalse);
+  });
+}
+
+/// Minimal [Canvas] that records only the path operations the number-line
+/// painter emits, so the arrowhead triangle can be inspected geometrically.
+class _RecordingCanvas implements Canvas {
+  final paths = <Path>[];
+
+  @override
+  void drawPath(Path path, Paint paint) => paths.add(path);
+
+  @override
+  void drawLine(Offset p1, Offset p2, Paint paint) {}
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => null;
 }

@@ -26,6 +26,10 @@ enum DiagnosticAnswerMode {
 
   /// Free text (equations, sentences) with tolerant normalization.
   freeText,
+
+  /// Several numbers, each with its own full-sentence or short label (e.g.
+  /// "Zahl davor" / "Zahl danach"), one field per label, stacked as rows.
+  labeledFields,
 }
 
 /// Curated answer expectations for items whose `CorrectAnswer` transcript is
@@ -41,6 +45,7 @@ class AnswerSpec {
   final List<String>? choiceOptions;
   final String? choiceAnswer;
   final String? anchor;
+  final List<String>? fieldLabels;
 
   const AnswerSpec.number(this.expectedNumbers)
       : mode = DiagnosticAnswerMode.number,
@@ -48,31 +53,44 @@ class AnswerSpec {
         rows = null,
         choiceOptions = null,
         choiceAnswer = null,
-        anchor = null;
+        anchor = null,
+        fieldLabels = null;
 
   const AnswerSpec.sequence(this.expectedNumbers, {this.anchor})
       : mode = DiagnosticAnswerMode.sequence,
         target = null,
         rows = null,
         choiceOptions = null,
-        choiceAnswer = null;
+        choiceAnswer = null,
+        fieldLabels = null;
 
   const AnswerSpec.pairs(int this.target, int this.rows)
       : mode = DiagnosticAnswerMode.pairRows,
         expectedNumbers = const [],
         choiceOptions = null,
         choiceAnswer = null,
-        anchor = null;
+        anchor = null,
+        fieldLabels = null;
 
   const AnswerSpec.choice(this.choiceOptions, this.choiceAnswer)
       : mode = DiagnosticAnswerMode.choice,
         expectedNumbers = const [],
         target = null,
         rows = null,
-        anchor = null;
+        anchor = null,
+        fieldLabels = null;
 
   const AnswerSpec.freeText(this.expectedNumbers)
       : mode = DiagnosticAnswerMode.freeText,
+        target = null,
+        rows = null,
+        choiceOptions = null,
+        choiceAnswer = null,
+        anchor = null,
+        fieldLabels = null;
+
+  const AnswerSpec.labeledFields(this.fieldLabels, this.expectedNumbers)
+      : mode = DiagnosticAnswerMode.labeledFields,
         target = null,
         rows = null,
         choiceOptions = null,
@@ -96,9 +114,11 @@ const Map<int, AnswerSpec> kAnswerSpecs = {
   4: AnswerSpec.sequence([58, 57, 56, 55, 54, 53, 52, 51], anchor: '59'),
   5: AnswerSpec.sequence([28, 30, 32, 34], anchor: '26'),
   6: AnswerSpec.sequence([40, 35, 30, 25, 20], anchor: '45'),
+  // Vorgänger/Nachfolger: two distinct labelled parts, not one bare sequence.
+  7: AnswerSpec.labeledFields(['Zahl davor', 'Zahl danach'], [36, 38]),
   // Place-value reads the child states in order: "5 Zehner, 8 Einer.",
   // "41 Stäbchen; 4 Zehner und 1 Einer", "Z-Spalte 4, E-Spalte 7".
-  20: AnswerSpec.sequence([5, 8]),
+  20: AnswerSpec.labeledFields(['Zehner', 'Einer'], [5, 8]),
   22: AnswerSpec.sequence([41, 4, 1]),
   24: AnswerSpec.sequence([4, 7]),
   // C3/C4 strategy items — the final result is the graded signal.
@@ -199,6 +219,8 @@ class AnswerGrading {
     return switch (mode) {
       DiagnosticAnswerMode.number => _gradeNumber(input, spec, question),
       DiagnosticAnswerMode.sequence => _gradeSequence(input, spec, question),
+      DiagnosticAnswerMode.labeledFields =>
+        _gradeSequence(input, spec, question),
       DiagnosticAnswerMode.pairRows =>
         _gradePairs(input, spec!.target!, spec.rows!),
       DiagnosticAnswerMode.choice => _gradeChoice(input, spec, question),
@@ -309,9 +331,12 @@ class AnswerGrading {
   /// Total answer boxes [q]'s input renders — used for the response-time
   /// budget `max(15, 5 × boxCount)` (diagnostic usability rework §4.6).
   static int boxCount(DiagnosticQuestion q) {
+    final spec = kAnswerSpecs[q.listNumber];
     return switch (modeFor(q)) {
       DiagnosticAnswerMode.number => 1,
       DiagnosticAnswerMode.sequence => sequenceLength(q),
+      DiagnosticAnswerMode.labeledFields =>
+        spec != null && spec.fieldLabels != null ? spec.fieldLabels!.length : 1,
       DiagnosticAnswerMode.pairRows => pairRows(q) * 2,
       DiagnosticAnswerMode.choice => 1,
       DiagnosticAnswerMode.sort => sortItems(q).length,
@@ -323,6 +348,11 @@ class AnswerGrading {
   /// carries one (diagnostic usability rework §4.3).
   static String? sequenceAnchor(DiagnosticQuestion q) =>
       kAnswerSpecs[q.listNumber]?.anchor;
+
+  /// Field labels for a `DiagnosticAnswerMode.labeledFields` item, in the
+  /// same order as its expected numbers.
+  static List<String> labeledFieldsLabels(DiagnosticQuestion q) =>
+      kAnswerSpecs[q.listNumber]?.fieldLabels ?? const [];
 
   /// Sum target + row count for decomposition items.
   static int pairTarget(DiagnosticQuestion q) {
@@ -358,6 +388,7 @@ class AnswerGrading {
 String answerFieldLabel(DiagnosticAnswerMode mode) => switch (mode) {
       DiagnosticAnswerMode.number => 'Deine Antwort',
       DiagnosticAnswerMode.sequence => 'Trage die Zahlen in der richtigen Reihenfolge ein.',
+      DiagnosticAnswerMode.labeledFields => 'Trage für jede Zeile die passende Zahl ein.',
       DiagnosticAnswerMode.pairRows => 'Schreibe jede Zerlegung in eine eigene Zeile.',
       DiagnosticAnswerMode.choice => 'Tippe deine Antwort an.',
       DiagnosticAnswerMode.sort => 'Ziehe die Zahlen in die richtige Reihenfolge.',

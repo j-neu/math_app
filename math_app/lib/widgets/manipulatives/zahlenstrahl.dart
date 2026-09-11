@@ -70,16 +70,16 @@ class ZahlenstrahlPainter extends CustomPainter {
     if (arrowAt != null) {
       final x = xFor(arrowAt!);
       canvas.drawLine(
-        Offset(x, baseline - 4),
-        Offset(x, baseline - 30),
+        Offset(x, baseline - 38),
+        Offset(x, baseline - 16),
         Paint()
           ..color = Colors.red
           ..strokeWidth = 2.5,
       );
       final head = Path()
-        ..moveTo(x, baseline - 38)
-        ..lineTo(x - 8, baseline - 26)
-        ..lineTo(x + 8, baseline - 26)
+        ..moveTo(x, baseline - 4)
+        ..lineTo(x - 8, baseline - 16)
+        ..lineTo(x + 8, baseline - 16)
         ..close();
       canvas.drawPath(
         head,

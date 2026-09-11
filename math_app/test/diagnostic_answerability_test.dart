@@ -26,6 +26,11 @@ void main() {
             ? spec!.expectedNumbers
             : AnswerGrading.intsIn(question.correctAnswer);
         return numbers.join(', ');
+      case DiagnosticAnswerMode.labeledFields:
+        final numbers = spec?.expectedNumbers.isNotEmpty == true
+            ? spec!.expectedNumbers
+            : AnswerGrading.intsIn(question.correctAnswer);
+        return numbers.join(', ');
       case DiagnosticAnswerMode.pairRows:
         final pairs = <String>[];
         for (var i = 0; i < spec!.rows!; i++) {
@@ -77,7 +82,7 @@ void main() {
     expect(modeOf(11), DiagnosticAnswerMode.choice);
     expect(modeOf(15), DiagnosticAnswerMode.pairRows);
     expect(modeOf(17), DiagnosticAnswerMode.pairRows);
-    expect(modeOf(20), DiagnosticAnswerMode.sequence);
+    expect(modeOf(20), DiagnosticAnswerMode.labeledFields);
     expect(modeOf(45), DiagnosticAnswerMode.number);
     expect(modeOf(58), DiagnosticAnswerMode.freeText);
     expect(modeOf(59), DiagnosticAnswerMode.freeText);

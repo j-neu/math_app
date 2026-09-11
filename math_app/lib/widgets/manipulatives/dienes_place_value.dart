@@ -55,6 +55,7 @@ class _DienesOeffnenWidgetState extends State<DienesOeffnenWidget> {
   @override
   Widget build(BuildContext context) {
     if (_opened) {
+      const openedColor = Color(0xFF1E88E5); // matches the rod's own blue
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -63,16 +64,22 @@ class _DienesOeffnenWidgetState extends State<DienesOeffnenWidget> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                for (var i = 0; i < 13; i++) ...[
+                for (var i = 0; i < 3; i++) ...[
                   if (i > 0) const SizedBox(width: 4),
                   const DienesBlockWidget(type: DienesType.unit),
+                ],
+                const SizedBox(width: 16),
+                for (var i = 0; i < 10; i++) ...[
+                  if (i > 0) const SizedBox(width: 4),
+                  const DienesBlockWidget(
+                      type: DienesType.unit, color: openedColor),
                 ],
               ],
             ),
           ),
           const SizedBox(height: 10),
           const Text(
-            '13 einzelne Einer',
+            '13 einzelne Würfel',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ],

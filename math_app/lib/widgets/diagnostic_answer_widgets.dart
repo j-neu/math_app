@@ -32,6 +32,12 @@ class DiagnosticAnswerInput extends StatelessWidget {
           controller: controller,
           onSubmit: onSubmit,
         );
+      case DiagnosticAnswerMode.labeledFields:
+        return _LabeledFields(
+          labels: AnswerGrading.labeledFieldsLabels(question),
+          controller: controller,
+          onSubmit: onSubmit,
+        );
       case DiagnosticAnswerMode.pairRows:
         return _PairRows(
           rows: AnswerGrading.pairRows(question),
@@ -198,6 +204,113 @@ class _SequenceFieldsState extends State<_SequenceFields> {
   }
 }
 
+/// One labeled row per expected number (e.g. "Zahl davor" / "Zahl danach",
+/// or "Zehner" / "Einer") — fixes items whose question asks two distinct
+/// things but rendered as unlabeled boxes (v1 assessment Q7, Q20).
+/// Values are joined ", " into [controller], in label order.
+class _LabeledFields extends StatefulWidget {
+  final List<String> labels;
+  final TextEditingController controller;
+  final VoidCallback? onSubmit;
+
+  const _LabeledFields({
+    required this.labels,
+    required this.controller,
+    this.onSubmit,
+  });
+
+  @override
+  State<_LabeledFields> createState() => _LabeledFieldsState();
+}
+
+class _LabeledFieldsState extends State<_LabeledFields> {
+  late final List<TextEditingController> _fields;
+  late final List<FocusNode> _focusNodes;
+
+  @override
+  void initState() {
+    super.initState();
+    _fields =
+        List.generate(widget.labels.length, (_) => TextEditingController());
+    _focusNodes = List.generate(widget.labels.length, (_) => FocusNode());
+    for (final c in _fields) {
+      c.addListener(_join);
+    }
+  }
+
+  @override
+  void dispose() {
+    for (final c in _fields) {
+      c.removeListener(_join);
+      c.dispose();
+    }
+    for (final n in _focusNodes) {
+      n.dispose();
+    }
+    super.dispose();
+  }
+
+  void _join() {
+    widget.controller.text =
+        _fields.map((c) => c.text.trim()).where((t) => t.isNotEmpty).join(', ');
+  }
+
+  void _submitted(int index) {
+    if (index < widget.labels.length - 1) {
+      _focusNodes[index + 1].requestFocus();
+    } else {
+      widget.onSubmit?.call();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var i = 0; i < widget.labels.length; i++)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: 140,
+                  child: Text(
+                    '${widget.labels[i]}:',
+                    style: Theme.of(context).textTheme.titleMedium,
+                    textAlign: TextAlign.right,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                SizedBox(
+                  width: 64,
+                  child: TextField(
+                    controller: _fields[i],
+                    focusNode: _focusNodes[i],
+                    autofocus: i == 0,
+                    keyboardType: TextInputType.number,
+                    textInputAction: i == widget.labels.length - 1
+                        ? TextInputAction.done
+                        : TextInputAction.next,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    onSubmitted: (_) => _submitted(i),
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleLarge,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      contentPadding: EdgeInsets.symmetric(vertical: 10),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
 /// Decomposition rows: "target = [a] + [b]" per row, two numeric fields each.
 /// Values are joined "a + b; c + d; …" into [controller].
 class _PairRows extends StatefulWidget {
@@ -285,7 +398,7 @@ class _PairRowsState extends State<_PairRows> {
                 Text('${widget.target} = ',
                     style: Theme.of(context).textTheme.titleLarge),
                 ...List.generate(2, (col) {
-                  return Padding(
+                  final field = Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: SizedBox(
                       width: 64,
@@ -308,6 +421,16 @@ class _PairRowsState extends State<_PairRows> {
                       ),
                     ),
                   );
+                  if (col == 1) {
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(' + ', style: Theme.of(context).textTheme.titleLarge),
+                        field,
+                      ],
+                    );
+                  }
+                  return field;
                 }),
               ],
             ),

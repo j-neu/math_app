@@ -76,6 +76,67 @@ void main() {
         isTrue);
   });
 
+  testWidgets(
+      'Q7 Vorgänger/Nachfolger renders two labeled fields that join and grade',
+      (tester) async {
+    final question = q(7);
+    final controller = await pumpFor(tester, question);
+
+    expect(AnswerGrading.modeFor(question), DiagnosticAnswerMode.labeledFields);
+    expect(find.text('Zahl davor:'), findsOneWidget);
+    expect(find.text('Zahl danach:'), findsOneWidget);
+    final fields = find.byType(TextField);
+    expect(fields, findsNWidgets(2));
+
+    await tester.enterText(fields.at(0), '36');
+    await tester.enterText(fields.at(1), '38');
+    await tester.pump();
+
+    expect(controller.text, '36, 38');
+    expect(AnswerGrading.grade(userAnswer: controller.text, question: question),
+        isTrue);
+  });
+
+  testWidgets(
+      'Q20 place value renders Zehner/Einer fields that join and grade',
+      (tester) async {
+    final question = q(20);
+    final controller = await pumpFor(tester, question);
+
+    expect(AnswerGrading.modeFor(question), DiagnosticAnswerMode.labeledFields);
+    expect(find.text('Zehner:'), findsOneWidget);
+    expect(find.text('Einer:'), findsOneWidget);
+    final fields = find.byType(TextField);
+    expect(fields, findsNWidgets(2));
+
+    await tester.enterText(fields.at(0), '5');
+    await tester.enterText(fields.at(1), '8');
+    await tester.pump();
+
+    expect(controller.text, '5, 8');
+    expect(AnswerGrading.grade(userAnswer: controller.text, question: question),
+        isTrue);
+  });
+
+  testWidgets('Q15 decomposition rows render a visible "+" between fields',
+      (tester) async {
+    final question = q(15);
+    final controller = await pumpFor(tester, question);
+    expect(AnswerGrading.modeFor(question), DiagnosticAnswerMode.pairRows);
+
+    expect(find.text(' + '), findsNWidgets(3));
+    final fields = find.byType(TextField);
+    expect(fields, findsNWidgets(6));
+    const answers = ['1', '7', '2', '6', '3', '5'];
+    for (var i = 0; i < answers.length; i++) {
+      await tester.enterText(fields.at(i), answers[i]);
+    }
+    await tester.pump();
+    expect(controller.text, '1 + 7; 2 + 6; 3 + 5');
+    expect(AnswerGrading.grade(userAnswer: controller.text, question: question),
+        isTrue);
+  });
+
   testWidgets('Q15 decomposition: three rows of pairs grade correct',
       (tester) async {
     final question = q(15);

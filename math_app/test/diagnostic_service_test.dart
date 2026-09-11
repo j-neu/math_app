@@ -11,6 +11,8 @@ import 'package:math_app/services/skill_catalog.dart';
 // the legacy column schema, every IfWrong skill ID resolves in the new
 // 36-skill taxonomy, and no core item ships without a Wording/CorrectAnswer.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   late List<DiagnosticQuestion> coreQuestions;
   late List<DiagnosticQuestion> deepDiveQuestions;
   late SkillCatalog catalog;
@@ -94,5 +96,18 @@ void main() {
     expect(byNumber(deepDiveQuestions, 4).hilfetext, isNotNull);
     // DDA-01 (deep-dive item 1) has none.
     expect(byNumber(deepDiveQuestions, 1).hilfetext, isNull);
+  });
+
+  test('loadQuestions merges the v2 CSV and excludes superseded v1 rows',
+      () async {
+    final service = DiagnosticService();
+    final questions = await service.loadQuestions();
+
+    final v2Item = questions.firstWhere(
+      (q) => q.ifWrongPracticeSkills.contains('verdoppeln-halbieren.ZR10'),
+      orElse: () => throw StateError('v2 item not found'),
+    );
+    expect(v2Item.correctAnswer, '8');
+    expect(v2Item.zahlenraum, 'ZR10');
   });
 }

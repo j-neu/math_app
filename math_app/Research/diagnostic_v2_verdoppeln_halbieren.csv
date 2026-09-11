@@ -1,0 +1,2 @@
+ListNumber,SourceType,QuestionText,AnswerFormat,CorrectAnswer,German,English,IfWrong_practice_skills,Ifwrong_skip,Notes,SkipGroup,Zahlenraum,AudioAsset,Hilfetext
+9001,Text,"Rechne: 4 + 4",Single,8,"Rechne: 4 + 4",Calculate: 4 + 4,verdoppeln-halbieren.ZR10,,medium; verdoppeln-halbieren.ZR10 Verdoppeln im ZR10,,ZR10,,

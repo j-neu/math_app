@@ -16,10 +16,27 @@ import 'diagnostic_shortening.dart' show ConstructGates, difficultyFrom, constru
 /// it (none, after this change regenerates both files) still parse via the
 /// `row.length > 13` guard.
 class DiagnosticService {
+  /// Legacy v1 ListNumbers this v2 file supersedes for `verdoppeln-halbieren`
+  /// (see Phase 3a plan Task 1 Step 1) -- excluded when merging so a child
+  /// never sees both the old and the new item for the same construct.
+  ///
+  /// Task 1 Step 1 searched the v1 core file for rows routed via the v2 skill
+  /// IDs (basic_strategy_7/8/9/10, strategy_doubling_tens_1) and found none, so
+  /// the set is intentionally empty: there is no legacy item to filter out.
+  static const Set<int> _kSupersededByV2 = {};
+
   Future<List<DiagnosticQuestion>> loadQuestions() async {
-    final rawData =
+    final coreCsv =
         await rootBundle.loadString('Research/diagnostic_core_v1.csv');
-    return loadQuestionsFromCsv(rawData);
+    final coreQuestions = loadQuestionsFromCsv(coreCsv)
+        .where((q) => !_kSupersededByV2.contains(q.listNumber))
+        .toList();
+
+    final v2Csv = await rootBundle
+        .loadString('Research/diagnostic_v2_verdoppeln_halbieren.csv');
+    final v2Questions = loadQuestionsFromCsv(v2Csv);
+
+    return [...coreQuestions, ...v2Questions];
   }
 
   /// Pure CSV variant of [loadQuestions] — used by tests and by callers that

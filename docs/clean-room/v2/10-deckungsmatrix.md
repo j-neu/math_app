@@ -730,7 +730,7 @@ ihm vollständig.
 
 - **quelle:** RLP BE/BB Teil C, L1, Niveaustufe A/B; Selter/Spiegel, denkendes gegen zählendes Rechnen
 - **fehlerbild:** Verdopplungen bis 10+10 sind nicht automatisiert; Nachbaraufgaben werden nicht abgeleitet (7+8 wird neu gerechnet statt über 7+7+1) — erkennbar an gleich langer Latenz für Kern- und Nachbaraufgabe
-- **diagnostik:** —
+- **diagnostik:** verdoppeln-halbieren.ZR20-01
 - **übung:** —
 
 ### verdoppeln-halbieren × ZR100 × enaktiv
@@ -751,7 +751,7 @@ ihm vollständig.
 
 - **quelle:** RLP BE/BB Teil C, L1, Niveaustufe B (halbschriftliche Strategien); Padberg/Benz (Kap. n.n. — Seitenbeleg folgt nach Ankunft)
 - **fehlerbild:** 25+25 wird stellenweise neu ausgerechnet, statt die Verdopplung abzurufen; bei 26+26 werden Zehner und Einer getrennt verdoppelt und der Übertrag geht verloren (Antwort 412 statt 52)
-- **diagnostik:** —
+- **diagnostik:** verdoppeln-halbieren.ZR100-01, verdoppeln-halbieren.ZR100-02, verdoppeln-halbieren.ZR100-03
 - **übung:** S3.6 [alt, Triage offen]
 
 ## Strang: buendeln-entbuendeln

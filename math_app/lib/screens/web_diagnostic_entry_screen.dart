@@ -32,7 +32,12 @@ class _WebDiagnosticEntryScreenState extends State<WebDiagnosticEntryScreen> {
       if (!mounted) return;
 
       if (alreadyCompleted) {
-        Navigator.of(context).pushReplacement(
+        // push, not pushReplacement: this screen is rendered by GoRouter as a
+        // page-based route, and Navigator.pushReplacement cannot complete a
+        // page-based route via the imperative API (hard Flutter assertion in
+        // navigator.dart). Pushing on top avoids that; the entry screen is a
+        // one-shot loader with no back affordance a child would use.
+        Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => const DiagnosticCompleteScreen()),
         );
         return;
@@ -46,7 +51,8 @@ class _WebDiagnosticEntryScreenState extends State<WebDiagnosticEntryScreen> {
         useBreakOffLogic: abbreviatedMode,
       );
 
-      Navigator.of(context).pushReplacement(
+      // push, not pushReplacement — see comment above.
+      Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => DiagnosticScreen(
             userProfile: profile,

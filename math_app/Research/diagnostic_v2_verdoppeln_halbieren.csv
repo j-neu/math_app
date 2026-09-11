@@ -1,2 +1,6 @@
 ListNumber,SourceType,QuestionText,AnswerFormat,CorrectAnswer,German,English,IfWrong_practice_skills,Ifwrong_skip,Notes,SkipGroup,Zahlenraum,AudioAsset,Hilfetext
-9001,Text,"Rechne: 4 + 4",Single,8,"Rechne: 4 + 4",Calculate: 4 + 4,verdoppeln-halbieren.ZR10,,medium; verdoppeln-halbieren.ZR10 Verdoppeln im ZR10,,ZR10,,
+92,Text,"Was ist das Doppelte von 4?",Single,8,"Was ist das Doppelte von 4?",What is double 4?,verdoppeln-halbieren.ZR10,,medium; verdoppeln-halbieren.ZR10 Verdoppeln im ZR10,,ZR10,,
+93,Text,"Was ist das Doppelte von 7?",Single,14,"Was ist das Doppelte von 7?",What is double 7?,verdoppeln-halbieren.ZR20,,medium; verdoppeln-halbieren.ZR20 Verdoppeln im ZR20 (Zehnerübergang),,ZR20,,
+94,Text,"Was ist das Doppelte von 20?",Single,40,"Was ist das Doppelte von 20?",What is double 20?,verdoppeln-halbieren.ZR100,,medium; verdoppeln-halbieren.ZR100 Verdoppeln im ZR100 (glatte Zehnerzahl),,ZR100,,
+95,Text,"Was ist das Doppelte von 43?",Single,86,"Was ist das Doppelte von 43?",What is double 43?,verdoppeln-halbieren.ZR100,,hard; verdoppeln-halbieren.ZR100 Verdoppeln im ZR100 (ohne Übertrag),,ZR100,,
+96,Text,"Was ist das Doppelte von 27?",Single,54,"Was ist das Doppelte von 27?",What is double 27?,verdoppeln-halbieren.ZR100,,hard; verdoppeln-halbieren.ZR100 Verdoppeln im ZR100 (mit Übertrag),,ZR100,,

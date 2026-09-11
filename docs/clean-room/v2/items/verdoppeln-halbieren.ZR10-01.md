@@ -6,7 +6,7 @@
 - **darstellung:** keine
 - **darstellung-konfiguration:** —
 - **blitz:** nein
-- **prompt:** Rechne: 4 + 4
+- **prompt:** Was ist das Doppelte von 4?
 - **audio:** audio/v2/verdoppeln-halbieren.ZR10-01.mp3
 - **antwortfelder:**
   - `ergebnis` — Ergebnis

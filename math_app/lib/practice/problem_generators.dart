@@ -1954,6 +1954,10 @@ Problem _generateCustomWidget(
       return _generateNumberlineMark(spec, level, levelNumber, seed, index, gen);
     case 'flash_subitize':
       return _generateFlashSubitize(spec, level, levelNumber, seed, index, gen);
+    case 'doubling_mirror_enaktiv':
+    case 'doubling_mirror_ikonisch':
+    case 'doubling_mirror_symbolisch':
+      return _generateDoublingMirror(spec, level, levelNumber, seed, index, gen);
     default:
       throw SpecFormatException(
         'custom_widget: unknown registry key "${level.customWidget}"',
@@ -2154,5 +2158,40 @@ Problem _generateFlashSubitize(
       'display': pattern,
     },
     expected: [count.toString()],
+  );
+}
+
+/// Registry keys `"doubling_mirror_enaktiv"`, `"doubling_mirror_ikonisch"`,
+/// `"doubling_mirror_symbolisch"` (verdoppeln-halbieren.ZR10, alle drei
+/// Level derselben Skill-Spec): the widget shows `display.target` and the
+/// child reports the doubled total; correctness is a plain string match
+/// against `expected`, handled by `_evaluateCustomWidget`'s default branch.
+Problem _generateDoublingMirror(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final countRange = level.intListParam('count_range');
+  final lo = countRange.isEmpty ? 1 : countRange[0];
+  final hi = countRange.isEmpty ? 5 : countRange[1];
+  if (lo < 1 || hi > 5 || lo > hi) {
+    throw SpecFormatException(
+      'doubling_mirror: count_range [$lo, $hi] must be within [1, 5] for ZR10',
+    );
+  }
+  final target = gen.nextIntInRange(lo, hi);
+
+  return Problem(
+    template: 'custom_widget',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: {'custom_widget': level.customWidget, 'target': target},
+    expected: ['${target * 2}'],
   );
 }

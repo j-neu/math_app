@@ -9,6 +9,7 @@ import 'package:math_app/widgets/manipulatives/rekenrek.dart';
 import 'package:math_app/widgets/templates/bundle_sticks_widget.dart';
 import 'package:math_app/widgets/templates/bundling_widget.dart';
 import 'package:math_app/widgets/templates/compare_symbols_widget.dart';
+import 'package:math_app/widgets/templates/doubling_mirror_enaktiv_widget.dart';
 import 'package:math_app/widgets/templates/drag_partition_widget.dart';
 import 'package:math_app/widgets/templates/equation_gap_widget.dart';
 import 'package:math_app/widgets/templates/equation_solve_widget.dart';
@@ -2554,6 +2555,82 @@ void main() {
         tester.getRect(find.byKey(const ValueKey('numberline-mark-line'))),
         isNot(equals(Rect.zero)),
       );
+    });
+  });
+
+  group('DoublingMirrorEnaktivWidget', () {
+    Problem mirrorProblem(int target) => _problem(
+          template: 'custom_widget',
+          display: {'custom_widget': 'doubling_mirror_enaktiv', 'target': target},
+          expected: ['${target * 2}'],
+        );
+
+    // The widget's Column uses Expanded, so it needs a bounded height; the
+    // shared `_pumpApp` wraps children in a vertical SingleChildScrollView
+    // (unbounded height), which is incompatible. Pump it straight into a
+    // Scaffold body instead.
+    Future<void> pumpMirror(
+      WidgetTester tester,
+      Problem problem,
+      List<String> values,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: DoublingMirrorEnaktivWidget(
+              problem: problem,
+              onValueChanged: values.add,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+    }
+
+    testWidgets('renders target-count dots and reports the final total',
+        (tester) async {
+      final values = <String>[];
+      await pumpMirror(tester, mirrorProblem(3), values);
+
+      await tester.enterText(find.byType(TextField), '3');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pump();
+
+      final dragSource = find.byType(Draggable<int>);
+      final dragTarget = find.byType(DragTarget<int>);
+      for (var i = 0; i < 3; i++) {
+        await tester.drag(
+          dragSource,
+          tester.getCenter(dragTarget) - tester.getCenter(dragSource),
+        );
+        await tester.pump();
+      }
+
+      expect(find.byKey(const ValueKey('final-answer')), findsOneWidget);
+      await tester.enterText(find.byKey(const ValueKey('final-answer')), '6');
+      await tester.pump();
+
+      expect(values.last, '6');
+    });
+
+    testWidgets('a new problem resets to step 0', (tester) async {
+      final values = <String>[];
+      await pumpMirror(tester, mirrorProblem(2), values);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: DoublingMirrorEnaktivWidget(
+              problem: mirrorProblem(4),
+              onValueChanged: values.add,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(values.last, '');
+      expect(find.byType(TextField), findsOneWidget);
     });
   });
 }

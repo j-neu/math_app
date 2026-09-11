@@ -35,6 +35,9 @@ const Set<String> kKnownCustomWidgets = {
   'unbundling',
   'numberline_mark',
   'flash_subitize',
+  'doubling_mirror_enaktiv',
+  'doubling_mirror_ikonisch',
+  'doubling_mirror_symbolisch',
 };
 
 /// Thrown when a skill-spec JSON document violates the P2 §4 schema.

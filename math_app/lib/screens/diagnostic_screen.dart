@@ -1122,6 +1122,20 @@ Widget buildVisualDisplay(
     // B2.2-01 — Zahlenstrahl 0–100, anchors 0/50/100, arrow at 80.
     case 'B2.2-01':
       return const ZahlenstrahlArrowWidget(value: 80);
+    // B2.2-repl-01 — Zahlenstrahl 0–10, arrow at 7 (v2 ZR10 ladder rung).
+    case 'B2.2-repl-01':
+      return const ZahlenstrahlArrowWidget(value: 7, scaleMax: 10);
+    // B2.2-repl-02 — Zahlenstrahl 0–20, arrow at 14 (v2 ZR20 ladder rung).
+    case 'B2.2-repl-02':
+      return const ZahlenstrahlArrowWidget(value: 14, scaleMax: 20);
+    // B1.2-repl-01 — 41 as 3 Zehner-Stangen + 11 Einer-Würfel (v2 replacement
+    // for B1.2-02, one field instead of three); reuses the Dienes widget.
+    case 'B1.2-repl-01':
+      return const DienesPlaceValueWidget(tens: 3, ones: 11);
+    // B1.3-repl-01 — 13 = 1 Zehner-Stange + 3 Einer; tapping opens the rod
+    // (v2 replacement for B1.3-01, wording corrected); reuses DienesOeffnen.
+    case 'B1.3-repl-01':
+      return const DienesOeffnenWidget();
     // DDA-04 — Zehnerfeld 5+2.
     case 'DDA-04':
       return const ZehnerfeldWidget(filled: {0, 1, 2, 3, 4, 5, 6});

@@ -77,6 +77,7 @@ flutter:
   assets:
     - Research/diagnostic_core_v1.csv
     - Research/diagnostic_v2_verdoppeln_halbieren.csv
+    - Research/diagnostic_v2_item_quality_fixes.csv
     - Research/skills_taxonomy.csv
     # Research/DiagnosticPictures/ removed 2026-08-29 (tasks.md R0.2): scanned
     # Kartei pages must not ship. Every image referenced by the diagnostic CSV

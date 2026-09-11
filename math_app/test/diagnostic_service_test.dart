@@ -114,4 +114,34 @@ void main() {
         isTrue,
         reason: 'superseded v1 items 18, 22, 23 must not be served');
   });
+
+  test('loadQuestions merges the v2 item-quality-fix CSV', () async {
+    final service = DiagnosticService();
+    final questions = await service.loadQuestions();
+
+    // A3.3 replacement: no "Kim" framing, correct answer 8.
+    final a33Item = questions.firstWhere(
+      (q) =>
+          q.ifWrongPracticeSkills.contains('A3.3') &&
+          q.german.contains('doppelt so groß wie die 4'),
+      orElse: () => throw StateError('v2 A3.3 replacement not found'),
+    );
+    expect(a33Item.correctAnswer, '8');
+    expect(a33Item.german, isNot(contains('Kim')));
+
+    // B1.2 replacement: 41 as 3 tens + 11 ones.
+    final b12Item = questions.firstWhere(
+      (q) => q.questionText == 'B1.2-repl-01',
+      orElse: () => throw StateError('v2 B1.2 replacement not found'),
+    );
+    expect(b12Item.ifWrongPracticeSkills, contains('B1.2'));
+    expect(b12Item.correctAnswer, '41');
+
+    // B2.2 ZR20 ladder rung is served with its ZR20 tag.
+    final b22Item = questions.firstWhere(
+      (q) => q.questionText == 'B2.2-repl-02',
+      orElse: () => throw StateError('v2 B2.2 replacement not found'),
+    );
+    expect(b22Item.zahlenraum, 'ZR20');
+  });
 }

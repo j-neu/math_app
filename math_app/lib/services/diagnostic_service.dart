@@ -36,7 +36,11 @@ class DiagnosticService {
         .loadString('Research/diagnostic_v2_verdoppeln_halbieren.csv');
     final v2Questions = loadQuestionsFromCsv(v2Csv);
 
-    return [...coreQuestions, ...v2Questions];
+    final v2FixesCsv = await rootBundle
+        .loadString('Research/diagnostic_v2_item_quality_fixes.csv');
+    final v2FixesQuestions = loadQuestionsFromCsv(v2FixesCsv);
+
+    return [...coreQuestions, ...v2Questions, ...v2FixesQuestions];
   }
 
   /// Pure CSV variant of [loadQuestions] — used by tests and by callers that

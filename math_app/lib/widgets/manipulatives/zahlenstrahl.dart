@@ -8,6 +8,7 @@ class ZahlenstrahlPainter extends CustomPainter {
   final Set<int> majorTicks;
   final Set<int> minorTicks;
   final Map<int, String> labels;
+  final double scaleMax;
 
   const ZahlenstrahlPainter({
     this.arrowAt,
@@ -15,6 +16,7 @@ class ZahlenstrahlPainter extends CustomPainter {
     this.majorTicks = const {},
     this.minorTicks = const {},
     this.labels = const {},
+    this.scaleMax = 100,
   });
 
   @override
@@ -23,7 +25,7 @@ class ZahlenstrahlPainter extends CustomPainter {
     final right = size.width - 16.0;
     final baseline = size.height * 0.6;
 
-    double xFor(num v) => left + (right - left) * (v / 100.0);
+    double xFor(num v) => left + (right - left) * (v / scaleMax);
 
     canvas.drawLine(
       Offset(left, baseline),
@@ -110,12 +112,13 @@ class ZahlenstrahlPainter extends CustomPainter {
       oldDelegate.arrowAt != arrowAt || oldDelegate.markAt != markAt;
 }
 
-/// Static number line 0–100 with labelled anchors at 0/50/100, unlabelled
-/// tens marks and a red arrow at [value] (B2.2-01).
+/// Static number line 0–[scaleMax] (default 100) with labelled anchors at
+/// 0/scaleMax÷2/scaleMax, unlabelled tens marks and a red arrow at [value].
 class ZahlenstrahlArrowWidget extends StatelessWidget {
   final int value;
+  final int scaleMax;
 
-  const ZahlenstrahlArrowWidget({required this.value});
+  const ZahlenstrahlArrowWidget({required this.value, this.scaleMax = 100});
 
   @override
   Widget build(BuildContext context) {
@@ -125,8 +128,9 @@ class ZahlenstrahlArrowWidget extends StatelessWidget {
       child: CustomPaint(
         painter: ZahlenstrahlPainter(
           arrowAt: value.toDouble(),
-          majorTicks: {for (var v = 0; v <= 100; v += 10) v},
-          labels: const {0: '0', 50: '50', 100: '100'},
+          scaleMax: scaleMax.toDouble(),
+          majorTicks: {for (var v = 0; v <= scaleMax; v += scaleMax ~/ 10) v},
+          labels: {0: '0', scaleMax ~/ 2: '${scaleMax ~/ 2}', scaleMax: '$scaleMax'},
         ),
       ),
     );

@@ -15,6 +15,7 @@ import '../widgets/templates/bundle_sticks_widget.dart';
 import '../widgets/templates/bundling_widget.dart';
 import '../widgets/templates/compare_symbols_widget.dart';
 import '../widgets/templates/doubling_mirror_enaktiv_widget.dart';
+import '../widgets/templates/doubling_mirror_ikonisch_widget.dart';
 import '../widgets/templates/drag_partition_widget.dart';
 import '../widgets/templates/equation_gap_widget.dart';
 import '../widgets/templates/equation_solve_widget.dart';
@@ -126,6 +127,10 @@ Widget buildTemplateWidget({
           onValueChanged: onValueChanged,
         ),
       'doubling_mirror_enaktiv' => DoublingMirrorEnaktivWidget(
+          problem: problem,
+          onValueChanged: onValueChanged,
+        ),
+      'doubling_mirror_ikonisch' => DoublingMirrorIkonischWidget(
           problem: problem,
           onValueChanged: onValueChanged,
         ),

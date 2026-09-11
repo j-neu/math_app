@@ -683,7 +683,7 @@ ihm vollständig.
 
 | Zahlenraum | enaktiv | ikonisch | symbolisch |
 |---|---|---|---|
-| ZR10 | offen | offen | offen |
+| ZR10 | freigegeben | freigegeben | freigegeben |
 | ZR20 | offen | offen | offen |
 | ZR100 | offen | offen | offen |
 
@@ -696,21 +696,21 @@ ihm vollständig.
 - **quelle:** RLP BE/BB Teil C, L1, Niveaustufe A; Padberg/Benz, Verdoppeln als Kernaufgabe (Kap. n.n. — Seitenbeleg folgt nach Ankunft)
 - **fehlerbild:** Kind legt die zweite Menge nicht parallel zur ersten, sondern zählt die Gesamtmenge anschließend von 1 an ab; die Verdopplung wird als Zählaufgabe behandelt statt als Struktur
 - **diagnostik:** —
-- **übung:** S3.3 [alt, Triage offen]
+- **übung:** S3.1 [Triage entschieden: doubling_mirror_enaktiv, Phase 3a — nicht S3.3/Fingers]
 
 ### verdoppeln-halbieren × ZR10 × ikonisch
 
 - **quelle:** RLP BE/BB Teil C, L1, Niveaustufe A; Krajewski, Anzahlerfassung strukturierter Mengen
 - **fehlerbild:** Kind liest die gespiegelte Menge nicht als Kopie der ersten, sondern zählt alle abgebildeten Punkte einzeln; alternativ nennt es die Ausgangszahl statt des Doppelten
 - **diagnostik:** —
-- **übung:** S3.1 [alt, Triage offen]
+- **übung:** S3.1 [Triage entschieden: doubling_mirror_ikonisch, Phase 3a]
 
 ### verdoppeln-halbieren × ZR10 × symbolisch
 
 - **quelle:** RLP BE/BB Teil C, L1, Niveaustufe A (Kernaufgaben); Wartha/Schulz, Ablösung vom zählenden Rechnen (Kap. n.n. — Seitenbeleg folgt nach Ankunft)
 - **fehlerbild:** 4+4 wird zählend gelöst — lange Latenz, gehäufte ±1-Fehler; die Kernaufgabe ist nicht abrufbar, sondern wird jedes Mal neu errechnet
-- **diagnostik:** —
-- **übung:** —
+- **diagnostik:** verdoppeln-halbieren.ZR10-01
+- **übung:** S3.1 [Triage entschieden: doubling_mirror_symbolisch, Phase 3a]
 
 ### verdoppeln-halbieren × ZR20 × enaktiv
 

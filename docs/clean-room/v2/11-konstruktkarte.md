@@ -433,7 +433,7 @@ einzelnen Textblöcken, die jederzeit aus der Matrix neu erzeugt werden.
 - **leitende Repräsentation:** symbolisch
 - **stützende Repräsentation:** enaktiv
 - **Quellen:** RLP BE/BB Teil C, L1, Niveaustufe A; Padberg/Benz, Verdoppeln als Kernaufgabe (Kap. n.n. — Seitenbeleg folgt nach Ankunft); Krajewski, Anzahlerfassung strukturierter Mengen; RLP BE/BB Teil C, L1, Niveaustufe A (Kernaufgaben); Wartha/Schulz, Ablösung vom zählenden Rechnen (Kap. n.n. — Seitenbeleg folgt nach Ankunft)
-- **Übungen im Bestand:** S3.3, S3.1
+- **Übungen im Bestand:** S3.1
 - **Fehlerbilder je Repräsentation:**
   - *enaktiv* — Kind legt die zweite Menge nicht parallel zur ersten, sondern zählt die Gesamtmenge anschließend von 1 an ab; die Verdopplung wird als Zählaufgabe behandelt statt als Struktur
   - *ikonisch* — Kind liest die gespiegelte Menge nicht als Kopie der ersten, sondern zählt alle abgebildeten Punkte einzeln; alternativ nennt es die Ausgangszahl statt des Doppelten

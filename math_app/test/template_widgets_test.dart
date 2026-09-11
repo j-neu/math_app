@@ -11,6 +11,7 @@ import 'package:math_app/widgets/templates/bundling_widget.dart';
 import 'package:math_app/widgets/templates/compare_symbols_widget.dart';
 import 'package:math_app/widgets/templates/doubling_mirror_enaktiv_widget.dart';
 import 'package:math_app/widgets/templates/doubling_mirror_ikonisch_widget.dart';
+import 'package:math_app/widgets/templates/doubling_mirror_symbolisch_widget.dart';
 import 'package:math_app/widgets/templates/drag_partition_widget.dart';
 import 'package:math_app/widgets/templates/equation_gap_widget.dart';
 import 'package:math_app/widgets/templates/equation_solve_widget.dart';
@@ -2684,6 +2685,57 @@ void main() {
       await tester.pump();
 
       expect(values.last, '6');
+    });
+  });
+
+  group('DoublingMirrorSymbolischWidget', () {
+    Problem mirrorProblem(int target) => _problem(
+          template: 'custom_widget',
+          display: {'custom_widget': 'doubling_mirror_symbolisch', 'target': target},
+          expected: ['${target * 2}'],
+        );
+
+    testWidgets('shows the target number and reports the typed value',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        DoublingMirrorSymbolischWidget(
+          problem: mirrorProblem(4),
+          onValueChanged: values.add,
+        ),
+      );
+
+      expect(find.text('4'), findsOneWidget);
+      await tester.enterText(find.byKey(const ValueKey('final-answer')), '8');
+      await tester.pump();
+
+      expect(values.last, '8');
+    });
+
+    testWidgets('a new problem clears the field and reports ""',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        DoublingMirrorSymbolischWidget(
+          problem: mirrorProblem(2),
+          onValueChanged: values.add,
+        ),
+      );
+      await tester.enterText(find.byKey(const ValueKey('final-answer')), '4');
+      await tester.pump();
+
+      await _pumpApp(
+        tester,
+        DoublingMirrorSymbolischWidget(
+          problem: mirrorProblem(5),
+          onValueChanged: values.add,
+        ),
+      );
+
+      expect(values.last, '');
+      expect(find.text('5'), findsOneWidget);
     });
   });
 }

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Mirror the P3 skill specs into the Flutter bundle assets.
 
-Copies docs/clean-room/skills/specs/*.json → math_app/assets/skill_specs/
+Copies docs/clean-room/skills/specs/*.json (v1) AND
+docs/clean-room/v2/skills/specs/*.json (v2) into math_app/assets/skill_specs/,
 creating the destination directory when needed. Idempotent: files that are
 already present and byte-identical are left untouched. Prints a summary.
 """
@@ -13,18 +14,23 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SRC_DIR = REPO_ROOT / "docs" / "clean-room" / "skills" / "specs"
+SRC_DIRS = [
+    REPO_ROOT / "docs" / "clean-room" / "skills" / "specs",
+    REPO_ROOT / "docs" / "clean-room" / "v2" / "skills" / "specs",
+]
 DEST_DIR = REPO_ROOT / "math_app" / "assets" / "skill_specs"
 
 
 def main(argv: list[str] | None = None) -> int:
-    if not SRC_DIR.is_dir():
-        print(f"ERROR: specs directory not found: {SRC_DIR}")
-        return 1
-
     DEST_DIR.mkdir(parents=True, exist_ok=True)
 
-    sources = sorted(SRC_DIR.glob("*.json"))
+    sources: list[Path] = []
+    for src_dir in SRC_DIRS:
+        if not src_dir.is_dir():
+            print(f"ERROR: specs directory not found: {src_dir}")
+            return 1
+        sources.extend(sorted(src_dir.glob("*.json")))
+
     copied = 0
     for source in sources:
         target = DEST_DIR / source.name

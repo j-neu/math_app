@@ -23,7 +23,7 @@ class DiagnosticService {
   /// Task 1 Step 1 searched the v1 core file for rows routed via the v2 skill
   /// IDs (basic_strategy_7/8/9/10, strategy_doubling_tens_1) and found none, so
   /// the set is intentionally empty: there is no legacy item to filter out.
-  static const Set<int> _kSupersededByV2 = {};
+  static const Set<int> _kSupersededByV2 = {18, 22, 23};
 
   Future<List<DiagnosticQuestion>> loadQuestions() async {
     final coreCsv =

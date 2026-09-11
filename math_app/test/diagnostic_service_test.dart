@@ -109,5 +109,9 @@ void main() {
     );
     expect(v2Item.correctAnswer, '8');
     expect(v2Item.zahlenraum, 'ZR10');
+
+    expect(questions.every((q) => ![18, 22, 23].contains(q.listNumber)),
+        isTrue,
+        reason: 'superseded v1 items 18, 22, 23 must not be served');
   });
 }

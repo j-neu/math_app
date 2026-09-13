@@ -9,12 +9,64 @@ import 'package:math_app/widgets/diagnostic_answer_widgets.dart';
 
 /// Proves the child-facing interaction path for the input modes: what the
 /// child types/taps lands in the shared controller and grades correct.
+///
+/// Where the live `Research/diagnostic_v4_master.csv` content demonstrates a
+/// mode (number, sequence, choice), the fixture is a real master item so the
+/// test doubles as content coverage. Two modes (labeledFields, pairRows) and
+/// the sequence "anchor" convenience have no live master item right now, so
+/// those use synthetic fixtures (kAnswerSpecs 9101-9104) purely to keep the
+/// widget mechanics covered.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final csv = File('Research/diagnostic_core_v1.csv').readAsStringSync();
-  final all = DiagnosticService.loadQuestionsFromCsv(csv);
-  DiagnosticQuestion q(int n) => all.firstWhere((e) => e.listNumber == n);
+  final csv = File('Research/diagnostic_v4_master.csv').readAsStringSync();
+  final master = DiagnosticService.loadQuestionsFromCsv(csv);
+  DiagnosticQuestion bySkill(String skillId) => master
+      .firstWhere((e) => e.ifWrongPracticeSkills.contains(skillId));
+
+  DiagnosticQuestion labeledFieldsFixture1() => DiagnosticQuestion(
+        listNumber: 9101,
+        sourceType: QuestionType.text,
+        questionText: 'Welche Zahl kommt vor und nach 37?',
+        answerFormat: AnswerFormat.single,
+        correctAnswer: '36, 38',
+        german: 'Welche Zahl kommt vor und nach 37?',
+        english: 'Test',
+        ifWrongPracticeSkills: const [],
+      );
+
+  DiagnosticQuestion labeledFieldsFixture2() => DiagnosticQuestion(
+        listNumber: 9102,
+        sourceType: QuestionType.text,
+        questionText: 'Aus wie vielen Zehnern und Einern besteht 58?',
+        answerFormat: AnswerFormat.single,
+        correctAnswer: '5, 8',
+        german: 'Aus wie vielen Zehnern und Einern besteht 58?',
+        english: 'Test',
+        ifWrongPracticeSkills: const [],
+      );
+
+  DiagnosticQuestion pairRowsFixture() => DiagnosticQuestion(
+        listNumber: 9103,
+        sourceType: QuestionType.text,
+        questionText: 'Finde drei verschiedene Wege, 8 zu rechnen.',
+        answerFormat: AnswerFormat.single,
+        correctAnswer: '1 + 7; 2 + 6; 3 + 5',
+        german: 'Finde drei verschiedene Wege, 8 zu rechnen.',
+        english: 'Test',
+        ifWrongPracticeSkills: const [],
+      );
+
+  DiagnosticQuestion anchorSequenceFixture() => DiagnosticQuestion(
+        listNumber: 9104,
+        sourceType: QuestionType.text,
+        questionText: 'Zähle rückwärts weiter.',
+        answerFormat: AnswerFormat.single,
+        correctAnswer: '20, 19, 18, 17, 16',
+        german: 'Zähle rückwärts weiter: 21, __, __, __, __, __',
+        english: 'Test',
+        ifWrongPracticeSkills: const [],
+      );
 
   Future<TextEditingController> pumpFor(
     WidgetTester tester,
@@ -33,53 +85,58 @@ void main() {
     return controller;
   }
 
-  testWidgets('Q1 counting sequence: 8 numeric fields join and grade correct',
+  testWidgets(
+      'count_forward_zr20: 4 numeric fields join and grade correct',
       (tester) async {
-    final question = q(1);
+    final question = bySkill('count_forward_zr20');
     final controller = await pumpFor(tester, question);
 
     expect(AnswerGrading.modeFor(question), DiagnosticAnswerMode.sequence);
     final fields = find.byType(TextField);
-    expect(fields, findsNWidgets(8));
+    expect(fields, findsNWidgets(4));
 
-    const answers = ['13', '14', '15', '16', '17', '18', '19', '20'];
+    const answers = ['14', '15', '16', '17'];
     for (var i = 0; i < answers.length; i++) {
       await tester.enterText(fields.at(i), answers[i]);
     }
     await tester.pump();
 
-    expect(controller.text, '13, 14, 15, 16, 17, 18, 19, 20');
-    expect(AnswerGrading.grade(userAnswer: controller.text, question: question),
-        isTrue);
-  });
-
-  testWidgets('Q11 compare: tapping "rechts" writes the word and grades true',
-      (tester) async {
-    final question = q(11);
-    final controller = await pumpFor(tester, question);
-
-    expect(AnswerGrading.modeFor(question), DiagnosticAnswerMode.choice);
-    await tester.tap(find.text('rechts'));
-    await tester.pump();
-
-    expect(controller.text, 'rechts');
-    expect(AnswerGrading.grade(userAnswer: controller.text, question: question),
-        isTrue);
-  });
-
-  testWidgets('Q36 arithmetic: typing the number grades true', (tester) async {
-    final question = q(36);
-    final controller = await pumpFor(tester, question);
-    expect(AnswerGrading.modeFor(question), DiagnosticAnswerMode.number);
-    await tester.enterText(find.byType(TextField), '13');
+    expect(controller.text, '14, 15, 16, 17');
     expect(AnswerGrading.grade(userAnswer: controller.text, question: question),
         isTrue);
   });
 
   testWidgets(
-      'Q7 Vorgänger/Nachfolger renders two labeled fields that join and grade',
+      'even_odd_recognition: tapping "gerade" writes the word and grades true',
       (tester) async {
-    final question = q(7);
+    final question = master.firstWhere(
+        (q) => q.ifWrongPracticeSkills.contains('even_odd_recognition') &&
+            q.german.contains('14'));
+    final controller = await pumpFor(tester, question);
+
+    expect(AnswerGrading.modeFor(question), DiagnosticAnswerMode.choice);
+    await tester.tap(find.text('gerade'));
+    await tester.pump();
+
+    expect(controller.text, 'gerade');
+    expect(AnswerGrading.grade(userAnswer: controller.text, question: question),
+        isTrue);
+  });
+
+  testWidgets('basic_fact_add_with_5: typing the number grades true',
+      (tester) async {
+    final question = bySkill('basic_fact_add_with_5');
+    final controller = await pumpFor(tester, question);
+    expect(AnswerGrading.modeFor(question), DiagnosticAnswerMode.number);
+    await tester.enterText(find.byType(TextField), question.correctAnswer);
+    expect(AnswerGrading.grade(userAnswer: controller.text, question: question),
+        isTrue);
+  });
+
+  testWidgets(
+      'Vorgänger/Nachfolger fixture renders two labeled fields that join and '
+      'grade', (tester) async {
+    final question = labeledFieldsFixture1();
     final controller = await pumpFor(tester, question);
 
     expect(AnswerGrading.modeFor(question), DiagnosticAnswerMode.labeledFields);
@@ -98,9 +155,9 @@ void main() {
   });
 
   testWidgets(
-      'Q20 place value renders Zehner/Einer fields that join and grade',
+      'place-value fixture renders Zehner/Einer fields that join and grade',
       (tester) async {
-    final question = q(20);
+    final question = labeledFieldsFixture2();
     final controller = await pumpFor(tester, question);
 
     expect(AnswerGrading.modeFor(question), DiagnosticAnswerMode.labeledFields);
@@ -118,9 +175,9 @@ void main() {
         isTrue);
   });
 
-  testWidgets('Q15 decomposition rows render a visible "+" between fields',
+  testWidgets('decomposition fixture renders a visible "+" between fields',
       (tester) async {
-    final question = q(15);
+    final question = pairRowsFixture();
     final controller = await pumpFor(tester, question);
     expect(AnswerGrading.modeFor(question), DiagnosticAnswerMode.pairRows);
 
@@ -137,9 +194,9 @@ void main() {
         isTrue);
   });
 
-  testWidgets('Q15 decomposition: three rows of pairs grade correct',
+  testWidgets('decomposition fixture: three rows of pairs grade correct',
       (tester) async {
-    final question = q(15);
+    final question = pairRowsFixture();
     final controller = await pumpFor(tester, question);
     expect(AnswerGrading.modeFor(question), DiagnosticAnswerMode.pairRows);
 
@@ -155,9 +212,9 @@ void main() {
   });
 
   testWidgets(
-      'Q3 backward count shows the given start as static text ahead of the boxes',
+      'anchor fixture shows the given start as static text ahead of the boxes',
       (tester) async {
-    final question = q(3);
+    final question = anchorSequenceFixture();
     final controller = await pumpFor(tester, question);
 
     expect(find.text('21,'), findsOneWidget);

@@ -26,6 +26,35 @@ void main() {
     'DDB-02',
     'DDB-04',
     'DDB-05',
+    'V3Z-01',
+    'V3Z-02',
+    'V3D-01',
+    'V3D-02',
+    'V3D-03',
+    'V3D-04',
+    'V3D-05',
+    'V3D-06',
+    'V3D-07',
+    'V3D-08',
+    'V3D-09',
+    'V3D-10',
+    'V3D-11',
+    'V3D-12',
+    'V3D-13',
+    'V3S-01',
+    'V3S-02',
+    'V3S-03',
+    'V3S-04',
+    'V3S-05',
+    'V3S-06',
+    'V3S-07',
+    'V3S-08',
+    'V3G-01',
+    'V3K-01',
+    'V3K-02',
+    'V3M-01',
+    'V3M-02',
+    'V3M-03',
   ];
 
   DiagnosticQuestion questionFor(String id) => DiagnosticQuestion(
@@ -44,7 +73,14 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Center(child: buildVisualDisplay(questionFor(id))),
+            // The real DiagnosticScreen wraps visual items in a
+            // SingleChildScrollView (some, like the legend+puzzle pairs,
+            // are taller than a typical viewport) -- match that here so
+            // this smoke test doesn't flag a real screen's tall content as
+            // a RenderFlex overflow.
+            body: SingleChildScrollView(
+              child: Center(child: buildVisualDisplay(questionFor(id))),
+            ),
           ),
         ),
       );

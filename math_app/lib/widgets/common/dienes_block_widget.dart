@@ -18,6 +18,15 @@ class DienesBlockWidget extends StatelessWidget {
   final double cellSize;
   final Color? color;
 
+  /// For [DienesType.rod]: how many rods to bundle together, each drawn as
+  /// its own shape and stacked along the depth axis (like a Hunderterplatte
+  /// is 10 rods deep) with a small explicit gap between them, so the bundle
+  /// reads as several distinct sticks of ten rather than one fused block --
+  /// or, if placed side by side instead of depth-stacked, a row of sticks
+  /// with visible gaps between them, since each rod's isometric bounding
+  /// box has empty corners that don't line up edge to edge on their own.
+  final int count;
+
   static const _unitColor = Color(0xFF43A047);
   static const _rodColor = Color(0xFF1E88E5);
   static const _plateColor = Color(0xFFE53935);
@@ -28,6 +37,7 @@ class DienesBlockWidget extends StatelessWidget {
     required this.type,
     this.cellSize = 20,
     this.color,
+    this.count = 1,
   });
 
   Color get _defaultColor => switch (type) {
@@ -46,6 +56,10 @@ class DienesBlockWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (type == DienesType.rod && count > 1) {
+      return _buildBundledRods();
+    }
+
     const sqrt3 = 1.7320508;
     final hx = cellSize * sqrt3 / 2;
     final hy = cellSize * 0.5;
@@ -62,6 +76,47 @@ class DienesBlockWidget extends StatelessWidget {
         nz: nz,
         cellSize: cellSize,
         color: color ?? _defaultColor,
+      ),
+    );
+  }
+
+  /// Stacks [count] individually-drawn rods along the natural depth
+  /// direction -- the same diagonal a single rod's own geometry uses for
+  /// its "ny" axis -- with a small extra gap on top of the natural touching
+  /// offset, so consecutive rods stay visually distinct without opening up
+  /// the large empty-corner gaps a plain side-by-side row would show.
+  Widget _buildBundledRods() {
+    const sqrt3 = 1.7320508;
+    final hx = cellSize * sqrt3 / 2;
+    final hy = cellSize * 0.5;
+    final gap = cellSize * 0.22;
+    // One natural depth-unit step has length `cellSize`; stretch it a
+    // little so a visible sliver of background shows between rods.
+    final stepScale = (cellSize + gap) / cellSize;
+    final stepDx = hx * stepScale;
+    final stepDy = hy * stepScale;
+
+    final singleWidth = 11 * hx + 2;
+    final singleHeight = 11 * hy + cellSize + 2;
+    final totalWidth = singleWidth + (count - 1) * stepDx;
+    final totalHeight = singleHeight + (count - 1) * stepDy;
+
+    return SizedBox(
+      width: totalWidth,
+      height: totalHeight,
+      child: Stack(
+        children: [
+          for (var i = 0; i < count; i++)
+            Positioned(
+              left: (count - 1 - i) * stepDx,
+              top: i * stepDy,
+              child: DienesBlockWidget(
+                type: DienesType.rod,
+                cellSize: cellSize,
+                color: color,
+              ),
+            ),
+        ],
       ),
     );
   }

@@ -5,180 +5,157 @@ import 'package:math_app/models/diagnostic_question.dart';
 import 'package:math_app/services/answer_grading.dart';
 import 'package:math_app/services/diagnostic_service.dart';
 
-List<DiagnosticQuestion> loadCore() {
-  final csv = File('Research/diagnostic_core_v1.csv').readAsStringSync();
-  return DiagnosticService.loadQuestionsFromCsv(csv);
-}
-
 DiagnosticQuestion q(List<DiagnosticQuestion> all, int listNumber) =>
     all.firstWhere((q) => q.listNumber == listNumber);
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('answer_grading — previously broken real items', () {
-    final all = loadCore();
+  // The clean-room `diagnostic_core_v1.csv` fixtures this file used to test
+  // against (Q1/Q7/Q11/Q15/Q20/... sequence, labeledFields, pairRows, choice
+  // modes) were retired with that file (2026-09-13) once every category had
+  // full v3 coverage in `Research/diagnostic_v4_master.csv`. The generic
+  // mode-mechanics coverage now lives in diagnostic_answer_widgets_test.dart
+  // (synthetic fixtures for modes the master content doesn't currently use)
+  // and diagnostic_answerability_test.dart (every master item is answerable).
 
-    test('counting sequence Q1 accepts typed sequence and rejects short one',
-        () {
-      final question = q(all, 1);
-      expect(question.answerFormat, AnswerFormat.single);
-      expect(AnswerGrading.modeFor(question), DiagnosticAnswerMode.sequence);
-      expect(
-        AnswerGrading.grade(
-            userAnswer: '13, 14, 15, 16, 17, 18, 19, 20',
-            question: question),
-        isTrue,
-      );
-      expect(
-        AnswerGrading.grade(
-            userAnswer: '13, 14, 15, 16, 17, 18, 19', question: question),
-        isFalse,
-      );
+  group('answer_grading — v4 master fixtures', () {
+    final master = DiagnosticService.loadQuestionsFromCsv(
+      File('Research/diagnostic_v4_master.csv').readAsStringSync(),
+    );
+
+    test('representation_bild_symbol (master LN3) is choice mode 5/6/7', () {
+      final question = q(master, 3);
+      expect(AnswerGrading.modeFor(question), DiagnosticAnswerMode.choice);
+      expect(AnswerGrading.choiceOptionsOf(question), ['5', '6', '7']);
+      expect(AnswerGrading.grade(userAnswer: '6', question: question), isTrue);
+      expect(AnswerGrading.grade(userAnswer: '5', question: question), isFalse);
     });
 
-    test('counting sequence Q7 (Vorgänger/Nachfolger) accepts two numbers', () {
-      final question = q(all, 7);
+    test(
+        'representation_bild_symbol_wort (master LN100) offers the curated '
+        'sechs/sechzehn/sechzig options', () {
+      final question = q(master, 100);
+      expect(AnswerGrading.modeFor(question), DiagnosticAnswerMode.choice);
+      expect(AnswerGrading.choiceOptionsOf(question),
+          ['sechzehn', 'sechs', 'sechzig']);
       expect(
-          AnswerGrading.grade(userAnswer: '36, 38', question: question), isTrue);
-      expect(
-          AnswerGrading.grade(userAnswer: '35, 38', question: question),
-          isFalse);
+          AnswerGrading.grade(userAnswer: 'sechs', question: question), isTrue);
     });
 
-    test('word choice Q11 accepts "rechts"', () {
-      final question = q(all, 11);
+    test(
+        'operation_sense_story (master LN105) grades the typed equation, '
+        'not the numeric result', () {
+      final question = q(master, 105);
       expect(AnswerGrading.modeFor(question), DiagnosticAnswerMode.choice);
       expect(
-          AnswerGrading.grade(userAnswer: 'rechts', question: question),
-          isTrue);
+          AnswerGrading.grade(userAnswer: '5+4', question: question), isTrue);
       expect(
-          AnswerGrading.grade(userAnswer: 'links', question: question),
+          AnswerGrading.grade(userAnswer: '9', question: question), isFalse);
+    });
+  });
+
+  group('choiceOptionsOf — "Stimmt das?" ja/nein items get tap chips', () {
+    final grundstrategien = DiagnosticService.loadQuestionsFromCsv(
+      File('Research/diagnostic_v3_grundstrategien.csv').readAsStringSync(),
+    );
+
+    test('equation_equivalence_zr20 (correct answer "ja") offers ja/nein',
+        () {
+      final question = q(grundstrategien, 533);
+      expect(AnswerGrading.modeFor(question), DiagnosticAnswerMode.choice);
+      expect(AnswerGrading.choiceOptionsOf(question), ['ja', 'nein']);
+      expect(
+          AnswerGrading.grade(userAnswer: 'ja', question: question), isTrue);
+      expect(AnswerGrading.grade(userAnswer: 'nein', question: question),
           isFalse);
     });
 
-    test('place-value Q20 accepts "5 Zehner, 8 Einer." equivalents', () {
-      final question = q(all, 20);
-      expect(
-          AnswerGrading.grade(userAnswer: '5, 8', question: question), isTrue);
-      expect(
-          AnswerGrading.grade(
-              userAnswer: '5 Zehner und 8 Einer', question: question),
-          isTrue);
-      expect(AnswerGrading.grade(userAnswer: '58', question: question), isFalse);
-    });
-
-    test('bundles Q22 needs the three stated numbers', () {
-      final question = q(all, 22);
-      expect(
-          AnswerGrading.grade(userAnswer: '41, 4, 1', question: question),
-          isTrue);
-      expect(AnswerGrading.grade(userAnswer: '41', question: question), isFalse);
-    });
-
-    test('Q21 "34." and Q27 "24." accept the typed number', () {
-      expect(
-          AnswerGrading.grade(userAnswer: '34', question: q(all, 21)), isTrue);
-      expect(
-          AnswerGrading.grade(userAnswer: '24', question: q(all, 27)), isTrue);
-      expect(
-          AnswerGrading.grade(userAnswer: '35', question: q(all, 27)), isFalse);
-    });
-
-    test('C3/C4 final-result items grade by the result', () {
-      expect(
-          AnswerGrading.grade(userAnswer: '38', question: q(all, 45)), isTrue);
-      expect(
-          AnswerGrading.grade(userAnswer: '95', question: q(all, 49)), isTrue);
-      expect(
-          AnswerGrading.grade(userAnswer: '75', question: q(all, 52)), isTrue);
-      expect(
-          AnswerGrading.grade(userAnswer: '63', question: q(all, 54)), isTrue);
-    });
-
-    test('multi-result C items grade the sequence', () {
-      expect(
-          AnswerGrading.grade(userAnswer: '43, 35', question: q(all, 48)),
-          isTrue);
-      expect(
-          AnswerGrading.grade(userAnswer: '43, 29', question: q(all, 56)),
-          isTrue);
-      expect(
-          AnswerGrading.grade(userAnswer: '36, 36', question: q(all, 57)),
+    test('equation_equivalence_zr20 (correct answer "nein") offers ja/nein',
+        () {
+      final question = q(grundstrategien, 534);
+      expect(AnswerGrading.choiceOptionsOf(question), ['ja', 'nein']);
+      expect(AnswerGrading.grade(userAnswer: 'nein', question: question),
           isTrue);
     });
 
-    test('word problem Q58 accepts equation or result', () {
+    test('even_odd_recognition offers gerade/ungerade', () {
+      final question = q(grundstrategien, 530);
       expect(
-          AnswerGrading.grade(userAnswer: '8 + 5 = 13', question: q(all, 58)),
-          isTrue);
-      expect(AnswerGrading.grade(userAnswer: '13', question: q(all, 58)),
-          isTrue);
-      expect(AnswerGrading.grade(userAnswer: '12', question: q(all, 58)),
-          isFalse);
-    });
-
-    test('Q59 accepts equation typing or result 13', () {
-      expect(
-          AnswerGrading.grade(userAnswer: '9 + 4 = 13', question: q(all, 59)),
-          isTrue);
-      expect(AnswerGrading.grade(userAnswer: '13', question: q(all, 59)),
-          isTrue);
-      expect(AnswerGrading.grade(userAnswer: '5', question: q(all, 59)),
-          isFalse);
-    });
-
-    test('decompositions Q15 accept three valid distinct pairs', () {
-      final question = q(all, 15);
-      expect(
-          AnswerGrading.grade(
-              userAnswer: '1 + 7; 2 + 6; 3 + 5', question: question),
-          isTrue);
-      expect(
-          AnswerGrading.grade(
-              userAnswer: '3 + 5; 4 + 4; 2 + 6; 1 + 7', question: question),
-          isTrue);
-      expect(
-          AnswerGrading.grade(
-              userAnswer: '1 + 7; 1 + 7; 2 + 6', question: question),
-          isFalse);
-      expect(
-          AnswerGrading.grade(
-              userAnswer: '1 + 1; 2 + 2; 3 + 3', question: question),
-          isFalse);
-    });
-
-    test('pure arithmetic Q28..Q43 keep numeric grading', () {
-      expect(
-          AnswerGrading.grade(userAnswer: '13', question: q(all, 36)), isTrue);
-      expect(
-          AnswerGrading.grade(userAnswer: '12', question: q(all, 36)), isFalse);
-      expect(AnswerGrading.grade(userAnswer: '0', question: q(all, 29)),
+          AnswerGrading.choiceOptionsOf(question), ['gerade', 'ungerade']);
+      expect(AnswerGrading.grade(userAnswer: 'gerade', question: question),
           isTrue);
     });
   });
 
-  group('boxCount — response-time budget input', () {
-    final all = loadCore();
+  group('v3 PIKAS extras — curated choice and equation grading', () {
+    final pikasExtras = DiagnosticService.loadQuestionsFromCsv(
+      File('Research/diagnostic_v3_pikas_extras.csv').readAsStringSync(),
+    );
 
-    test('number mode is one box', () {
-      expect(AnswerGrading.boxCount(q(all, 36)), 1);
+    test(
+        'representation_bild_symbol_wort offers the curated sechs/sechzehn/'
+        'sechzig options', () {
+      final question = q(pikasExtras, 703);
+      expect(AnswerGrading.modeFor(question), DiagnosticAnswerMode.choice);
+      expect(AnswerGrading.choiceOptionsOf(question),
+          ['sechzehn', 'sechs', 'sechzig']);
+      expect(
+          AnswerGrading.grade(userAnswer: 'sechs', question: question),
+          isTrue);
+      expect(
+          AnswerGrading.grade(userAnswer: 'sechzehn', question: question),
+          isFalse);
     });
 
-    test('sequence mode is the expected-number count', () {
-      expect(AnswerGrading.boxCount(q(all, 1)), 8);
+    test(
+        'operation_sense_story grades the typed equation, not the numeric '
+        'result', () {
+      final question = q(pikasExtras, 707);
+      expect(
+          AnswerGrading.grade(userAnswer: '5+4', question: question), isTrue);
+      expect(
+          AnswerGrading.grade(userAnswer: '9', question: question), isFalse);
     });
 
-    test('pairRows mode is two boxes per row', () {
-      expect(AnswerGrading.boxCount(q(all, 15)), 6);
+    test(
+        'representation_bild_symbol renders as tap buttons (5/6/7), not a '
+        'number field', () {
+      final question = q(pikasExtras, 702);
+      expect(AnswerGrading.modeFor(question), DiagnosticAnswerMode.choice);
+      expect(AnswerGrading.choiceOptionsOf(question), ['5', '6', '7']);
+      expect(AnswerGrading.grade(userAnswer: '6', question: question),
+          isTrue);
+      expect(AnswerGrading.grade(userAnswer: '5', question: question),
+          isFalse);
     });
 
-    test('choice mode is one box', () {
-      expect(AnswerGrading.boxCount(q(all, 11)), 1);
+    test(
+        'operation_sense_story renders as tap buttons (5+4/5-4/5x4), not a '
+        'free-text field', () {
+      final question = q(pikasExtras, 707);
+      expect(AnswerGrading.modeFor(question), DiagnosticAnswerMode.choice);
+      expect(AnswerGrading.choiceOptionsOf(question), ['5+4', '5-4', '5x4']);
     });
+  });
 
-    test('freeText mode is one box', () {
-      expect(AnswerGrading.boxCount(q(all, 58)), 1);
+  group('choiceOptionsOf — magnitude estimate offers größer/kleiner', () {
+    final kombinierte = DiagnosticService.loadQuestionsFromCsv(
+      File('Research/diagnostic_v3_kombinierte_strategien.csv')
+          .readAsStringSync(),
+    );
+
+    test('magnitude_estimate_zr100', () {
+      final question = q(kombinierte, 614);
+      expect(AnswerGrading.modeFor(question), DiagnosticAnswerMode.choice);
+      expect(
+          AnswerGrading.choiceOptionsOf(question), ['größer', 'kleiner']);
+      expect(
+          AnswerGrading.grade(userAnswer: 'kleiner', question: question),
+          isTrue);
+      expect(
+          AnswerGrading.grade(userAnswer: 'größer', question: question),
+          isFalse);
     });
   });
 }

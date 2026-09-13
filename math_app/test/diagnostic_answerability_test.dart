@@ -5,15 +5,15 @@ import 'package:math_app/models/diagnostic_question.dart';
 import 'package:math_app/services/answer_grading.dart';
 import 'package:math_app/services/diagnostic_service.dart';
 
-/// The full core bank must be answerable: for every item, the input mode the
-/// app renders can express a canonical correct answer that the grader accepts.
-/// This is the regression net for the "child cannot answer the question" class
-/// of bugs (counting sequences, word answers, place-value phrases, C3/C4
-/// transcripts).
+/// The full master bank must be answerable: for every item, the input mode
+/// the app renders can express a canonical correct answer that the grader
+/// accepts. This is the regression net for the "child cannot answer the
+/// question" class of bugs (counting sequences, word answers, place-value
+/// phrases, multi-part transcripts).
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final csv = File('Research/diagnostic_core_v1.csv').readAsStringSync();
+  final csv = File('Research/diagnostic_v4_master.csv').readAsStringSync();
   final questions = DiagnosticService.loadQuestionsFromCsv(csv);
 
   String canonicalAnswer(DiagnosticQuestion question, DiagnosticAnswerMode mode) {
@@ -52,8 +52,8 @@ void main() {
     }
   }
 
-  test('every one of the 59 core items has a renderable, gradable answer', () {
-    expect(questions.length, 59);
+  test('every master item has a renderable, gradable answer', () {
+    expect(questions, isNotEmpty);
     final failures = <String>[];
     for (final question in questions) {
       final mode = AnswerGrading.modeFor(question);
@@ -73,18 +73,15 @@ void main() {
     expect(failures, isEmpty, reason: failures.join('\n'));
   });
 
-  test('previously-broken items have their intended modes', () {
+  test('curated multiple-choice items resolve to choice mode', () {
     DiagnosticAnswerMode modeOf(int n) =>
         AnswerGrading.modeFor(questions.firstWhere((q) => q.listNumber == n));
 
-    expect(modeOf(1), DiagnosticAnswerMode.sequence);
-    expect(modeOf(2), DiagnosticAnswerMode.sequence);
-    expect(modeOf(11), DiagnosticAnswerMode.choice);
-    expect(modeOf(15), DiagnosticAnswerMode.pairRows);
-    expect(modeOf(17), DiagnosticAnswerMode.pairRows);
-    expect(modeOf(20), DiagnosticAnswerMode.labeledFields);
-    expect(modeOf(45), DiagnosticAnswerMode.number);
-    expect(modeOf(58), DiagnosticAnswerMode.freeText);
-    expect(modeOf(59), DiagnosticAnswerMode.freeText);
+    // representation_bild_symbol / representation_bild_symbol_wort /
+    // operation_sense_story -- forced into choice mode via kAnswerSpecs so
+    // they render as tap buttons rather than a free-entry field.
+    expect(modeOf(3), DiagnosticAnswerMode.choice);
+    expect(modeOf(100), DiagnosticAnswerMode.choice);
+    expect(modeOf(105), DiagnosticAnswerMode.choice);
   });
 }

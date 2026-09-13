@@ -102,47 +102,50 @@ class AnswerSpec {
 /// deliberate reduction of the item file's expected-answer prose to the
 /// numeric result(s) the app can grade. Items NOT listed fall back to the
 /// generic shape rules in [AnswerGrading.specFor].
+///
+/// Live content is `Research/diagnostic_v4_master.csv` (see
+/// diagnostic_service.dart), numbered sequentially 1..N -- so every key below
+/// is either a master ListNumber, or a synthetic 9000+ number used only by a
+/// unit-test fixture (never loaded by the app), kept apart from the live
+/// range on purpose so a test fixture can never collide with a real item.
+/// The clean-room `diagnostic_core_v1.csv` curated entries that used to fill
+/// keys 1-59 here were retired with that file (2026-09-13) -- reusing those
+/// same integers for the master CSV's own items would have silently
+/// re-applied a stale, unrelated grading rule to the new content.
 const Map<int, AnswerSpec> kAnswerSpecs = {
-  // A1.x counting sequences: the given start is shown as static text ahead
-  // of the boxes (§4.3) so the child can't try to re-type it and run out of
-  // boxes before the target (the A1.2-01 bug the usability rework fixes).
-  1: AnswerSpec.sequence([13, 14, 15, 16, 17, 18, 19, 20], anchor: '12'),
-  2: AnswerSpec.sequence(
-      [49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63],
-      anchor: '48'),
-  3: AnswerSpec.sequence([20, 19, 18, 17, 16], anchor: '21'),
-  4: AnswerSpec.sequence([58, 57, 56, 55, 54, 53, 52, 51], anchor: '59'),
-  5: AnswerSpec.sequence([28, 30, 32, 34], anchor: '26'),
-  6: AnswerSpec.sequence([40, 35, 30, 25, 20], anchor: '45'),
-  // Vorgänger/Nachfolger: two distinct labelled parts, not one bare sequence.
-  7: AnswerSpec.labeledFields(['Zahl davor', 'Zahl danach'], [36, 38]),
-  // Place-value reads the child states in order: "5 Zehner, 8 Einer.",
-  // "41 Stäbchen; 4 Zehner und 1 Einer", "Z-Spalte 4, E-Spalte 7".
-  20: AnswerSpec.labeledFields(['Zehner', 'Einer'], [5, 8]),
-  22: AnswerSpec.sequence([41, 4, 1]),
-  24: AnswerSpec.sequence([4, 7]),
-  // C3/C4 strategy items — the final result is the graded signal.
-  44: AnswerSpec.sequence([5, 12, 62]),
-  45: AnswerSpec.number([38]),
-  46: AnswerSpec.number([58]),
-  47: AnswerSpec.number([61]),
-  48: AnswerSpec.sequence([43, 35]),
-  49: AnswerSpec.number([95]),
-  50: AnswerSpec.number([71]),
-  51: AnswerSpec.number([83]),
-  52: AnswerSpec.number([75]),
-  53: AnswerSpec.number([35]),
-  54: AnswerSpec.number([63]),
-  55: AnswerSpec.number([33]),
-  56: AnswerSpec.sequence([43, 29]),
-  57: AnswerSpec.sequence([36, 36]),
-  // Decompositions: "Finde drei verschiedene Wege 8 zu rechnen" /
-  // "Finde alle Zerlegungen von 10".
-  15: AnswerSpec.pairs(8, 3),
-  17: AnswerSpec.pairs(10, 5),
-  // Word problems: "Schreibe die passende Rechnung auf und rechne sie aus."
-  58: AnswerSpec.freeText([13]),
-  59: AnswerSpec.freeText([13]),
+  // representation_bild_symbol_wort (PIKAS extras): "sechs" vs. the
+  // sound-alike distractors "sechzehn"/"sechzig" -- choiceOptionsOf can't
+  // derive an arbitrary three-word list from prose, so it's curated here.
+  // Master ListNumber 100; also kept at the original per-file number 703
+  // since answer_grading_test.dart still exercises the standalone
+  // diagnostic_v3_pikas_extras.csv fixture directly.
+  100: AnswerSpec.choice(['sechzehn', 'sechs', 'sechzig'], 'sechs'),
+  703: AnswerSpec.choice(['sechzehn', 'sechs', 'sechzig'], 'sechs'),
+  // representation_bild_symbol: "Welches Symbol passt dazu: 5, 6 oder 7?"
+  // is genuinely multiple-choice -- forced into choice mode (it would
+  // otherwise infer plain number-entry, since "6" alone is one integer) so
+  // it renders as tap buttons instead of a field (Jakob's 2026-09-13
+  // feedback: multiple-choice items should always be buttons, not fields).
+  // Master ListNumber 3; also kept at 702 for the standalone-fixture test.
+  3: AnswerSpec.choice(['5', '6', '7'], '6'),
+  702: AnswerSpec.choice(['5', '6', '7'], '6'),
+  // operation_sense_story: "Welche Rechnung passt...? a) 5+4 b) 5-4 c) 5x4"
+  // -- same fix; grades the chosen equation, not its result. Master
+  // ListNumber 105; also kept at 707 for the standalone-fixture test.
+  105: AnswerSpec.choice(['5+4', '5-4', '5x4'], '5+4'),
+  707: AnswerSpec.choice(['5+4', '5-4', '5x4'], '5+4'),
+  // Test-only fixtures (diagnostic_answer_widgets_test.dart): the master
+  // content has no live labeledFields or pairRows item right now, so the
+  // widget-mechanics tests for those two modes use synthetic questions at
+  // these numbers instead of real content.
+  9101: AnswerSpec.labeledFields(['Zahl davor', 'Zahl danach'], [36, 38]),
+  9102: AnswerSpec.labeledFields(['Zehner', 'Einer'], [5, 8]),
+  9103: AnswerSpec.pairs(8, 3),
+  // The master content shows a sequence's given numbers inline as part of
+  // the question prompt text itself, so none of it needs the separate
+  // "anchor" convenience (a given number redrawn as static text directly
+  // beside the boxes). This fixture keeps that mechanism covered.
+  9104: AnswerSpec.sequence([20, 19, 18, 17, 16], anchor: '21'),
 };
 
 class AnswerGrading {
@@ -380,6 +383,20 @@ class AnswerGrading {
     final linksRechts =
         RegExp(r'links\s+oder\s+rechts|links/rechts').hasMatch(german);
     if (linksRechts) return const ['links', 'rechts'];
+    if (RegExp(r'größer\s+oder\s+kleiner|kleiner\s+oder\s+größer')
+        .hasMatch(german)) {
+      return const ['größer', 'kleiner'];
+    }
+    if (RegExp(r'gerade\s+oder\s+ungerade').hasMatch(german)) {
+      return const ['gerade', 'ungerade'];
+    }
+    // "Stimmt das? ..." equation-equivalence items expect exactly "ja"/"nein"
+    // — detected from the correct answer itself, so it works regardless of
+    // how the question is worded.
+    final correctNormalized = normalize(q.correctAnswer);
+    if (correctNormalized == 'ja' || correctNormalized == 'nein') {
+      return const ['ja', 'nein'];
+    }
     return const [];
   }
 }

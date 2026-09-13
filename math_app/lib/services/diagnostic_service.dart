@@ -1,46 +1,36 @@
 import 'package:csv/csv.dart';
 import 'package:flutter/services.dart';
 import '../models/diagnostic_question.dart';
-import 'diagnostic_shortening.dart' show ConstructGates, difficultyFrom, constructFrom;
+import 'diagnostic_shortening.dart' show difficultyFrom, constructFrom;
 
-/// Loads the clean-room diagnostic item bank.
+/// Loads the diagnostic item bank.
 ///
-/// The runtime asset is `Research/diagnostic_core_v1.csv` (the 59-item core
-/// test, tasks.md R5.1). The optional deep-dive blocks live in the sibling
-/// `Research/diagnostic_deepdive_v1.csv` and are not loaded by the core
-/// diagnostic flow. Both files use a 14-column schema
-/// (ListNumber,SourceType,QuestionText,AnswerFormat,CorrectAnswer,German,
-/// English,IfWrong_practice_skills,Ifwrong_skip,Notes,SkipGroup,Zahlenraum,
-/// AudioAsset,Hilfetext), so the parser column indexes are unchanged for the
-/// first 13 columns; Hilfetext (index 13) is new and optional — rows without
-/// it (none, after this change regenerates both files) still parse via the
-/// `row.length > 13` guard.
+/// The runtime serves a single file, `Research/diagnostic_v4_master.csv` --
+/// the legacy (iMINT/PIKAS-derived) rebuild described in
+/// `_sources_private/kartei-index/`, covering every category in
+/// `_sources_private/skills_taxonomy_v3_diagnostic.csv` (Zählen, Zahlzerlegung
+/// / Schnelles Sehen, Stellenwerte verstehen, Grundstrategien, Kombinierte
+/// Strategien, and the small PIKAS-sourced categories). It replaces the
+/// earlier incremental build: the abandoned clean-room `diagnostic_core_v1.csv`
+/// + `diagnostic_v2_item_quality_fixes.csv` (both deleted 2026-09-13, once
+/// every category had full v3 coverage), and the six per-category
+/// `diagnostic_v3_*.csv` files, which were reviewed and approved one at a
+/// time and then consolidated -- Jakob deleted a few items and reordered the
+/// rest during that review, and this file is the result, sequentially
+/// renumbered to match. `diagnostic_v2_verdoppeln_halbieren.csv` was retired
+/// earlier still (2026-09-12) for the same reason (fully superseded by v3
+/// Grundstrategien's `double_*` items); all of these retired files are left
+/// on disk, unloaded, since some still serve as fixtures for unit tests that
+/// exercise the grading/parsing mechanics rather than live content.
+/// The schema is unchanged (ListNumber,SourceType,QuestionText,AnswerFormat,
+/// CorrectAnswer,German,English,IfWrong_practice_skills,Ifwrong_skip,Notes,
+/// SkipGroup,Zahlenraum,AudioAsset,Hilfetext); rows without the optional
+/// Hilfetext (index 13) still parse via the `row.length > 13` guard.
 class DiagnosticService {
-  /// Legacy v1 ListNumbers this v2 file supersedes for `verdoppeln-halbieren`
-  /// (see Phase 3a plan Task 1 Step 1) -- excluded when merging so a child
-  /// never sees both the old and the new item for the same construct.
-  ///
-  /// Task 1 Step 1 searched the v1 core file for rows routed via the v2 skill
-  /// IDs (basic_strategy_7/8/9/10, strategy_doubling_tens_1) and found none, so
-  /// the set is intentionally empty: there is no legacy item to filter out.
-  static const Set<int> _kSupersededByV2 = {18, 22, 23};
-
   Future<List<DiagnosticQuestion>> loadQuestions() async {
-    final coreCsv =
-        await rootBundle.loadString('Research/diagnostic_core_v1.csv');
-    final coreQuestions = loadQuestionsFromCsv(coreCsv)
-        .where((q) => !_kSupersededByV2.contains(q.listNumber))
-        .toList();
-
-    final v2Csv = await rootBundle
-        .loadString('Research/diagnostic_v2_verdoppeln_halbieren.csv');
-    final v2Questions = loadQuestionsFromCsv(v2Csv);
-
-    final v2FixesCsv = await rootBundle
-        .loadString('Research/diagnostic_v2_item_quality_fixes.csv');
-    final v2FixesQuestions = loadQuestionsFromCsv(v2FixesCsv);
-
-    return [...coreQuestions, ...v2Questions, ...v2FixesQuestions];
+    final masterCsv =
+        await rootBundle.loadString('Research/diagnostic_v4_master.csv');
+    return loadQuestionsFromCsv(masterCsv);
   }
 
   /// Pure CSV variant of [loadQuestions] — used by tests and by callers that

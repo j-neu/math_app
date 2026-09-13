@@ -1,7 +1,0 @@
-ListNumber,SourceType,QuestionText,AnswerFormat,CorrectAnswer,German,English,IfWrong_practice_skills,Ifwrong_skip,Notes,SkipGroup,Zahlenraum,AudioAsset,Hilfetext
-97,Text,"Welche Zahl ist doppelt so groß wie die 4?",Single,8,"Welche Zahl ist doppelt so groß wie die 4?",Which number is twice as large as 4?,"A3.3, A3.1",,easy; A3.3 Zahlbeziehungen (Verdopplungen) -- v2-Ersatz fuer A3.3-01 (Beiwerk entfernt),,ZR10,,
-98,Image,B1.2-repl-01,Single,41,"Wie viel ist das insgesamt?",How much is this altogether?,"B1.2, B1.3, B2.3",,hard; B1.2 Buendelung -- v2-Ersatz fuer B1.2-02 (ein Feld statt drei),,ZR100,,"Hier liegen 3 Zehnerstangen und 11 einzelne Wuerfel."
-99,Image,B1.3-repl-01,Single,13,"Öffne die Zehnerstange. Wie viele einzelne Würfel hast du dann?","Open the ten-rod. How many single cubes do you have then?","B1.3, B1.1, B2.3",,medium; B1.3 Entbuendelung -- v2-Ersatz fuer B1.3-01 (Wortwahl korrigiert),,ZR100,,"Hier liegen 13 Wuerfel: eine Zehnerstange und 3 einzelne Wuerfel."
-100,Text,"Welche Zahl ist größer: 6 oder 8?",Single,8,"Welche Zahl ist größer: 6 oder 8?",Which number is larger: 6 or 8?,"A2.3, A2.2",,medium; A2.3 Anzahlvergleich -- symbolische Entsprechung zu A2.3-01,,ZR10,,
-101,Image,B2.2-repl-01,Single,7,"Auf welche Zahl zeigt der Pfeil?","What number does the arrow point to?","B2.2, B1.1, A1.5",,easy; B2.2 Zahlenstrahl -- ZR10-Stufe vor B2.2-01,,ZR10,,
-102,Image,B2.2-repl-02,Single,14,"Auf welche Zahl zeigt der Pfeil?","What number does the arrow point to?","B2.2, B1.1, A1.5",,medium; B2.2 Zahlenstrahl -- ZR20-Stufe vor B2.2-01,,ZR20,,

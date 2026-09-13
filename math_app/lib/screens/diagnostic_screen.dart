@@ -10,6 +10,19 @@ import 'package:math_app/widgets/manipulatives/dienes_place_value.dart';
 import 'package:math_app/widgets/manipulatives/stellenwerttafel.dart';
 import 'package:math_app/widgets/manipulatives/zahlenstrahl.dart';
 import 'package:math_app/widgets/manipulatives/zehnerfeld.dart';
+import 'package:math_app/widgets/common/counting_dots_widget.dart';
+import 'package:math_app/widgets/common/hundred_field_widget.dart';
+import 'package:math_app/widgets/common/bundling_blocks_widget.dart';
+import 'package:math_app/widgets/common/flash_presentation_widget.dart';
+import 'package:math_app/widgets/common/number_wall_widget.dart';
+import 'package:math_app/widgets/common/number_wall_legend_widget.dart';
+import 'package:math_app/widgets/common/calculation_triangle_widget.dart';
+import 'package:math_app/widgets/common/calculation_triangle_legend_widget.dart';
+import 'package:math_app/widgets/common/ten_frame_widget.dart';
+import 'package:math_app/widgets/common/number_line_endpoints_widget.dart';
+import 'package:math_app/widgets/common/rechenstrich_widget.dart';
+import 'package:math_app/widgets/common/hundred_chart_widget.dart';
+import 'package:math_app/widgets/common/rechenschiffchen_widget.dart';
 import 'package:math_app/widgets/diagnostic_answer_widgets.dart';
 import '../models/diagnostic_question.dart';
 import '../models/diagnostic_result.dart';
@@ -1162,6 +1175,156 @@ Widget buildVisualDisplay(
       return controller != null
           ? ZahlenstrahlMarkWidget(controller: controller)
           : const ZahlenstrahlMarkWidget(initialMark: 75);
+    // V3Z-01 — quantify_count_zr10 (iMINT Testkarte 1): 9 scattered dots.
+    case 'V3Z-01':
+      return const CountingDotsWidget(count: 9, structured: false);
+    // V3Z-02 — quantify_count_zr20 (iMINT Testkarte 1): 16 scattered dots.
+    case 'V3Z-02':
+      return const CountingDotsWidget(count: 16, structured: false);
+    // V3D-01..04 — structured_quantity_recognition_zr10 (iMINT Testkarte 8):
+    // dots arranged in a tidy grid (matches the original Kartei — a plain
+    // apparatus like a ten-frame would just retest the Rechenschiffchen
+    // skill, per Jakob's 2026-09-12 feedback).
+    case 'V3D-01':
+      return const CountingDotsWidget(count: 6, structured: true);
+    case 'V3D-02':
+      return const CountingDotsWidget(count: 8, structured: true);
+    case 'V3D-03':
+      return const CountingDotsWidget(count: 9, structured: true);
+    case 'V3D-04':
+      return const CountingDotsWidget(count: 3, structured: true);
+    // V3D-05 — structured_quantity_recognition_zr20 (Arbeitskarte 8 gap
+    // skill): same ordered-dots treatment as its ZR10 sibling above.
+    case 'V3D-05':
+      return const CountingDotsWidget(count: 14, structured: true);
+    // V3D-06..09 — quick_recognition_rechenschiffchen_zr20 (iMINT Testkarte 9).
+    // Same color on both rows: this task just asks for the total, so the
+    // widget's default red-top/blue-bottom split (meant for tasks that teach
+    // a tens/ones distinction) would only confuse the child here.
+    case 'V3D-06':
+      return const RechenschiffchenWidget(
+          topCount: 10, bottomCount: 3, bottomColor: Colors.red);
+    case 'V3D-07':
+      return const RechenschiffchenWidget(
+          topCount: 10, bottomCount: 7, bottomColor: Colors.red);
+    case 'V3D-08':
+      return const RechenschiffchenWidget(
+          topCount: 10, bottomCount: 1, bottomColor: Colors.red);
+    case 'V3D-09':
+      return const RechenschiffchenWidget(
+          topCount: 10, bottomCount: 9, bottomColor: Colors.red);
+    // V3D-10..13 — dot_field_full/small/large/near_max (iMINT Testkarte 12).
+    case 'V3D-10':
+      return const HundredFieldWidget(visibleCount: 100);
+    case 'V3D-11':
+      return const HundredFieldWidget(visibleCount: 14);
+    case 'V3D-12':
+      return const HundredFieldWidget(visibleCount: 78);
+    case 'V3D-13':
+      return const HundredFieldWidget(visibleCount: 97);
+    // V3S-01/02 — bundling_recognition_zr100 (iMINT Testkarte 10).
+    case 'V3S-01':
+      return const BundlingBlocksWidget(tens: 4, ones: 7);
+    case 'V3S-02':
+      return const BundlingBlocksWidget(tens: 6, ones: 3);
+    // V3G-01 — fingerblitz_quantity_zr10 (Arbeitskarte 1 gap skill): 5+3
+    // fingers, flashed with the same Bereit/countdown/flash pattern as
+    // A2.1-01 (extracted into the reusable FlashPresentationWidget).
+    case 'V3G-01':
+      return const FlashPresentationWidget(
+        child: FingerBildWidget(leftCount: 5, rightCount: 3),
+      );
+    // V3M-01 — representation_bild_symbol (PIKAS Kartei 39/40): which
+    // number matches this ten-frame?
+    case 'V3M-01':
+      return const TenFrameWidget(filledCount: 6);
+    // V3M-02 — number_line_rechenstrich (PIKAS Kartei 45): start at 36 on
+    // the right, jump -10 then -4 moving right-to-left; landing points stay
+    // blank for the child to work out.
+    case 'V3M-02':
+      return const RechenstrichWidget(
+          start: 36, jumps: [-10, -4], startOnRight: true);
+    // V3M-03 — number_line_zahlenstrahl (PIKAS Kartei 11/13): a Rechenstrich
+    // with 20 on the left and 40 on the right, and an arrow pointing down
+    // into the midpoint the child must name.
+    case 'V3M-03':
+      return const NumberLineEndpointsWidget(leftValue: 20, rightValue: 40);
+    // V3K-01 — number_wall_zr20 (Kombi-Arbeitskarte 9 gap skill): base
+    // [4, 5, 3] -> 9, 8 -> 17. A worked 1/2/4 example with arrows precedes
+    // the real puzzle so "(siehe Bild)" isn't the child's only explanation
+    // of the rule (Jakob's 2026-09-12 feedback).
+    case 'V3K-01':
+      return const Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          NumberWallLegendWidget(),
+          SizedBox(height: 20),
+          Divider(),
+          SizedBox(height: 12),
+          Text('Deine Aufgabe:',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+          SizedBox(height: 8),
+          NumberWallWidget(base: [4, 5, 3]),
+        ],
+      );
+    // V3K-02 — calculation_triangle_zr20 (Kombi-Arbeitskarte 10 gap skill):
+    // corners 9/6/4, blank bottom side (6+4=10). Same worked-example
+    // treatment as the number wall above.
+    case 'V3K-02':
+      return const Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CalculationTriangleLegendWidget(),
+          SizedBox(height: 20),
+          Divider(),
+          SizedBox(height: 12),
+          Text('Deine Aufgabe:',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+          SizedBox(height: 8),
+          CalculationTriangleWidget(
+            cornerTop: 9,
+            cornerLeft: 6,
+            cornerRight: 4,
+            blankSide: TriangleSide.leftRight,
+          ),
+        ],
+      );
+    // V3S-03 — hundred_chart_navigation (Arbeitskarte 6 gap skill).
+    case 'V3S-03':
+      return const HundredChartWidget(blankValue: 44);
+    // V3S-04 — bundling_recognition_overflow_zr100: 4 tens + 13 loose ones
+    // (more than 10 unbundled ones).
+    case 'V3S-04':
+      return const BundlingBlocksWidget(tens: 4, ones: 13);
+    // V3S-05..08 — hundred_chart_structure_zr100: sparse chart (corners +
+    // one highlighted reference number), asking for the neighbor above/
+    // below/left/right in turn. The query cell is highlighted with a "?"
+    // so the child sees exactly which box to answer for, but its number is
+    // never shown -- it must be derived from the grid structure.
+    case 'V3S-05':
+      return const HundredChartWidget(
+        visibleValues: {1, 10, 91, 100, 47},
+        highlightValue: 47,
+        queryValue: 37,
+      );
+    case 'V3S-06':
+      return const HundredChartWidget(
+        visibleValues: {1, 10, 91, 100, 63},
+        highlightValue: 63,
+        queryValue: 73,
+      );
+    case 'V3S-07':
+      return const HundredChartWidget(
+        visibleValues: {1, 10, 91, 100, 58},
+        highlightValue: 58,
+        queryValue: 57,
+      );
+    case 'V3S-08':
+      return const HundredChartWidget(
+        visibleValues: {1, 10, 91, 100, 24},
+        highlightValue: 24,
+        queryValue: 25,
+      );
     default:
       return const SizedBox.shrink();
   }

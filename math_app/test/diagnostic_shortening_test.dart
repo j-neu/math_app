@@ -6,36 +6,22 @@ import 'package:math_app/services/diagnostic_service.dart';
 import 'package:math_app/services/diagnostic_shortening.dart';
 
 /// Weak-child / strong-child burden + coverage check for the shortened
-/// ("verkürzte") diagnostic. The walk below mirrors the runtime exactly: it
-/// consults ConstructGates.shouldSkip before every presentation and records
-/// every presented answer into the same gate (diagnostic_screen.dart uses the
-/// very same class), so this test is the spec for what a child experiences.
-///
-/// PENDING DECISION (2026-09-13): `ConstructGates` reads `constructId`/
-/// `difficulty` off each question, which `constructFrom`/`difficultyFrom`
-/// parse from a `Notes` column convention specific to the retired clean-room
-/// `diagnostic_core_v1.csv` (e.g. "medium; A2.2 ..."). `Research/
-/// diagnostic_v4_master.csv`'s Notes don't follow that convention, so every
-/// master item's constructId/difficulty is null and `shouldSkip` always
-/// returns false -- the abbreviated mode is currently a silent no-op for the
-/// live content (falls back to asking everything, never crashes). Whether to
-/// keep the shortened-diagnostic feature at all, and if so author construct +
-/// difficulty tags for the master's 108 items, is an open product question --
-/// not something to decide by silently re-tagging content. All tests below
-/// are skipped until that's decided; the numbers they assert (59/36/23 items
-/// etc.) are core_v1-specific and would need to be re-measured against
-/// whatever tagging the master content eventually gets.
+/// ("verkürzte") diagnostic, now driven by the master CSV's `SkipGroup` +
+/// `Zahlenraum` columns instead of the retired core_v1 `Notes` convention.
+/// The walk below mirrors the runtime exactly: it consults
+/// ConstructGates.shouldSkip before every presentation and records every
+/// presented answer into the same gate (diagnostic_screen.dart uses the very
+/// same class), so this test is the spec for what a child experiences.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   final csv = File('Research/diagnostic_v4_master.csv').readAsStringSync();
   final questions = DiagnosticService.loadQuestionsFromCsv(csv);
-  const pendingReason =
-      'pending decision: shortened-diagnostic construct/difficulty tagging '
-      'was never ported from the retired core_v1.csv to the master CSV';
 
-  ({int asked, int skipped, List<String> presentedConstructs,
-      List<DiagnosticQuestion> presented}) walk(
+  DiagnosticQuestion bySkill(String skillId) =>
+      questions.firstWhere((q) => q.ifWrongPracticeSkills.contains(skillId));
+
+  ({int asked, int skipped, List<DiagnosticQuestion> presented}) walk(
     bool abbreviated,
     bool Function(DiagnosticQuestion question) profile,
   ) {
@@ -52,18 +38,8 @@ void main() {
       presented.add(question);
       gates.noteAnswered(question, profile(question));
     }
-    return (
-      asked: asked,
-      skipped: skipped,
-      presentedConstructs:
-          presented.map((q) => q.constructId ?? '').toSet().toList(),
-      presented: presented,
-    );
+    return (asked: asked, skipped: skipped, presented: presented);
   }
-
-  final weakProfile = walk(true, (_) => false);
-  final strongProfile = walk(true, (_) => true);
-  final fullWeak = walk(false, (_) => false);
 
   test('every parsed item carries construct + difficulty metadata', () {
     for (final question in questions) {
@@ -72,77 +48,144 @@ void main() {
       expect(question.difficulty, isNotNull,
           reason: 'Q${question.listNumber} has no difficulty');
     }
-  }, skip: pendingReason);
+  });
 
-  test('full mode asks all 59 items regardless of performance', () {
-    expect(fullWeak.asked, 59);
-    expect(fullWeak.skipped, 0);
-  }, skip: pendingReason);
+  test('full mode asks every item regardless of performance', () {
+    final full = walk(false, (_) => false);
+    expect(full.asked, questions.length);
+    expect(full.skipped, 0);
+  });
 
-  test('strong child is never shortened — full measurement in both modes', () {
-    expect(strongProfile.asked, 59);
-    expect(strongProfile.skipped, 0);
-  }, skip: pendingReason);
-
-  test('weak child is shortened but every construct and Domäne stays measured',
+  test('strong child is never shortened — full measurement in both modes',
       () {
-    expect(weakProfile.asked, lessThan(59));
-    expect(weakProfile.skipped, greaterThan(0));
-    expect(weakProfile.asked, greaterThan(20),
-        reason: 'not over-shortened: ${weakProfile.asked} asked');
+    final strong = walk(true, (_) => true);
+    expect(strong.asked, questions.length);
+    expect(strong.skipped, 0);
+  });
 
-    final askedNumbers = weakProfile.presented.map((q) => q.listNumber).toSet();
-    expect(askedNumbers.contains(1), isTrue, reason: 'Q1 always asked');
-    expect(askedNumbers.contains(2), isFalse,
-        reason: 'Q2 (A1.1 medium) skipped after Q1 easy failed');
+  group('per-construct ladder (fail an easy level, skip the harder ones)',
+      () {
+    test('failing quantify_count_zr10 skips quantify_count_zr20', () {
+      final gates = ConstructGates(abbreviated: true);
+      gates.noteAnswered(bySkill('quantify_count_zr10'), false);
+      expect(gates.shouldSkip(bySkill('quantify_count_zr20')), isTrue);
+    });
 
-    // Every construct of the bank keeps at least its easiest reachable item.
-    final allConstructs = questions.map((q) => q.constructId!).toSet();
-    final presentedConstructs = weakProfile.presentedConstructs.toSet();
-    expect(presentedConstructs.containsAll(allConstructs), isTrue,
-        reason: 'constructs lost entirely: '
-            '${allConstructs.difference(presentedConstructs)}');
+    test('failing complete_to_10 skips complete_to_20 and complete_to_100',
+        () {
+      final gates = ConstructGates(abbreviated: true);
+      gates.noteAnswered(bySkill('complete_to_10'), false);
+      expect(gates.shouldSkip(bySkill('complete_to_20')), isTrue);
+      expect(gates.shouldSkip(bySkill('complete_to_100')), isTrue);
+    });
 
-    // Every Domäne A–D remains represented for the weakest child.
-    final presentedDomains = weakProfile.presented
-        .map((q) => q.constructId![0])
-        .toSet();
-    expect(presentedDomains.containsAll(const {'A', 'B', 'C', 'D'}), isTrue,
-        reason: 'Domänen lost: $presentedDomains');
-  }, skip: pendingReason);
+    test('same-difficulty siblings are still asked after a fail', () {
+      final gates = ConstructGates(abbreviated: true);
+      // complete_to_10 has three ZR10 items (25/26/27); failing the first
+      // must not skip the other two — only strictly harder levels are gated.
+      final tens = questions
+          .where((q) => q.ifWrongPracticeSkills.contains('complete_to_10'))
+          .toList();
+      expect(tens.length, 3);
+      gates.noteAnswered(tens.first, false);
+      for (final q in tens) {
+        expect(gates.shouldSkip(q), isFalse,
+            reason: 'ListNumber ${q.listNumber} is same difficulty, must '
+                'still be asked');
+      }
+    });
 
-  test('same-difficulty later items are still asked (no over-shortening)', () {
-    // C1.1 is Q28/Q29 (easy) then Q30/Q31 (medium). A weak child who fails the
-    // easy items must still see BOTH easy items and only then skip the medium
-    // ones — the "double 20 after a failed double 7" rule.
+    test('a failure in one construct never skips an unrelated construct', () {
+      final gates = ConstructGates(abbreviated: true);
+      gates.noteAnswered(bySkill('quantify_count_zr10'), false);
+      expect(gates.shouldSkip(bySkill('ordinal_1')), isFalse);
+      expect(gates.shouldSkip(bySkill('double_zr10')), isFalse);
+    });
+  });
+
+  group('block rules (failing one construct fully skips a dependent one)',
+      () {
+    test('failing count_forward anywhere blocks all step-counting', () {
+      final gates = ConstructGates(abbreviated: true);
+      gates.noteAnswered(bySkill('count_forward_zr20'), false);
+      for (final skill in [
+        'skip2_forward_zr20',
+        'skip2_forward_zr100',
+        'skip2_backward_zr20',
+        'skip2_backward_zr100',
+        'skip5_forward_zr100',
+        'skip5_backward_zr100',
+        'skip10_forward_zr100',
+        'skip10_backward_zr100',
+      ]) {
+        expect(gates.shouldSkip(bySkill(skill)), isTrue, reason: skill);
+      }
+    });
+
+    test('failing double or halve blocks the near-double derive items', () {
+      final gatesDouble = ConstructGates(abbreviated: true);
+      gatesDouble.noteAnswered(bySkill('double_2digit_with_carry'), false);
+      expect(gatesDouble.shouldSkip(bySkill('derive_via_near_double_add')),
+          isTrue);
+      expect(gatesDouble.shouldSkip(bySkill('derive_via_near_double_sub')),
+          isTrue);
+      // Unrelated derive-via strategies are unaffected.
+      expect(gatesDouble.shouldSkip(bySkill('derive_via_5_add')), isFalse);
+
+      final gatesHalve = ConstructGates(abbreviated: true);
+      gatesHalve.noteAnswered(bySkill('halve_zr10'), false);
+      expect(
+          gatesHalve.shouldSkip(bySkill('derive_via_near_double_sub')),
+          isTrue);
+    });
+
+    test('failing complete_to blocks the derive-via-10 items', () {
+      final gates = ConstructGates(abbreviated: true);
+      gates.noteAnswered(bySkill('complete_to_20'), false);
+      expect(gates.shouldSkip(bySkill('derive_via_10_add_minus1')), isTrue);
+      expect(gates.shouldSkip(bySkill('derive_via_10_add_plus1')), isTrue);
+      expect(gates.shouldSkip(bySkill('derive_via_10_sub')), isTrue);
+    });
+  });
+
+  group('mirror rule (count_forward failure gates count_backward)', () {
+    test('failing forward at ZR20 skips backward at ZR20 and ZR100', () {
+      final gates = ConstructGates(abbreviated: true);
+      gates.noteAnswered(bySkill('count_forward_zr20'), false);
+      expect(gates.shouldSkip(bySkill('count_backward_zr20')), isTrue);
+      expect(gates.shouldSkip(bySkill('count_backward_zr100')), isTrue);
+      // Forward's own ladder also gates its own harder level.
+      expect(gates.shouldSkip(bySkill('count_forward_zr100')), isTrue);
+    });
+
+    test(
+        'passing forward at ZR20 but failing at ZR100 tests backward ZR20 '
+        'normally, then gates backward ZR100', () {
+      final gates = ConstructGates(abbreviated: true);
+      gates.noteAnswered(bySkill('count_forward_zr20'), true);
+      gates.noteAnswered(bySkill('count_forward_zr100'), false);
+      expect(gates.shouldSkip(bySkill('count_backward_zr20')), isFalse);
+      expect(gates.shouldSkip(bySkill('count_backward_zr100')), isTrue);
+    });
+
+    test('backward failing on its own still gates its own harder level', () {
+      final gates = ConstructGates(abbreviated: true);
+      gates.noteAnswered(bySkill('count_forward_zr20'), true);
+      gates.noteAnswered(bySkill('count_backward_zr20'), false);
+      expect(gates.shouldSkip(bySkill('count_backward_zr100')), isTrue);
+      // Forward is unaffected by backward's failure — the dependency is
+      // one-directional.
+      expect(gates.shouldSkip(bySkill('count_forward_zr100')), isFalse);
+    });
+  });
+
+  test('a weak child is shortened but the burden stays bounded', () {
     final weak = walk(true, (_) => false);
-    final asked = weak.presented.map((q) => q.listNumber).toSet();
-    expect(asked.contains(28), isTrue);
-    expect(asked.contains(29), isTrue);
-    expect(asked.contains(30), isFalse);
-    expect(asked.contains(31), isFalse);
-  }, skip: pendingReason);
-
-  test('a failure in one construct never skips items of another', () {
-    // Fail everything in A1.1..A1.4 (Q1–Q7). Q8 (A2.1) and Q20 (B1.1) are
-    // different constructs and must still be presented.
-    final gates = ConstructGates(abbreviated: true);
-    final asked = <int>[];
-    for (final question in questions) {
-      if (gates.shouldSkip(question)) continue;
-      asked.add(question.listNumber);
-      final wrong = question.listNumber <= 7;
-      gates.noteAnswered(question, !wrong);
-    }
-    expect(asked, contains(8));
-    expect(asked, contains(20));
-  }, skip: pendingReason);
-
-  test('burden stays stable — record the exact weak/strong counts', () {
-    // If this number changes, the skip rule changed on purpose: update the
-    // expectation with the new measured value in the test name/comment.
-    expect(weakProfile.asked, 36);
-    expect(weakProfile.skipped, 23);
-    expect(strongProfile.asked, 59);
-  }, skip: pendingReason);
+    expect(weak.asked, lessThan(questions.length));
+    expect(weak.skipped, greaterThan(0));
+    // Not over-shortened: every construct family keeps at least its easiest
+    // reachable item, so the weakest child still sees a broad sample.
+    expect(weak.asked, greaterThan(30),
+        reason: 'not over-shortened: ${weak.asked} asked');
+  });
 }

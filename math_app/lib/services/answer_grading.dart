@@ -46,6 +46,8 @@ class AnswerSpec {
   final String? choiceAnswer;
   final String? anchor;
   final List<String>? fieldLabels;
+  final int? rangeMin;
+  final int? rangeMax;
 
   const AnswerSpec.number(this.expectedNumbers)
       : mode = DiagnosticAnswerMode.number,
@@ -54,7 +56,25 @@ class AnswerSpec {
         choiceOptions = null,
         choiceAnswer = null,
         anchor = null,
-        fieldLabels = null;
+        fieldLabels = null,
+        rangeMin = null,
+        rangeMax = null;
+
+  /// A single-number item graded as correct anywhere inside `[min, max]`
+  /// (inclusive) rather than one exact value -- for items where the picture
+  /// itself can't be read more precisely than that (e.g. a mark between two
+  /// number-line ticks 5 apart).
+  const AnswerSpec.numberRange(int min, int max)
+      : mode = DiagnosticAnswerMode.number,
+        expectedNumbers = const [],
+        target = null,
+        rows = null,
+        choiceOptions = null,
+        choiceAnswer = null,
+        anchor = null,
+        fieldLabels = null,
+        rangeMin = min,
+        rangeMax = max;
 
   const AnswerSpec.sequence(this.expectedNumbers, {this.anchor})
       : mode = DiagnosticAnswerMode.sequence,
@@ -62,7 +82,9 @@ class AnswerSpec {
         rows = null,
         choiceOptions = null,
         choiceAnswer = null,
-        fieldLabels = null;
+        fieldLabels = null,
+        rangeMin = null,
+        rangeMax = null;
 
   const AnswerSpec.pairs(int this.target, int this.rows)
       : mode = DiagnosticAnswerMode.pairRows,
@@ -70,7 +92,9 @@ class AnswerSpec {
         choiceOptions = null,
         choiceAnswer = null,
         anchor = null,
-        fieldLabels = null;
+        fieldLabels = null,
+        rangeMin = null,
+        rangeMax = null;
 
   const AnswerSpec.choice(this.choiceOptions, this.choiceAnswer)
       : mode = DiagnosticAnswerMode.choice,
@@ -78,7 +102,9 @@ class AnswerSpec {
         target = null,
         rows = null,
         anchor = null,
-        fieldLabels = null;
+        fieldLabels = null,
+        rangeMin = null,
+        rangeMax = null;
 
   const AnswerSpec.freeText(this.expectedNumbers)
       : mode = DiagnosticAnswerMode.freeText,
@@ -87,7 +113,9 @@ class AnswerSpec {
         choiceOptions = null,
         choiceAnswer = null,
         anchor = null,
-        fieldLabels = null;
+        fieldLabels = null,
+        rangeMin = null,
+        rangeMax = null;
 
   const AnswerSpec.labeledFields(this.fieldLabels, this.expectedNumbers)
       : mode = DiagnosticAnswerMode.labeledFields,
@@ -95,7 +123,9 @@ class AnswerSpec {
         rows = null,
         choiceOptions = null,
         choiceAnswer = null,
-        anchor = null;
+        anchor = null,
+        rangeMin = null,
+        rangeMax = null;
 }
 
 /// Per-item expectations (keyed by CSV ListNumber). Every entry here is a
@@ -113,6 +143,12 @@ class AnswerSpec {
 /// same integers for the master CSV's own items would have silently
 /// re-applied a stale, unrelated grading rule to the new content.
 const Map<int, AnswerSpec> kAnswerSpecs = {
+  // place_on_numberline_zr100 (master LN110): the mark sits at 68 but the
+  // 0-100 line only shows ticks every 5 units, so the child can't read the
+  // position more precisely than "somewhere around 68" -- accept the whole
+  // 66-69 band rather than requiring the exact value (Jakob's 2026-09-14
+  // feedback).
+  110: AnswerSpec.numberRange(66, 69),
   // representation_bild_symbol_wort (PIKAS extras): "sechs" vs. the
   // sound-alike distractors "sechzehn"/"sechzig" -- choiceOptionsOf can't
   // derive an arbitrary three-word list from prose, so it's curated here.
@@ -173,8 +209,10 @@ class AnswerGrading {
   /// Result number an item expects, when it asks for exactly one number.
   static int? singleResultNumber(DiagnosticQuestion q) {
     final spec = kAnswerSpecs[q.listNumber];
-    if (spec != null && spec.mode == DiagnosticAnswerMode.number) {
-      return spec.expectedNumbers.isEmpty ? null : spec.expectedNumbers.first;
+    if (spec != null &&
+        spec.mode == DiagnosticAnswerMode.number &&
+        spec.expectedNumbers.isNotEmpty) {
+      return spec.expectedNumbers.first;
     }
     final correct = q.correctAnswer;
     final finale = RegExp(r'Finale Antwort:\s*(-?\d+)').firstMatch(correct);
@@ -238,6 +276,10 @@ class AnswerGrading {
       String input, AnswerSpec? spec, DiagnosticQuestion question) {
     final userInts = intsIn(input);
     if (userInts.isEmpty) return false;
+    if (spec?.rangeMin != null) {
+      return userInts.first >= spec!.rangeMin! &&
+          userInts.first <= spec.rangeMax!;
+    }
     int? expected = singleResultNumber(question);
     if (spec != null && spec.expectedNumbers.isNotEmpty) {
       expected = spec.expectedNumbers.first;

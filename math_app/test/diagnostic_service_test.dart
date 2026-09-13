@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:math_app/models/diagnostic_question.dart';
+import 'package:math_app/services/answer_grading.dart';
 import 'package:math_app/services/diagnostic_service.dart';
 
 /// Verifies `Research/diagnostic_v4_master.csv` -- the single, consolidated
@@ -58,7 +59,7 @@ void main() {
     expect(
         visualIds,
         containsAll(<String>[
-          'V3Z-01', 'V3Z-02',
+          'V3Z-01', 'V3Z-02', 'V3Z-03', 'V3Z-04',
           'V3D-01', 'V3D-05', 'V3D-06', 'V3D-10',
           'V3S-01', 'V3S-05',
           'V3G-01',
@@ -69,6 +70,42 @@ void main() {
 
   DiagnosticQuestion bySkill(String skillId) => master
       .firstWhere((q) => q.ifWrongPracticeSkills.contains(skillId));
+
+  test('place_on_numberline items read an unlabeled marked point', () {
+    expect(bySkill('place_on_numberline_zr20').correctAnswer, '14');
+    expect(bySkill('place_on_numberline_zr100').correctAnswer, '68');
+  });
+
+  test('place_on_numberline_zr100 accepts the whole 66-69 band, not just 68 '
+      '-- the line only has ticks every 5 units', () {
+    final question = bySkill('place_on_numberline_zr100');
+    for (final ok in ['66', '67', '68', '69']) {
+      expect(AnswerGrading.grade(userAnswer: ok, question: question), isTrue,
+          reason: '$ok should be accepted');
+    }
+    for (final wrong in ['65', '70']) {
+      expect(AnswerGrading.grade(userAnswer: wrong, question: question),
+          isFalse,
+          reason: '$wrong should not be accepted');
+    }
+  });
+
+  test('number_word_dictation_zr100 plays one clip and expects 5 numbers in '
+      'order', () {
+    final question = bySkill('number_word_dictation_zr100');
+    expect(question.audioAsset,
+        'Research/zahlen_diktat_17_47_70_72_84.m4a');
+    expect(AnswerGrading.modeFor(question), DiagnosticAnswerMode.sequence);
+    expect(AnswerGrading.boxCount(question), 5);
+    expect(
+        AnswerGrading.grade(
+            userAnswer: '17, 47, 70, 72, 84', question: question),
+        isTrue);
+    expect(
+        AnswerGrading.grade(
+            userAnswer: '47, 17, 70, 72, 84', question: question),
+        isFalse);
+  });
 
   test('complete_to_100 sits with the other completion items, not stranded '
       'after the Zahlzerlegung visual items (V3D-*)', () {

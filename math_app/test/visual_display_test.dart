@@ -55,6 +55,8 @@ void main() {
     'V3M-01',
     'V3M-02',
     'V3M-03',
+    'V3Z-03',
+    'V3Z-04',
   ];
 
   DiagnosticQuestion questionFor(String id) => DiagnosticQuestion(

@@ -20,6 +20,7 @@ import 'package:math_app/widgets/common/calculation_triangle_widget.dart';
 import 'package:math_app/widgets/common/calculation_triangle_legend_widget.dart';
 import 'package:math_app/widgets/common/ten_frame_widget.dart';
 import 'package:math_app/widgets/common/number_line_endpoints_widget.dart';
+import 'package:math_app/widgets/common/number_line_read_widget.dart';
 import 'package:math_app/widgets/common/rechenstrich_widget.dart';
 import 'package:math_app/widgets/common/hundred_chart_widget.dart';
 import 'package:math_app/widgets/common/rechenschiffchen_widget.dart';
@@ -103,7 +104,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   // panel is open, so reading a hint does not count against the child.
   PausableTimeout? _responseTimer;
   final AudioPlayer _audioPlayer = AudioPlayer();
-  String? _audioTempFilePath;
+  final Map<String, String> _audioTempFilePaths = {};
 
   // Break-off (shortened diagnostic) gate: construct-keyed, difficulty-graded.
   // See ConstructGates in services/diagnostic_shortening.dart for the rule.
@@ -1042,6 +1043,10 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     if (mounted) _responseTimer?.resume();
   }
 
+  /// Plays [audioUrl] -- on web a full Supabase Storage URL, otherwise a
+  /// bundled asset path relative to the app root (e.g.
+  /// "Research/zahlen_diktat_17_47_70_72_84.m4a", matching pubspec's assets
+  /// entry and [DiagnosticQuestion.audioAsset]).
   Future<void> _playAudio(String audioUrl) async {
     await _audioPlayer.stop();
     Source source;
@@ -1050,17 +1055,19 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
       source = UrlSource(audioUrl);
     } else if (defaultTargetPlatform == TargetPlatform.windows) {
       // audioplayers_windows doesn't resolve AssetSource paths reliably;
-      // extract to a temp file once and reuse.
-      if (_audioTempFilePath == null) {
-        final data = await rootBundle.load('Research/zahlen_diktat.mp3');
+      // extract to a temp file once per asset and reuse.
+      var tempPath = _audioTempFilePaths[audioUrl];
+      if (tempPath == null) {
+        final data = await rootBundle.load(audioUrl);
         final dir = await getTemporaryDirectory();
-        final file = File('${dir.path}/zahlen_diktat.mp3');
+        final file = File('${dir.path}/${audioUrl.split('/').last}');
         await file.writeAsBytes(data.buffer.asUint8List());
-        _audioTempFilePath = file.path;
+        tempPath = file.path;
+        _audioTempFilePaths[audioUrl] = tempPath;
       }
-      source = DeviceFileSource(_audioTempFilePath!);
+      source = DeviceFileSource(tempPath);
     } else {
-      source = AssetSource('Research/zahlen_diktat.mp3');
+      source = AssetSource(audioUrl);
     }
     await _audioPlayer.play(source);
   }
@@ -1249,6 +1256,15 @@ Widget buildVisualDisplay(
     // into the midpoint the child must name.
     case 'V3M-03':
       return const NumberLineEndpointsWidget(leftValue: 20, rightValue: 40);
+    // V3Z-03 — place_on_numberline_zr20 (iMINT-gap, Arbeitskarte 10): a
+    // marked-but-unlabeled point on a 0-20 line; the child reads its
+    // position off the scale rather than tapping to place it.
+    case 'V3Z-03':
+      return const NumberLineReadWidget(lo: 0, hi: 20, markAt: 14);
+    // V3Z-04 — place_on_numberline_zr100 (iMINT-gap, Arbeitskarte 11): same
+    // construct on a 0-100 line.
+    case 'V3Z-04':
+      return const NumberLineReadWidget(lo: 0, hi: 100, markAt: 68);
     // V3K-01 — number_wall_zr20 (Kombi-Arbeitskarte 9 gap skill): base
     // [4, 5, 3] -> 9, 8 -> 17. A worked 1/2/4 example with arrows precedes
     // the real puzzle so "(siehe Bild)" isn't the child's only explanation

@@ -38,7 +38,7 @@ class DiagnosticReportGenerator {
     );
 
     final recommendedSkills = _buildRecommendations(triggersBySkill, catalog);
-    _sortPedagogically(recommendedSkills);
+    _sortPedagogically(recommendedSkills, catalog);
 
     final briefSkills = recommendedSkills.take(3).toList();
     final categoryStats = _computeCategoryStats(
@@ -101,9 +101,10 @@ class DiagnosticReportGenerator {
   String _domainLabel(String domain) => _domainLabels[domain] ?? domain;
 
   /// Orders recommendations by the documented R4.2 rule: canonical construct
-  /// position first, then ID suffix (see `skill_recommendation_order.dart`).
-  void _sortPedagogically(List<SkillRecommendation> recs) {
-    final order = sortSkillIds(recs.map((r) => r.skillId).toList());
+  /// position first, then taxonomy row order (see
+  /// `skill_recommendation_order.dart`).
+  void _sortPedagogically(List<SkillRecommendation> recs, SkillCatalog catalog) {
+    final order = sortSkillIds(recs.map((r) => r.skillId).toList(), catalog);
     final rank = {for (var i = 0; i < order.length; i++) order[i]: i};
     recs.sort((a, b) => rank[a.skillId]!.compareTo(rank[b.skillId]!));
   }

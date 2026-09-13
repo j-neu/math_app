@@ -1,6 +1,7 @@
 import '../models/diagnostic_question.dart';
 import '../models/foerderplan.dart';
 import '../models/skill_recommendation.dart';
+import 'skill_catalog.dart';
 import 'skill_recommendation_order.dart';
 
 class KurzFoerderplanRow {
@@ -104,10 +105,16 @@ class KurzFoerderplanService {
   }
 
   /// Skills within a group ordered by the documented recommendation order.
+  ///
+  /// Uses [SkillCatalog.instance] directly rather than taking a catalog
+  /// parameter: by the time a Förderplan reaches this service, the report
+  /// generator has already awaited [SkillCatalog.load], so the singleton is
+  /// populated.
   List<SkillRecommendation> _sortedSkills(List<SkillRecommendation> skills) {
     final byId = {for (final s in skills) s.skillId: s};
     return [
-      for (final id in sortSkillIds(byId.keys.toList())) byId[id]!,
+      for (final id in sortSkillIds(byId.keys.toList(), SkillCatalog.instance))
+        byId[id]!,
     ];
   }
 

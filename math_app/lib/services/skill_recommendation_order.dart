@@ -1,51 +1,48 @@
 /// Ordering rule for Förderplan skill recommendations.
 ///
-/// Replaces the legacy "category order → card_number ASC" sort. The rule is
-/// documented in `docs/clean-room/foerderplan/ordering-rule.md`; its construct
-/// sequence is derived from the construct map
-/// (`docs/clean-room/01-construct-map.md`) and the blueprint's §Sequenzregeln
-/// (`docs/clean-room/02-blueprint.md`).
+/// Rebuilt 2026-09-13 for the v3/v4 taxonomy (`Research/skills_taxonomy.csv`):
+/// the legacy dotted construct IDs (`A1.1`, `C2.2`, ...) this file used to
+/// parse out of the skill ID string no longer exist anywhere in the live
+/// content, so every recommendation used to fall through to alphabetical
+/// order. Construct membership is now looked up in [SkillCatalog] instead of
+/// being parsed from the ID text, and within-construct order falls back to
+/// the taxonomy CSV's own row order (already pedagogically sequenced by
+/// `_sources_private/skills_taxonomy_v3_diagnostic.csv`'s card_number) rather
+/// than an `a`/`b` suffix convention the new flat IDs don't use.
 library;
 
-/// Canonical didactic order of every construct from the construct map
-/// (Domäne A — Zahlbegriff, B — Stellenwertverständnis,
-/// C — Rechenstrategien, D — Sachsituationen), sequenced per the blueprint
-/// A1 → A2 → A3 → B1 → B2 → C1 → C2 → C3 → C4 → D1.
+import 'skill_catalog.dart';
+
+/// Canonical didactic order of every construct in the v3/v4 taxonomy,
+/// sequenced by the domain/card order of `Research/skills_taxonomy.csv`
+/// (Zählen -> Zahlzerlegung/Schnelles Sehen -> Stellenwerte verstehen ->
+/// Grundstrategien -> Kombinierte Strategien -> the PIKAS-sourced extras).
 const List<String> canonicalConstructOrder = <String>[
-  // Domäne A — Zahlbegriff
-  'A1.1', 'A1.2', 'A1.3', 'A1.4', 'A1.5',
-  'A2.1', 'A2.2', 'A2.3',
-  'A3.1', 'A3.2', 'A3.3',
-  // Domäne B — Stellenwertverständnis
-  'B1.1', 'B1.2', 'B1.3',
-  'B2.1', 'B2.2', 'B2.3',
-  // Domäne C — Rechenstrategien
-  'C1.1', 'C1.2', 'C1.3',
-  'C2.1', 'C2.2', 'C2.3',
-  'C3.1', 'C3.2', 'C3.3', 'C3.4',
-  'C4.1', 'C4.2',
-  // Domäne D — Sachsituationen
-  'D1.1', 'D1.2',
+  'quantify_count', 'count_forward', 'count_backward', 'successor',
+  'predecessor', 'skip2_forward', 'skip2_backward', 'order_cards',
+  'decompose', 'complete_to', 'structured_quantity_recognition',
+  'quick_recognition', 'dot_field', 'bundling_recognition',
+  'number_word_dictation', 'skip5_forward', 'skip5_backward',
+  'skip10_forward', 'skip10_backward', 'compare_quantity', 'basic_fact_5',
+  'complete_gap', 'double', 'halve', 'tens_add_sub', 'decade_analogy',
+  'derive_near_double', 'derive_5', 'derive_10', 'cross_decade_add',
+  'cross_decade_sub', 'place_on_numberline', 'hundred_chart',
+  'shift_plus_minus', 'compensation_strategy', 'even_odd', 'fingerblitz',
+  'equation_equivalence', 'commutativity', 'number_wall',
+  'calculation_triangle', 'magnitude_estimate', 'ordinal',
+  'representation_bild_symbol', 'operation_sense', 'number_line_strategy',
 ];
 
-final RegExp _constructPattern = RegExp(r'^([A-D]\d\.\d)(.*)$');
-
-/// Splits a skill ID into (constructId, suffix): `A1.1a` → (`A1.1`, `a`),
-/// `C2.2` → (`C2.2`, ``). IDs without a construct prefix are kept whole as
-/// the construct with an empty suffix so they sort deterministically after
-/// all known constructs.
-(String, String) _splitSkillId(String skillId) {
-  final match = _constructPattern.firstMatch(skillId);
-  if (match == null) return (skillId, '');
-  return (match.group(1)!, match.group(2)!);
-}
-
-/// Compares two skill IDs by the documented recommendation order:
-/// construct position in [canonicalConstructOrder] first, then the suffix
-/// within the same construct (no suffix first, `a` < `b`), then the full ID.
-int compareRecommendations(String skillIdA, String skillIdB) {
-  final (constructA, suffixA) = _splitSkillId(skillIdA);
-  final (constructB, suffixB) = _splitSkillId(skillIdB);
+/// Compares two skill IDs by the documented recommendation order: construct
+/// position in [canonicalConstructOrder] first (construct membership from
+/// [catalog]), then the skill's own row position in the taxonomy CSV.
+int compareRecommendations(
+  String skillIdA,
+  String skillIdB,
+  SkillCatalog catalog,
+) {
+  final constructA = catalog.get(skillIdA)?.constructId ?? skillIdA;
+  final constructB = catalog.get(skillIdB)?.constructId ?? skillIdB;
 
   if (constructA != constructB) {
     final rankA = canonicalConstructOrder.indexOf(constructA);
@@ -56,19 +53,16 @@ int compareRecommendations(String skillIdA, String skillIdB) {
     return constructA.compareTo(constructB);
   }
 
-  // Same construct: no suffix first, then a < b < …
-  if (suffixA != suffixB) {
-    if (suffixA.isEmpty) return -1;
-    if (suffixB.isEmpty) return 1;
-    return suffixA.compareTo(suffixB);
-  }
-
+  final order = catalog.all.map((e) => e.skillId).toList();
+  final idxA = order.indexOf(skillIdA);
+  final idxB = order.indexOf(skillIdB);
+  if (idxA >= 0 && idxB >= 0) return idxA - idxB;
   return skillIdA.compareTo(skillIdB);
 }
 
 /// Returns [ids] sorted by the documented recommendation order.
-List<String> sortSkillIds(List<String> ids) {
+List<String> sortSkillIds(List<String> ids, SkillCatalog catalog) {
   final sorted = [...ids];
-  sorted.sort(compareRecommendations);
+  sorted.sort((a, b) => compareRecommendations(a, b, catalog));
   return sorted;
 }

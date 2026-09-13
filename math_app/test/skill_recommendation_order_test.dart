@@ -1,50 +1,80 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:math_app/services/skill_catalog.dart';
 import 'package:math_app/services/skill_recommendation_order.dart';
 
-// Ground truth from docs/clean-room/01-construct-map.md (all 31 constructs in
-// map order) sequenced per docs/clean-room/02-blueprint.md §Sequenzregeln and
-// documented in docs/clean-room/foerderplan/ordering-rule.md.
-const constructsFromMap = <String>[
-  'A1.1', 'A1.2', 'A1.3', 'A1.4', 'A1.5',
-  'A2.1', 'A2.2', 'A2.3',
-  'A3.1', 'A3.2', 'A3.3',
-  'B1.1', 'B1.2', 'B1.3',
-  'B2.1', 'B2.2', 'B2.3',
-  'C1.1', 'C1.2', 'C1.3',
-  'C2.1', 'C2.2', 'C2.3',
-  'C3.1', 'C3.2', 'C3.3', 'C3.4',
-  'C4.1', 'C4.2',
-  'D1.1', 'D1.2',
-];
-
+/// Rewritten 2026-09-13 for the v3/v4 taxonomy: the old fixtures used dotted
+/// legacy IDs (`A1.1`, `C2.2`, ...) that no longer exist in
+/// `Research/skills_taxonomy.csv`; ordering is now resolved via a
+/// [SkillCatalog] lookup rather than by parsing the skill ID string.
 void main() {
-  test('canonical construct order is complete', () {
-    expect(canonicalConstructOrder.length, constructsFromMap.length);
-    expect(canonicalConstructOrder.toSet(), constructsFromMap.toSet());
-    expect(canonicalConstructOrder, constructsFromMap);
+  final catalog = SkillCatalog.loadFromCsv(
+    File('Research/skills_taxonomy.csv').readAsStringSync(),
+  );
 
-    // Domains are grouped A, B, C, D in that order.
-    final domains = canonicalConstructOrder.map((id) => id[0]).toList();
-    expect(domains, [...domains]..sort());
+  test('canonical construct order is complete and matches the catalog', () {
+    final constructsInCatalog =
+        catalog.all.map((e) => e.constructId).toSet();
+    expect(canonicalConstructOrder.toSet(), constructsInCatalog);
+    expect(canonicalConstructOrder.length, canonicalConstructOrder.toSet().length,
+        reason: 'no duplicate constructs');
   });
 
-  test('orders across constructs', () {
-    final fixture = <String>['C3.2', 'A1.5', 'B2.1', 'D1.1', 'A1.1'];
+  test('orders across constructs by domain/card sequence', () {
+    final fixture = <String>[
+      'derive_via_10_sub', // Kombinierte Strategien
+      'quantify_count_zr10', // Zählen, card 1
+      'bundling_recognition_zr100', // Stellenwerte verstehen
+      'double_zr10', // Grundstrategien
+    ];
     expect(
-      sortSkillIds(fixture),
-      <String>['A1.1', 'A1.5', 'B2.1', 'C3.2', 'D1.1'],
+      sortSkillIds(fixture, catalog),
+      <String>[
+        'quantify_count_zr10',
+        'bundling_recognition_zr100',
+        'double_zr10',
+        'derive_via_10_sub',
+      ],
     );
   });
 
-  test('orders within a construct', () {
-    final fixture = <String>['A1.1b', 'A1.1a', 'A1.1'];
-    expect(sortSkillIds(fixture), <String>['A1.1', 'A1.1a', 'A1.1b']);
+  test('orders within a construct by taxonomy row order (ZR10 -> ZR20 -> ZR100)',
+      () {
+    final fixture = <String>[
+      'double_2digit_with_carry', // ZR100
+      'double_zr10', // ZR10
+      'double_crossing_10', // ZR20
+    ];
+    expect(
+      sortSkillIds(fixture, catalog),
+      <String>['double_zr10', 'double_crossing_10', 'double_2digit_with_carry'],
+    );
   });
 
-  test('deterministic tie-break', () {
-    final set = <String>['C2.2', 'A3.1', 'B1.2', 'A1.1', 'D1.2'];
-    final shuffled = <String>['D1.2', 'A1.1', 'B1.2', 'A3.1', 'C2.2'];
-    expect(sortSkillIds(set), sortSkillIds(shuffled));
+  test('deterministic tie-break regardless of input order', () {
+    final set = <String>[
+      'halve_decade',
+      'count_forward_zr20',
+      'complete_to_10',
+      'ordinal_1',
+    ];
+    final shuffled = <String>[
+      'ordinal_1',
+      'complete_to_10',
+      'count_forward_zr20',
+      'halve_decade',
+    ];
+    expect(sortSkillIds(set, catalog), sortSkillIds(shuffled, catalog));
+  });
+
+  test('an ID absent from the catalog sorts deterministically after known constructs',
+      () {
+    final fixture = <String>['quantify_count_zr10', 'not_a_real_skill'];
+    expect(
+      sortSkillIds(fixture, catalog),
+      <String>['quantify_count_zr10', 'not_a_real_skill'],
+    );
   });
 }

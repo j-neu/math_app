@@ -5,7 +5,7 @@
 // Returns the full foerderplan row.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { compareRecommendations, splitSkillId } from "../_shared/ordering.ts";
+import { compareRecommendations } from "../_shared/ordering.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -183,7 +183,8 @@ Deno.serve(async (req) => {
   }
 
   // --- 3. Pedagogical sort ---
-  recommendations.sort((a, b) => compareRecommendations(a.skill_id, b.skill_id));
+  const constructIdOf = (skillId: string) => skillCatalog.get(skillId)?.construct_id ?? "";
+  recommendations.sort((a, b) => compareRecommendations(a.skill_id, b.skill_id, constructIdOf));
 
   const briefSkillIds = recommendations.slice(0, 3).map((r) => r.skill_id);
   const recommendedSkillIds = recommendations.map((r) => r.skill_id);

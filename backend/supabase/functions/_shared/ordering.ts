@@ -1,32 +1,46 @@
-// Canonical didactic order of every construct in the construct map
-// (docs/clean-room/01-construct-map.md; rule: docs/clean-room/foerderplan/ordering-rule.md).
-// Dart twin: math_app/lib/services/skill_recommendation_order.dart (tasks.md R4.2).
+// Canonical didactic order of every construct in the v3/v4 taxonomy
+// (Research/skills_taxonomy.csv), sequenced by that CSV's domain/card order
+// (Zaehlen -> Zahlzerlegung/Schnelles Sehen -> Stellenwerte verstehen ->
+// Grundstrategien -> Kombinierte Strategien -> the PIKAS-sourced extras).
+// Dart twin: math_app/lib/services/skill_recommendation_order.dart.
+//
+// Rebuilt 2026-09-13: this used to hold the old dotted construct IDs
+// (`A1.1`, `C2.2`, ...) parsed out of the skill ID string via a regex. None
+// of those IDs exist in the live content any more, so every recommendation
+// silently fell through to alphabetical order. Construct membership is now
+// resolved via a caller-supplied lookup (the `skills` table's `construct_id`
+// column) instead of being parsed from the ID text.
 export const canonicalConstructOrder: readonly string[] = [
-  "A1.1", "A1.2", "A1.3", "A1.4", "A1.5",
-  "A2.1", "A2.2", "A2.3",
-  "A3.1", "A3.2", "A3.3",
-  "B1.1", "B1.2", "B1.3",
-  "B2.1", "B2.2", "B2.3",
-  "C1.1", "C1.2", "C1.3",
-  "C2.1", "C2.2", "C2.3",
-  "C3.1", "C3.2", "C3.3", "C3.4",
-  "C4.1", "C4.2",
-  "D1.1", "D1.2",
+  "quantify_count", "count_forward", "count_backward", "successor",
+  "predecessor", "skip2_forward", "skip2_backward", "order_cards",
+  "decompose", "complete_to", "structured_quantity_recognition",
+  "quick_recognition", "dot_field", "bundling_recognition",
+  "number_word_dictation", "skip5_forward", "skip5_backward",
+  "skip10_forward", "skip10_backward", "compare_quantity", "basic_fact_5",
+  "complete_gap", "double", "halve", "tens_add_sub", "decade_analogy",
+  "derive_near_double", "derive_5", "derive_10", "cross_decade_add",
+  "cross_decade_sub", "place_on_numberline", "hundred_chart",
+  "shift_plus_minus", "compensation_strategy", "even_odd", "fingerblitz",
+  "equation_equivalence", "commutativity", "number_wall",
+  "calculation_triangle", "magnitude_estimate", "ordinal",
+  "representation_bild_symbol", "operation_sense", "number_line_strategy",
 ];
 
-const SKILL_ID_PATTERN = /^([A-D]\d\.\d)(.*)$/;
+/** Resolves a skill ID to its construct ID, e.g. via the `skills` table. */
+export type ConstructIdOf = (skillId: string) => string;
 
-/** `A1.1a` → `["A1.1", "a"]`; an ID without a construct prefix is kept whole. */
-export function splitSkillId(skillId: string): [string, string] {
-  const m = SKILL_ID_PATTERN.exec(skillId);
-  if (!m) return [skillId, ""];
-  return [m[1]!, m[2]!];
-}
-
-/** Construct position first, then suffix (none before `a`), then the full ID. */
-export function compareRecommendations(skillIdA: string, skillIdB: string): number {
-  const [constructA, suffixA] = splitSkillId(skillIdA);
-  const [constructB, suffixB] = splitSkillId(skillIdB);
+/**
+ * Construct position in [canonicalConstructOrder] first (construct
+ * membership from [constructIdOf]), then the skill ID itself as a
+ * deterministic tie-break within a construct.
+ */
+export function compareRecommendations(
+  skillIdA: string,
+  skillIdB: string,
+  constructIdOf: ConstructIdOf,
+): number {
+  const constructA = constructIdOf(skillIdA) || skillIdA;
+  const constructB = constructIdOf(skillIdB) || skillIdB;
 
   if (constructA !== constructB) {
     const rankA = canonicalConstructOrder.indexOf(constructA);
@@ -37,16 +51,10 @@ export function compareRecommendations(skillIdA: string, skillIdB: string): numb
     return constructA < constructB ? -1 : constructA > constructB ? 1 : 0;
   }
 
-  if (suffixA !== suffixB) {
-    if (suffixA === "") return -1;
-    if (suffixB === "") return 1;
-    return suffixA < suffixB ? -1 : suffixA > suffixB ? 1 : 0;
-  }
-
   return skillIdA < skillIdB ? -1 : skillIdA > skillIdB ? 1 : 0;
 }
 
 /** Returns a new sorted array; never mutates the input. */
-export function sortSkillIds(skillIds: string[]): string[] {
-  return [...skillIds].sort(compareRecommendations);
+export function sortSkillIds(skillIds: string[], constructIdOf: ConstructIdOf): string[] {
+  return [...skillIds].sort((a, b) => compareRecommendations(a, b, constructIdOf));
 }

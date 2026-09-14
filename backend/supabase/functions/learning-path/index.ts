@@ -245,7 +245,12 @@ Deno.serve(async (req) => {
 
     if (pErr || !path) return json({ error: "Pfad konnte nicht angelegt werden" }, 500);
 
-    const ordered = sortSkillIds(skillIds);
+    const { data: skillsData } = await supabase
+      .from("skills")
+      .select("id, construct_id")
+      .in("id", skillIds);
+    const constructById = new Map((skillsData ?? []).map((s) => [s.id, s.construct_id ?? ""]));
+    const ordered = sortSkillIds(skillIds, (skillId) => constructById.get(skillId) ?? "");
     const rows = ordered.map((skill_id, idx) => ({
       path_id: path.id,
       skill_id,

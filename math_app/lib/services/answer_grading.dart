@@ -143,32 +143,35 @@ class AnswerSpec {
 /// same integers for the master CSV's own items would have silently
 /// re-applied a stale, unrelated grading rule to the new content.
 const Map<int, AnswerSpec> kAnswerSpecs = {
-  // place_on_numberline_zr100 (master LN110): the mark sits at 68 but the
-  // 0-100 line only shows ticks every 5 units, so the child can't read the
-  // position more precisely than "somewhere around 68" -- accept the whole
-  // 66-69 band rather than requiring the exact value (Jakob's 2026-09-14
-  // feedback).
-  110: AnswerSpec.numberRange(66, 69),
+  // place_on_numberline_zr100 (master LN20 as of the 2026-09-14 reorder,
+  // was LN110): the mark sits at 68 but the 0-100 line only shows ticks
+  // every 5 units, so the child can't read the position more precisely than
+  // "somewhere around 68" -- accept the whole 66-69 band rather than
+  // requiring the exact value (Jakob's 2026-09-14 feedback).
+  20: AnswerSpec.numberRange(66, 69),
   // representation_bild_symbol_wort (PIKAS extras): "sechs" vs. the
   // sound-alike distractors "sechzehn"/"sechzig" -- choiceOptionsOf can't
   // derive an arbitrary three-word list from prose, so it's curated here.
-  // Master ListNumber 100; also kept at the original per-file number 703
-  // since answer_grading_test.dart still exercises the standalone
-  // diagnostic_v3_pikas_extras.csv fixture directly.
-  100: AnswerSpec.choice(['sechzehn', 'sechs', 'sechzig'], 'sechs'),
+  // Master ListNumber 30 (was 100 before the 2026-09-14 reorder); also kept
+  // at the original per-file number 703 since answer_grading_test.dart
+  // still exercises the standalone diagnostic_v3_pikas_extras.csv fixture
+  // directly.
+  30: AnswerSpec.choice(['sechzehn', 'sechs', 'sechzig'], 'sechs'),
   703: AnswerSpec.choice(['sechzehn', 'sechs', 'sechzig'], 'sechs'),
   // representation_bild_symbol: "Welches Symbol passt dazu: 5, 6 oder 7?"
   // is genuinely multiple-choice -- forced into choice mode (it would
   // otherwise infer plain number-entry, since "6" alone is one integer) so
   // it renders as tap buttons instead of a field (Jakob's 2026-09-13
   // feedback: multiple-choice items should always be buttons, not fields).
-  // Master ListNumber 3; also kept at 702 for the standalone-fixture test.
-  3: AnswerSpec.choice(['5', '6', '7'], '6'),
+  // Master ListNumber 29 (was 3 before the 2026-09-14 reorder); also kept
+  // at 702 for the standalone-fixture test.
+  29: AnswerSpec.choice(['5', '6', '7'], '6'),
   702: AnswerSpec.choice(['5', '6', '7'], '6'),
   // operation_sense_story: "Welche Rechnung passt...? a) 5+4 b) 5-4 c) 5x4"
   // -- same fix; grades the chosen equation, not its result. Master
-  // ListNumber 105; also kept at 707 for the standalone-fixture test.
-  105: AnswerSpec.choice(['5+4', '5-4', '5x4'], '5+4'),
+  // ListNumber 68 (was 105 before the 2026-09-14 reorder); also kept at 707
+  // for the standalone-fixture test.
+  68: AnswerSpec.choice(['5+4', '5-4', '5x4'], '5+4'),
   707: AnswerSpec.choice(['5+4', '5-4', '5x4'], '5+4'),
   // Test-only fixtures (diagnostic_answer_widgets_test.dart): the master
   // content has no live labeledFields or pairRows item right now, so the

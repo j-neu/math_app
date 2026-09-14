@@ -79,9 +79,10 @@ void main() {
 
     // representation_bild_symbol / representation_bild_symbol_wort /
     // operation_sense_story -- forced into choice mode via kAnswerSpecs so
-    // they render as tap buttons rather than a free-entry field.
-    expect(modeOf(3), DiagnosticAnswerMode.choice);
-    expect(modeOf(100), DiagnosticAnswerMode.choice);
-    expect(modeOf(105), DiagnosticAnswerMode.choice);
+    // they render as tap buttons rather than a free-entry field. Master
+    // ListNumbers 29/30/68 as of the 2026-09-14 reorder (were 3/100/105).
+    expect(modeOf(29), DiagnosticAnswerMode.choice);
+    expect(modeOf(30), DiagnosticAnswerMode.choice);
+    expect(modeOf(68), DiagnosticAnswerMode.choice);
   });
 }

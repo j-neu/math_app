@@ -24,8 +24,8 @@ void main() {
       File('Research/diagnostic_v4_master.csv').readAsStringSync(),
     );
 
-    test('representation_bild_symbol (master LN3) is choice mode 5/6/7', () {
-      final question = q(master, 3);
+    test('representation_bild_symbol (master LN29) is choice mode 5/6/7', () {
+      final question = q(master, 29);
       expect(AnswerGrading.modeFor(question), DiagnosticAnswerMode.choice);
       expect(AnswerGrading.choiceOptionsOf(question), ['5', '6', '7']);
       expect(AnswerGrading.grade(userAnswer: '6', question: question), isTrue);
@@ -33,9 +33,9 @@ void main() {
     });
 
     test(
-        'representation_bild_symbol_wort (master LN100) offers the curated '
+        'representation_bild_symbol_wort (master LN30) offers the curated '
         'sechs/sechzehn/sechzig options', () {
-      final question = q(master, 100);
+      final question = q(master, 30);
       expect(AnswerGrading.modeFor(question), DiagnosticAnswerMode.choice);
       expect(AnswerGrading.choiceOptionsOf(question),
           ['sechzehn', 'sechs', 'sechzig']);
@@ -44,9 +44,9 @@ void main() {
     });
 
     test(
-        'operation_sense_story (master LN105) grades the typed equation, '
+        'operation_sense_story (master LN68) grades the typed equation, '
         'not the numeric result', () {
-      final question = q(master, 105);
+      final question = q(master, 68);
       expect(AnswerGrading.modeFor(question), DiagnosticAnswerMode.choice);
       expect(
           AnswerGrading.grade(userAnswer: '5+4', question: question), isTrue);

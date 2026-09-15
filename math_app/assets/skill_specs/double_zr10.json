@@ -1,8 +1,8 @@
 {
   "spec_version": 1,
-  "skill_id": "verdoppeln-halbieren.ZR10",
-  "construct_id": "verdoppeln-halbieren.ZR10",
-  "domain": "v2",
+  "skill_id": "double_zr10",
+  "construct_id": "double",
+  "domain": "C",
   "title_de": "Verdoppeln im ZR10",
   "level_titles_de": [
     "Verdoppeln mit Punkten",

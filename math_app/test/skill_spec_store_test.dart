@@ -58,5 +58,18 @@ void main() {
         throwsA(isA<SpecFormatException>()),
       );
     });
+
+    test('double_zr10 (Pilot A) parses with the doubling-mirror widgets', () {
+      final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+      final spec = store.byId('double_zr10');
+      expect(spec.constructId, 'double');
+      expect(spec.domain, 'C');
+      expect(spec.titleDe, 'Verdoppeln im ZR10');
+      expect(spec.levels.map((l) => l.customWidget), [
+        'doubling_mirror_enaktiv',
+        'doubling_mirror_ikonisch',
+        'doubling_mirror_symbolisch',
+      ]);
+    });
   });
 }

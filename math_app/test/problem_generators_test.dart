@@ -140,7 +140,7 @@ SkillSpec _strategySpec({
 /// Loads a real skill spec straight from the clean-room source tree, so the
 /// generators are verified against exactly what the sync script ships.
 SkillSpec _realSpec(String id) => SkillSpec.fromJson(
-  jsonDecode(File('../docs/clean-room/skills/specs/$id.json').readAsStringSync())
+  jsonDecode(File('../docs/clean-room/v4/skills/specs/$id.json').readAsStringSync())
       as Map<String, dynamic>,
 );
 
@@ -2924,6 +2924,19 @@ void main() {
           expect(target, inInclusiveRange(1, 5));
           expect(p.expected, ['${target * 2}']);
           expect(p.display['custom_widget'], 'doubling_mirror_enaktiv');
+        }
+      }
+    });
+
+    test('real double_zr10 generates valid doubling-mirror problems', () {
+      final s = _realSpec('double_zr10');
+      for (var level = 1; level <= 3; level++) {
+        for (var seed = 0; seed < 30; seed++) {
+          for (final p in generateProblems(spec: s, level: level, seed: seed)) {
+            final target = p.display['target'] as int;
+            expect(target, inInclusiveRange(1, 5));
+            expect(p.expected, ['${target * 2}']);
+          }
         }
       }
     });

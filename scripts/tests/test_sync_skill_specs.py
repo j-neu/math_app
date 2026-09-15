@@ -81,6 +81,13 @@ class SyncSkillSpecsTest(unittest.TestCase):
             '{"skill_id": "A1.1a", "v": 2}',
         )
 
+    def test_src_dirs_includes_the_v4_specs_directory(self):
+        suffixes = [d.as_posix() for d in sync_skill_specs.SRC_DIRS]
+        self.assertTrue(
+            any(s.endswith("docs/clean-room/v4/skills/specs") for s in suffixes),
+            f"SRC_DIRS does not include the v4 specs directory: {suffixes}",
+        )
+
     def test_missing_source_directory_fails_loudly(self):
         code, out = self._run([self.v1 / "nope", self.v2])
 

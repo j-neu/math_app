@@ -17,6 +17,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 SRC_DIRS = [
     REPO_ROOT / "docs" / "clean-room" / "skills" / "specs",
     REPO_ROOT / "docs" / "clean-room" / "v2" / "skills" / "specs",
+    REPO_ROOT / "docs" / "clean-room" / "v4" / "skills" / "specs",
 ]
 DEST_DIR = REPO_ROOT / "math_app" / "assets" / "skill_specs"
 

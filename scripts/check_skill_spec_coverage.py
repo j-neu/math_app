@@ -11,8 +11,10 @@ scripts/sync_skill_specs.py). Reports two kinds of drift:
     yet" for these).
   - extra: a spec whose skill_id is not in the taxonomy -- orphaned
     content, typically a retired id left behind by a taxonomy rename.
+  - malformed: a spec file that is not valid JSON and so could not be
+    read at all.
 
-Exit 0 only when both lists are empty. Run after every
+Exit 0 only when all three lists are empty. Run after every
 sync_skill_specs.py run to check progress against the 93-skill build
 order (docs/clean-room/v4/skills/BUILD_ORDER.md).
 """
@@ -35,18 +37,20 @@ def taxonomy_skill_ids(csv_path: Path) -> set[str]:
         return {row["skill_id"] for row in reader if row.get("skill_id")}
 
 
-def spec_skill_ids(specs_dir: Path) -> set[str]:
+def spec_skill_ids(specs_dir: Path) -> tuple[set[str], list[str]]:
     ids: set[str] = set()
+    malformed: list[str] = []
     for path in specs_dir.glob("*.json"):
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
         except json.JSONDecodeError as exc:
             print(f"ERROR: {path.name} is not valid JSON: {exc}")
+            malformed.append(path.name)
             continue
         skill_id = data.get("skill_id")
         if skill_id:
             ids.add(skill_id)
-    return ids
+    return ids, malformed
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -58,7 +62,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     taxonomy_ids = taxonomy_skill_ids(TAXONOMY_CSV)
-    spec_ids = spec_skill_ids(SPECS_DIR)
+    spec_ids, malformed = spec_skill_ids(SPECS_DIR)
 
     missing = sorted(taxonomy_ids - spec_ids)
     extra = sorted(spec_ids - taxonomy_ids)
@@ -74,8 +78,12 @@ def main(argv: list[str] | None = None) -> int:
         print(f"\nextra ({len(extra)}): specs with no matching taxonomy skill:")
         for skill_id in extra:
             print(f"  - {skill_id}")
+    if malformed:
+        print(f"\nmalformed ({len(malformed)}): these spec files are not valid JSON and were skipped:")
+        for name in sorted(malformed):
+            print(f"  - {name}")
 
-    if not missing and not extra:
+    if not missing and not extra and not malformed:
         print("OK: every taxonomy skill has exactly one spec, no orphans")
         return 0
     return 1

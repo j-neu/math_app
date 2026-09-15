@@ -84,6 +84,17 @@ class CheckSkillSpecCoverageTest(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("ERROR: taxonomy CSV not found", out)
 
+    def test_malformed_spec_json_fails_loudly(self):
+        self._write_csv(["double_zr10"])
+        self._write_spec("double_zr10")
+        (self.specs_dir / "broken.json").write_text("{not valid json", encoding="utf-8")
+
+        code, out = self._run()
+
+        self.assertEqual(code, 1)
+        self.assertIn("malformed (1)", out)
+        self.assertIn("broken.json", out)
+
 
 if __name__ == "__main__":
     unittest.main()

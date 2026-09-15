@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
-"""Mirror the P3 skill specs into the Flutter bundle assets.
+"""Mirror the v4 skill specs into the Flutter bundle assets.
 
-Copies docs/clean-room/skills/specs/*.json (v1) AND
-docs/clean-room/v2/skills/specs/*.json (v2) into math_app/assets/skill_specs/,
-creating the destination directory when needed. Idempotent: files that are
-already present and byte-identical are left untouched. Prints a summary.
+Copies docs/clean-room/v4/skills/specs/*.json into
+math_app/assets/skill_specs/, creating the destination directory when
+needed. Idempotent: files that are already present and byte-identical are
+left untouched. Prints a summary.
+
+The v1 (docs/clean-room/skills/specs) and v2 (docs/clean-room/v2/skills/specs)
+trees this script used to also mirror are retired: their skill ids predate
+the current taxonomy (math_app/Research/skills_taxonomy.csv) and are archived
+under docs/archive/skill_specs_pre_v4/.
 """
 
 from __future__ import annotations
@@ -15,8 +20,6 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SRC_DIRS = [
-    REPO_ROOT / "docs" / "clean-room" / "skills" / "specs",
-    REPO_ROOT / "docs" / "clean-room" / "v2" / "skills" / "specs",
     REPO_ROOT / "docs" / "clean-room" / "v4" / "skills" / "specs",
 ]
 DEST_DIR = REPO_ROOT / "math_app" / "assets" / "skill_specs"

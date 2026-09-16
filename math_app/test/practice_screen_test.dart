@@ -153,7 +153,7 @@ SkillSpec _spec(
 /// A store holding the real A1.1b spec, so the summary can resolve the
 /// server's `unlocked_skill_ids` to child-facing titles.
 SkillSpecStore _unlockStore() => SkillSpecStore.fromJsonMap({
-      'A1.1b': File('../docs/clean-room/skills/specs/A1.1b.json').readAsStringSync(),
+      'A1.1b': File('../docs/archive/skill_specs_pre_v4/v1/A1.1b.json').readAsStringSync(),
     });
 
 Future<void> _pumpScreen(

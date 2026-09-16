@@ -6,7 +6,7 @@ import 'package:math_app/models/problem.dart';
 import 'package:math_app/models/skill_spec.dart';
 import 'package:math_app/practice/problem_generators.dart';
 
-const String _specsDir = '../docs/clean-room/skills/specs';
+const String _specsDir = '../docs/archive/skill_specs_pre_v4/v1';
 
 /// True when the equation a Problem shows is arithmetically true and its
 /// `expected` values really fill the gaps. Covers every equation_solve /

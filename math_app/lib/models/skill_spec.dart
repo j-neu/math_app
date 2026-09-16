@@ -3,9 +3,12 @@
 /// Parsing is strict: a document that violates the schema raises
 /// [SpecFormatException] so a spec that reaches the runtime is always well
 /// formed. Template-specific `params` are deliberately NOT deep-validated
-/// here — `scripts/check_specs.py` is the authoritative validator for the
-/// params vocabulary, while this class only extracts what the runtime needs
-/// to build problems.
+/// here. `scripts/check_specs.py` used to fill that role for the pre-v4
+/// spec tree; it was retired with that tree (see
+/// `docs/archive/skill_specs_pre_v4/`). Nothing currently validates the v4
+/// params vocabulary beyond `scripts/check_skill_spec_coverage.py`'s id
+/// coverage check — a malformed `params` map for a known template is only
+/// caught at runtime by whichever generator function reads it.
 library;
 
 /// The fixed template set the runtime understands (P2 plan §4).

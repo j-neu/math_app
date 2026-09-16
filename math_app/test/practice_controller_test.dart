@@ -509,7 +509,7 @@ void main() {
     final backend = _Backend();
     final service = LearningPathService(client: backend.client);
     final spec = SkillSpec.fromJson(
-      jsonDecode(File('../docs/clean-room/skills/specs/C1.1b.json').readAsStringSync())
+      jsonDecode(File('../docs/archive/skill_specs_pre_v4/v1/C1.1b.json').readAsStringSync())
           as Map<String, dynamic>,
     );
     final controller = PracticeController(

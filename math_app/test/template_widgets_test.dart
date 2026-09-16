@@ -12,6 +12,9 @@ import 'package:math_app/widgets/templates/compare_symbols_widget.dart';
 import 'package:math_app/widgets/templates/doubling_mirror_enaktiv_widget.dart';
 import 'package:math_app/widgets/templates/doubling_mirror_ikonisch_widget.dart';
 import 'package:math_app/widgets/templates/doubling_mirror_symbolisch_widget.dart';
+import 'package:math_app/widgets/templates/halving_mirror_enaktiv_widget.dart';
+import 'package:math_app/widgets/templates/halving_mirror_ikonisch_widget.dart';
+import 'package:math_app/widgets/templates/halving_mirror_symbolisch_widget.dart';
 import 'package:math_app/widgets/templates/drag_partition_widget.dart';
 import 'package:math_app/widgets/templates/equation_gap_widget.dart';
 import 'package:math_app/widgets/templates/equation_solve_widget.dart';
@@ -2736,6 +2739,223 @@ void main() {
 
       expect(values.last, '');
       expect(find.text('5'), findsOneWidget);
+    });
+  });
+
+  group('HalvingMirrorEnaktivWidget', () {
+    Problem halveProblem(int full) => _problem(
+          template: 'custom_widget',
+          display: {'custom_widget': 'halving_mirror_enaktiv', 'full': full},
+          expected: ['${full ~/ 2}'],
+        );
+
+    // Same bounded-height workaround as DoublingMirrorEnaktivWidget.
+    Future<void> pumpHalve(
+      WidgetTester tester,
+      Problem problem,
+      List<String> values,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: HalvingMirrorEnaktivWidget(
+              problem: problem,
+              onValueChanged: values.add,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+    }
+
+    testWidgets(
+        'counts the full amount, drags dots across, and confirms the '
+        'half via the Fertig button', (tester) async {
+      final values = <String>[];
+      await pumpHalve(tester, halveProblem(6), values);
+
+      await tester.enterText(find.byType(TextField), '6');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pump();
+
+      final dragSource = find.byType(Draggable<int>);
+      final dragTarget = find.byType(DragTarget<int>);
+      for (var i = 0; i < 3; i++) {
+        await tester.drag(
+          dragSource,
+          tester.getCenter(dragTarget) - tester.getCenter(dragSource),
+        );
+        await tester.pump();
+      }
+
+      // Still on the drag step -- pressing Fertig is what advances, not
+      // the drag count on its own.
+      expect(find.text('Fertig'), findsOneWidget);
+      expect(find.byKey(const ValueKey('final-answer')), findsNothing);
+
+      await tester.tap(find.text('Fertig'));
+      await tester.pump();
+
+      expect(find.byKey(const ValueKey('final-answer')), findsOneWidget);
+      await tester.enterText(find.byKey(const ValueKey('final-answer')), '3');
+      await tester.pump();
+
+      expect(values.last, '3');
+    });
+
+    testWidgets(
+        'dragging past the old auto-stop point does not auto-advance -- '
+        'only the Fertig button does', (tester) async {
+      final values = <String>[];
+      await pumpHalve(tester, halveProblem(4), values);
+
+      await tester.enterText(find.byType(TextField), '4');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pump();
+
+      final dragSource = find.byType(Draggable<int>);
+      final dragTarget = find.byType(DragTarget<int>);
+      // Half of 4 is 2 -- drag 3 times, past the old hard-coded cap, to
+      // prove the widget itself no longer stops the child at "half".
+      for (var i = 0; i < 3; i++) {
+        await tester.drag(
+          dragSource,
+          tester.getCenter(dragTarget) - tester.getCenter(dragSource),
+        );
+        await tester.pump();
+      }
+
+      expect(find.byKey(const ValueKey('final-answer')), findsNothing,
+          reason: 'the widget must not auto-advance on its own count');
+      expect(find.text('Fertig'), findsOneWidget);
+
+      await tester.tap(find.text('Fertig'));
+      await tester.pump();
+
+      expect(find.byKey(const ValueKey('final-answer')), findsOneWidget);
+    });
+
+    testWidgets('a new problem resets to step 0', (tester) async {
+      final values = <String>[];
+      await pumpHalve(tester, halveProblem(4), values);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: HalvingMirrorEnaktivWidget(
+              problem: halveProblem(8),
+              onValueChanged: values.add,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(values.last, '');
+      expect(find.byType(TextField), findsOneWidget);
+    });
+  });
+
+  group('HalvingMirrorIkonischWidget', () {
+    Problem halveProblem(int full) => _problem(
+          template: 'custom_widget',
+          display: {
+            'custom_widget': 'halving_mirror_ikonisch',
+            'full': full,
+          },
+          expected: ['${full ~/ 2}'],
+        );
+
+    // Same bounded-height workaround as DoublingMirrorIkonischWidget.
+    Future<void> pumpHalveIkonisch(
+      WidgetTester tester,
+      Problem problem,
+      List<String> values,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: HalvingMirrorIkonischWidget(
+              problem: problem,
+              onValueChanged: values.add,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+    }
+
+    testWidgets('pressing the split button reveals the half and advances',
+        (tester) async {
+      final values = <String>[];
+      await pumpHalveIkonisch(tester, halveProblem(6), values);
+
+      await tester.enterText(find.byType(TextField), '6');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pump();
+
+      await tester.tap(find.byIcon(Icons.call_split));
+      await tester.pump(const Duration(milliseconds: 600));
+
+      expect(find.byKey(const ValueKey('final-answer')), findsOneWidget);
+      await tester.enterText(find.byKey(const ValueKey('final-answer')), '3');
+      await tester.pump();
+
+      expect(values.last, '3');
+    });
+  });
+
+  group('HalvingMirrorSymbolischWidget', () {
+    Problem halveProblem(int full) => _problem(
+          template: 'custom_widget',
+          display: {
+            'custom_widget': 'halving_mirror_symbolisch',
+            'full': full,
+          },
+          expected: ['${full ~/ 2}'],
+        );
+
+    testWidgets('shows the full number and reports the typed half',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        HalvingMirrorSymbolischWidget(
+          problem: halveProblem(8),
+          onValueChanged: values.add,
+        ),
+      );
+
+      expect(find.text('8'), findsOneWidget);
+      await tester.enterText(find.byKey(const ValueKey('final-answer')), '4');
+      await tester.pump();
+
+      expect(values.last, '4');
+    });
+
+    testWidgets('a new problem clears the field and reports ""',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        HalvingMirrorSymbolischWidget(
+          problem: halveProblem(4),
+          onValueChanged: values.add,
+        ),
+      );
+      await tester.enterText(find.byKey(const ValueKey('final-answer')), '2');
+      await tester.pump();
+
+      await _pumpApp(
+        tester,
+        HalvingMirrorSymbolischWidget(
+          problem: halveProblem(10),
+          onValueChanged: values.add,
+        ),
+      );
+
+      expect(values.last, '');
+      expect(find.text('10'), findsOneWidget);
     });
   });
 }

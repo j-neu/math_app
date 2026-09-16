@@ -85,7 +85,7 @@ Append to `Archive/GAUNTLET_PROGRESS.md`: commands run with their output, bugs f
 | `docs/clean-room/items/*.md` | `math_app/Research/diagnostic_{core,deepdive}_v1.csv` | `python scripts/generate_diagnostic_csv.py` | script self-checks; counts match `02-blueprint.md` |
 | Those CSVs | live `diagnostic_questions` rows | a migration | REST query the live table and diff against the CSV |
 | `docs/clean-room/skills/skills_taxonomy.csv` | `math_app/Research/skills_taxonomy.csv` | copy per R5.1 | `check_provenance.py --all` |
-| `docs/clean-room/skills/specs/*.json` | `math_app/assets/skill_specs/` | `python scripts/sync_skill_specs.py` | `python scripts/check_specs.py` |
+| `docs/clean-room/v4/skills/specs/*.json` | `math_app/assets/skill_specs/` | `python scripts/sync_skill_specs.py` | `python scripts/check_skill_spec_coverage.py` |
 | item + skill files | `docs/clean-room/provenance.csv` | manual | `python scripts/check_provenance.py --all` |
 | CSV row order | `*.adjudicated` sidecars | manual re-key | `check_item_independence.py --strict` |
 | CSV as bundled asset | **deployed** `prozedia-app` bundle | `flutter build web --no-tree-shake-icons` + deploy | load the deployed URL, not localhost |
@@ -163,7 +163,7 @@ python scripts/check_provenance.py --all
 python scripts/check_item_independence.py --new math_app/Research/diagnostic_core_v1.csv --strict
 python scripts/check_item_independence.py --new math_app/Research/diagnostic_deepdive_v1.csv --strict
 python scripts/check_mapping.py
-python scripts/check_specs.py
+python scripts/check_skill_spec_coverage.py
 python scripts/check_skill_descriptions.py
 ```
 

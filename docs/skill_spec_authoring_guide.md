@@ -25,7 +25,14 @@ Archetype tiers (from `docs/superpowers/specs/2026-09-15-exercise-plan-design.md
    of the 16 known generic templates in `kKnownTemplates`,
    `math_app/lib/models/skill_spec.dart`) or `"custom_widget"` plus a
    `custom_widget` registry key. `error_taxonomy` needs at least the
-   `"other"` fallback code every spec carries.
+   `"other"` fallback code every spec carries. Only use codes
+   `TemplateEvaluator._candidateErrorCode`
+   (`math_app/lib/practice/template_evaluator.dart`) can actually emit —
+   for an off-by-one numeric answer that is the single undirected
+   `"miscount"`, not a directional code like `"off_by_one_low"` /
+   `"off_by_one_high"`, which no spec's answer can ever trigger
+   (`double_zr10`/`halve_zr10` shipped with exactly this mistake and had
+   to be fixed after the fact).
 
 2. **Prefer a generic template over a new custom widget.** Check
    `kKnownTemplates` first — `equation_solve`, `equation_gap`,

@@ -46,7 +46,6 @@ class _HalvingMirrorEnaktivWidgetState
   Color _feedbackColor = Colors.black;
 
   int get _fullCount => (widget.problem.display['full'] as num).toInt();
-  int get _halfCount => _fullCount ~/ 2;
 
   @override
   void didUpdateWidget(covariant HalvingMirrorEnaktivWidget oldWidget) {

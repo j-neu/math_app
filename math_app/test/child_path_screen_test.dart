@@ -14,10 +14,10 @@ import 'package:math_app/services/learning_path_service.dart';
 import 'package:math_app/services/skill_spec_store.dart';
 import 'package:math_app/services/student_auth_service.dart';
 
-const _specsDir = '../docs/clean-room/skills/specs';
+const _specsDir = '../docs/archive/skill_specs_pre_v4/v1';
 
 /// Test-only loader, same pattern as test/skill_spec_store_test.dart: builds
-/// the store from the real spec JSONs read off the clean-room source tree.
+/// the store from the real spec JSONs read off the archived v1 spec tree.
 SkillSpecStore _realStore() {
   final dir = Directory(_specsDir);
   expect(dir.existsSync(), isTrue, reason: 'real spec tree must exist');

@@ -144,6 +144,16 @@ SkillSpec _realSpec(String id) => SkillSpec.fromJson(
       as Map<String, dynamic>,
 );
 
+/// Loads a pre-v4 skill spec from the archive Task 3 moved it to. These
+/// fixtures exercise generic templates (drag_partition, numberline_step,
+/// stellenwerttafel_read, strategy_choice, word_problem, zehnerfeld_read)
+/// that stay relevant to future v4 skills even though these specific
+/// old-scheme ids are retired.
+SkillSpec _archivedSpec(String id) => SkillSpec.fromJson(
+  jsonDecode(File('../docs/archive/skill_specs_pre_v4/v1/$id.json').readAsStringSync())
+      as Map<String, dynamic>,
+);
+
 String _signature(List<Problem> problems) =>
     jsonEncode(problems.map((p) => p.toJson()).toList());
 
@@ -1078,7 +1088,7 @@ void main() {
     });
 
     test('real D1.1 levels 1-3 generate valid stories in their ZR', () {
-      final spec = _realSpec('D1.1');
+      final spec = _archivedSpec('D1.1');
       final expectedOp = ['+', '-', '+'];
       final zr = [10, 20, 100];
       for (var level = 1; level <= 3; level++) {
@@ -1103,7 +1113,7 @@ void main() {
     });
 
     test('real D1.2 levels re-roll the operation and ask for it first', () {
-      final spec = _realSpec('D1.2');
+      final spec = _archivedSpec('D1.2');
       final zr = [10, 20, 100];
       for (var level = 1; level <= 3; level++) {
         final levelSpec = spec.levelSpec(level);
@@ -1130,7 +1140,7 @@ void main() {
     });
 
     test('hand-computed minus story keeps result >= 0 (here exactly 0)', () {
-      final spec = _realSpec('D1.1');
+      final spec = _archivedSpec('D1.1');
       final problems = generateProblems(spec: spec, level: 2, seed: 5);
       final p = problems[5];
       expect(p.display['a'], 17);
@@ -1145,7 +1155,7 @@ void main() {
     });
 
     test('hand-computed op "+|-" re-rolls the sign within one level', () {
-      final spec = _realSpec('D1.2');
+      final spec = _archivedSpec('D1.2');
       final problems = generateProblems(spec: spec, level: 1, seed: 7);
       final ops = problems.map((p) => p.display['op']).toList();
       expect(ops, ['+', '+', '-', '+', '-', '+', '+', '-']);
@@ -1309,7 +1319,7 @@ void main() {
     });
 
     test('real C4.1 levels: ZR20 L1, ZR100 L2/L3 with strategy constraints', () {
-      final spec = _realSpec('C4.1');
+      final spec = _archivedSpec('C4.1');
       final expectations = [
         ('verdoppeln', 20),
         ('ueber_die_zehn', 100),
@@ -1364,7 +1374,7 @@ void main() {
     });
 
     test('hand-computed C4.1 L1: every problem is a genuine double', () {
-      final spec = _realSpec('C4.1');
+      final spec = _archivedSpec('C4.1');
       final problems = generateProblems(spec: spec, level: 1, seed: 7);
       // i0: 9 + 9 -> 18 (verdoppeln)      i1: 10 + 10 -> 20
       // i2: 7 + 7 -> 14                   i3: 2 + 2 -> 4
@@ -1388,7 +1398,7 @@ void main() {
     });
 
     test('hand-computed C4.1 L2: ones cross a ten on every problem', () {
-      final spec = _realSpec('C4.1');
+      final spec = _archivedSpec('C4.1');
       final problems = generateProblems(spec: spec, level: 2, seed: 7);
       // i0: 47 + 38 -> 85 (ones 7 + 8 = 15 > 10)
       // i1: 35 + 39 -> 74 (ones 5 + 9 = 14 > 10)
@@ -1408,7 +1418,7 @@ void main() {
 
     test('hand-computed C4.1 L3 mixed: strategies rotate and fit the numbers',
         () {
-      final spec = _realSpec('C4.1');
+      final spec = _archivedSpec('C4.1');
       final problems = generateProblems(spec: spec, level: 3, seed: 7);
       // Rotation index % 3: 0 verdoppeln, 1 fast_verdoppeln, 2 ueber_die_zehn.
       // i0: 47+47=94 (verdoppeln)  i1: 29+30=59 (fast)  i2: 19+27=46 (ueber)
@@ -1575,7 +1585,7 @@ void main() {
     });
 
     test('hand-computed tens_ones example 35 + 27 -> [35, 20, 7]', () {
-      final spec = _realSpec('C3.4a');
+      final spec = _archivedSpec('C3.4a');
       final problems = generateProblems(spec: spec, level: 1, seed: 369);
       final p = problems[6];
       expect(p.display['total'], 62);
@@ -1611,7 +1621,7 @@ void main() {
     });
 
     test('hand-computed real C2.1 L1: every split is a full ten + rest', () {
-      final spec = _realSpec('C2.1');
+      final spec = _archivedSpec('C2.1');
       for (var seed = 0; seed < 20; seed++) {
         for (final p in generateProblems(spec: spec, level: 1, seed: seed)) {
           final total = p.display['total'] as int;
@@ -2058,7 +2068,7 @@ void main() {
 
     test('real A1.3 L1 and A1.5 L1 stay inside their windows', () {
       for (final id in ['A1.3', 'A1.5']) {
-        final real = _realSpec(id);
+        final real = _archivedSpec(id);
         for (var seed = 0; seed < 30; seed++) {
           for (final p in generateProblems(spec: real, level: 1, seed: seed)) {
             final range = (p.display['range'] as List).cast<int>();
@@ -2234,7 +2244,7 @@ void main() {
     });
 
     test('real C1.1b L2: ask difference, expected == |a-b| >= 1', () {
-      final spec = _realSpec('C1.1b');
+      final spec = _archivedSpec('C1.1b');
       for (var seed = 0; seed < 50; seed++) {
         for (final p in generateProblems(spec: spec, level: 2, seed: seed)) {
           expect(p.display['arrangement'], 'two_groups');
@@ -2251,7 +2261,7 @@ void main() {
     });
 
     test('real C1.3 L2: ask part, equal groups, expected == count/2', () {
-      final spec = _realSpec('C1.3');
+      final spec = _archivedSpec('C1.3');
       for (var seed = 0; seed < 50; seed++) {
         for (final p in generateProblems(spec: spec, level: 2, seed: seed)) {
           expect(p.display['arrangement'], 'two_groups');
@@ -2267,7 +2277,7 @@ void main() {
     });
 
     test('hand-computed C1.1b L2: problem 0 derives the difference', () {
-      final spec = _realSpec('C1.1b');
+      final spec = _archivedSpec('C1.1b');
       final p = generateProblems(spec: spec, level: 2, seed: 7).first;
       expect(p.display['ask'], 'difference');
       final split = (p.display['split'] as List).cast<int>();
@@ -2488,7 +2498,7 @@ void main() {
           expect(p.display['value'], value);
         }
       }
-      final realB23 = _realSpec('B2.3');
+      final realB23 = _archivedSpec('B2.3');
       for (var seed = 0; seed < 30; seed++) {
         for (final p in generateProblems(
           spec: realB23,
@@ -2501,7 +2511,7 @@ void main() {
               reason: 'B2.3 L2 "viele Einer"');
         }
       }
-      final realB13 = _realSpec('B1.3');
+      final realB13 = _archivedSpec('B1.3');
       for (var seed = 0; seed < 30; seed++) {
         for (final p in generateProblems(
           spec: realB13,
@@ -2894,7 +2904,7 @@ void main() {
     });
 
     test('real A2.1 L1/L2 and B1.3 L1 generate valid problems', () {
-      final a21 = _realSpec('A2.1');
+      final a21 = _archivedSpec('A2.1');
       for (var level = 1; level <= 2; level++) {
         for (var seed = 0; seed < 30; seed++) {
           for (final p in generateProblems(spec: a21, level: level, seed: seed)) {
@@ -2905,7 +2915,7 @@ void main() {
           }
         }
       }
-      final b13 = _realSpec('B1.3');
+      final b13 = _archivedSpec('B1.3');
       for (var seed = 0; seed < 30; seed++) {
         for (final p in generateProblems(spec: b13, level: 1, seed: seed)) {
           expect(p.display['custom_widget'], 'unbundling');

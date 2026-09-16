@@ -1958,6 +1958,10 @@ Problem _generateCustomWidget(
     case 'doubling_mirror_ikonisch':
     case 'doubling_mirror_symbolisch':
       return _generateDoublingMirror(spec, level, levelNumber, seed, index, gen);
+    case 'halving_mirror_enaktiv':
+    case 'halving_mirror_ikonisch':
+    case 'halving_mirror_symbolisch':
+      return _generateHalvingMirror(spec, level, levelNumber, seed, index, gen);
     default:
       throw SpecFormatException(
         'custom_widget: unknown registry key "${level.customWidget}"',
@@ -2193,5 +2197,42 @@ Problem _generateDoublingMirror(
     promptDe: level.promptDe,
     display: {'custom_widget': level.customWidget, 'target': target},
     expected: ['${target * 2}'],
+  );
+}
+
+/// Registry keys `"halving_mirror_enaktiv"`, `"halving_mirror_ikonisch"`,
+/// `"halving_mirror_symbolisch"` (halve_zr10, alle drei Level derselben
+/// Skill-Spec): mirrors `_generateDoublingMirror` in reverse. `count_range`
+/// bounds the *half*, exactly like doubling's `count_range` bounds the
+/// pre-doubled value -- so a [1, 5] range produces a full amount in [2, 10]
+/// and the child reports the half.
+Problem _generateHalvingMirror(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final countRange = level.intListParam('count_range');
+  final lo = countRange.isEmpty ? 1 : countRange[0];
+  final hi = countRange.isEmpty ? 5 : countRange[1];
+  if (lo < 1 || hi > 5 || lo > hi) {
+    throw SpecFormatException(
+      'halving_mirror: count_range [$lo, $hi] must be within [1, 5] for ZR10',
+    );
+  }
+  final half = gen.nextIntInRange(lo, hi);
+  final full = half * 2;
+
+  return Problem(
+    template: 'custom_widget',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: {'custom_widget': level.customWidget, 'full': full},
+    expected: ['$half'],
   );
 }

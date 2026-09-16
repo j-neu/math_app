@@ -38,6 +38,9 @@ const Set<String> kKnownCustomWidgets = {
   'doubling_mirror_enaktiv',
   'doubling_mirror_ikonisch',
   'doubling_mirror_symbolisch',
+  'halving_mirror_enaktiv',
+  'halving_mirror_ikonisch',
+  'halving_mirror_symbolisch',
 };
 
 /// Thrown when a skill-spec JSON document violates the P2 §4 schema.

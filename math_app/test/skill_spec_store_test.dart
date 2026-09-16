@@ -71,5 +71,18 @@ void main() {
         'doubling_mirror_symbolisch',
       ]);
     });
+
+    test('halve_zr10 (Pilot B) parses with the new halving-mirror widgets',
+        () {
+      final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+      final spec = store.byId('halve_zr10');
+      expect(spec.constructId, 'halve');
+      expect(spec.domain, 'C');
+      expect(spec.levels.map((l) => l.customWidget), [
+        'halving_mirror_enaktiv',
+        'halving_mirror_ikonisch',
+        'halving_mirror_symbolisch',
+      ]);
+    });
   });
 }

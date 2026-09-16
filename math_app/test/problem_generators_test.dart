@@ -2938,6 +2938,20 @@ void main() {
       }
     });
 
+    test('halving_mirror_enaktiv: half in [1,5], full == half*2, expected '
+        '== half', () {
+      final s = spec('halving_mirror_enaktiv', {'count_range': [1, 5]});
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final half = int.parse(p.expected.single);
+          final full = p.display['full'] as int;
+          expect(half, inInclusiveRange(1, 5));
+          expect(full, half * 2);
+          expect(p.display['custom_widget'], 'halving_mirror_enaktiv');
+        }
+      }
+    });
+
     test('real double_zr10 generates valid doubling-mirror problems', () {
       final s = _realSpec('double_zr10');
       for (var level = 1; level <= 3; level++) {

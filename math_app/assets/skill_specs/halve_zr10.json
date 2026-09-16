@@ -1,0 +1,55 @@
+{
+  "spec_version": 1,
+  "skill_id": "halve_zr10",
+  "construct_id": "halve",
+  "domain": "C",
+  "title_de": "Halbieren im ZR10",
+  "level_titles_de": [
+    "Halbieren mit Punkten",
+    "Halbieren mit dem Spiegel",
+    "Halbieren im Kopf"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "custom_widget",
+      "custom_widget": "halving_mirror_enaktiv",
+      "params": { "count_range": [1, 5] },
+      "problem_count": 8,
+      "prompt_de": "Zähle die Punkte. Zieh die Hälfte auf die andere Seite.",
+      "slow_band_ms": 12000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "custom_widget",
+      "custom_widget": "halving_mirror_ikonisch",
+      "params": { "count_range": [1, 5] },
+      "problem_count": 8,
+      "prompt_de": "Zähle die Punkte. Drücke den Teilen-Knopf, um zu halbieren.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "custom_widget",
+      "custom_widget": "halving_mirror_symbolisch",
+      "params": { "count_range": [1, 5] },
+      "problem_count": 8,
+      "prompt_de": "Was ist die Hälfte?",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "off_by_one_low", "label_de": "eins zu wenig", "hint_de": "Ganz nah dran! Zähl noch einmal genau." },
+    { "code": "off_by_one_high", "label_de": "eins zu viel", "hint_de": "Ganz nah dran! Zähl noch einmal genau." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau dir die Punkte noch einmal an und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["RLP BE/BB Teil C, L1, Niveaustufe A", "Padberg/Benz, Halbieren als Umkehrung des Verdoppelns", "Krajewski, Anzahlerfassung strukturierter Mengen", "Wartha/Schulz, Ablösung vom zählenden Rechnen"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

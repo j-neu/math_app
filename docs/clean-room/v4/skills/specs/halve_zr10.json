@@ -43,8 +43,7 @@
   ],
   "mastery": { "correct_of": 8 },
   "error_taxonomy": [
-    { "code": "off_by_one_low", "label_de": "eins zu wenig", "hint_de": "Ganz nah dran! Zähl noch einmal genau." },
-    { "code": "off_by_one_high", "label_de": "eins zu viel", "hint_de": "Ganz nah dran! Zähl noch einmal genau." },
+    { "code": "miscount", "label_de": "knapp daneben", "hint_de": "Ganz nah dran! Zähl noch einmal genau." },
     { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau dir die Punkte noch einmal an und probiere es noch einmal." }
   ],
   "provenance": {

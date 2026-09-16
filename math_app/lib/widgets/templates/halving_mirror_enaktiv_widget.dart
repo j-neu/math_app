@@ -116,23 +116,17 @@ class _HalvingMirrorEnaktivWidgetState
                     border: Border.all(color: Colors.blue.shade200, width: 2),
                   ),
                   child: Center(
-                    child: _buildDotGrid(_fullCount, Colors.blue),
+                    child: _buildDotGrid(_fullCount - _rightCount, Colors.blue),
                   ),
                 ),
               ),
               Container(width: 4, color: Colors.grey.shade400),
               Expanded(
                 child: DragTarget<int>(
-                  onWillAccept: (data) => _step == 1 && _rightCount < _halfCount,
+                  onWillAccept: (data) => _step == 1 && _rightCount < _fullCount,
                   onAccept: (data) {
                     setState(() {
                       _rightCount++;
-                      if (_rightCount == _halfCount) {
-                        _step = 2;
-                        _feedbackMessage =
-                            'Super! Wie viele hast du herübergezogen?';
-                        _feedbackColor = Colors.green;
-                      }
                     });
                   },
                   builder: (context, candidateData, rejectedData) {
@@ -206,14 +200,34 @@ class _HalvingMirrorEnaktivWidgetState
         ),
       );
 
-  Widget _buildDragSource() => Center(
-        child: Draggable<int>(
-          data: 1,
-          feedback: _buildDot(Colors.red.withOpacity(0.8)),
-          childWhenDragging: _buildDot(Colors.red),
-          child: _buildDot(Colors.red),
-        ),
+  Widget _buildDragSource() => Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Draggable<int>(
+            data: 1,
+            feedback: _buildDot(Colors.red.withOpacity(0.8)),
+            childWhenDragging: _buildDot(Colors.red),
+            child: _buildDot(Colors.red),
+          ),
+          const SizedBox(width: 32),
+          ElevatedButton(
+            onPressed: _rightCount > 0 ? _confirmHalf : null,
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              backgroundColor: Colors.green,
+            ),
+            child: const Text('Fertig', style: TextStyle(fontSize: 24)),
+          ),
+        ],
       );
+
+  void _confirmHalf() {
+    setState(() {
+      _step = 2;
+      _feedbackMessage = 'Super! Wie viele hast du herübergezogen?';
+      _feedbackColor = Colors.green;
+    });
+  }
 
   Widget _buildFullCountInput() => Row(
         children: [

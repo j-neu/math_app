@@ -1,0 +1,65 @@
+{
+  "spec_version": 1,
+  "skill_id": "decompose_single_digit",
+  "construct_id": "decompose",
+  "domain": "A",
+  "title_de": "Zerlegung einstelliger Zahlen",
+  "level_titles_de": [
+    "Kleine Zahlen zerlegen (2–5)",
+    "Größere Zahlen zerlegen (6–9)",
+    "Zahlen zerlegen (2–9)"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "drag_partition",
+      "params": {
+        "total_range": [2, 5],
+        "parts": 2,
+        "box_labels": ["Schale 1", "Schale 2"],
+        "split_constraint": "sum"
+      },
+      "problem_count": 8,
+      "prompt_de": "Teile die Punkte auf die zwei Schalen auf.",
+      "slow_band_ms": 14000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "drag_partition",
+      "params": {
+        "total_range": [6, 9],
+        "parts": 2,
+        "box_labels": ["Schale 1", "Schale 2"],
+        "split_constraint": "sum"
+      },
+      "problem_count": 8,
+      "prompt_de": "Teile die Punkte auf die zwei Schalen auf. Finde eine Möglichkeit.",
+      "slow_band_ms": 11000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "drag_partition",
+      "params": {
+        "total_range": [2, 9],
+        "parts": 2,
+        "box_labels": ["Schale 1", "Schale 2"],
+        "split_constraint": "sum"
+      },
+      "problem_count": 8,
+      "prompt_de": "Zerlege die Zahl in zwei Teile.",
+      "slow_band_ms": 8000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Die beiden Teile müssen zusammen die Ausgangszahl ergeben. Versuch es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["RLP BE/BB Teil C, L1, Niveaustufe A", "Padberg/Benz, Teil-Ganzes-Konzept und Zerlegungen", "Gaidoschik, Zerlegungsaufgaben als Rechenstrategie"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

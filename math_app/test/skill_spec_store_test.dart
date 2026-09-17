@@ -229,6 +229,17 @@ void main() {
     });
 
     test(
+        'decompose_single_digit (Batch 1.7) parses with the drag_partition template',
+        () {
+      final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+      final spec = store.byId('decompose_single_digit');
+      expect(spec.constructId, 'decompose');
+      expect(spec.domain, 'A');
+      expect(spec.levels.map((l) => l.template),
+          ['drag_partition', 'drag_partition', 'drag_partition']);
+    });
+
+    test(
         'successor_zr20_decade (Batch 1.3) parses with the sequence_gap template',
         () {
       final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());

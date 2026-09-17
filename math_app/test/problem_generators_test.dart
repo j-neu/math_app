@@ -3560,6 +3560,30 @@ void main() {
         }
       });
     }
+
+    test(
+        'real decompose_single_digit generates valid 2-part sums at every '
+        'level', () {
+      final s = _realSpec('decompose_single_digit');
+      final ranges = {1: [2, 5], 2: [6, 9], 3: [2, 9]};
+      for (var level = 1; level <= 3; level++) {
+        final range = ranges[level]!;
+        for (var seed = 0; seed < 100; seed++) {
+          for (final p in generateProblems(spec: s, level: level, seed: seed)) {
+            expect(p.template, 'drag_partition');
+            final total = p.display['total'] as int;
+            expect(total, inInclusiveRange(range[0], range[1]));
+            final boxes = (p.display['boxes'] as List).cast<int>();
+            expect(boxes, hasLength(2));
+            for (final b in boxes) {
+              expect(b, greaterThanOrEqualTo(1));
+            }
+            expect(boxes.reduce((a, b) => a + b), total);
+            expect(p.expected, isEmpty, reason: 'evaluated semantically');
+          }
+        }
+      }
+    });
   });
 
   group('Problem JSON round-trip', () {

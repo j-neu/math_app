@@ -1,0 +1,69 @@
+{
+  "spec_version": 1,
+  "skill_id": "skip10_forward_zr100",
+  "construct_id": "skip10_forward",
+  "domain": "A",
+  "title_de": "Zehnerschritte vorwärts (ZR100)",
+  "level_titles_de": [
+    "Auf der Hundertertafel in Zehnerschritten",
+    "Auf der Hundertertafel weiter in Zehnerschritten",
+    "Die Reihe in Zehnerschritten fortsetzen"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "custom_widget",
+      "custom_widget": "hundred_chart_skip",
+      "params": {
+        "direction": "up",
+        "step": 10,
+        "start_range": [10, 40],
+        "visible_count": 3
+      },
+      "problem_count": 8,
+      "prompt_de": "Wie geht die Reihe in Zehnerschritten weiter? Finde die nächste Zahl auf der Hundertertafel.",
+      "slow_band_ms": 14000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "custom_widget",
+      "custom_widget": "hundred_chart_skip",
+      "params": {
+        "direction": "up",
+        "step": 10,
+        "start_range": [30, 60],
+        "visible_count": 2
+      },
+      "problem_count": 8,
+      "prompt_de": "Nur noch wenige Zahlen sind zu sehen. Wie geht es in Zehnerschritten weiter?",
+      "slow_band_ms": 11000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "sequence_gap",
+      "params": {
+        "direction": "up",
+        "step": 10,
+        "start_range": [10, 40],
+        "length": 4,
+        "gap_indices": [3]
+      },
+      "problem_count": 8,
+      "prompt_de": "Wie geht die Zahlenreihe in Zehnerschritten weiter?",
+      "slow_band_ms": 8000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "miscount", "label_de": "knapp daneben", "hint_de": "Ganz nah dran! Zähl noch einmal genau." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau dir die Zahlenreihe noch einmal an und zähl von vorne." }
+  ],
+  "provenance": {
+    "sources": ["RLP BE/BB Teil C, L1, Niveaustufe A", "Padberg/Benz, Schrittweises Zählen und Reihenbildung", "Wartha/Schulz, Ablösung vom zählenden Rechnen"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

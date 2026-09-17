@@ -37,10 +37,10 @@ id/field retarget like Task 4's double_zr10.
 - [x] `skip2_backward_zr20` — shipped, `docs/superpowers/plans/2026-09-17-skip2-zr20.md`; Reused from the same C6.1 file family, backward direction
 - [x] `skip2_forward_zr100` — shipped, `docs/superpowers/plans/2026-09-17-skip2-zr100.md`; Reused from C6.2/C6.3 `Count in Steps on 100-Field`; Hundertertafel, field-visible level
 - [x] `skip2_backward_zr100` — shipped, `docs/superpowers/plans/2026-09-17-skip2-zr100.md`; Reused from the same C6.2/C6.3 family, backward / mental (field hidden) level
-- [ ] `skip5_forward_zr100` — Reused from the same C6.2/C6.3 family, whose "5er-Schritte" levels are already built
-- [ ] `skip5_backward_zr100` — Reused from the same "5er-Schritte" levels, backward direction
-- [ ] `skip10_forward_zr100` — Reused from the same C6.2/C6.3 family, whose "10er-Schritte" levels are already built
-- [ ] `skip10_backward_zr100` — Reused from the same "10er-Schritte" levels, backward direction
+- [x] `skip5_forward_zr100` — shipped, `docs/superpowers/plans/2026-09-17-skip5-skip10-zr100.md`; Reused from the same C6.2/C6.3 family, whose "5er-Schritte" levels are already built
+- [x] `skip5_backward_zr100` — shipped, `docs/superpowers/plans/2026-09-17-skip5-skip10-zr100.md`; Reused from the same "5er-Schritte" levels, backward direction
+- [x] `skip10_forward_zr100` — shipped, `docs/superpowers/plans/2026-09-17-skip5-skip10-zr100.md`; Reused from the same C6.2/C6.3 family, whose "10er-Schritte" levels are already built
+- [x] `skip10_backward_zr100` — shipped, `docs/superpowers/plans/2026-09-17-skip5-skip10-zr100.md`; Reused from the same "10er-Schritte" levels, backward direction
 
 ### Batch 1.5 — ordering number cards (construct `order_cards`)
 - [ ] `order_cards_zr20` — Reused from C2.1 `Order Cards to 20` (`order_cards_exercise.dart`); draggable number cards (3 cards → 5 adjacent → 5 spread)
@@ -242,7 +242,11 @@ conventions (CRA progression, `MinimalistExerciseScaffold`,
 - [x] skip2_backward_zr20 — `docs/superpowers/plans/2026-09-17-skip2-zr20.md`
 - [x] skip2_forward_zr100 — `docs/superpowers/plans/2026-09-17-skip2-zr100.md`
 - [x] skip2_backward_zr100 — `docs/superpowers/plans/2026-09-17-skip2-zr100.md`
+- [x] skip5_forward_zr100 — `docs/superpowers/plans/2026-09-17-skip5-skip10-zr100.md`
+- [x] skip5_backward_zr100 — `docs/superpowers/plans/2026-09-17-skip5-skip10-zr100.md`
+- [x] skip10_forward_zr100 — `docs/superpowers/plans/2026-09-17-skip5-skip10-zr100.md`
+- [x] skip10_backward_zr100 — `docs/superpowers/plans/2026-09-17-skip5-skip10-zr100.md`
 
 (Ids are left unbackticked here on purpose: the completeness check counts
-each skill id once inside backticks, and these eleven are tracked in Batches
+each skill id once inside backticks, and these fifteen are tracked in Batches
 1.1, 1.2, 1.3, 1.4 and 4.3 above.)

@@ -2952,6 +2952,60 @@ void main() {
       }
     });
 
+    test('count_field_enaktiv: count in [3,6], expected == count', () {
+      final s = spec('count_field_enaktiv', {'count_range': [3, 6]});
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final count = p.display['count'] as int;
+          expect(count, inInclusiveRange(3, 6));
+          expect(p.expected, [count.toString()]);
+          expect(p.display['custom_widget'], 'count_field_enaktiv');
+        }
+      }
+    });
+
+    test('count_field_ikonisch: count in [5,8], expected == count', () {
+      final s = spec('count_field_ikonisch', {'count_range': [5, 8]});
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final count = p.display['count'] as int;
+          expect(count, inInclusiveRange(5, 8));
+          expect(p.expected, [count.toString()]);
+          expect(p.display['custom_widget'], 'count_field_ikonisch');
+        }
+      }
+    });
+
+    test('count_field_symbolisch: count in [7,10], expected == count', () {
+      final s = spec('count_field_symbolisch', {'count_range': [7, 10]});
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final count = p.display['count'] as int;
+          expect(count, inInclusiveRange(7, 10));
+          expect(p.expected, [count.toString()]);
+          expect(p.display['custom_widget'], 'count_field_symbolisch');
+        }
+      }
+    });
+
+    test('count_field clamps an out-of-range count_range to [1,10]', () {
+      final s = spec('count_field_enaktiv', {'count_range': [0, 15]});
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          expect(p.display['count'] as int, inInclusiveRange(1, 10));
+        }
+      }
+    });
+
+    test('count_field: an empty count_range after clamping is a spec error',
+        () {
+      final s = spec('count_field_enaktiv', {'count_range': [11, 14]});
+      expect(
+        () => generateProblems(spec: s, level: 2, seed: 1),
+        throwsA(isA<SpecFormatException>()),
+      );
+    });
+
     test('real double_zr10 generates valid doubling-mirror problems', () {
       final s = _realSpec('double_zr10');
       for (var level = 1; level <= 3; level++) {

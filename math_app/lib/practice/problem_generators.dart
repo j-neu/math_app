@@ -1962,6 +1962,10 @@ Problem _generateCustomWidget(
     case 'halving_mirror_ikonisch':
     case 'halving_mirror_symbolisch':
       return _generateHalvingMirror(spec, level, levelNumber, seed, index, gen);
+    case 'count_field_enaktiv':
+    case 'count_field_ikonisch':
+    case 'count_field_symbolisch':
+      return _generateCountField(spec, level, levelNumber, seed, index, gen);
     default:
       throw SpecFormatException(
         'custom_widget: unknown registry key "${level.customWidget}"',
@@ -2234,5 +2238,45 @@ Problem _generateHalvingMirror(
     promptDe: level.promptDe,
     display: {'custom_widget': level.customWidget, 'full': full},
     expected: ['$half'],
+  );
+}
+
+/// Registry keys `"count_field_enaktiv"`, `"count_field_ikonisch"`,
+/// `"count_field_symbolisch"` (quantify_count_zr10, alle drei Level
+/// derselben Skill-Spec, BUILD_ORDER.md Batch 1.1): the widget shows
+/// `display.count` loose dots the child taps while counting; the typed
+/// total is a plain string match against `expected`, handled by
+/// `_evaluateCustomWidget`'s default branch. `count_range` is clamped to
+/// `[1, 10]` -- the skill's own ZR10 cap.
+Problem _generateCountField(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final countRange = level.intListParam('count_range');
+  final lo = countRange.isEmpty ? 3 : max(countRange[0], 1);
+  final hi = countRange.isEmpty ? 10 : min(countRange[1], 10);
+  if (lo > hi) {
+    throw SpecFormatException(
+      'count_field: count_range [$lo, $hi] must be within [1, 10] for ZR10',
+    );
+  }
+  final count = gen.nextIntInRange(lo, hi);
+
+  return Problem(
+    template: 'custom_widget',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: {
+      'custom_widget': level.customWidget,
+      'count': count,
+    },
+    expected: [count.toString()],
   );
 }

@@ -35,6 +35,7 @@ import 'package:math_app/widgets/templates/strategy_choice_widget.dart';
 import 'package:math_app/widgets/templates/unbundling_widget.dart';
 import 'package:math_app/widgets/common/hundred_chart_widget.dart';
 import 'package:math_app/widgets/templates/hundred_chart_step_widget.dart';
+import 'package:math_app/widgets/templates/numberline_place_widget.dart';
 import 'package:math_app/widgets/templates/order_cards_widget.dart';
 import 'package:math_app/widgets/templates/word_problem_widget.dart';
 import 'package:math_app/widgets/templates/zehnerfeld_read_widget.dart';
@@ -3380,6 +3381,115 @@ void main() {
       );
       expect(values.last, '');
       expect(find.byKey(const ValueKey('oc-card-5')), findsOneWidget);
+    });
+  });
+
+  group('NumberlinePlaceWidget', () {
+    Problem placeProblem(List<int> targets, {int lo = 0, int hi = 20}) =>
+        _problem(
+          template: 'custom_widget',
+          display: {
+            'custom_widget': 'numberline_place',
+            'range': [lo, hi],
+            'targets': targets,
+          },
+          expected: [targets.join(',')],
+        );
+
+    Offset pointFor(WidgetTester tester, int value, int lo, int hi) {
+      final rect = tester.getRect(
+        find.byKey(const ValueKey('numberline-place-line')),
+      );
+      final dx =
+          rect.left + 16 + (rect.width - 32) * (value - lo) / (hi - lo);
+      return Offset(dx, rect.center.dy);
+    }
+
+    testWidgets('renders a chip for every target', (tester) async {
+      await _pumpApp(
+        tester,
+        NumberlinePlaceWidget(
+          problem: placeProblem([4, 11, 18]),
+          onValueChanged: (_) {},
+        ),
+      );
+      expect(find.byKey(const ValueKey('np-chip-4')), findsOneWidget);
+      expect(find.byKey(const ValueKey('np-chip-11')), findsOneWidget);
+      expect(find.byKey(const ValueKey('np-chip-18')), findsOneWidget);
+    });
+
+    testWidgets(
+        'tapping the line places the auto-selected chip in order, reports '
+        'once all are placed', (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        NumberlinePlaceWidget(
+          problem: placeProblem([4, 11, 18]),
+          onValueChanged: values.add,
+        ),
+      );
+
+      await tester.tapAt(pointFor(tester, 4, 0, 20));
+      await tester.pump();
+      expect(values.last, '', reason: 'still incomplete');
+      expect(find.byKey(const ValueKey('np-chip-4')), findsNothing,
+          reason: 'placed chips leave the selectable row');
+
+      await tester.tapAt(pointFor(tester, 11, 0, 20));
+      await tester.pump();
+      expect(values.last, '', reason: 'still incomplete');
+
+      await tester.tapAt(pointFor(tester, 18, 0, 20));
+      await tester.pump();
+      expect(values.last, '4,11,18');
+    });
+
+    testWidgets('tapping a specific chip selects it for the next placement',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        NumberlinePlaceWidget(
+          problem: placeProblem([4, 11, 18]),
+          onValueChanged: values.add,
+        ),
+      );
+
+      await tester.tap(find.byKey(const ValueKey('np-chip-18')));
+      await tester.pump();
+      await tester.tapAt(pointFor(tester, 18, 0, 20));
+      await tester.pump();
+      expect(find.byKey(const ValueKey('np-chip-18')), findsNothing,
+          reason: '18 was placed first, out of generated order');
+      expect(find.byKey(const ValueKey('np-chip-4')), findsOneWidget);
+    });
+
+    testWidgets('a new problem resets the chips and reports ""',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        NumberlinePlaceWidget(
+          problem: placeProblem([4, 11, 18]),
+          onValueChanged: values.add,
+        ),
+      );
+      await tester.tapAt(pointFor(tester, 4, 0, 20));
+      await tester.tapAt(pointFor(tester, 11, 0, 20));
+      await tester.tapAt(pointFor(tester, 18, 0, 20));
+      await tester.pump();
+      expect(values.last, '4,11,18');
+
+      await _pumpApp(
+        tester,
+        NumberlinePlaceWidget(
+          problem: placeProblem([2, 9, 15]),
+          onValueChanged: values.add,
+        ),
+      );
+      expect(values.last, '');
+      expect(find.byKey(const ValueKey('np-chip-2')), findsOneWidget);
     });
   });
 }

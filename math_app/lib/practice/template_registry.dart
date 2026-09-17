@@ -24,6 +24,7 @@ import '../widgets/templates/count_field_enaktiv_widget.dart';
 import '../widgets/templates/count_field_ikonisch_widget.dart';
 import '../widgets/templates/count_field_symbolisch_widget.dart';
 import '../widgets/templates/hundred_chart_step_widget.dart';
+import '../widgets/templates/numberline_place_widget.dart';
 import '../widgets/templates/order_cards_widget.dart';
 import '../widgets/templates/drag_partition_widget.dart';
 import '../widgets/templates/equation_gap_widget.dart';
@@ -176,6 +177,10 @@ Widget buildTemplateWidget({
           onValueChanged: onValueChanged,
         ),
       'order_cards' => OrderCardsWidget(
+          problem: problem,
+          onValueChanged: onValueChanged,
+        ),
+      'numberline_place' => NumberlinePlaceWidget(
           problem: problem,
           onValueChanged: onValueChanged,
         ),

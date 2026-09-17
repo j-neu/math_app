@@ -33,8 +33,8 @@ id/field retarget like Task 4's double_zr10.
 - Note: these two constructs share one manipulative and archetype per design doc §5; their ZR100 siblings are Extended and live in Batch 2.2
 
 ### Batch 1.4 — skip-counting (constructs `skip2_forward`, `skip2_backward`, `skip5_forward`, `skip5_backward`, `skip10_forward`, `skip10_backward`)
-- [ ] `skip2_forward_zr20` — Reused from C6.1 `Count in Steps of 2` (`count_steps2_exercise.dart`); number strip with step highlighting
-- [ ] `skip2_backward_zr20` — Reused from the same C6.1 file family, backward direction
+- [x] `skip2_forward_zr20` — shipped, `docs/superpowers/plans/2026-09-17-skip2-zr20.md`; Reused from C6.1 `Count in Steps of 2` (`count_steps2_exercise.dart`); number strip with step highlighting
+- [x] `skip2_backward_zr20` — shipped, `docs/superpowers/plans/2026-09-17-skip2-zr20.md`; Reused from the same C6.1 file family, backward direction
 - [ ] `skip2_forward_zr100` — Reused from C6.2/C6.3 `Count in Steps on 100-Field`; Hundertertafel, field-visible level
 - [ ] `skip2_backward_zr100` — Reused from the same C6.2/C6.3 family, backward / mental (field hidden) level
 - [ ] `skip5_forward_zr100` — Reused from the same C6.2/C6.3 family, whose "5er-Schritte" levels are already built
@@ -238,7 +238,9 @@ conventions (CRA progression, `MinimalistExerciseScaffold`,
 - [x] count_forward_zr100 — `docs/superpowers/plans/2026-09-17-count-forward-zr20-zr100.md`
 - [x] successor_zr20_decade — `docs/superpowers/plans/2026-09-17-successor-predecessor-zr20-decade.md`
 - [x] predecessor_zr20_decade — `docs/superpowers/plans/2026-09-17-successor-predecessor-zr20-decade.md`
+- [x] skip2_forward_zr20 — `docs/superpowers/plans/2026-09-17-skip2-zr20.md`
+- [x] skip2_backward_zr20 — `docs/superpowers/plans/2026-09-17-skip2-zr20.md`
 
 (Ids are left unbackticked here on purpose: the completeness check counts
-each skill id once inside backticks, and these seven are tracked in Batches
-1.1, 1.2, 1.3 and 4.3 above.)
+each skill id once inside backticks, and these nine are tracked in Batches
+1.1, 1.2, 1.3, 1.4 and 4.3 above.)

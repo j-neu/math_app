@@ -1,0 +1,70 @@
+{
+  "spec_version": 1,
+  "skill_id": "skip2_backward_zr20",
+  "construct_id": "skip2_backward",
+  "domain": "A",
+  "title_de": "Zweierschritte rückwärts (ZR20)",
+  "level_titles_de": [
+    "Auf dem Zahlenstrich rückwärts in Zweierschritten",
+    "Rückwärts in Zweierschritten von einer ungeraden Zahl",
+    "Die Reihe rückwärts in Zweierschritten fortsetzen"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "numberline_step",
+      "params": {
+        "range": [0, 20],
+        "start_range": [10, 20],
+        "target": 0,
+        "step": 2,
+        "direction": "down"
+      },
+      "problem_count": 8,
+      "prompt_de": "Tippe die Zahlen rückwärts in Zweierschritten an, bis du bei der Zielzahl ankommst.",
+      "slow_band_ms": 14000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "numberline_step",
+      "params": {
+        "range": [0, 20],
+        "start_range": [5, 19],
+        "target": 1,
+        "step": 2,
+        "direction": "down"
+      },
+      "problem_count": 8,
+      "prompt_de": "Tippe weiter rückwärts in Zweierschritten, auch wenn du bei einer ungeraden Zahl startest.",
+      "slow_band_ms": 11000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "sequence_gap",
+      "params": {
+        "direction": "down",
+        "step": 2,
+        "start_range": [12, 20],
+        "length": 4,
+        "gap_indices": [3]
+      },
+      "problem_count": 8,
+      "prompt_de": "Wie geht die Zahlenreihe rückwärts in Zweierschritten weiter?",
+      "slow_band_ms": 8000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "miscount", "label_de": "knapp daneben", "hint_de": "Ganz nah dran! Zähl noch einmal genau." },
+    { "code": "wrong_direction", "label_de": "falsche Richtung", "hint_de": "Zähle in die Richtung der Aufgabe." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau dir die Zahlenreihe noch einmal an und zähl von vorne." }
+  ],
+  "provenance": {
+    "sources": ["RLP BE/BB Teil C, L1, Niveaustufe A", "Padberg/Benz, Schrittweises Zählen und Reihenbildung", "Wartha/Schulz, Ablösung vom zählenden Rechnen"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

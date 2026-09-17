@@ -207,6 +207,28 @@ void main() {
     });
 
     test(
+        'place_on_numberline_zr20 (Batch 1.6) parses with the numberline_place widget',
+        () {
+      final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+      final spec = store.byId('place_on_numberline_zr20');
+      expect(spec.constructId, 'place_on_numberline');
+      expect(spec.domain, 'A');
+      expect(spec.levels.map((l) => l.customWidget),
+          ['numberline_place', 'numberline_place', 'numberline_place']);
+    });
+
+    test(
+        'place_on_numberline_zr100 (Batch 1.6) parses with the numberline_place widget',
+        () {
+      final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+      final spec = store.byId('place_on_numberline_zr100');
+      expect(spec.constructId, 'place_on_numberline');
+      expect(spec.domain, 'A');
+      expect(spec.levels.map((l) => l.customWidget),
+          ['numberline_place', 'numberline_place', 'numberline_place']);
+    });
+
+    test(
         'successor_zr20_decade (Batch 1.3) parses with the sequence_gap template',
         () {
       final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());

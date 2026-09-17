@@ -3536,6 +3536,30 @@ void main() {
         throwsA(isA<SpecFormatException>()),
       );
     });
+
+    for (final id in ['place_on_numberline_zr20', 'place_on_numberline_zr100']) {
+      test('real $id generates valid distinct interior targets at every level',
+          () {
+        final s = _realSpec(id);
+        for (var level = 1; level <= 3; level++) {
+          final expectedCount = level == 1 ? 3 : 5;
+          final range = (s.levels[level - 1].params['range'] as List).cast<int>();
+          for (var seed = 0; seed < 100; seed++) {
+            for (final p in generateProblems(spec: s, level: level, seed: seed)) {
+              expect(p.display['custom_widget'], 'numberline_place');
+              expect(p.display['range'], range);
+              final targets = (p.display['targets'] as List).cast<int>();
+              expect(targets, hasLength(expectedCount));
+              expect(targets.toSet().length, expectedCount);
+              for (final t in targets) {
+                expect(t, inInclusiveRange(range[0] + 1, range[1] - 1));
+              }
+              expect(p.expected, [targets.join(',')]);
+            }
+          }
+        }
+      });
+    }
   });
 
   group('Problem JSON round-trip', () {

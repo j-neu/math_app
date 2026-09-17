@@ -3127,6 +3127,90 @@ void main() {
         }
       }
     });
+
+    test(
+        'real skip2_forward_zr20: L1/L2 tap runs step by 2 up to target, '
+        'within [0, 20]', () {
+      final s = _realSpec('skip2_forward_zr20');
+      for (final level in [1, 2]) {
+        for (var seed = 0; seed < 60; seed++) {
+          for (final p in generateProblems(spec: s, level: level, seed: seed)) {
+            expect(p.template, 'numberline_step');
+            expect(p.display['direction'], 'up');
+            expect(p.display['step'], 2);
+            final start = p.display['start'] as int;
+            final target = p.display['target'] as int;
+            expect(start, inInclusiveRange(0, 20));
+            expect(target, inInclusiveRange(0, 20));
+            final tapped = p.expected.map(int.parse).toList();
+            expect(tapped.last, target);
+            for (var i = 0; i < tapped.length; i++) {
+              expect(tapped[i], start + 2 * (i + 1));
+            }
+          }
+        }
+      }
+    });
+
+    test(
+        'real skip2_forward_zr20: L3 continues a +2 sequence, within [0, 20]',
+        () {
+      final s = _realSpec('skip2_forward_zr20');
+      for (var seed = 0; seed < 100; seed++) {
+        for (final p in generateProblems(spec: s, level: 3, seed: seed)) {
+          expect(p.template, 'sequence_gap');
+          final values = (p.display['values'] as List).cast<int>();
+          for (final v in values) {
+            expect(v, inInclusiveRange(0, 20));
+          }
+          for (var i = 1; i < values.length; i++) {
+            expect(values[i], values[i - 1] + 2);
+          }
+        }
+      }
+    });
+
+    test(
+        'real skip2_backward_zr20: L1/L2 tap runs step by 2 down to target, '
+        'within [0, 20]', () {
+      final s = _realSpec('skip2_backward_zr20');
+      for (final level in [1, 2]) {
+        for (var seed = 0; seed < 60; seed++) {
+          for (final p in generateProblems(spec: s, level: level, seed: seed)) {
+            expect(p.template, 'numberline_step');
+            expect(p.display['direction'], 'down');
+            expect(p.display['step'], 2);
+            final start = p.display['start'] as int;
+            final target = p.display['target'] as int;
+            expect(start, inInclusiveRange(0, 20));
+            expect(target, inInclusiveRange(0, 20));
+            final tapped = p.expected.map(int.parse).toList();
+            expect(tapped.last, target);
+            for (var i = 0; i < tapped.length; i++) {
+              expect(tapped[i], start - 2 * (i + 1));
+            }
+          }
+        }
+      }
+    });
+
+    test(
+        'real skip2_backward_zr20: L3 continues a -2 sequence, within [0, 20]',
+        () {
+      final s = _realSpec('skip2_backward_zr20');
+      for (var seed = 0; seed < 100; seed++) {
+        for (final p in generateProblems(spec: s, level: 3, seed: seed)) {
+          expect(p.template, 'sequence_gap');
+          final values = (p.display['values'] as List).cast<int>();
+          for (final v in values) {
+            expect(v, inInclusiveRange(0, 20));
+          }
+          for (var i = 1; i < values.length; i++) {
+            expect(values[i], values[i - 1] - 2);
+          }
+        }
+      }
+    });
   });
 
   group('Problem JSON round-trip', () {

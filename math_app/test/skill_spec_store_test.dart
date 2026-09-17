@@ -126,6 +126,30 @@ void main() {
     });
 
     test(
+        'skip2_forward_zr20 (Batch 1.4a) parses with numberline_step/sequence_gap',
+        () {
+      final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+      final spec = store.byId('skip2_forward_zr20');
+      expect(spec.constructId, 'skip2_forward');
+      expect(spec.domain, 'A');
+      expect(spec.titleDe, 'Zweierschritte vorwärts (ZR20)');
+      expect(spec.levels.map((l) => l.template),
+          ['numberline_step', 'numberline_step', 'sequence_gap']);
+    });
+
+    test(
+        'skip2_backward_zr20 (Batch 1.4a) parses with numberline_step/sequence_gap',
+        () {
+      final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+      final spec = store.byId('skip2_backward_zr20');
+      expect(spec.constructId, 'skip2_backward');
+      expect(spec.domain, 'A');
+      expect(spec.titleDe, 'Zweierschritte rückwärts (ZR20)');
+      expect(spec.levels.map((l) => l.template),
+          ['numberline_step', 'numberline_step', 'sequence_gap']);
+    });
+
+    test(
         'successor_zr20_decade (Batch 1.3) parses with the sequence_gap template',
         () {
       final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());

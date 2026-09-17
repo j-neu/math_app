@@ -240,6 +240,21 @@ void main() {
     });
 
     test(
+        'compare_quantity_difference (Batch 1.8) parses with the '
+        'quantity_compare widgets', () {
+      final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+      final spec = store.byId('compare_quantity_difference');
+      expect(spec.constructId, 'compare_quantity');
+      expect(spec.domain, 'C');
+      expect(spec.levels.map((l) => l.customWidget), [
+        'quantity_compare_enaktiv',
+        'quantity_compare_ikonisch',
+        'quantity_compare_symbolisch',
+      ]);
+      expect(spec.levels.map((l) => l.problemCount), [10, 10, 10]);
+    });
+
+    test(
         'successor_zr20_decade (Batch 1.3) parses with the sequence_gap template',
         () {
       final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());

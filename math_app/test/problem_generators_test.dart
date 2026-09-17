@@ -3768,6 +3768,61 @@ void main() {
     });
 
     test(
+        'real derive_via_10_add_minus1 generates b==9 at every level', () {
+      final s = _realSpec('derive_via_10_add_minus1');
+      final aRanges = {1: [2, 5], 2: [2, 8], 3: [2, 9]};
+      for (var level = 1; level <= 3; level++) {
+        final range = aRanges[level]!;
+        for (var seed = 0; seed < 100; seed++) {
+          for (final p in generateProblems(spec: s, level: level, seed: seed)) {
+            final a = p.display['a'] as int;
+            final b = p.display['b'] as int;
+            expect(b, 9);
+            expect(a, inInclusiveRange(range[0], range[1]));
+            expect(p.expected, [(a + b).toString()]);
+          }
+        }
+      }
+    });
+
+    test('real derive_via_10_add_plus1 generates b==11 at every level', () {
+      final s = _realSpec('derive_via_10_add_plus1');
+      final aRanges = {1: [2, 5], 2: [2, 8], 3: [2, 9]};
+      for (var level = 1; level <= 3; level++) {
+        final range = aRanges[level]!;
+        for (var seed = 0; seed < 100; seed++) {
+          for (final p in generateProblems(spec: s, level: level, seed: seed)) {
+            final a = p.display['a'] as int;
+            final b = p.display['b'] as int;
+            expect(b, 11);
+            expect(a, inInclusiveRange(range[0], range[1]));
+            expect(p.expected, [(a + b).toString()]);
+          }
+        }
+      }
+    });
+
+    test(
+        'real derive_via_10_sub generates a minuend >= 11 with subtrahend '
+        'in [6, 9] at every level', () {
+      final s = _realSpec('derive_via_10_sub');
+      final aRanges = {1: [11, 14], 2: [11, 17], 3: [11, 19]};
+      for (var level = 1; level <= 3; level++) {
+        final range = aRanges[level]!;
+        for (var seed = 0; seed < 100; seed++) {
+          for (final p in generateProblems(spec: s, level: level, seed: seed)) {
+            final a = p.display['a'] as int;
+            final b = p.display['b'] as int;
+            expect(a, inInclusiveRange(range[0], range[1]));
+            expect(b, inInclusiveRange(6, 9));
+            expect(a - b, greaterThanOrEqualTo(0));
+            expect(p.expected, [(a - b).toString()]);
+          }
+        }
+      }
+    });
+
+    test(
         'real compare_quantity_difference generates valid comparisons at '
         'every level', () {
       final s = _realSpec('compare_quantity_difference');

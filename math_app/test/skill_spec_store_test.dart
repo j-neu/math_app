@@ -268,6 +268,37 @@ void main() {
     });
 
     test(
+        'derive_via_10_add_minus1 (Batch 1.10) parses with strategy_choice',
+        () {
+      final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+      final spec = store.byId('derive_via_10_add_minus1');
+      expect(spec.constructId, 'derive_10');
+      expect(spec.domain, 'C');
+      expect(spec.levels.map((l) => l.template),
+          ['strategy_choice', 'strategy_choice', 'strategy_choice']);
+    });
+
+    test(
+        'derive_via_10_add_plus1 (Batch 1.10) parses with strategy_choice',
+        () {
+      final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+      final spec = store.byId('derive_via_10_add_plus1');
+      expect(spec.constructId, 'derive_10');
+      expect(spec.domain, 'C');
+      expect(spec.levels.map((l) => l.template),
+          ['strategy_choice', 'strategy_choice', 'strategy_choice']);
+    });
+
+    test('derive_via_10_sub (Batch 1.10) parses with strategy_choice', () {
+      final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+      final spec = store.byId('derive_via_10_sub');
+      expect(spec.constructId, 'derive_10');
+      expect(spec.domain, 'C');
+      expect(spec.levels.map((l) => l.template),
+          ['strategy_choice', 'strategy_choice', 'strategy_choice']);
+    });
+
+    test(
         'successor_zr20_decade (Batch 1.3) parses with the sequence_gap template',
         () {
       final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());

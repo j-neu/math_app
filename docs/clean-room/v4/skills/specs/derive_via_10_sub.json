@@ -1,0 +1,71 @@
+{
+  "spec_version": 1,
+  "skill_id": "derive_via_10_sub",
+  "construct_id": "derive_10",
+  "domain": "C",
+  "title_de": "Ableiten über die Zehn (Subtraktion)",
+  "level_titles_de": [
+    "Minus über die Zehn -- kleine Zahlen",
+    "Minus über die Zehn -- mittlere Zahlen",
+    "Minus über die Zehn -- alle Zahlen"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "strategy_choice",
+      "params": {
+        "op": "-",
+        "zr": 20,
+        "a_range": [11, 14],
+        "b_range": [6, 9],
+        "strategies": [{ "id": "ueber_zehn_sub", "label_de": "über die Zehn (-10, +Rest)" }],
+        "correct_strategy": "ueber_zehn_sub"
+      },
+      "problem_count": 8,
+      "prompt_de": "Rechne: erst 10 weg, dann den Rest dazu.",
+      "slow_band_ms": 12000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "strategy_choice",
+      "params": {
+        "op": "-",
+        "zr": 20,
+        "a_range": [11, 17],
+        "b_range": [6, 9],
+        "strategies": [{ "id": "ueber_zehn_sub", "label_de": "über die Zehn (-10, +Rest)" }],
+        "correct_strategy": "ueber_zehn_sub"
+      },
+      "problem_count": 8,
+      "prompt_de": "Rechne: erst 10 weg, dann den Rest dazu.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "strategy_choice",
+      "params": {
+        "op": "-",
+        "zr": 20,
+        "a_range": [11, 19],
+        "b_range": [6, 9],
+        "strategies": [{ "id": "ueber_zehn_sub", "label_de": "über die Zehn (-10, +Rest)" }],
+        "correct_strategy": "ueber_zehn_sub"
+      },
+      "problem_count": 8,
+      "prompt_de": "Rechne geschickt.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Denk an die Zehn: erst 10 abziehen, dann den Rest wieder dazu." }
+  ],
+  "provenance": {
+    "sources": ["iMINT S1.1 Fingerblitz, Kraft der 10", "Gaidoschik, Rechnen über die Zehn"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

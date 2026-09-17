@@ -2234,6 +2234,28 @@ void main() {
       expect(find.byKey(const ValueKey('flash-dot-4')), findsOneWidget);
       expect(find.byKey(const ValueKey('flash-dot-5')), findsNothing);
     });
+
+    testWidgets(
+        'fingers pattern (Batch 1.9): renders a FingerBildWidget instead '
+        'of dots', (tester) async {
+      final problem = _problem(
+        template: 'custom_widget',
+        display: {
+          'custom_widget': 'flash_subitize',
+          'count': 7,
+          'flash_ms': 1500,
+          'display': 'fingers',
+          'hands': 2,
+        },
+        expected: const ['7'],
+      );
+      await _pumpApp(
+        tester,
+        FlashSubitizeWidget(problem: problem, onValueChanged: (_) {}),
+      );
+      expect(find.byType(FingerBildWidget), findsOneWidget);
+      expect(find.byKey(const ValueKey('flash-dot-0')), findsNothing);
+    });
   });
 
   group('BundlingWidget', () {

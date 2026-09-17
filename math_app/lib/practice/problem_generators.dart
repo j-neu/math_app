@@ -2196,11 +2196,17 @@ Problem _generateNumberlineMark(
   );
 }
 
-/// Registry key `"flash_subitize"` (A2.1): a dot/Rekenrek pattern flashes for
-/// `flash_ms` (800 ms) and the child types the count. `count` is drawn from
-/// `count_range` clamped to the subitizable range 1..5 (P3 §4.5: max <= 5);
-/// `display` carries `count`, `flash_ms` and the pattern `display`
-/// (`"dots"` or `"rekenrek"`). `expected == count`.
+/// Registry key `"flash_subitize"` (A2.1, extended for
+/// `fingerblitz_quantity_zr10`, BUILD_ORDER.md Batch 1.9): a dot/Rekenrek/
+/// finger pattern flashes for `flash_ms` (800 ms default) and the child
+/// types the count. For `display: "dots"`/`"rekenrek"`, `count` is drawn
+/// from `count_range` clamped to the subitizable range 1..5 (P3 §4.5: max
+/// <= 5). For `display: "fingers"`, the cap instead follows `hands`
+/// (default 2) exactly like the generic `fingerbild_read` template does:
+/// 1 hand -> 5, 2 hands -> 10 -- finger-pattern recognition legitimately
+/// goes past true subitizing's 5-item ceiling. `display` carries `count`,
+/// `flash_ms`, the pattern `display`, and (fingers only) `hands`.
+/// `expected == count`.
 Problem _generateFlashSubitize(
   SkillSpec spec,
   LevelSpec level,
@@ -2209,23 +2215,28 @@ Problem _generateFlashSubitize(
   int index,
   SeededGenerator gen,
 ) {
+  final pattern = level.stringParam('display', fallback: 'dots');
+  if (pattern != 'dots' && pattern != 'rekenrek' && pattern != 'fingers') {
+    throw SpecFormatException(
+      'flash_subitize: display must be "dots", "rekenrek" or "fingers", '
+      'got "$pattern"',
+    );
+  }
+  final hands =
+      pattern == 'fingers' ? level.intParam('hands', fallback: 2) : null;
+  final cap = pattern == 'fingers' ? (hands == 1 ? 5 : 10) : 5;
+
   final countRange = level.intListParam('count_range');
   final countLo = countRange.isEmpty ? 1 : max(countRange[0], 1);
-  final countHi = countRange.isEmpty ? 5 : min(countRange[1], 5);
+  final countHi = countRange.isEmpty ? cap : min(countRange[1], cap);
   if (countHi < countLo) {
     throw SpecFormatException(
-      'flash_subitize: count_range [$countLo, $countHi] has no subitizable '
-      'count (subitizing is capped at 5)',
+      'flash_subitize: count_range [$countLo, $countHi] has no valid count '
+      'for pattern "$pattern" (capped at $cap)',
     );
   }
   final count = gen.nextIntInRange(countLo, countHi);
   final flashMs = level.intParam('flash_ms', fallback: 800);
-  final pattern = level.stringParam('display', fallback: 'dots');
-  if (pattern != 'dots' && pattern != 'rekenrek') {
-    throw SpecFormatException(
-      'flash_subitize: display must be "dots" or "rekenrek", got "$pattern"',
-    );
-  }
 
   return Problem(
     template: 'custom_widget',
@@ -2239,6 +2250,7 @@ Problem _generateFlashSubitize(
       'count': count,
       'flash_ms': flashMs,
       'display': pattern,
+      if (hands != null) 'hands': hands,
     },
     expected: [count.toString()],
   );

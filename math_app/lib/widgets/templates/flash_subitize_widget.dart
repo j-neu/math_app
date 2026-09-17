@@ -3,20 +3,23 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../models/problem.dart';
+import '../manipulatives/fingerbild.dart';
 import '../manipulatives/rekenrek.dart';
 import 'answer_pad.dart';
 
 /// Custom-widget template for the registry key `"flash_subitize"` (A2.1,
-/// P2 plan §5): a dot or Rekenrek pattern is shown for `display.flash_ms`
-/// (800 ms) and then fades out via [AnimatedOpacity] so the child answers
-/// from memory — the `_RekenrekFlashWidget` pattern.
+/// P2 plan §5; extended for `fingerblitz_quantity_zr10`, BUILD_ORDER.md
+/// Batch 1.9): a dot, Rekenrek or finger pattern is shown for
+/// `display.flash_ms` (800 ms) and then fades out via [AnimatedOpacity] so
+/// the child answers from memory — the `_RekenrekFlashWidget` pattern.
 ///
 /// The child types the count into a [BigAnswerField]; [onValueChanged]
 /// reports every typed value, `""` while the field is empty. A "Nochmal
 /// sehen" button re-shows the pattern briefly (ADHD / working-memory
-/// support). `display.count` is always within the subitizable range 1..5 and
-/// `display.display` is `"dots"` or `"rekenrek"`. The flash timer is
-/// cancelled in dispose.
+/// support). `display.display` is `"dots"`, `"rekenrek"` or `"fingers"`;
+/// for `"fingers"`, `display.hands` (1 or 2) picks the left/right split via
+/// [FingerBildWidget], matching `fingerbild_read_widget.dart`'s own split.
+/// The flash timer is cancelled in dispose.
 class FlashSubitizeWidget extends StatefulWidget {
   final Problem problem;
   final ValueChanged<String> onValueChanged;
@@ -108,6 +111,12 @@ class _FlashSubitizeWidgetState extends State<FlashSubitizeWidget> {
   Widget _visual() {
     if (_pattern == 'rekenrek') {
       return RekenrekWidget(topLeft: _count, bottomLeft: 0);
+    }
+    if (_pattern == 'fingers') {
+      final hands = (widget.problem.display['hands'] as int?) ?? 2;
+      final left = hands == 1 ? _count : (_count < 5 ? _count : 5);
+      final right = _count - left;
+      return FingerBildWidget(leftCount: left, rightCount: right);
     }
     return Wrap(
       alignment: WrapAlignment.center,

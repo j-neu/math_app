@@ -2845,6 +2845,44 @@ void main() {
       }
     });
 
+    test(
+        'flash_subitize fingers (Batch 1.9): 2 hands lifts the cap to 10, '
+        '1 hand keeps it at 5', () {
+      final twoHands = spec('flash_subitize', {
+        'count_range': [1, 10],
+        'flash_ms': 1500,
+        'display': 'fingers',
+        'hands': 2,
+      });
+      var sawAbove5 = false;
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: twoHands, level: 2, seed: seed)) {
+          expect(p.display['custom_widget'], 'flash_subitize');
+          final count = p.display['count'] as int;
+          expect(count, inInclusiveRange(1, 10));
+          if (count > 5) sawAbove5 = true;
+          expect(p.display['display'], 'fingers');
+          expect(p.display['hands'], 2);
+          expect(p.expected, [count.toString()]);
+        }
+      }
+      expect(sawAbove5, isTrue,
+          reason: '2-hand fingers must reach past the dots/rekenrek 5 cap');
+
+      final oneHand = spec('flash_subitize', {
+        'count_range': [1, 10],
+        'flash_ms': 1500,
+        'display': 'fingers',
+        'hands': 1,
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: oneHand, level: 2, seed: seed)) {
+          expect(p.display['count'] as int, inInclusiveRange(1, 5),
+              reason: '1-hand fingers stays capped at 5');
+        }
+      }
+    });
+
     test('a count_range above 5 with lo > 5 is a spec error', () {
       final s = spec('flash_subitize', {
         'count_range': [6, 9],

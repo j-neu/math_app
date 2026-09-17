@@ -21,7 +21,7 @@ Cheapest tier — a close 1:1 old exercise exists, so most instances are an
 id/field retarget like Task 4's double_zr10.
 
 ### Batch 1.1 — counting quantities (construct `quantify_count`)
-- [ ] `quantify_count_zr10` — Reused from C1.1 `Count the Dots` (`count_dots_exercise_v2.dart`); loose dot/plättchen field, tap-to-count (structured row → scattered → mixed sizes)
+- [x] `quantify_count_zr10` — shipped, `docs/superpowers/plans/2026-09-17-quantify-count-zr10.md`; Reused from C1.1 `Count the Dots` (`count_dots_exercise_v2.dart`); loose dot/plättchen field, tap-to-count (structured row → scattered → mixed sizes)
 
 ### Batch 1.2 — counting forward (construct `count_forward`)
 - [ ] `count_forward_zr20` — Reused from C3.1 `Count Forward to 20` (`count_forward_exercise.dart`); number strip / spoken-and-typed sequence
@@ -233,7 +233,8 @@ conventions (CRA progression, `MinimalistExerciseScaffold`,
 ## Done
 - [x] double_zr10 — Task 4, `docs/superpowers/plans/2026-09-15-exercise-plan-foundation.md`
 - [x] halve_zr10 — Task 5, `docs/superpowers/plans/2026-09-15-exercise-plan-foundation.md`
+- [x] quantify_count_zr10 — `docs/superpowers/plans/2026-09-17-quantify-count-zr10.md`
 
 (Ids are left unbackticked here on purpose: the completeness check counts
-each skill id once inside backticks, and these two are tracked in Batches
-1.11 and 4.3 above.)
+each skill id once inside backticks, and these three are tracked in Batches
+1.1, 1.11 and 4.3 above.)

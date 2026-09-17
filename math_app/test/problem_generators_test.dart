@@ -3355,6 +3355,61 @@ void main() {
         }
       }
     });
+
+    final skipFamilies = <String, ({int step, bool forward})>{
+      'skip5_forward_zr100': (step: 5, forward: true),
+      'skip5_backward_zr100': (step: 5, forward: false),
+      'skip10_forward_zr100': (step: 10, forward: true),
+      'skip10_backward_zr100': (step: 10, forward: false),
+    };
+    for (final entry in skipFamilies.entries) {
+      final id = entry.key;
+      final step = entry.value.step;
+      final forward = entry.value.forward;
+
+      test(
+          'real $id: L1/L2 hundred_chart_skip runs by $step '
+          '${forward ? "up" : "down"}, within [1,100]', () {
+        final s = _realSpec(id);
+        for (final level in [1, 2]) {
+          for (var seed = 0; seed < 100; seed++) {
+            for (final p
+                in generateProblems(spec: s, level: level, seed: seed)) {
+              expect(p.display['custom_widget'], 'hundred_chart_skip');
+              final visible =
+                  (p.display['visible_values'] as List).cast<int>();
+              final query = p.display['query_value'] as int;
+              for (var i = 1; i < visible.length; i++) {
+                expect(visible[i],
+                    forward ? visible[i - 1] + step : visible[i - 1] - step);
+              }
+              expect(query, forward ? visible.last + step : visible.last - step);
+              for (final v in [...visible, query]) {
+                expect(v, inInclusiveRange(1, 100));
+              }
+              expect(p.expected, [query.toString()]);
+            }
+          }
+        }
+      });
+
+      test('real $id: L3 continues the pattern, within [1,100]', () {
+        final s = _realSpec(id);
+        for (var seed = 0; seed < 100; seed++) {
+          for (final p in generateProblems(spec: s, level: 3, seed: seed)) {
+            expect(p.template, 'sequence_gap');
+            final values = (p.display['values'] as List).cast<int>();
+            for (final v in values) {
+              expect(v, inInclusiveRange(1, 100));
+            }
+            for (var i = 1; i < values.length; i++) {
+              expect(values[i],
+                  forward ? values[i - 1] + step : values[i - 1] - step);
+            }
+          }
+        }
+      });
+    }
   });
 
   group('Problem JSON round-trip', () {

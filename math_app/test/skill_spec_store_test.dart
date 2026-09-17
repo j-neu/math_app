@@ -177,6 +177,23 @@ void main() {
       expect(spec.levels[1].customWidget, 'hundred_chart_skip');
     });
 
+    for (final id in [
+      'skip5_forward_zr100',
+      'skip5_backward_zr100',
+      'skip10_forward_zr100',
+      'skip10_backward_zr100',
+    ]) {
+      test('$id (Batch 1.4c) parses with hundred_chart_skip/sequence_gap', () {
+        final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+        final spec = store.byId(id);
+        expect(spec.domain, 'A');
+        expect(spec.levels.map((l) => l.template),
+            ['custom_widget', 'custom_widget', 'sequence_gap']);
+        expect(spec.levels[0].customWidget, 'hundred_chart_skip');
+        expect(spec.levels[1].customWidget, 'hundred_chart_skip');
+      });
+    }
+
     test(
         'successor_zr20_decade (Batch 1.3) parses with the sequence_gap template',
         () {

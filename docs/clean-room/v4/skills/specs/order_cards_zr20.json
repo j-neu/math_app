@@ -1,0 +1,64 @@
+{
+  "spec_version": 1,
+  "skill_id": "order_cards_zr20",
+  "construct_id": "order_cards",
+  "domain": "A",
+  "title_de": "Zahlenkarten ordnen im ZR20",
+  "level_titles_de": [
+    "Drei Karten ordnen",
+    "Fünf Karten in Folge ordnen",
+    "Fünf verstreute Karten ordnen"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "custom_widget",
+      "custom_widget": "order_cards",
+      "params": {
+        "card_count": 3,
+        "value_range": [1, 20]
+      },
+      "problem_count": 8,
+      "prompt_de": "Ziehe die Zahlenkarten in die Kästchen. Ordne sie von der kleinsten zur größten Zahl.",
+      "slow_band_ms": 15000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "custom_widget",
+      "custom_widget": "order_cards",
+      "params": {
+        "card_count": 5,
+        "value_range": [1, 16],
+        "mode": "adjacent"
+      },
+      "problem_count": 8,
+      "prompt_de": "Diese Zahlen gehören zusammen. Ziehe die Karten in die richtige Reihenfolge.",
+      "slow_band_ms": 12000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "custom_widget",
+      "custom_widget": "order_cards",
+      "params": {
+        "card_count": 5,
+        "value_range": [1, 20]
+      },
+      "problem_count": 8,
+      "prompt_de": "Ordne die verstreuten Zahlenkarten von der kleinsten zur größten Zahl.",
+      "slow_band_ms": 10000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "wrong_order", "label_de": "falsche Reihenfolge", "hint_de": "Fast richtig! Ordne noch einmal von klein nach groß." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau dir die Zahlen noch einmal an und ordne sie neu." }
+  ],
+  "provenance": {
+    "sources": ["RLP BE/BB Teil C, L1, Niveaustufe A", "Padberg/Benz, Ordinalzahlaspekt und Zahlenreihe", "Krajewski, Zahlenverständnis und Ordnungsrelation"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

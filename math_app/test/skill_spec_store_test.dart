@@ -195,6 +195,18 @@ void main() {
     }
 
     test(
+        'order_cards_zr20 (Batch 1.5) parses with the order_cards widget',
+        () {
+      final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+      final spec = store.byId('order_cards_zr20');
+      expect(spec.constructId, 'order_cards');
+      expect(spec.domain, 'A');
+      expect(spec.titleDe, 'Zahlenkarten ordnen im ZR20');
+      expect(spec.levels.map((l) => l.customWidget),
+          ['order_cards', 'order_cards', 'order_cards']);
+    });
+
+    test(
         'successor_zr20_decade (Batch 1.3) parses with the sequence_gap template',
         () {
       final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());

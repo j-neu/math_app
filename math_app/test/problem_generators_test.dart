@@ -3476,6 +3476,29 @@ void main() {
         throwsA(isA<SpecFormatException>()),
       );
     });
+
+    test('real order_cards_zr20 generates valid card sets at every level',
+        () {
+      final s = _realSpec('order_cards_zr20');
+      for (var level = 1; level <= 3; level++) {
+        final expectedCount = level == 1 ? 3 : 5;
+        for (var seed = 0; seed < 100; seed++) {
+          for (final p in generateProblems(spec: s, level: level, seed: seed)) {
+            expect(p.display['custom_widget'], 'order_cards');
+            final cards = (p.display['cards'] as List).cast<int>();
+            expect(cards, hasLength(expectedCount));
+            expect(cards.toSet().length, expectedCount);
+            for (final c in cards) {
+              expect(c, inInclusiveRange(1, 20));
+            }
+            final sorted = [...cards]..sort();
+            expect(p.expected, [sorted.join(',')]);
+            expect(_isSorted(cards), isFalse,
+                reason: 'the display order must require reordering');
+          }
+        }
+      }
+    });
   });
 
   group('Problem JSON round-trip', () {

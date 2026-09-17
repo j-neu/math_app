@@ -1970,6 +1970,8 @@ Problem _generateCustomWidget(
       return _generateHundredChartStep(spec, level, levelNumber, seed, index, gen);
     case 'order_cards':
       return _generateOrderCards(spec, level, levelNumber, seed, index, gen);
+    case 'numberline_place':
+      return _generateNumberlinePlace(spec, level, levelNumber, seed, index, gen);
     default:
       throw SpecFormatException(
         'custom_widget: unknown registry key "${level.customWidget}"',
@@ -2450,4 +2452,58 @@ bool _isAscending(List<int> values) {
     if (values[i] < values[i - 1]) return false;
   }
   return true;
+}
+
+/// Registry key `"numberline_place"` (place_on_numberline_zr20/zr100,
+/// BUILD_ORDER.md Batch 1.6): `values_count` distinct interior points of
+/// `range` (sampled from `value_range`, same clamp-to-interior shape as the
+/// existing `numberline_locate` generator) are shown as tappable chips; the
+/// child places each one on the line. `expected` is a single comma-joined
+/// string of the targets in generated order -- the widget must report the
+/// placed positions in that same order once every chip is placed, so a
+/// correct submission is literally `targets.join(',')` (every chip's only
+/// correct position is its own value). Correctness is therefore a plain
+/// string match, handled by `_evaluateCustomWidget`'s default branch.
+Problem _generateNumberlinePlace(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final range = level.intListParam('range');
+  final rangeLo = range.isEmpty ? 0 : range[0];
+  final rangeHi = range.isEmpty ? 20 : range[1];
+  final valuesCount = level.intParam('values_count', fallback: 3);
+  final valueRange = level.intListParam('value_range');
+  final vLo = valueRange.isEmpty ? rangeLo + 1 : valueRange[0];
+  final vHi = valueRange.isEmpty ? rangeHi - 1 : valueRange[1];
+  final lo = max(vLo, rangeLo + 1);
+  final hi = min(vHi, rangeHi - 1);
+
+  final candidates = [for (var v = lo; v <= hi; v++) v];
+  if (candidates.length < valuesCount) {
+    throw SpecFormatException(
+      'numberline_place: value_range [$vLo, $vHi] clamped to [$lo, $hi] has '
+      'fewer than $valuesCount distinct interior points of range '
+      '[$rangeLo, $rangeHi]',
+    );
+  }
+  final targets = _shuffledCopy(candidates, gen).sublist(0, valuesCount);
+
+  return Problem(
+    template: 'custom_widget',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: {
+      'custom_widget': level.customWidget,
+      'range': [rangeLo, rangeHi],
+      'targets': targets,
+    },
+    expected: [targets.join(',')],
+  );
 }

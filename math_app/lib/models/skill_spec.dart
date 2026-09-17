@@ -49,6 +49,7 @@ const Set<String> kKnownCustomWidgets = {
   'count_field_symbolisch',
   'hundred_chart_skip',
   'order_cards',
+  'numberline_place',
 };
 
 /// Thrown when a skill-spec JSON document violates the P2 §4 schema.

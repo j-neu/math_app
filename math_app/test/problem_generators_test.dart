@@ -3499,6 +3499,43 @@ void main() {
         }
       }
     });
+
+    test(
+        'numberline_place: values_count distinct interior targets, '
+        'expected == targets joined', () {
+      final s = spec('numberline_place', {
+        'range': [0, 20],
+        'value_range': [1, 19],
+        'values_count': 3,
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          expect(p.display['custom_widget'], 'numberline_place');
+          expect(p.display['range'], [0, 20]);
+          final targets = (p.display['targets'] as List).cast<int>();
+          expect(targets, hasLength(3));
+          expect(targets.toSet().length, 3, reason: 'all distinct');
+          for (final t in targets) {
+            expect(t, inInclusiveRange(1, 19));
+          }
+          expect(p.expected, [targets.join(',')]);
+        }
+      }
+    });
+
+    test(
+        'numberline_place: values_count larger than the interior span is a '
+        'spec error', () {
+      final s = spec('numberline_place', {
+        'range': [0, 20],
+        'value_range': [1, 3],
+        'values_count': 5,
+      });
+      expect(
+        () => generateProblems(spec: s, level: 2, seed: 1),
+        throwsA(isA<SpecFormatException>()),
+      );
+    });
   });
 
   group('Problem JSON round-trip', () {

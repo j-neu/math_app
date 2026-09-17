@@ -1,0 +1,53 @@
+{
+  "spec_version": 1,
+  "skill_id": "compare_quantity_difference",
+  "construct_id": "compare_quantity",
+  "domain": "C",
+  "title_de": "Mengen vergleichen und den Unterschied bestimmen",
+  "level_titles_de": [
+    "Plättchen vergleichen (ZR6)",
+    "Zehnerfelder vergleichen (ZR10)",
+    "Zahlen vergleichen (ZR10)"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "custom_widget",
+      "custom_widget": "quantity_compare_enaktiv",
+      "params": { "range": [1, 6] },
+      "problem_count": 10,
+      "prompt_de": "Wer hat mehr? Wie viele mehr?",
+      "slow_band_ms": 12000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "custom_widget",
+      "custom_widget": "quantity_compare_ikonisch",
+      "params": { "range": [1, 10] },
+      "problem_count": 10,
+      "prompt_de": "Wer hat mehr? Wie viele mehr?",
+      "slow_band_ms": 10000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "custom_widget",
+      "custom_widget": "quantity_compare_symbolisch",
+      "params": { "range": [1, 10] },
+      "problem_count": 10,
+      "prompt_de": "Wer hat mehr? Wie viele mehr?",
+      "slow_band_ms": 8000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Vergleiche die beiden Mengen genau. Welche ist größer, und um wie viel?" }
+  ],
+  "provenance": {
+    "sources": ["iMINT S1.4 More or Less (Hamstern)", "Padberg/Benz, Vergleichen und Ordnen von Anzahlen"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

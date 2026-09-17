@@ -53,7 +53,7 @@ id/field retarget like Task 4's double_zr10.
 - [x] `decompose_single_digit` — shipped, `docs/superpowers/plans/2026-09-17-decompose-single-digit.md`; Reused from `Z1 Decompose 10` (`decompose_10_exercise.dart`), generalised from a fixed 10 to any single-digit target; part-whole splitting tool
 
 ### Batch 1.8 — comparing quantities (construct `compare_quantity`)
-- [ ] `compare_quantity_difference` — Reused from S1.4 `More or Less (Hamstern)` (`more_less_exercise.dart`); dice-roll comparison, intentionally single-level (10 rounds)
+- [x] `compare_quantity_difference` — shipped, `docs/superpowers/plans/2026-09-17-compare-quantity-difference.md` — Reused from S1.4 `More or Less (Hamstern)` (`more_less_exercise.dart`); dice-roll comparison, intentionally single-level (10 rounds)
 
 ### Batch 1.9 — finger-quantity recognition (construct `fingerblitz`)
 - [ ] `fingerblitz_quantity_zr10` — Reused from S1.1 `Fingerblitz`, "See (No limit) → See (Flash)" levels directly; finger-pattern flash display
@@ -250,7 +250,8 @@ conventions (CRA progression, `MinimalistExerciseScaffold`,
 - [x] place_on_numberline_zr20 — `docs/superpowers/plans/2026-09-17-place-on-numberline-zr20.md`
 - [x] place_on_numberline_zr100 — `docs/superpowers/plans/2026-09-17-place-on-numberline-zr20.md`
 - [x] decompose_single_digit — `docs/superpowers/plans/2026-09-17-decompose-single-digit.md`
+- [x] compare_quantity_difference — `docs/superpowers/plans/2026-09-17-compare-quantity-difference.md`
 
 (Ids are left unbackticked here on purpose: the completeness check counts
-each skill id once inside backticks, and these nineteen are tracked in Batches
-1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7 and 4.3 above.)
+each skill id once inside backticks, and these twenty are tracked in Batches
+1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8 and 4.3 above.)

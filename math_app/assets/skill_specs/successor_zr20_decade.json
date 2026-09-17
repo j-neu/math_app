@@ -1,0 +1,69 @@
+{
+  "spec_version": 1,
+  "skill_id": "successor_zr20_decade",
+  "construct_id": "successor",
+  "domain": "A",
+  "title_de": "Nachfolger an der Zehnergrenze (ZR20)",
+  "level_titles_de": [
+    "Der Nachfolger",
+    "Nachfolger an der Zehn",
+    "Nachfolger über die Zehnergrenze"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "sequence_gap",
+      "params": {
+        "direction": "up",
+        "step": 1,
+        "start_range": [2, 7],
+        "length": 2,
+        "gap_indices": [1]
+      },
+      "problem_count": 8,
+      "prompt_de": "Welche Zahl kommt direkt danach?",
+      "slow_band_ms": 10000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "sequence_gap",
+      "params": {
+        "direction": "up",
+        "step": 1,
+        "start_range": [9, 10],
+        "length": 2,
+        "gap_indices": [1]
+      },
+      "problem_count": 8,
+      "prompt_de": "Welche Zahl kommt direkt nach dieser Zahl?",
+      "slow_band_ms": 8000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "sequence_gap",
+      "params": {
+        "direction": "up",
+        "step": 1,
+        "start_range": [18, 19],
+        "length": 2,
+        "gap_indices": [1]
+      },
+      "problem_count": 8,
+      "prompt_de": "Vorsicht, hier wechselt der Zehner! Welche Zahl kommt direkt danach?",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "miscount", "label_de": "knapp daneben", "hint_de": "Ganz nah dran! Zähl noch einmal genau." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau dir die Zahl noch einmal an und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["RLP BE/BB Teil C, L1, Niveaustufe A", "Padberg/Benz, Nachfolger-Vorgänger-Konzept und Zahlwortreihe", "Gaidoschik, Zehnerübergang und Stellenwertverständnis", "Wartha/Schulz, Ablösung vom zählenden Rechnen"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

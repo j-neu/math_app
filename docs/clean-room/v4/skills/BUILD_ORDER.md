@@ -28,8 +28,8 @@ id/field retarget like Task 4's double_zr10.
 - [x] `count_forward_zr100` — shipped, `docs/superpowers/plans/2026-09-17-count-forward-zr20-zr100.md`; Reused from C3.2/C3.3 `Count Forward to 50/100` (same file family); extended range, decade-boundary starts emphasised
 
 ### Batch 1.3 — successor & predecessor (constructs `successor`, `predecessor`)
-- [ ] `successor_zr20_decade` — Reused from C4.1 `What Comes Next?` (`what_comes_next_exercise.dart`); single number card, successor direction
-- [ ] `predecessor_zr20_decade` — Reused from the same C4.1 number-card widget, predecessor direction
+- [x] `successor_zr20_decade` — shipped, `docs/superpowers/plans/2026-09-17-successor-predecessor-zr20-decade.md`; Reused from C4.1 `What Comes Next?` (`what_comes_next_exercise.dart`); single number card, successor direction
+- [x] `predecessor_zr20_decade` — shipped, `docs/superpowers/plans/2026-09-17-successor-predecessor-zr20-decade.md`; Reused from the same C4.1 number-card widget, predecessor direction
 - Note: these two constructs share one manipulative and archetype per design doc §5; their ZR100 siblings are Extended and live in Batch 2.2
 
 ### Batch 1.4 — skip-counting (constructs `skip2_forward`, `skip2_backward`, `skip5_forward`, `skip5_backward`, `skip10_forward`, `skip10_backward`)
@@ -236,7 +236,9 @@ conventions (CRA progression, `MinimalistExerciseScaffold`,
 - [x] quantify_count_zr10 — `docs/superpowers/plans/2026-09-17-quantify-count-zr10.md`
 - [x] count_forward_zr20 — `docs/superpowers/plans/2026-09-17-count-forward-zr20-zr100.md`
 - [x] count_forward_zr100 — `docs/superpowers/plans/2026-09-17-count-forward-zr20-zr100.md`
+- [x] successor_zr20_decade — `docs/superpowers/plans/2026-09-17-successor-predecessor-zr20-decade.md`
+- [x] predecessor_zr20_decade — `docs/superpowers/plans/2026-09-17-successor-predecessor-zr20-decade.md`
 
 (Ids are left unbackticked here on purpose: the completeness check counts
-each skill id once inside backticks, and these five are tracked in Batches
-1.1, 1.2 and 4.3 above.)
+each skill id once inside backticks, and these seven are tracked in Batches
+1.1, 1.2, 1.3 and 4.3 above.)

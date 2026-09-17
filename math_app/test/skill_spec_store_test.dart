@@ -99,5 +99,30 @@ void main() {
         'count_field_symbolisch',
       ]);
     });
+
+    test(
+        'count_forward_zr20 (Batch 1.2) parses with the sequence_gap template',
+        () {
+      final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+      final spec = store.byId('count_forward_zr20');
+      expect(spec.constructId, 'count_forward');
+      expect(spec.domain, 'A');
+      expect(spec.titleDe, 'Vorwärts zählen im ZR20');
+      expect(spec.levels.map((l) => l.template),
+          ['sequence_gap', 'sequence_gap', 'sequence_gap']);
+      expect(spec.levels.map((l) => l.customWidget), [null, null, null]);
+    });
+
+    test(
+        'count_forward_zr100 (Batch 1.2) parses with the sequence_gap template',
+        () {
+      final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+      final spec = store.byId('count_forward_zr100');
+      expect(spec.constructId, 'count_forward');
+      expect(spec.domain, 'A');
+      expect(spec.titleDe, 'Vorwärts zählen im ZR100');
+      expect(spec.levels.map((l) => l.template),
+          ['sequence_gap', 'sequence_gap', 'sequence_gap']);
+    });
   });
 }

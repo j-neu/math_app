@@ -37,6 +37,9 @@ import 'package:math_app/widgets/common/hundred_chart_widget.dart';
 import 'package:math_app/widgets/templates/hundred_chart_step_widget.dart';
 import 'package:math_app/widgets/templates/numberline_place_widget.dart';
 import 'package:math_app/widgets/templates/order_cards_widget.dart';
+import 'package:math_app/widgets/templates/quantity_compare_enaktiv_widget.dart';
+import 'package:math_app/widgets/templates/quantity_compare_ikonisch_widget.dart';
+import 'package:math_app/widgets/templates/quantity_compare_symbolisch_widget.dart';
 import 'package:math_app/widgets/templates/word_problem_widget.dart';
 import 'package:math_app/widgets/templates/zehnerfeld_read_widget.dart';
 
@@ -3490,6 +3493,138 @@ void main() {
       );
       expect(values.last, '');
       expect(find.byKey(const ValueKey('np-chip-2')), findsOneWidget);
+    });
+  });
+
+  group('QuantityCompareEnaktivWidget', () {
+    Problem compareProblem(int left, int right) => _problem(
+          template: 'custom_widget',
+          display: {
+            'custom_widget': 'quantity_compare_enaktiv',
+            'left': left,
+            'right': right,
+          },
+          expected: [
+            left == right
+                ? 'gleich'
+                : left > right
+                    ? 'links,${left - right}'
+                    : 'rechts,${right - left}',
+          ],
+        );
+
+    testWidgets(
+        'tapping "Links mehr" then typing a difference reports "links,<n>"',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        QuantityCompareEnaktivWidget(
+          problem: compareProblem(5, 2),
+          onValueChanged: values.add,
+        ),
+      );
+
+      await tester.tap(find.byKey(const ValueKey('qc-choice-links')));
+      await tester.pump();
+      expect(values.last, '', reason: 'winner picked, difference not typed');
+      expect(find.byType(TextField), findsOneWidget);
+
+      await tester.enterText(find.byType(TextField), '3');
+      expect(values.last, 'links,3');
+    });
+
+    testWidgets(
+        'tapping "Gleich" reports "gleich" immediately, no difference field',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        QuantityCompareEnaktivWidget(
+          problem: compareProblem(4, 4),
+          onValueChanged: values.add,
+        ),
+      );
+
+      await tester.tap(find.byKey(const ValueKey('qc-choice-gleich')));
+      await tester.pump();
+      expect(values.last, 'gleich');
+      expect(find.byType(TextField), findsNothing);
+    });
+
+    testWidgets('a new problem resets the choice and reports ""',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        QuantityCompareEnaktivWidget(
+          problem: compareProblem(5, 2),
+          onValueChanged: values.add,
+        ),
+      );
+      await tester.tap(find.byKey(const ValueKey('qc-choice-links')));
+      await tester.pump();
+      await tester.enterText(find.byType(TextField), '3');
+      expect(values.last, 'links,3');
+
+      await _pumpApp(
+        tester,
+        QuantityCompareEnaktivWidget(
+          problem: compareProblem(1, 6),
+          onValueChanged: values.add,
+        ),
+      );
+      expect(values.last, '');
+      expect(find.byType(TextField), findsNothing);
+    });
+  });
+
+  group('QuantityCompareIkonischWidget', () {
+    Problem compareProblem(int left, int right) => _problem(
+          template: 'custom_widget',
+          display: {
+            'custom_widget': 'quantity_compare_ikonisch',
+            'left': left,
+            'right': right,
+          },
+          expected: ['rechts,${right - left}'],
+        );
+
+    testWidgets('renders a ten-frame with the right number of filled cells',
+        (tester) async {
+      await _pumpApp(
+        tester,
+        QuantityCompareIkonischWidget(
+          problem: compareProblem(3, 8),
+          onValueChanged: (_) {},
+        ),
+      );
+      expect(find.byType(ZehnerfeldWidget), findsNWidgets(2));
+    });
+  });
+
+  group('QuantityCompareSymbolischWidget', () {
+    Problem compareProblem(int left, int right) => _problem(
+          template: 'custom_widget',
+          display: {
+            'custom_widget': 'quantity_compare_symbolisch',
+            'left': left,
+            'right': right,
+          },
+          expected: ['links,3'],
+        );
+
+    testWidgets('renders the bare numerals for left and right',
+        (tester) async {
+      await _pumpApp(
+        tester,
+        QuantityCompareSymbolischWidget(
+          problem: compareProblem(7, 4),
+          onValueChanged: (_) {},
+        ),
+      );
+      expect(find.text('7'), findsOneWidget);
+      expect(find.text('4'), findsOneWidget);
     });
   });
 }

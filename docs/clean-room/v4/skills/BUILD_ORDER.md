@@ -46,8 +46,8 @@ id/field retarget like Task 4's double_zr10.
 - [x] `order_cards_zr20` — shipped, `docs/superpowers/plans/2026-09-17-order-cards-zr20.md`; Reused from C2.1 `Order Cards to 20` (`order_cards_exercise.dart`); draggable number cards (3 cards → 5 adjacent → 5 spread)
 
 ### Batch 1.6 — placing numbers on the line (construct `place_on_numberline`)
-- [ ] `place_on_numberline_zr20` — Reused from C10.1 `Place Numbers on Line (0-20)` (`place_numbers_exercise.dart`); wraps `ZahlenstrahlPainter` (`manipulatives/zahlenstrahl.dart`)
-- [ ] `place_on_numberline_zr100` — Reused from C10.2 `Place Numbers on Line (0-100)`; same line painter, ZR100
+- [x] `place_on_numberline_zr20` — shipped, `docs/superpowers/plans/2026-09-17-place-on-numberline-zr20.md`; Reused from C10.1 `Place Numbers on Line (0-20)` (`place_numbers_exercise.dart`); wraps `ZahlenstrahlPainter` (`manipulatives/zahlenstrahl.dart`)
+- [x] `place_on_numberline_zr100` — shipped, `docs/superpowers/plans/2026-09-17-place-on-numberline-zr20.md`; Reused from C10.2 `Place Numbers on Line (0-100)`; same line painter, ZR100
 
 ### Batch 1.7 — decomposition (construct `decompose`)
 - [ ] `decompose_single_digit` — Reused from `Z1 Decompose 10` (`decompose_10_exercise.dart`), generalised from a fixed 10 to any single-digit target; part-whole splitting tool
@@ -247,7 +247,9 @@ conventions (CRA progression, `MinimalistExerciseScaffold`,
 - [x] skip10_forward_zr100 — `docs/superpowers/plans/2026-09-17-skip5-skip10-zr100.md`
 - [x] skip10_backward_zr100 — `docs/superpowers/plans/2026-09-17-skip5-skip10-zr100.md`
 - [x] order_cards_zr20 — `docs/superpowers/plans/2026-09-17-order-cards-zr20.md`
+- [x] place_on_numberline_zr20 — `docs/superpowers/plans/2026-09-17-place-on-numberline-zr20.md`
+- [x] place_on_numberline_zr100 — `docs/superpowers/plans/2026-09-17-place-on-numberline-zr20.md`
 
 (Ids are left unbackticked here on purpose: the completeness check counts
-each skill id once inside backticks, and these sixteen are tracked in Batches
-1.1, 1.2, 1.3, 1.4, 1.5 and 4.3 above.)
+each skill id once inside backticks, and these eighteen are tracked in Batches
+1.1, 1.2, 1.3, 1.4, 1.5, 1.6 and 4.3 above.)

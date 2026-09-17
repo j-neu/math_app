@@ -1,0 +1,65 @@
+{
+  "spec_version": 1,
+  "skill_id": "place_on_numberline_zr20",
+  "construct_id": "place_on_numberline",
+  "domain": "A",
+  "title_de": "Zahlen auf dem Zahlenstrahl verorten (ZR20)",
+  "level_titles_de": [
+    "Drei Zahlen platzieren",
+    "Fünf Zahlen platzieren",
+    "Fünf nahe beieinander liegende Zahlen platzieren"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "custom_widget",
+      "custom_widget": "numberline_place",
+      "params": {
+        "range": [0, 20],
+        "value_range": [1, 19],
+        "values_count": 3
+      },
+      "problem_count": 8,
+      "prompt_de": "Tippe die Zahl an, die du platzieren willst. Tippe dann auf die richtige Stelle am Zahlenstrahl.",
+      "slow_band_ms": 16000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "custom_widget",
+      "custom_widget": "numberline_place",
+      "params": {
+        "range": [0, 20],
+        "value_range": [1, 19],
+        "values_count": 5
+      },
+      "problem_count": 8,
+      "prompt_de": "Platziere alle fünf Zahlen am Zahlenstrahl.",
+      "slow_band_ms": 13000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "custom_widget",
+      "custom_widget": "numberline_place",
+      "params": {
+        "range": [0, 20],
+        "value_range": [7, 15],
+        "values_count": 5
+      },
+      "problem_count": 8,
+      "prompt_de": "Diese Zahlen liegen nah beieinander. Platziere sie genau am Zahlenstrahl.",
+      "slow_band_ms": 11000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau dir den Zahlenstrahl noch einmal an und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["RLP BE/BB Teil C, L1, Niveaustufe A", "Padberg/Benz, Zahlenstrahl und Zahlvorstellung", "Krajewski, Mentales Zahlenstrahlmodell"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

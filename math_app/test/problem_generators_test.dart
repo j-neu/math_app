@@ -3659,6 +3659,26 @@ void main() {
     });
 
     test(
+        'real fingerblitz_quantity_zr10 generates valid counts at every '
+        'level', () {
+      final s = _realSpec('fingerblitz_quantity_zr10');
+      final flashMs = {2: 1500, 3: 800};
+      for (var level = 1; level <= 3; level++) {
+        for (var seed = 0; seed < 100; seed++) {
+          for (final p in generateProblems(spec: s, level: level, seed: seed)) {
+            final count = p.display['count'] as int;
+            expect(count, inInclusiveRange(1, 10));
+            expect(p.expected, [count.toString()]);
+            if (level > 1) {
+              expect(p.display['display'], 'fingers');
+              expect(p.display['flash_ms'], flashMs[level]);
+            }
+          }
+        }
+      }
+    });
+
+    test(
         'real compare_quantity_difference generates valid comparisons at '
         'every level', () {
       final s = _realSpec('compare_quantity_difference');

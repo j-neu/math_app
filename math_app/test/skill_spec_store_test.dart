@@ -255,6 +255,19 @@ void main() {
     });
 
     test(
+        'fingerblitz_quantity_zr10 (Batch 1.9) parses with fingerbild_read '
+        'and the extended flash_subitize', () {
+      final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+      final spec = store.byId('fingerblitz_quantity_zr10');
+      expect(spec.constructId, 'fingerblitz');
+      expect(spec.domain, 'C');
+      expect(spec.levels.map((l) => l.template),
+          ['fingerbild_read', 'custom_widget', 'custom_widget']);
+      expect(spec.levels[1].customWidget, 'flash_subitize');
+      expect(spec.levels[2].customWidget, 'flash_subitize');
+    });
+
+    test(
         'successor_zr20_decade (Batch 1.3) parses with the sequence_gap template',
         () {
       final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());

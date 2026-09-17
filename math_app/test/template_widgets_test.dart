@@ -15,6 +15,9 @@ import 'package:math_app/widgets/templates/doubling_mirror_symbolisch_widget.dar
 import 'package:math_app/widgets/templates/halving_mirror_enaktiv_widget.dart';
 import 'package:math_app/widgets/templates/halving_mirror_ikonisch_widget.dart';
 import 'package:math_app/widgets/templates/halving_mirror_symbolisch_widget.dart';
+import 'package:math_app/widgets/templates/count_field_enaktiv_widget.dart';
+import 'package:math_app/widgets/templates/count_field_ikonisch_widget.dart';
+import 'package:math_app/widgets/templates/count_field_symbolisch_widget.dart';
 import 'package:math_app/widgets/templates/drag_partition_widget.dart';
 import 'package:math_app/widgets/templates/equation_gap_widget.dart';
 import 'package:math_app/widgets/templates/equation_solve_widget.dart';
@@ -2956,6 +2959,245 @@ void main() {
 
       expect(values.last, '');
       expect(find.text('10'), findsOneWidget);
+    });
+  });
+
+  group('CountFieldEnaktivWidget', () {
+    Problem countProblem(int count) => _problem(
+          template: 'custom_widget',
+          display: {'custom_widget': 'count_field_enaktiv', 'count': count},
+          expected: [count.toString()],
+        );
+
+    testWidgets('renders count dots in rows of at most 5', (tester) async {
+      await _pumpApp(
+        tester,
+        CountFieldEnaktivWidget(problem: countProblem(6), onValueChanged: (_) {}),
+      );
+      expect(find.byKey(const ValueKey('cf-dot-0')), findsOneWidget);
+      expect(find.byKey(const ValueKey('cf-dot-5')), findsOneWidget);
+      expect(find.byKey(const ValueKey('cf-dot-6')), findsNothing);
+    });
+
+    testWidgets('tapping a dot marks it counted and updates the tapped count',
+        (tester) async {
+      await _pumpApp(
+        tester,
+        CountFieldEnaktivWidget(problem: countProblem(4), onValueChanged: (_) {}),
+      );
+      expect(find.text('Angetippt: 0'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('cf-dot-0')));
+      await tester.pump();
+      expect(find.text('Angetippt: 1'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('cf-dot-0')));
+      await tester.pump();
+      expect(find.text('Angetippt: 0'), findsOneWidget, reason: 'tapping again untaps');
+    });
+
+    testWidgets('typing the total reports it via onValueChanged', (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        CountFieldEnaktivWidget(problem: countProblem(5), onValueChanged: values.add),
+      );
+      await tester.enterText(find.byType(TextField), '5');
+      expect(values.last, '5');
+    });
+
+    testWidgets('a new problem resets the tapped dots and the field',
+        (tester) async {
+      final values = <String>[];
+      final first = countProblem(4);
+      final second = countProblem(6);
+      await _pumpApp(
+        tester,
+        CountFieldEnaktivWidget(problem: first, onValueChanged: values.add),
+      );
+      await tester.tap(find.byKey(const ValueKey('cf-dot-0')));
+      await tester.pump();
+      expect(find.text('Angetippt: 1'), findsOneWidget);
+
+      await _pumpApp(
+        tester,
+        CountFieldEnaktivWidget(problem: second, onValueChanged: values.add),
+      );
+      expect(values.last, '');
+      expect(find.text('Angetippt: 0'), findsOneWidget);
+      expect(find.byKey(const ValueKey('cf-dot-5')), findsOneWidget);
+    });
+  });
+
+  group('CountFieldIkonischWidget', () {
+    Problem countProblem(int count, {int seed = 7, int index = 0}) => Problem(
+          template: 'custom_widget',
+          skillId: 'G1',
+          level: 1,
+          seed: seed,
+          index: index,
+          promptDe: '',
+          display: {'custom_widget': 'count_field_ikonisch', 'count': count},
+          expected: [count.toString()],
+        );
+
+    testWidgets('renders exactly count scattered dots', (tester) async {
+      await _pumpApp(
+        tester,
+        CountFieldIkonischWidget(problem: countProblem(6), onValueChanged: (_) {}),
+      );
+      for (var i = 0; i < 6; i++) {
+        expect(find.byKey(ValueKey('cf-dot-$i')), findsOneWidget);
+      }
+      expect(find.byKey(const ValueKey('cf-dot-6')), findsNothing);
+    });
+
+    testWidgets('the same seed and index always lays out the same positions',
+        (tester) async {
+      await _pumpApp(
+        tester,
+        CountFieldIkonischWidget(
+          problem: countProblem(6, seed: 42, index: 3),
+          onValueChanged: (_) {},
+        ),
+      );
+      final firstRect = tester.getRect(find.byKey(const ValueKey('cf-dot-0')));
+
+      await _pumpApp(
+        tester,
+        CountFieldIkonischWidget(
+          problem: countProblem(6, seed: 42, index: 3),
+          onValueChanged: (_) {},
+        ),
+      );
+      final secondRect = tester.getRect(find.byKey(const ValueKey('cf-dot-0')));
+
+      expect(firstRect, secondRect);
+    });
+
+    testWidgets('tapping a dot marks it counted', (tester) async {
+      await _pumpApp(
+        tester,
+        CountFieldIkonischWidget(problem: countProblem(5), onValueChanged: (_) {}),
+      );
+      expect(find.text('Angetippt: 0'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('cf-dot-0')));
+      await tester.pump();
+      expect(find.text('Angetippt: 1'), findsOneWidget);
+    });
+
+    testWidgets('typing the total reports it via onValueChanged', (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        CountFieldIkonischWidget(problem: countProblem(7), onValueChanged: values.add),
+      );
+      await tester.enterText(find.byType(TextField), '7');
+      expect(values.last, '7');
+    });
+
+    testWidgets('a new problem resets the tapped dots and the field',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        CountFieldIkonischWidget(problem: countProblem(5), onValueChanged: values.add),
+      );
+      await tester.tap(find.byKey(const ValueKey('cf-dot-0')));
+      await tester.pump();
+      expect(find.text('Angetippt: 1'), findsOneWidget);
+
+      await _pumpApp(
+        tester,
+        CountFieldIkonischWidget(problem: countProblem(8), onValueChanged: values.add),
+      );
+      expect(values.last, '');
+      expect(find.text('Angetippt: 0'), findsOneWidget);
+    });
+  });
+
+  group('CountFieldSymbolischWidget', () {
+    Problem countProblem(int count, {int seed = 7, int index = 0}) => Problem(
+          template: 'custom_widget',
+          skillId: 'G1',
+          level: 1,
+          seed: seed,
+          index: index,
+          promptDe: '',
+          display: {'custom_widget': 'count_field_symbolisch', 'count': count},
+          expected: [count.toString()],
+        );
+
+    testWidgets('renders exactly count dots at varying sizes', (tester) async {
+      await _pumpApp(
+        tester,
+        CountFieldSymbolischWidget(
+          problem: countProblem(10, seed: 1, index: 0),
+          onValueChanged: (_) {},
+        ),
+      );
+      final sizes = <double>{};
+      for (var i = 0; i < 10; i++) {
+        final finder = find.byKey(ValueKey('cf-dot-$i'));
+        expect(finder, findsOneWidget);
+        sizes.add(tester.getSize(finder).width);
+      }
+      expect(sizes.length, greaterThan(1),
+          reason: '10 dots at 3 random sizes should not all match');
+    });
+
+    testWidgets('every rendered dot is at least the 44px touch-target floor',
+        (tester) async {
+      await _pumpApp(
+        tester,
+        CountFieldSymbolischWidget(
+          problem: countProblem(10, seed: 3, index: 1),
+          onValueChanged: (_) {},
+        ),
+      );
+      for (var i = 0; i < 10; i++) {
+        final size = tester.getSize(find.byKey(ValueKey('cf-dot-$i')));
+        expect(size.width, greaterThanOrEqualTo(44));
+        expect(size.height, greaterThanOrEqualTo(44));
+      }
+    });
+
+    testWidgets('tapping a dot marks it counted', (tester) async {
+      await _pumpApp(
+        tester,
+        CountFieldSymbolischWidget(problem: countProblem(8), onValueChanged: (_) {}),
+      );
+      expect(find.text('Angetippt: 0'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('cf-dot-0')));
+      await tester.pump();
+      expect(find.text('Angetippt: 1'), findsOneWidget);
+    });
+
+    testWidgets('typing the total reports it via onValueChanged', (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        CountFieldSymbolischWidget(problem: countProblem(9), onValueChanged: values.add),
+      );
+      await tester.enterText(find.byType(TextField), '9');
+      expect(values.last, '9');
+    });
+
+    testWidgets('a new problem resets the tapped dots and the field',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        CountFieldSymbolischWidget(problem: countProblem(7), onValueChanged: values.add),
+      );
+      await tester.tap(find.byKey(const ValueKey('cf-dot-0')));
+      await tester.pump();
+      expect(find.text('Angetippt: 1'), findsOneWidget);
+
+      await _pumpApp(
+        tester,
+        CountFieldSymbolischWidget(problem: countProblem(10), onValueChanged: values.add),
+      );
+      expect(values.last, '');
+      expect(find.text('Angetippt: 0'), findsOneWidget);
     });
   });
 }

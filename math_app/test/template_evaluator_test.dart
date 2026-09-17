@@ -405,6 +405,48 @@ void main() {
     });
   });
 
+  group('order_cards (custom_widget)', () {
+    test('the correct ascending order matches', () {
+      final p = _problem(
+        template: 'custom_widget',
+        display: {'custom_widget': 'order_cards', 'cards': [14, 3, 9]},
+        expected: ['3,9,14'],
+      );
+      final result = evaluator.evaluate(p, '3,9,14', spec: spec);
+      expect(result.isCorrect, isTrue);
+      expect(result.canonicalAnswer, '3,9,14');
+    });
+
+    test(
+        'the descending (reversed) order is wrong_order when the spec '
+        'carries it', () {
+      final orderSpec = _spec(taxonomy: [
+        {'code': 'wrong_order', 'label_de': 'falsche Reihenfolge', 'hint_de': 'Ordne von klein nach groß.'},
+        {'code': 'other', 'label_de': 'noch einmal probieren', 'hint_de': 'Schau noch einmal genau hin.'},
+      ]);
+      final p = _problem(
+        template: 'custom_widget',
+        display: {'custom_widget': 'order_cards', 'cards': [14, 3, 9]},
+        expected: ['3,9,14'],
+      );
+      final result = evaluator.evaluate(p, '14,9,3', spec: orderSpec);
+      expect(result.isCorrect, isFalse);
+      expect(result.errorCode, 'wrong_order');
+    });
+
+    test('wrong_order falls back to other when the spec does not carry it',
+        () {
+      final p = _problem(
+        template: 'custom_widget',
+        display: {'custom_widget': 'order_cards', 'cards': [14, 3, 9]},
+        expected: ['3,9,14'],
+      );
+      final result = evaluator.evaluate(p, '14,9,3', spec: spec);
+      expect(result.isCorrect, isFalse);
+      expect(result.errorCode, 'other');
+    });
+  });
+
   group('strategy_choice', () {
     final p = _problem(
       template: 'strategy_choice',

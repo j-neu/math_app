@@ -1968,6 +1968,8 @@ Problem _generateCustomWidget(
       return _generateCountField(spec, level, levelNumber, seed, index, gen);
     case 'hundred_chart_skip':
       return _generateHundredChartStep(spec, level, levelNumber, seed, index, gen);
+    case 'order_cards':
+      return _generateOrderCards(spec, level, levelNumber, seed, index, gen);
     default:
       throw SpecFormatException(
         'custom_widget: unknown registry key "${level.customWidget}"',
@@ -2358,4 +2360,94 @@ Problem _generateHundredChartStep(
     },
     expected: [queryValue.toString()],
   );
+}
+
+/// Fisher-Yates shuffle using only [SeededGenerator.nextInt] (no exposed
+/// `Random` instance to hand to `List.shuffle`), so the result stays
+/// reproducible for a given seed like every other generator in this file.
+List<int> _shuffledCopy(List<int> items, SeededGenerator gen) {
+  final list = List<int>.from(items);
+  for (var i = list.length - 1; i > 0; i--) {
+    final j = gen.nextInt(i + 1);
+    final tmp = list[i];
+    list[i] = list[j];
+    list[j] = tmp;
+  }
+  return list;
+}
+
+/// Registry key `"order_cards"` (order_cards_zr20/zr100, BUILD_ORDER.md
+/// Batch 1.5 / 2.3): `card_count` distinct number cards are sampled from
+/// `value_range` -- consecutive integers when `mode == "adjacent"`, an
+/// arbitrary distinct subset otherwise (the default, "spread") -- and shown
+/// in a shuffled order the child drags into ascending position. `expected`
+/// carries the single correct comma-joined ascending order as one string;
+/// correctness is a plain string match against it, handled by
+/// `_evaluateCustomWidget`'s default branch. If the shuffle happens to land
+/// on the already-sorted order, the first two cards are swapped so every
+/// problem actually requires reordering.
+Problem _generateOrderCards(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final cardCount = level.intParam('card_count', fallback: 3);
+  final valueRange = level.intListParam('value_range');
+  final lo = valueRange.isEmpty ? 1 : valueRange[0];
+  final hi = valueRange.isEmpty ? 20 : valueRange[1];
+  final mode = level.stringParam('mode', fallback: 'spread');
+
+  List<int> cards;
+  if (mode == 'adjacent') {
+    if (hi - lo + 1 < cardCount) {
+      throw SpecFormatException(
+        'order_cards: value_range [$lo, $hi] cannot fit $cardCount '
+        'adjacent cards',
+      );
+    }
+    final start = gen.nextIntInRange(lo, hi - cardCount + 1);
+    cards = [for (var i = 0; i < cardCount; i++) start + i];
+  } else {
+    final candidates = [for (var v = lo; v <= hi; v++) v];
+    if (candidates.length < cardCount) {
+      throw SpecFormatException(
+        'order_cards: value_range [$lo, $hi] has fewer than $cardCount '
+        'distinct values to sample',
+      );
+    }
+    cards = _shuffledCopy(candidates, gen).sublist(0, cardCount);
+  }
+
+  var shuffled = _shuffledCopy(cards, gen);
+  if (_isAscending(shuffled)) {
+    final tmp = shuffled[0];
+    shuffled[0] = shuffled[1];
+    shuffled[1] = tmp;
+  }
+
+  final sorted = [...cards]..sort();
+
+  return Problem(
+    template: 'custom_widget',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: {
+      'custom_widget': level.customWidget,
+      'cards': shuffled,
+    },
+    expected: [sorted.join(',')],
+  );
+}
+
+bool _isAscending(List<int> values) {
+  for (var i = 1; i < values.length; i++) {
+    if (values[i] < values[i - 1]) return false;
+  }
+  return true;
 }

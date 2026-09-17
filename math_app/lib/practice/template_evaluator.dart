@@ -394,6 +394,15 @@ class TemplateEvaluator {
       if (collapsed == reversed) return 'wrong_direction';
     }
 
+    // order_cards: the cards were placed in descending order instead of
+    // ascending -- correctly sequenced, wrong direction of sort.
+    if (problem.display['custom_widget'] == 'order_cards') {
+      final collapsed = normalized.replaceAll(' ', '');
+      final expected = problem.expected.isEmpty ? '' : problem.expected.single;
+      final reversed = collapsed.split(',').reversed.join(',');
+      if (collapsed != expected && reversed == expected) return 'wrong_order';
+    }
+
     return otherCode;
   }
 

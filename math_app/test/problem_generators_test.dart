@@ -137,6 +137,13 @@ SkillSpec _strategySpec({
   ),
 );
 
+bool _isSorted(List<int> values) {
+  for (var i = 1; i < values.length; i++) {
+    if (values[i] < values[i - 1]) return false;
+  }
+  return true;
+}
+
 /// Loads a real skill spec straight from the clean-room source tree, so the
 /// generators are verified against exactly what the sync script ships.
 SkillSpec _realSpec(String id) => SkillSpec.fromJson(
@@ -3410,6 +3417,65 @@ void main() {
         }
       });
     }
+
+    test(
+        'order_cards: spread mode samples card_count distinct values, '
+        'shuffled and not pre-sorted', () {
+      final s = spec('order_cards', {
+        'card_count': 5,
+        'value_range': [1, 20],
+      });
+      var sawUnsorted = false;
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          expect(p.display['custom_widget'], 'order_cards');
+          final cards = (p.display['cards'] as List).cast<int>();
+          expect(cards.toSet().length, 5, reason: 'all distinct');
+          for (final c in cards) {
+            expect(c, inInclusiveRange(1, 20));
+          }
+          final sorted = [...cards]..sort();
+          expect(p.expected, [sorted.join(',')]);
+          if (!_isSorted(cards)) sawUnsorted = true;
+        }
+      }
+      expect(sawUnsorted, isTrue,
+          reason: 'the initial display order should not always be sorted');
+    });
+
+    test('order_cards: adjacent mode samples card_count consecutive values',
+        () {
+      final s = spec('order_cards', {
+        'card_count': 5,
+        'value_range': [1, 16],
+        'mode': 'adjacent',
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final cards = (p.display['cards'] as List).cast<int>();
+          final sorted = [...cards]..sort();
+          for (var i = 1; i < sorted.length; i++) {
+            expect(sorted[i], sorted[i - 1] + 1);
+          }
+          for (final c in cards) {
+            expect(c, inInclusiveRange(1, 20));
+          }
+        }
+      }
+    });
+
+    test(
+        'order_cards: card_count larger than the value_range span is a spec '
+        'error', () {
+      final s = spec('order_cards', {
+        'card_count': 5,
+        'value_range': [1, 3],
+      });
+      expect(
+        () => generateProblems(spec: s, level: 2, seed: 1),
+        throwsA(isA<SpecFormatException>()),
+      );
+    });
   });
 
   group('Problem JSON round-trip', () {

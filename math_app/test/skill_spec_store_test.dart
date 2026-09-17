@@ -150,6 +150,34 @@ void main() {
     });
 
     test(
+        'skip2_forward_zr100 (Batch 1.4b) parses with hundred_chart_skip/sequence_gap',
+        () {
+      final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+      final spec = store.byId('skip2_forward_zr100');
+      expect(spec.constructId, 'skip2_forward');
+      expect(spec.domain, 'A');
+      expect(spec.titleDe, 'Zweierschritte vorwärts (ZR100)');
+      expect(spec.levels.map((l) => l.template),
+          ['custom_widget', 'custom_widget', 'sequence_gap']);
+      expect(spec.levels[0].customWidget, 'hundred_chart_skip');
+      expect(spec.levels[1].customWidget, 'hundred_chart_skip');
+    });
+
+    test(
+        'skip2_backward_zr100 (Batch 1.4b) parses with hundred_chart_skip/sequence_gap',
+        () {
+      final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+      final spec = store.byId('skip2_backward_zr100');
+      expect(spec.constructId, 'skip2_backward');
+      expect(spec.domain, 'A');
+      expect(spec.titleDe, 'Zweierschritte rückwärts (ZR100)');
+      expect(spec.levels.map((l) => l.template),
+          ['custom_widget', 'custom_widget', 'sequence_gap']);
+      expect(spec.levels[0].customWidget, 'hundred_chart_skip');
+      expect(spec.levels[1].customWidget, 'hundred_chart_skip');
+    });
+
+    test(
         'successor_zr20_decade (Batch 1.3) parses with the sequence_gap template',
         () {
       final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());

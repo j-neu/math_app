@@ -3275,6 +3275,86 @@ void main() {
         throwsA(isA<SpecFormatException>()),
       );
     });
+
+    test(
+        'real skip2_forward_zr100: L1/L2 hundred_chart_skip runs +2, '
+        'within [1,100]', () {
+      final s = _realSpec('skip2_forward_zr100');
+      for (final level in [1, 2]) {
+        for (var seed = 0; seed < 100; seed++) {
+          for (final p in generateProblems(spec: s, level: level, seed: seed)) {
+            expect(p.display['custom_widget'], 'hundred_chart_skip');
+            final visible = (p.display['visible_values'] as List).cast<int>();
+            final query = p.display['query_value'] as int;
+            for (var i = 1; i < visible.length; i++) {
+              expect(visible[i], visible[i - 1] + 2);
+            }
+            expect(query, visible.last + 2);
+            for (final v in [...visible, query]) {
+              expect(v, inInclusiveRange(1, 100));
+            }
+            expect(p.expected, [query.toString()]);
+          }
+        }
+      }
+    });
+
+    test('real skip2_forward_zr100: L3 continues a +2 sequence, within [1,100]',
+        () {
+      final s = _realSpec('skip2_forward_zr100');
+      for (var seed = 0; seed < 100; seed++) {
+        for (final p in generateProblems(spec: s, level: 3, seed: seed)) {
+          expect(p.template, 'sequence_gap');
+          final values = (p.display['values'] as List).cast<int>();
+          for (final v in values) {
+            expect(v, inInclusiveRange(1, 100));
+          }
+          for (var i = 1; i < values.length; i++) {
+            expect(values[i], values[i - 1] + 2);
+          }
+        }
+      }
+    });
+
+    test(
+        'real skip2_backward_zr100: L1/L2 hundred_chart_skip runs -2, '
+        'within [1,100]', () {
+      final s = _realSpec('skip2_backward_zr100');
+      for (final level in [1, 2]) {
+        for (var seed = 0; seed < 100; seed++) {
+          for (final p in generateProblems(spec: s, level: level, seed: seed)) {
+            expect(p.display['custom_widget'], 'hundred_chart_skip');
+            final visible = (p.display['visible_values'] as List).cast<int>();
+            final query = p.display['query_value'] as int;
+            for (var i = 1; i < visible.length; i++) {
+              expect(visible[i], visible[i - 1] - 2);
+            }
+            expect(query, visible.last - 2);
+            for (final v in [...visible, query]) {
+              expect(v, inInclusiveRange(1, 100));
+            }
+            expect(p.expected, [query.toString()]);
+          }
+        }
+      }
+    });
+
+    test('real skip2_backward_zr100: L3 continues a -2 sequence, within [1,100]',
+        () {
+      final s = _realSpec('skip2_backward_zr100');
+      for (var seed = 0; seed < 100; seed++) {
+        for (final p in generateProblems(spec: s, level: 3, seed: seed)) {
+          expect(p.template, 'sequence_gap');
+          final values = (p.display['values'] as List).cast<int>();
+          for (final v in values) {
+            expect(v, inInclusiveRange(1, 100));
+          }
+          for (var i = 1; i < values.length; i++) {
+            expect(values[i], values[i - 1] - 2);
+          }
+        }
+      }
+    });
   });
 
   group('Problem JSON round-trip', () {

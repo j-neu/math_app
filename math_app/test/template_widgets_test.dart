@@ -35,6 +35,7 @@ import 'package:math_app/widgets/templates/strategy_choice_widget.dart';
 import 'package:math_app/widgets/templates/unbundling_widget.dart';
 import 'package:math_app/widgets/common/hundred_chart_widget.dart';
 import 'package:math_app/widgets/templates/hundred_chart_step_widget.dart';
+import 'package:math_app/widgets/templates/order_cards_widget.dart';
 import 'package:math_app/widgets/templates/word_problem_widget.dart';
 import 'package:math_app/widgets/templates/zehnerfeld_read_widget.dart';
 
@@ -3275,6 +3276,110 @@ void main() {
       );
       expect(values.last, '');
       expect(find.text('50'), findsOneWidget);
+    });
+  });
+
+  group('OrderCardsWidget', () {
+    Problem cardsProblem(List<int> cards) => _problem(
+          template: 'custom_widget',
+          display: {'custom_widget': 'order_cards', 'cards': cards},
+          expected: [([...cards]..sort()).join(',')],
+        );
+
+    Future<void> dragCardToSlot(
+      WidgetTester tester,
+      int value,
+      int slotIndex,
+    ) async {
+      final source = find.byKey(ValueKey('oc-card-$value'));
+      final target = find.byKey(ValueKey('oc-slot-$slotIndex'));
+      await tester.drag(
+        source,
+        tester.getCenter(target) - tester.getCenter(source),
+      );
+      await tester.pump();
+    }
+
+    testWidgets('renders every card as a source and every slot empty',
+        (tester) async {
+      await _pumpApp(
+        tester,
+        OrderCardsWidget(problem: cardsProblem([14, 3, 9]), onValueChanged: (_) {}),
+      );
+      expect(find.byKey(const ValueKey('oc-card-14')), findsOneWidget);
+      expect(find.byKey(const ValueKey('oc-card-3')), findsOneWidget);
+      expect(find.byKey(const ValueKey('oc-card-9')), findsOneWidget);
+      expect(find.byKey(const ValueKey('oc-slot-0')), findsOneWidget);
+      expect(find.byKey(const ValueKey('oc-slot-1')), findsOneWidget);
+      expect(find.byKey(const ValueKey('oc-slot-2')), findsOneWidget);
+    });
+
+    testWidgets(
+        'dragging every card into ascending slots reports the sorted order',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        OrderCardsWidget(
+          problem: cardsProblem([14, 3, 9]),
+          onValueChanged: values.add,
+        ),
+      );
+
+      await dragCardToSlot(tester, 3, 0);
+      expect(values.last, '', reason: 'still incomplete');
+      await dragCardToSlot(tester, 9, 1);
+      expect(values.last, '', reason: 'still incomplete');
+      await dragCardToSlot(tester, 14, 2);
+
+      expect(values.last, '3,9,14');
+      expect(find.byKey(const ValueKey('oc-card-3')), findsNothing,
+          reason: 'placed cards leave the source row');
+    });
+
+    testWidgets('tapping a filled slot returns the card to the source row',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        OrderCardsWidget(
+          problem: cardsProblem([14, 3, 9]),
+          onValueChanged: values.add,
+        ),
+      );
+
+      await dragCardToSlot(tester, 3, 0);
+      await tester.tap(find.byKey(const ValueKey('oc-slot-0')));
+      await tester.pump();
+
+      expect(find.byKey(const ValueKey('oc-card-3')), findsOneWidget,
+          reason: 'card returned to the source row');
+    });
+
+    testWidgets('a new problem resets the slots and reports ""',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        OrderCardsWidget(
+          problem: cardsProblem([14, 3, 9]),
+          onValueChanged: values.add,
+        ),
+      );
+      await dragCardToSlot(tester, 3, 0);
+      await dragCardToSlot(tester, 9, 1);
+      await dragCardToSlot(tester, 14, 2);
+      expect(values.last, '3,9,14');
+
+      await _pumpApp(
+        tester,
+        OrderCardsWidget(
+          problem: cardsProblem([5, 1, 2]),
+          onValueChanged: values.add,
+        ),
+      );
+      expect(values.last, '');
+      expect(find.byKey(const ValueKey('oc-card-5')), findsOneWidget);
     });
   });
 }

@@ -1236,6 +1236,95 @@ void main() {
       }
     });
 
+    SkillSpec deriveVia10Spec(
+      String strategyId,
+      String label, {
+      required String op,
+      required List<int> aRange,
+      required List<int> bRange,
+    }) =>
+        SkillSpec.fromJson(
+          _baseSpec(
+            _level(2, 'symbolisch', 'strategy_choice', {
+              'op': op,
+              'zr': 20,
+              'a_range': aRange,
+              'b_range': bRange,
+              'strategies': [
+                {'id': strategyId, 'label_de': label},
+              ],
+              'correct_strategy': strategyId,
+            }, 7000),
+          ),
+        );
+
+    test(
+        'ueber_zehn_minus1 (Batch 1.10): b is always 9, a within a_range',
+        () {
+      final s = deriveVia10Spec(
+        'ueber_zehn_minus1',
+        'über die Zehn (10 - 1)',
+        op: '+',
+        aRange: [2, 8],
+        bRange: [9, 9],
+      );
+      for (var seed = 0; seed < 100; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          expect(b, 9, reason: 'the 10-1 pattern requires addend 9');
+          expect(a, inInclusiveRange(2, 8));
+          expect(p.expected, [(a + b).toString()]);
+          expect(p.display['correct_strategy'], 'ueber_zehn_minus1');
+        }
+      }
+    });
+
+    test(
+        'ueber_zehn_plus1 (Batch 1.10): b is always 11, a within a_range',
+        () {
+      final s = deriveVia10Spec(
+        'ueber_zehn_plus1',
+        'über die Zehn (10 + 1)',
+        op: '+',
+        aRange: [2, 9],
+        bRange: [11, 11],
+      );
+      for (var seed = 0; seed < 100; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          expect(b, 11, reason: 'the 10+1 pattern requires addend 11');
+          expect(a, inInclusiveRange(2, 9));
+          expect(p.expected, [(a + b).toString()]);
+          expect(p.display['correct_strategy'], 'ueber_zehn_plus1');
+        }
+      }
+    });
+
+    test(
+        'ueber_zehn_sub (Batch 1.10): minuend >= 11, subtrahend in [6, 9]',
+        () {
+      final s = deriveVia10Spec(
+        'ueber_zehn_sub',
+        'über die Zehn (-10, +Rest)',
+        op: '-',
+        aRange: [11, 19],
+        bRange: [6, 9],
+      );
+      for (var seed = 0; seed < 100; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          expect(a, inInclusiveRange(11, 19));
+          expect(b, inInclusiveRange(6, 9));
+          expect(a - b, greaterThanOrEqualTo(0));
+          expect(p.expected, [(a - b).toString()]);
+          expect(p.display['correct_strategy'], 'ueber_zehn_sub');
+        }
+      }
+    });
+
     test('mixed: strategies vary and every problem exemplifies its own', () {
       final s = _strategySpec(
         correctStrategy: 'mixed',

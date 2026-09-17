@@ -977,6 +977,15 @@ Problem _generateStrategyChoice(
 /// ranges and ZR. Subtraction stays non-negative. Unknown strategies are a
 /// spec-authoring error and fail loudly rather than silently producing
 /// numbers that do not exemplify anything.
+///
+/// `ueber_zehn_minus1`/`ueber_zehn_plus1` (derive_via_10_add_minus1/_plus1,
+/// BUILD_ORDER.md Batch 1.10) fix the known addend at exactly 9 or 11 --
+/// "10-1"/"10+1" is only the exact decomposition for that specific addend.
+/// `ueber_zehn_sub` (derive_via_10_sub) constrains the subtrahend to
+/// `[6, 9]` and the minuend to `>= 11` so "subtract 10, add back the
+/// difference" genuinely beats direct counting; it is the one subtraction
+/// strategy this function recognises, so the `op == '-'` early return below
+/// is narrowed to let it reach the switch.
 (int, int) _strategyNumbers(
   SeededGenerator gen,
   String strategy,
@@ -987,7 +996,7 @@ Problem _generateStrategyChoice(
   int zr,
   String op,
 ) {
-  if (op == '-') {
+  if (op == '-' && strategy != 'ueber_zehn_sub') {
     final a = gen.nextIntInRange(max(aLo, bLo), aHi);
     final b = _clampedDraw(gen, bLo, bHi, a);
     return (a, b);
@@ -1052,6 +1061,33 @@ Problem _generateStrategyChoice(
       final fallbackA = gen.nextIntInRange(aLo, aHi);
       final fallbackB = _clampedDraw(gen, bLo, bHi, zr - fallbackA);
       return (fallbackA, fallbackB);
+
+    case 'ueber_zehn_minus1':
+      // "6+9 via 6+10-1": the known addend is always 9 -- the exact
+      // decomposition a+9 = a+10-1 only holds for that specific addend.
+      final a = gen.nextIntInRange(aLo, aHi);
+      return (a, 9);
+
+    case 'ueber_zehn_plus1':
+      // "7+11 via 7+10+1": the known addend is always 11.
+      final a = gen.nextIntInRange(aLo, aHi);
+      return (a, 11);
+
+    case 'ueber_zehn_sub':
+      // "15-8 via 15-10+2": subtrahend close to (but below) 10 so
+      // subtracting 10 then compensating beats direct counting; minuend
+      // must be >= 11 so the ten is actually crossed.
+      for (var attempts = 0; attempts < 300; attempts++) {
+        final a = gen.nextIntInRange(max(aLo, 11), aHi);
+        final b = gen.nextIntInRange(max(bLo, 6), min(bHi, 9));
+        if (a - b >= 0) {
+          return (a, b);
+        }
+      }
+      throw SpecFormatException(
+        'strategy_choice: "ueber_zehn_sub" cannot find a minuend >= 11 with '
+        'a subtrahend in [6, 9] inside a_range/b_range',
+      );
 
     default:
       throw SpecFormatException(

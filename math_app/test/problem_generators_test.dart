@@ -3085,6 +3085,48 @@ void main() {
                 'emphasis note');
       }
     });
+
+    test(
+        'real successor_zr20_decade: gap at index 1, expected == given + 1, '
+        'within [1, 20]', () {
+      final s = _realSpec('successor_zr20_decade');
+      for (var level = 1; level <= 3; level++) {
+        for (var seed = 0; seed < 100; seed++) {
+          for (final p in generateProblems(spec: s, level: level, seed: seed)) {
+            expect(p.template, 'sequence_gap');
+            final values = (p.display['values'] as List).cast<int>();
+            expect(values, hasLength(2));
+            expect(p.display['gap_indices'], [1]);
+            for (final v in values) {
+              expect(v, inInclusiveRange(1, 20));
+            }
+            expect(p.expected, [values[1].toString()]);
+            expect(values[1], values[0] + 1);
+          }
+        }
+      }
+    });
+
+    test(
+        'real predecessor_zr20_decade: gap at index 0, expected == given - 1, '
+        'within [1, 20]', () {
+      final s = _realSpec('predecessor_zr20_decade');
+      for (var level = 1; level <= 3; level++) {
+        for (var seed = 0; seed < 100; seed++) {
+          for (final p in generateProblems(spec: s, level: level, seed: seed)) {
+            expect(p.template, 'sequence_gap');
+            final values = (p.display['values'] as List).cast<int>();
+            expect(values, hasLength(2));
+            expect(p.display['gap_indices'], [0]);
+            for (final v in values) {
+              expect(v, inInclusiveRange(1, 20));
+            }
+            expect(p.expected, [values[0].toString()]);
+            expect(values[0], values[1] - 1);
+          }
+        }
+      }
+    });
   });
 
   group('Problem JSON round-trip', () {

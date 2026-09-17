@@ -124,5 +124,29 @@ void main() {
       expect(spec.levels.map((l) => l.template),
           ['sequence_gap', 'sequence_gap', 'sequence_gap']);
     });
+
+    test(
+        'successor_zr20_decade (Batch 1.3) parses with the sequence_gap template',
+        () {
+      final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+      final spec = store.byId('successor_zr20_decade');
+      expect(spec.constructId, 'successor');
+      expect(spec.domain, 'A');
+      expect(spec.titleDe, 'Nachfolger an der Zehnergrenze (ZR20)');
+      expect(spec.levels.map((l) => l.template),
+          ['sequence_gap', 'sequence_gap', 'sequence_gap']);
+    });
+
+    test(
+        'predecessor_zr20_decade (Batch 1.3) parses with the sequence_gap template',
+        () {
+      final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+      final spec = store.byId('predecessor_zr20_decade');
+      expect(spec.constructId, 'predecessor');
+      expect(spec.domain, 'A');
+      expect(spec.titleDe, 'Vorgänger an der Zehnergrenze (ZR20)');
+      expect(spec.levels.map((l) => l.template),
+          ['sequence_gap', 'sequence_gap', 'sequence_gap']);
+    });
   });
 }

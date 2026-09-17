@@ -3018,6 +3018,73 @@ void main() {
         }
       }
     });
+
+    test('real count_forward_zr20 generates sequences within [1, 20]', () {
+      final s = _realSpec('count_forward_zr20');
+      for (var level = 1; level <= 3; level++) {
+        for (var seed = 0; seed < 100; seed++) {
+          for (final p in generateProblems(spec: s, level: level, seed: seed)) {
+            expect(p.template, 'sequence_gap');
+            final values = (p.display['values'] as List).cast<int>();
+            for (final v in values) {
+              expect(v, inInclusiveRange(1, 20));
+            }
+            // Strictly increasing by 1 (direction up, step 1).
+            for (var i = 1; i < values.length; i++) {
+              expect(values[i], values[i - 1] + 1);
+            }
+            final gapIndices = (p.display['gap_indices'] as List).cast<int>();
+            expect(p.expected,
+                gapIndices.map((i) => values[i].toString()).toList());
+          }
+        }
+      }
+    });
+
+    test('real count_forward_zr100 generates sequences within [1, 100]', () {
+      final s = _realSpec('count_forward_zr100');
+      for (var level = 1; level <= 3; level++) {
+        for (var seed = 0; seed < 100; seed++) {
+          for (final p in generateProblems(spec: s, level: level, seed: seed)) {
+            expect(p.template, 'sequence_gap');
+            final values = (p.display['values'] as List).cast<int>();
+            for (final v in values) {
+              expect(v, inInclusiveRange(1, 100));
+            }
+            for (var i = 1; i < values.length; i++) {
+              expect(values[i], values[i - 1] + 1);
+            }
+            final gapIndices = (p.display['gap_indices'] as List).cast<int>();
+            expect(p.expected,
+                gapIndices.map((i) => values[i].toString()).toList());
+          }
+        }
+      }
+    });
+
+    test(
+        'real count_forward_zr100 level 2/3 sequences cross a decade '
+        'boundary most of the time (decade-boundary emphasis)', () {
+      final s = _realSpec('count_forward_zr100');
+      for (final level in [2, 3]) {
+        var crossings = 0;
+        var total = 0;
+        for (var seed = 0; seed < 200; seed++) {
+          for (final p in generateProblems(spec: s, level: level, seed: seed)) {
+            total++;
+            final values = (p.display['values'] as List).cast<int>();
+            final crosses = values
+                .any((v) => v % 10 == 0 && v != values.first);
+            if (crosses) crossings++;
+          }
+        }
+        expect(total, greaterThan(0));
+        expect(crossings / total, greaterThan(0.5),
+            reason: 'level $level should cross a decade boundary in most '
+                'generated sequences, per BUILD_ORDER\'s decade-boundary '
+                'emphasis note');
+      }
+    });
   });
 
   group('Problem JSON round-trip', () {

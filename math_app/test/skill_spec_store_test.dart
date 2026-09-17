@@ -84,5 +84,20 @@ void main() {
         'halving_mirror_symbolisch',
       ]);
     });
+
+    test(
+        'quantify_count_zr10 (Batch 1.1) parses with the count-field widgets',
+        () {
+      final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+      final spec = store.byId('quantify_count_zr10');
+      expect(spec.constructId, 'quantify_count');
+      expect(spec.domain, 'A');
+      expect(spec.titleDe, 'Mengen zählen bis 10');
+      expect(spec.levels.map((l) => l.customWidget), [
+        'count_field_enaktiv',
+        'count_field_ikonisch',
+        'count_field_symbolisch',
+      ]);
+    });
   });
 }

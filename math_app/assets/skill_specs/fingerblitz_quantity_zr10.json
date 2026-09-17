@@ -1,0 +1,53 @@
+{
+  "spec_version": 1,
+  "skill_id": "fingerblitz_quantity_zr10",
+  "construct_id": "fingerblitz",
+  "domain": "C",
+  "title_de": "Fingerblitz: Mengen an Fingern erkennen",
+  "level_titles_de": [
+    "Finger in Ruhe erkennen",
+    "Finger blitzen (langsam)",
+    "Finger blitzen (schnell)"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "fingerbild_read",
+      "params": { "count_range": [1, 10], "hands": 2 },
+      "problem_count": 8,
+      "prompt_de": "Wie viele Finger siehst du?",
+      "slow_band_ms": 10000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "custom_widget",
+      "custom_widget": "flash_subitize",
+      "params": { "count_range": [1, 10], "hands": 2, "flash_ms": 1500, "display": "fingers" },
+      "problem_count": 8,
+      "prompt_de": "Wie viele Finger waren es?",
+      "slow_band_ms": 8000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "custom_widget",
+      "custom_widget": "flash_subitize",
+      "params": { "count_range": [1, 10], "hands": 2, "flash_ms": 800, "display": "fingers" },
+      "problem_count": 8,
+      "prompt_de": "Wie viele Finger waren es?",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "miscount", "label_de": "knapp daneben", "hint_de": "Ganz nah dran! Schau noch einmal genau hin." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau dir das Fingerbild noch einmal an und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["iMINT S1.1 Fingerblitz", "Krajewski, Anzahlerfassung und Zählkompetenz"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

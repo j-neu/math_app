@@ -56,7 +56,7 @@ id/field retarget like Task 4's double_zr10.
 - [x] `compare_quantity_difference` — shipped, `docs/superpowers/plans/2026-09-17-compare-quantity-difference.md` — Reused from S1.4 `More or Less (Hamstern)` (`more_less_exercise.dart`); dice-roll comparison, intentionally single-level (10 rounds)
 
 ### Batch 1.9 — finger-quantity recognition (construct `fingerblitz`)
-- [ ] `fingerblitz_quantity_zr10` — Reused from S1.1 `Fingerblitz`, "See (No limit) → See (Flash)" levels directly; finger-pattern flash display
+- [x] `fingerblitz_quantity_zr10` — shipped, `docs/superpowers/plans/2026-09-17-fingerblitz-quantity-zr10.md` — Reused from S1.1 `Fingerblitz`, "See (No limit) → See (Flash)" levels directly; finger-pattern flash display
 
 ### Batch 1.10 — deriving via the power of 10 (construct `derive_10`)
 - [ ] `derive_via_10_add_minus1` — Reused from S1.1 `Fingerblitz`'s "Make (10-n)" level; ten-frame anchored to 10 (e.g. 6+9 via 6+10-1)
@@ -251,7 +251,8 @@ conventions (CRA progression, `MinimalistExerciseScaffold`,
 - [x] place_on_numberline_zr100 — `docs/superpowers/plans/2026-09-17-place-on-numberline-zr20.md`
 - [x] decompose_single_digit — `docs/superpowers/plans/2026-09-17-decompose-single-digit.md`
 - [x] compare_quantity_difference — `docs/superpowers/plans/2026-09-17-compare-quantity-difference.md`
+- [x] fingerblitz_quantity_zr10 — `docs/superpowers/plans/2026-09-17-fingerblitz-quantity-zr10.md`
 
 (Ids are left unbackticked here on purpose: the completeness check counts
-each skill id once inside backticks, and these twenty are tracked in Batches
-1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8 and 4.3 above.)
+each skill id once inside backticks, and these twenty-one are tracked in
+Batches 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9 and 4.3 above.)

@@ -1966,6 +1966,8 @@ Problem _generateCustomWidget(
     case 'count_field_ikonisch':
     case 'count_field_symbolisch':
       return _generateCountField(spec, level, levelNumber, seed, index, gen);
+    case 'hundred_chart_skip':
+      return _generateHundredChartStep(spec, level, levelNumber, seed, index, gen);
     default:
       throw SpecFormatException(
         'custom_widget: unknown registry key "${level.customWidget}"',
@@ -2278,5 +2280,82 @@ Problem _generateCountField(
       'count': count,
     },
     expected: [count.toString()],
+  );
+}
+
+/// Registry key `"hundred_chart_skip"` (skip2/5/10 forward/backward
+/// _zr100's field-visible levels, BUILD_ORDER.md Batch 1.4b): renders
+/// `visible_count` already-known skip-counted numbers plus one query on the
+/// existing [HundredChartWidget] (`widgets/common/hundred_chart_widget.dart`,
+/// already used by the diagnostic screen) in its sparse mode. The child
+/// derives the single next number in the step pattern; correctness is a
+/// plain string match against `expected`, handled by
+/// `_evaluateCustomWidget`'s default branch -- no new evaluator code. `step`
+/// must be one of 2, 5 or 10 (the skip-counting family this widget serves);
+/// every value in the run must land in the Hundertertafel's own [1, 100]
+/// range, checked explicitly rather than silently clamped, since a
+/// start_range that violates it is a spec-authoring mistake to catch loudly.
+Problem _generateHundredChartStep(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final direction = level.stringParam('direction', fallback: 'up');
+  final step = level.intParam('step', fallback: 2);
+  if (!const {2, 5, 10}.contains(step)) {
+    throw SpecFormatException(
+      'hundred_chart_skip: step must be one of 2, 5, 10, got $step',
+    );
+  }
+  final visibleCount = level.intParam('visible_count', fallback: 3);
+  final startRange = level.intListParam('start_range');
+  final lo = startRange.isEmpty ? 1 : startRange[0];
+  final hi = startRange.isEmpty ? 90 : startRange[1];
+  if (lo > hi) {
+    throw SpecFormatException(
+      'hundred_chart_skip: start_range [$lo, $hi] is empty',
+    );
+  }
+  final start = gen.nextIntInRange(lo, hi);
+
+  final dir = direction == 'down' ? -1 : 1;
+  final values = <int>[];
+  var current = start;
+  for (var i = 0; i <= visibleCount; i++) {
+    values.add(current);
+    current += dir * step;
+  }
+  for (final v in values) {
+    if (v < 1 || v > 100) {
+      throw SpecFormatException(
+        'hundred_chart_skip: value $v (start=$start, step=$step, '
+        'direction=$direction) falls outside the Hundertertafel range '
+        '[1, 100] -- narrow start_range or visible_count',
+      );
+    }
+  }
+
+  final visibleValues = values.sublist(0, visibleCount);
+  final queryValue = values[visibleCount];
+
+  return Problem(
+    template: 'custom_widget',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: {
+      'custom_widget': level.customWidget,
+      'visible_values': visibleValues,
+      'highlight_value': visibleValues.last,
+      'query_value': queryValue,
+      'direction': direction,
+      'step': step,
+    },
+    expected: [queryValue.toString()],
   );
 }

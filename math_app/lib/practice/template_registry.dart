@@ -23,6 +23,7 @@ import '../widgets/templates/halving_mirror_symbolisch_widget.dart';
 import '../widgets/templates/count_field_enaktiv_widget.dart';
 import '../widgets/templates/count_field_ikonisch_widget.dart';
 import '../widgets/templates/count_field_symbolisch_widget.dart';
+import '../widgets/templates/hundred_chart_step_widget.dart';
 import '../widgets/templates/drag_partition_widget.dart';
 import '../widgets/templates/equation_gap_widget.dart';
 import '../widgets/templates/equation_solve_widget.dart';
@@ -166,6 +167,10 @@ Widget buildTemplateWidget({
           onValueChanged: onValueChanged,
         ),
       'count_field_symbolisch' => CountFieldSymbolischWidget(
+          problem: problem,
+          onValueChanged: onValueChanged,
+        ),
+      'hundred_chart_skip' => HundredChartStepWidget(
           problem: problem,
           onValueChanged: onValueChanged,
         ),

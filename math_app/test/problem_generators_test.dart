@@ -3211,6 +3211,70 @@ void main() {
         }
       }
     });
+
+    test('hundred_chart_skip: visible run + one query, within [1,100]', () {
+      final s = spec('hundred_chart_skip', {
+        'direction': 'up',
+        'step': 2,
+        'start_range': [10, 20],
+        'visible_count': 3,
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          expect(p.display['custom_widget'], 'hundred_chart_skip');
+          final visible = (p.display['visible_values'] as List).cast<int>();
+          expect(visible, hasLength(3));
+          final query = p.display['query_value'] as int;
+          final highlight = p.display['highlight_value'] as int;
+          expect(highlight, visible.last);
+          for (var i = 1; i < visible.length; i++) {
+            expect(visible[i], visible[i - 1] + 2);
+          }
+          expect(query, visible.last + 2);
+          for (final v in [...visible, query]) {
+            expect(v, inInclusiveRange(1, 100));
+          }
+          expect(p.expected, [query.toString()]);
+        }
+      }
+    });
+
+    test('hundred_chart_skip: direction down decreases and stays >= 1', () {
+      final s = spec('hundred_chart_skip', {
+        'direction': 'down',
+        'step': 10,
+        'start_range': [80, 90],
+        'visible_count': 3,
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final visible = (p.display['visible_values'] as List).cast<int>();
+          final query = p.display['query_value'] as int;
+          for (var i = 1; i < visible.length; i++) {
+            expect(visible[i], visible[i - 1] - 10);
+          }
+          expect(query, visible.last - 10);
+          for (final v in [...visible, query]) {
+            expect(v, inInclusiveRange(1, 100));
+          }
+        }
+      }
+    });
+
+    test(
+        'hundred_chart_skip: a start_range that would push a value above 100 '
+        'is a spec error', () {
+      final s = spec('hundred_chart_skip', {
+        'direction': 'up',
+        'step': 10,
+        'start_range': [95, 99],
+        'visible_count': 3,
+      });
+      expect(
+        () => generateProblems(spec: s, level: 2, seed: 1),
+        throwsA(isA<SpecFormatException>()),
+      );
+    });
   });
 
   group('Problem JSON round-trip', () {

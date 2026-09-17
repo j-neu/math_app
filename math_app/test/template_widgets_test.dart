@@ -33,6 +33,8 @@ import 'package:math_app/widgets/templates/sequence_gap_widget.dart';
 import 'package:math_app/widgets/templates/stellenwerttafel_read_widget.dart';
 import 'package:math_app/widgets/templates/strategy_choice_widget.dart';
 import 'package:math_app/widgets/templates/unbundling_widget.dart';
+import 'package:math_app/widgets/common/hundred_chart_widget.dart';
+import 'package:math_app/widgets/templates/hundred_chart_step_widget.dart';
 import 'package:math_app/widgets/templates/word_problem_widget.dart';
 import 'package:math_app/widgets/templates/zehnerfeld_read_widget.dart';
 
@@ -3198,6 +3200,81 @@ void main() {
       );
       expect(values.last, '');
       expect(find.text('Angetippt: 0'), findsOneWidget);
+    });
+  });
+
+  group('HundredChartStepWidget', () {
+    Problem stepProblem({
+      List<int> visible = const [34, 36, 38],
+      int query = 40,
+    }) =>
+        _problem(
+          template: 'custom_widget',
+          display: {
+            'custom_widget': 'hundred_chart_skip',
+            'visible_values': visible,
+            'highlight_value': visible.last,
+            'query_value': query,
+            'direction': 'up',
+            'step': 2,
+          },
+          expected: [query.toString()],
+        );
+
+    testWidgets('renders the visible run and blanks the query cell',
+        (tester) async {
+      await _pumpApp(
+        tester,
+        HundredChartStepWidget(problem: stepProblem(), onValueChanged: (_) {}),
+      );
+      expect(find.text('34'), findsOneWidget);
+      expect(find.text('36'), findsOneWidget);
+      expect(find.text('38'), findsOneWidget);
+      expect(find.text('40'), findsNothing);
+      expect(
+        find.descendant(
+          of: find.byType(HundredChartWidget),
+          matching: find.text('?'),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('typing the answer reports it via onValueChanged',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        HundredChartStepWidget(
+          problem: stepProblem(),
+          onValueChanged: values.add,
+        ),
+      );
+      await tester.enterText(find.byType(TextField), '40');
+      expect(values.last, '40');
+    });
+
+    testWidgets('a new problem clears the field and reports ""',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        HundredChartStepWidget(
+          problem: stepProblem(),
+          onValueChanged: values.add,
+        ),
+      );
+      await tester.enterText(find.byType(TextField), '40');
+
+      await _pumpApp(
+        tester,
+        HundredChartStepWidget(
+          problem: stepProblem(visible: [50, 55, 60], query: 65),
+          onValueChanged: values.add,
+        ),
+      );
+      expect(values.last, '');
+      expect(find.text('50'), findsOneWidget);
     });
   });
 }

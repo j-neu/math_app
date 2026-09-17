@@ -1,0 +1,71 @@
+{
+  "spec_version": 1,
+  "skill_id": "derive_via_10_add_plus1",
+  "construct_id": "derive_10",
+  "domain": "C",
+  "title_de": "Ableiten über die Zehn (10+1)",
+  "level_titles_de": [
+    "Plus 11 -- kleine Zahlen",
+    "Plus 11 -- mittlere Zahlen",
+    "Plus 11 -- alle Zahlen"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "strategy_choice",
+      "params": {
+        "op": "+",
+        "zr": 20,
+        "a_range": [2, 5],
+        "b_range": [11, 11],
+        "strategies": [{ "id": "ueber_zehn_plus1", "label_de": "über die Zehn (10 + 1)" }],
+        "correct_strategy": "ueber_zehn_plus1"
+      },
+      "problem_count": 8,
+      "prompt_de": "Rechne: erst 10 dazu, dann noch 1.",
+      "slow_band_ms": 12000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "strategy_choice",
+      "params": {
+        "op": "+",
+        "zr": 20,
+        "a_range": [2, 8],
+        "b_range": [11, 11],
+        "strategies": [{ "id": "ueber_zehn_plus1", "label_de": "über die Zehn (10 + 1)" }],
+        "correct_strategy": "ueber_zehn_plus1"
+      },
+      "problem_count": 8,
+      "prompt_de": "Rechne: erst 10 dazu, dann noch 1.",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "strategy_choice",
+      "params": {
+        "op": "+",
+        "zr": 20,
+        "a_range": [2, 9],
+        "b_range": [11, 11],
+        "strategies": [{ "id": "ueber_zehn_plus1", "label_de": "über die Zehn (10 + 1)" }],
+        "correct_strategy": "ueber_zehn_plus1"
+      },
+      "problem_count": 8,
+      "prompt_de": "Rechne geschickt.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Denk an die Zehn: erst 10 dazu, dann noch 1 mehr." }
+  ],
+  "provenance": {
+    "sources": ["iMINT S1.1 Fingerblitz, Kraft der 10", "Gaidoschik, Rechnen über die Zehn"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

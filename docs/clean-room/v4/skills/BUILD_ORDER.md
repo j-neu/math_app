@@ -59,9 +59,9 @@ id/field retarget like Task 4's double_zr10.
 - [x] `fingerblitz_quantity_zr10` — shipped, `docs/superpowers/plans/2026-09-17-fingerblitz-quantity-zr10.md` — Reused from S1.1 `Fingerblitz`, "See (No limit) → See (Flash)" levels directly; finger-pattern flash display
 
 ### Batch 1.10 — deriving via the power of 10 (construct `derive_10`)
-- [ ] `derive_via_10_add_minus1` — Reused from S1.1 `Fingerblitz`'s "Make (10-n)" level; ten-frame anchored to 10 (e.g. 6+9 via 6+10-1)
-- [ ] `derive_via_10_add_plus1` — Reused from the same S1.1 power-of-10 family, the 10+1 pattern (e.g. 7+11 via 7+10+1)
-- [ ] `derive_via_10_sub` — Reused from the same S1.1 power-of-10 family, subtraction (e.g. 15-8 via 15-10+2)
+- [x] `derive_via_10_add_minus1` — shipped, `docs/superpowers/plans/2026-09-17-derive-via-10.md` — Reused from S1.1 `Fingerblitz`'s "Make (10-n)" level; ten-frame anchored to 10 (e.g. 6+9 via 6+10-1)
+- [x] `derive_via_10_add_plus1` — shipped, `docs/superpowers/plans/2026-09-17-derive-via-10.md` — Reused from the same S1.1 power-of-10 family, the 10+1 pattern (e.g. 7+11 via 7+10+1)
+- [x] `derive_via_10_sub` — shipped, `docs/superpowers/plans/2026-09-17-derive-via-10.md` — Reused from the same S1.1 power-of-10 family, subtraction (e.g. 15-8 via 15-10+2)
 
 ### Batch 1.11 — doubling (construct `double`)
 - [x] `double_zr10` — shipped, Task 4 of this plan (`docs/superpowers/plans/2026-09-15-exercise-plan-foundation.md`); Reused from S3.1 `Doubling with Mirror (ZR10)` (`doubling_mirror_exercise.dart`, min 1–5), retargeted onto its v4 id
@@ -252,7 +252,10 @@ conventions (CRA progression, `MinimalistExerciseScaffold`,
 - [x] decompose_single_digit — `docs/superpowers/plans/2026-09-17-decompose-single-digit.md`
 - [x] compare_quantity_difference — `docs/superpowers/plans/2026-09-17-compare-quantity-difference.md`
 - [x] fingerblitz_quantity_zr10 — `docs/superpowers/plans/2026-09-17-fingerblitz-quantity-zr10.md`
+- [x] derive_via_10_add_minus1 — `docs/superpowers/plans/2026-09-17-derive-via-10.md`
+- [x] derive_via_10_add_plus1 — `docs/superpowers/plans/2026-09-17-derive-via-10.md`
+- [x] derive_via_10_sub — `docs/superpowers/plans/2026-09-17-derive-via-10.md`
 
 (Ids are left unbackticked here on purpose: the completeness check counts
-each skill id once inside backticks, and these twenty-one are tracked in
-Batches 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9 and 4.3 above.)
+each skill id once inside backticks, and these twenty-four are tracked in
+Batches 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 1.10 and 4.3 above.)

@@ -1,0 +1,69 @@
+{
+  "spec_version": 1,
+  "skill_id": "count_forward_zr20",
+  "construct_id": "count_forward",
+  "domain": "A",
+  "title_de": "Vorwärts zählen im ZR20",
+  "level_titles_de": [
+    "Weiterzählen",
+    "Von jeder Zahl aus weiterzählen",
+    "Lücken füllen bis 20"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "sequence_gap",
+      "params": {
+        "direction": "up",
+        "step": 1,
+        "start_range": [1, 5],
+        "length": 5,
+        "gap_indices": [4]
+      },
+      "problem_count": 8,
+      "prompt_de": "Zähl der Reihe nach weiter. Welche Zahl kommt als Nächstes?",
+      "slow_band_ms": 15000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "sequence_gap",
+      "params": {
+        "direction": "up",
+        "step": 1,
+        "start_range": [1, 15],
+        "length": 6,
+        "gap_indices": [3, 4, 5]
+      },
+      "problem_count": 8,
+      "prompt_de": "Zähl ab der Startzahl weiter. Tippe die fehlenden Zahlen.",
+      "slow_band_ms": 12000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "sequence_gap",
+      "params": {
+        "direction": "up",
+        "step": 1,
+        "start_range": [1, 14],
+        "length": 7,
+        "gap_indices": [2, 3, 4, 5]
+      },
+      "problem_count": 8,
+      "prompt_de": "Die Zahlenreihe ist fast leer. Zähl weiter und fülle die Lücken bis 20.",
+      "slow_band_ms": 10000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "miscount", "label_de": "knapp daneben", "hint_de": "Ganz nah dran! Zähl noch einmal genau." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau dir die Zahlenreihe noch einmal an und zähl von vorne." }
+  ],
+  "provenance": {
+    "sources": ["RLP BE/BB Teil C, L1, Niveaustufe A", "Padberg/Benz, Zählprinzipien nach Gelman & Gallistel (Prinzip der stabilen Ordnung)", "Krajewski, Zählkompetenz und Zahlwortreihe", "Wartha/Schulz, Ablösung vom zählenden Rechnen"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

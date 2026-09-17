@@ -26,6 +26,9 @@ import '../widgets/templates/count_field_symbolisch_widget.dart';
 import '../widgets/templates/hundred_chart_step_widget.dart';
 import '../widgets/templates/numberline_place_widget.dart';
 import '../widgets/templates/order_cards_widget.dart';
+import '../widgets/templates/quantity_compare_enaktiv_widget.dart';
+import '../widgets/templates/quantity_compare_ikonisch_widget.dart';
+import '../widgets/templates/quantity_compare_symbolisch_widget.dart';
 import '../widgets/templates/drag_partition_widget.dart';
 import '../widgets/templates/equation_gap_widget.dart';
 import '../widgets/templates/equation_solve_widget.dart';
@@ -181,6 +184,18 @@ Widget buildTemplateWidget({
           onValueChanged: onValueChanged,
         ),
       'numberline_place' => NumberlinePlaceWidget(
+          problem: problem,
+          onValueChanged: onValueChanged,
+        ),
+      'quantity_compare_enaktiv' => QuantityCompareEnaktivWidget(
+          problem: problem,
+          onValueChanged: onValueChanged,
+        ),
+      'quantity_compare_ikonisch' => QuantityCompareIkonischWidget(
+          problem: problem,
+          onValueChanged: onValueChanged,
+        ),
+      'quantity_compare_symbolisch' => QuantityCompareSymbolischWidget(
           problem: problem,
           onValueChanged: onValueChanged,
         ),

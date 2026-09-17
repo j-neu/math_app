@@ -3584,6 +3584,72 @@ void main() {
         }
       }
     });
+
+    test(
+        'quantity_compare_* (Batch 1.8): left/right in range, expected '
+        'matches gleich/links/rechts rule, both ties and non-ties occur',
+        () {
+      final s = spec('quantity_compare_enaktiv', {
+        'range': [1, 6],
+      });
+      var sawTie = false;
+      var sawNonTie = false;
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          expect(p.display['custom_widget'], 'quantity_compare_enaktiv');
+          final left = p.display['left'] as int;
+          final right = p.display['right'] as int;
+          expect(left, inInclusiveRange(1, 6));
+          expect(right, inInclusiveRange(1, 6));
+          expect(p.expected, hasLength(1));
+          final expected = p.expected.single;
+          if (left == right) {
+            sawTie = true;
+            expect(expected, 'gleich');
+          } else if (left > right) {
+            sawNonTie = true;
+            expect(expected, 'links,${left - right}');
+          } else {
+            sawNonTie = true;
+            expect(expected, 'rechts,${right - left}');
+          }
+        }
+      }
+      expect(sawTie, isTrue, reason: 'ties should occur across 200 seeds');
+      expect(sawNonTie, isTrue,
+          reason: 'non-ties should occur across 200 seeds');
+    });
+
+    test(
+        'real compare_quantity_difference generates valid comparisons at '
+        'every level', () {
+      final s = _realSpec('compare_quantity_difference');
+      final ranges = {
+        1: [1, 6],
+        2: [1, 10],
+        3: [1, 10],
+      };
+      for (var level = 1; level <= 3; level++) {
+        final range = ranges[level]!;
+        for (var seed = 0; seed < 100; seed++) {
+          for (final p in generateProblems(spec: s, level: level, seed: seed)) {
+            final left = p.display['left'] as int;
+            final right = p.display['right'] as int;
+            expect(left, inInclusiveRange(range[0], range[1]));
+            expect(right, inInclusiveRange(range[0], range[1]));
+            expect(p.expected, hasLength(1));
+            final expected = p.expected.single;
+            if (left == right) {
+              expect(expected, 'gleich');
+            } else if (left > right) {
+              expect(expected, 'links,${left - right}');
+            } else {
+              expect(expected, 'rechts,${right - left}');
+            }
+          }
+        }
+      }
+    });
   });
 
   group('Problem JSON round-trip', () {

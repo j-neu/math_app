@@ -1972,11 +1972,80 @@ Problem _generateCustomWidget(
       return _generateOrderCards(spec, level, levelNumber, seed, index, gen);
     case 'numberline_place':
       return _generateNumberlinePlace(spec, level, levelNumber, seed, index, gen);
+    case 'quantity_compare_enaktiv':
+    case 'quantity_compare_ikonisch':
+    case 'quantity_compare_symbolisch':
+      return _generateQuantityCompare(spec, level, levelNumber, seed, index, gen);
     default:
       throw SpecFormatException(
         'custom_widget: unknown registry key "${level.customWidget}"',
       );
   }
+}
+
+/// Registry keys `"quantity_compare_enaktiv"` / `"_ikonisch"` /
+/// `"_symbolisch"` (compare_quantity_difference, BUILD_ORDER.md Batch 1.8):
+/// reuses the retired `more_less_exercise.dart`'s two-step "who has more,
+/// then by how much" dice-comparison judgment, rebuilt against the v4
+/// pipeline as three EIS-scaled representations of the same task (the
+/// source material was itself explicitly single-level, but the v4 schema
+/// requires exactly 3 levels -- see the plan's judgment-call note).
+/// `left`/`right` are sampled from `range`; a roughly 1-in-6 draw ties them
+/// (matching two real d6 dice, P(tie) = 6/36), the rest are forced
+/// distinct. `expected` is a single string exactly matching what the
+/// widget reports -- `"gleich"`, or `"links,<n>"`/`"rechts,<n>"` -- so the
+/// default `_evaluateStringMatch` grades it with no new evaluator code.
+Problem _generateQuantityCompare(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final range = level.intListParam('range');
+  final lo = range.isEmpty ? 1 : range[0];
+  final hi = range.isEmpty ? 6 : range[1];
+  if (lo > hi) {
+    throw SpecFormatException('quantity_compare: range [$lo, $hi] is empty');
+  }
+
+  final left = gen.nextIntInRange(lo, hi);
+  int right;
+  if (lo == hi) {
+    right = left;
+  } else if (gen.nextIntInRange(1, 6) == 1) {
+    right = left;
+  } else {
+    right = gen.nextIntInRange(lo, hi);
+    while (right == left) {
+      right = gen.nextIntInRange(lo, hi);
+    }
+  }
+
+  final String expected;
+  if (left == right) {
+    expected = 'gleich';
+  } else if (left > right) {
+    expected = 'links,${left - right}';
+  } else {
+    expected = 'rechts,${right - left}';
+  }
+
+  return Problem(
+    template: 'custom_widget',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: {
+      'custom_widget': level.customWidget,
+      'left': left,
+      'right': right,
+    },
+    expected: [expected],
+  );
 }
 
 /// Registry key `"bundling"` (B1.2 Bündeln): the widget renders ungrouped

@@ -99,6 +99,19 @@ void main() {
       ]);
     });
 
+    test('double_decade parses with the doubling-tens widgets', () {
+      final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+      final spec = store.byId('double_decade');
+      expect(spec.constructId, 'double');
+      expect(spec.domain, 'C');
+      expect(spec.titleDe, 'Verdoppeln von Zehnerzahlen');
+      expect(spec.levels.map((l) => l.customWidget), [
+        'doubling_tens_enaktiv',
+        'doubling_tens_ikonisch',
+        'doubling_tens_symbolisch',
+      ]);
+    });
+
     test('halve_zr10 (Pilot B) parses with the new halving-mirror widgets',
         () {
       final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());

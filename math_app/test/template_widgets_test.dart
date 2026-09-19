@@ -15,6 +15,9 @@ import 'package:math_app/widgets/templates/doubling_mirror_symbolisch_widget.dar
 import 'package:math_app/widgets/templates/doubling_boat_enaktiv_widget.dart';
 import 'package:math_app/widgets/templates/doubling_boat_ikonisch_widget.dart';
 import 'package:math_app/widgets/templates/doubling_boat_symbolisch_widget.dart';
+import 'package:math_app/widgets/templates/doubling_tens_enaktiv_widget.dart';
+import 'package:math_app/widgets/templates/doubling_tens_ikonisch_widget.dart';
+import 'package:math_app/widgets/templates/doubling_tens_symbolisch_widget.dart';
 import 'package:math_app/widgets/templates/halving_mirror_enaktiv_widget.dart';
 import 'package:math_app/widgets/templates/halving_mirror_ikonisch_widget.dart';
 import 'package:math_app/widgets/templates/halving_mirror_symbolisch_widget.dart';
@@ -2919,6 +2922,124 @@ void main() {
       await tester.pump();
 
       expect(values.last, '14');
+    });
+  });
+
+  group('DoublingTensEnaktivWidget', () {
+    Problem tensProblem(int target) => _problem(
+          template: 'custom_widget',
+          display: {'custom_widget': 'doubling_tens_enaktiv', 'target': target},
+          expected: ['${target * 2}'],
+        );
+
+    Future<void> pumpTens(
+      WidgetTester tester,
+      Problem problem,
+      List<String> values,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: DoublingTensEnaktivWidget(
+              problem: problem,
+              onValueChanged: values.add,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+    }
+
+    testWidgets(
+        'confirming the reading, pressing the mirror, reaches the final '
+        'field', (tester) async {
+      final values = <String>[];
+      await pumpTens(tester, tensProblem(30), values);
+
+      await tester.enterText(find.byType(TextField), '30');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pump();
+
+      await tester.tap(find.byIcon(Icons.compare_arrows));
+      await tester.pump(const Duration(milliseconds: 600));
+
+      expect(find.byKey(const ValueKey('final-answer')), findsOneWidget);
+      await tester.enterText(find.byKey(const ValueKey('final-answer')), '60');
+      await tester.pump();
+
+      expect(values.last, '60');
+    });
+  });
+
+  group('DoublingTensIkonischWidget', () {
+    Problem tensProblem(int target) => _problem(
+          template: 'custom_widget',
+          display: {
+            'custom_widget': 'doubling_tens_ikonisch',
+            'target': target,
+          },
+          expected: ['${target * 2}'],
+        );
+
+    testWidgets('dragging strips to match the target reaches the final field',
+        (tester) async {
+      final values = <String>[];
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: DoublingTensIkonischWidget(
+              problem: tensProblem(20),
+              onValueChanged: values.add,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      final dragSource = find.byType(Draggable<int>);
+      final dragTarget = find.byType(DragTarget<int>);
+      for (var i = 0; i < 2; i++) {
+        await tester.drag(
+          dragSource,
+          tester.getCenter(dragTarget) - tester.getCenter(dragSource),
+        );
+        await tester.pump();
+      }
+
+      expect(find.byKey(const ValueKey('final-answer')), findsOneWidget);
+      await tester.enterText(find.byKey(const ValueKey('final-answer')), '40');
+      await tester.pump();
+
+      expect(values.last, '40');
+    });
+  });
+
+  group('DoublingTensSymbolischWidget', () {
+    Problem tensProblem(int target) => _problem(
+          template: 'custom_widget',
+          display: {
+            'custom_widget': 'doubling_tens_symbolisch',
+            'target': target,
+          },
+          expected: ['${target * 2}'],
+        );
+
+    testWidgets('shows the decade number and reports the typed value',
+        (tester) async {
+      final values = <String>[];
+      await _pumpApp(
+        tester,
+        DoublingTensSymbolischWidget(
+          problem: tensProblem(30),
+          onValueChanged: values.add,
+        ),
+      );
+
+      expect(find.text('30'), findsOneWidget);
+      await tester.enterText(find.byKey(const ValueKey('final-answer')), '60');
+      await tester.pump();
+
+      expect(values.last, '60');
     });
   });
 

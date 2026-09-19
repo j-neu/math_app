@@ -3113,6 +3113,28 @@ void main() {
       );
     });
 
+    test('doubling_tens_enaktiv: tens in [1,5], target is a decade number, '
+        'expected == target*2', () {
+      final s = spec('doubling_tens_enaktiv', {'count_range': [1, 5]});
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final target = p.display['target'] as int;
+          expect(target % 10, 0);
+          expect(target ~/ 10, inInclusiveRange(1, 5));
+          expect(p.expected, ['${target * 2}']);
+          expect(p.display['custom_widget'], 'doubling_tens_enaktiv');
+        }
+      }
+    });
+
+    test('doubling_tens: count_range outside [1,5] throws', () {
+      final s = spec('doubling_tens_enaktiv', {'count_range': [1, 6]});
+      expect(
+        () => generateProblems(spec: s, level: 2, seed: 0),
+        throwsA(isA<SpecFormatException>()),
+      );
+    });
+
     test('halving_mirror_enaktiv: half in [1,5], full == half*2, expected '
         '== half', () {
       final s = spec('halving_mirror_enaktiv', {'count_range': [1, 5]});

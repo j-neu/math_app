@@ -1998,6 +1998,10 @@ Problem _generateCustomWidget(
     case 'doubling_boat_ikonisch':
     case 'doubling_boat_symbolisch':
       return _generateDoublingBoat(spec, level, levelNumber, seed, index, gen);
+    case 'doubling_tens_enaktiv':
+    case 'doubling_tens_ikonisch':
+    case 'doubling_tens_symbolisch':
+      return _generateDoublingTens(spec, level, levelNumber, seed, index, gen);
     case 'halving_mirror_enaktiv':
     case 'halving_mirror_ikonisch':
     case 'halving_mirror_symbolisch':
@@ -2362,6 +2366,45 @@ Problem _generateDoublingBoat(
     );
   }
   final target = gen.nextIntInRange(lo, hi);
+
+  return Problem(
+    template: 'custom_widget',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: {'custom_widget': level.customWidget, 'target': target},
+    expected: ['${target * 2}'],
+  );
+}
+
+/// Registry keys `"doubling_tens_enaktiv"`, `"doubling_tens_ikonisch"`,
+/// `"doubling_tens_symbolisch"` (double_decade, alle drei Level derselben
+/// Skill-Spec): `count_range` bounds the TENS DIGIT (e.g. [1, 5] means
+/// 1-5 tens), but `display.target` and `expected` are always the actual
+/// decade number and its double (e.g. tensCount 3 -> target 30 -> expected
+/// "60") -- consistent with every other skill in the `double` family,
+/// which always reports the full number, never an intermediate tens-only
+/// abstraction.
+Problem _generateDoublingTens(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final countRange = level.intListParam('count_range');
+  final lo = countRange.isEmpty ? 1 : countRange[0];
+  final hi = countRange.isEmpty ? 5 : countRange[1];
+  if (lo < 1 || hi > 5 || lo > hi) {
+    throw SpecFormatException(
+      'doubling_tens: count_range [$lo, $hi] must be within [1, 5] tens',
+    );
+  }
+  final tensCount = gen.nextIntInRange(lo, hi);
+  final target = tensCount * 10;
 
   return Problem(
     template: 'custom_widget',

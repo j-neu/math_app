@@ -32,6 +32,9 @@ import '../widgets/templates/doubling_mirror_symbolisch_widget.dart';
 import '../widgets/templates/doubling_boat_enaktiv_widget.dart';
 import '../widgets/templates/doubling_boat_ikonisch_widget.dart';
 import '../widgets/templates/doubling_boat_symbolisch_widget.dart';
+import '../widgets/templates/doubling_tens_enaktiv_widget.dart';
+import '../widgets/templates/doubling_tens_ikonisch_widget.dart';
+import '../widgets/templates/doubling_tens_symbolisch_widget.dart';
 import '../widgets/templates/halving_mirror_enaktiv_widget.dart';
 import '../widgets/templates/halving_mirror_ikonisch_widget.dart';
 import '../widgets/templates/halving_mirror_symbolisch_widget.dart';
@@ -193,6 +196,21 @@ Widget buildTemplateWidget({
           onSubmit: onSubmit,
         ),
       'doubling_boat_symbolisch' => DoublingBoatSymbolischWidget(
+          problem: problem,
+          onValueChanged: onValueChanged,
+          onSubmit: onSubmit,
+        ),
+      'doubling_tens_enaktiv' => DoublingTensEnaktivWidget(
+          problem: problem,
+          onValueChanged: onValueChanged,
+          onSubmit: onSubmit,
+        ),
+      'doubling_tens_ikonisch' => DoublingTensIkonischWidget(
+          problem: problem,
+          onValueChanged: onValueChanged,
+          onSubmit: onSubmit,
+        ),
+      'doubling_tens_symbolisch' => DoublingTensSymbolischWidget(
           problem: problem,
           onValueChanged: onValueChanged,
           onSubmit: onSubmit,

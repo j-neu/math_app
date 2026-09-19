@@ -3072,6 +3072,27 @@ void main() {
       }
     });
 
+    test('doubling_mirror_enaktiv: target in [6,10] (double_zr10_to_zr20 '
+        'range), expected == target*2', () {
+      final s = spec('doubling_mirror_enaktiv', {'count_range': [6, 10]});
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final target = p.display['target'] as int;
+          expect(target, inInclusiveRange(6, 10));
+          expect(p.expected, ['${target * 2}']);
+          expect(p.display['custom_widget'], 'doubling_mirror_enaktiv');
+        }
+      }
+    });
+
+    test('doubling_mirror: count_range above 10 still throws', () {
+      final s = spec('doubling_mirror_enaktiv', {'count_range': [1, 11]});
+      expect(
+        () => generateProblems(spec: s, level: 2, seed: 0),
+        throwsA(isA<SpecFormatException>()),
+      );
+    });
+
     test('halving_mirror_enaktiv: half in [1,5], full == half*2, expected '
         '== half', () {
       final s = spec('halving_mirror_enaktiv', {'count_range': [1, 5]});

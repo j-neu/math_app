@@ -72,6 +72,20 @@ void main() {
       ]);
     });
 
+    test('double_zr10_to_zr20 parses, sharing the doubling-mirror widgets '
+        'with double_zr10', () {
+      final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+      final spec = store.byId('double_zr10_to_zr20');
+      expect(spec.constructId, 'double');
+      expect(spec.domain, 'C');
+      expect(spec.titleDe, 'Verdoppeln ZR10 nach ZR20 (ohne Übergang)');
+      expect(spec.levels.map((l) => l.customWidget), [
+        'doubling_mirror_enaktiv',
+        'doubling_mirror_ikonisch',
+        'doubling_mirror_symbolisch',
+      ]);
+    });
+
     test('halve_zr10 (Pilot B) parses with the new halving-mirror widgets',
         () {
       final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());

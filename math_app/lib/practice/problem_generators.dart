@@ -1994,6 +1994,10 @@ Problem _generateCustomWidget(
     case 'doubling_mirror_ikonisch':
     case 'doubling_mirror_symbolisch':
       return _generateDoublingMirror(spec, level, levelNumber, seed, index, gen);
+    case 'doubling_boat_enaktiv':
+    case 'doubling_boat_ikonisch':
+    case 'doubling_boat_symbolisch':
+      return _generateDoublingBoat(spec, level, levelNumber, seed, index, gen);
     case 'halving_mirror_enaktiv':
     case 'halving_mirror_ikonisch':
     case 'halving_mirror_symbolisch':
@@ -2315,6 +2319,46 @@ Problem _generateDoublingMirror(
   if (lo < 1 || hi > 10 || lo > hi) {
     throw SpecFormatException(
       'doubling_mirror: count_range [$lo, $hi] must be within [1, 10]',
+    );
+  }
+  final target = gen.nextIntInRange(lo, hi);
+
+  return Problem(
+    template: 'custom_widget',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: {'custom_widget': level.customWidget, 'target': target},
+    expected: ['${target * 2}'],
+  );
+}
+
+/// Registry keys `"doubling_boat_enaktiv"`, `"doubling_boat_ikonisch"`,
+/// `"doubling_boat_symbolisch"` (double_crossing_10, alle drei Level
+/// derselben Skill-Spec): the widget shows `display.target` on the
+/// Rechenschiffchen and the child reports the doubled total; correctness
+/// is a plain string match against `expected`, handled by
+/// `_evaluateCustomWidget`'s default branch. `count_range` must stay
+/// within [6, 9] -- every value in that range genuinely crosses a ten
+/// when doubled, which is the whole point of this skill (5 doesn't cross,
+/// below 5 doesn't reach a ten at all).
+Problem _generateDoublingBoat(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final countRange = level.intListParam('count_range');
+  final lo = countRange.isEmpty ? 6 : countRange[0];
+  final hi = countRange.isEmpty ? 9 : countRange[1];
+  if (lo < 6 || hi > 9 || lo > hi) {
+    throw SpecFormatException(
+      'doubling_boat: count_range [$lo, $hi] must be within [6, 9] so '
+      'every value crosses a ten when doubled',
     );
   }
   final target = gen.nextIntInRange(lo, hi);

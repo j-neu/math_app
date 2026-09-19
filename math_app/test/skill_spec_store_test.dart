@@ -86,6 +86,19 @@ void main() {
       ]);
     });
 
+    test('double_crossing_10 parses with the doubling-boat widgets', () {
+      final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+      final spec = store.byId('double_crossing_10');
+      expect(spec.constructId, 'double');
+      expect(spec.domain, 'C');
+      expect(spec.titleDe, 'Verdoppeln mit Zehnerübergang');
+      expect(spec.levels.map((l) => l.customWidget), [
+        'doubling_boat_enaktiv',
+        'doubling_boat_ikonisch',
+        'doubling_boat_symbolisch',
+      ]);
+    });
+
     test('halve_zr10 (Pilot B) parses with the new halving-mirror widgets',
         () {
       final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());

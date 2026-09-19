@@ -3093,6 +3093,26 @@ void main() {
       );
     });
 
+    test('doubling_boat_enaktiv: target in [6,9], expected == target*2', () {
+      final s = spec('doubling_boat_enaktiv', {'count_range': [6, 9]});
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final target = p.display['target'] as int;
+          expect(target, inInclusiveRange(6, 9));
+          expect(p.expected, ['${target * 2}']);
+          expect(p.display['custom_widget'], 'doubling_boat_enaktiv');
+        }
+      }
+    });
+
+    test('doubling_boat: count_range outside [6,9] throws', () {
+      final s = spec('doubling_boat_enaktiv', {'count_range': [5, 9]});
+      expect(
+        () => generateProblems(spec: s, level: 2, seed: 0),
+        throwsA(isA<SpecFormatException>()),
+      );
+    });
+
     test('halving_mirror_enaktiv: half in [1,5], full == half*2, expected '
         '== half', () {
       final s = spec('halving_mirror_enaktiv', {'count_range': [1, 5]});

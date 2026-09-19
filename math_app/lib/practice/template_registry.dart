@@ -29,6 +29,9 @@ import '../widgets/templates/compare_symbols_widget.dart';
 import '../widgets/templates/doubling_mirror_enaktiv_widget.dart';
 import '../widgets/templates/doubling_mirror_ikonisch_widget.dart';
 import '../widgets/templates/doubling_mirror_symbolisch_widget.dart';
+import '../widgets/templates/doubling_boat_enaktiv_widget.dart';
+import '../widgets/templates/doubling_boat_ikonisch_widget.dart';
+import '../widgets/templates/doubling_boat_symbolisch_widget.dart';
 import '../widgets/templates/halving_mirror_enaktiv_widget.dart';
 import '../widgets/templates/halving_mirror_ikonisch_widget.dart';
 import '../widgets/templates/halving_mirror_symbolisch_widget.dart';
@@ -175,6 +178,21 @@ Widget buildTemplateWidget({
           onSubmit: onSubmit,
         ),
       'doubling_mirror_symbolisch' => DoublingMirrorSymbolischWidget(
+          problem: problem,
+          onValueChanged: onValueChanged,
+          onSubmit: onSubmit,
+        ),
+      'doubling_boat_enaktiv' => DoublingBoatEnaktivWidget(
+          problem: problem,
+          onValueChanged: onValueChanged,
+          onSubmit: onSubmit,
+        ),
+      'doubling_boat_ikonisch' => DoublingBoatIkonischWidget(
+          problem: problem,
+          onValueChanged: onValueChanged,
+          onSubmit: onSubmit,
+        ),
+      'doubling_boat_symbolisch' => DoublingBoatSymbolischWidget(
           problem: problem,
           onValueChanged: onValueChanged,
           onSubmit: onSubmit,

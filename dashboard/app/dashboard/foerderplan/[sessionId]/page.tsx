@@ -21,6 +21,27 @@ const DOMAIN_PREFIX_PATTERN = /^([A-D])\d/;
 
 const DEFAULT_STYLE = { bar: "bg-gray-400", badge: "text-gray-700 bg-gray-50 border-gray-200" };
 
+interface SkillRow {
+  id: string;
+  category: string;
+  domain: string | null;
+  color: string;
+  title_de: string;
+  description_de: string;
+}
+
+// Domain letter (A-D) first -- the reliable field for v3/v4-taxonomy skills.
+// `s.category` is the raw taxonomy category text, which is untranslated
+// English for several PIKAS-sourced categories ("Advanced Number Line",
+// "Operational Sense", "Ordinal Numbers"). Jakob caught this 2026-09-19 on
+// this page and on the Klassen overview -- mirrors the fix already applied
+// to foerderplan-pdf/index.ts's catLabel() on 2026-09-14, which this page
+// never received.
+function catLabel(s: SkillRow): string {
+  if (s.domain && DOMAIN_LABELS[s.domain]) return DOMAIN_LABELS[s.domain];
+  return s.category;
+}
+
 function domainStyle(label: string): { bar: string; badge: string } {
   for (const [letter, domainLabel] of Object.entries(DOMAIN_LABELS)) {
     if (domainLabel === label) return DOMAIN_STYLES[letter]!;
@@ -89,22 +110,25 @@ export default async function FoerderplanPage({ params }: Props) {
 
   const { data: skills } = await supabase
     .from("skills")
-    .select("id, category, color, title_de, description_de")
+    .select("id, category, domain, color, title_de, description_de")
     .in("id", plan.recommended_skill_ids as string[]);
 
-  const skillMap = new Map((skills ?? []).map((s) => [s.id, s]));
+  const skillMap = new Map((skills ?? []).map((s) => [s.id, s as SkillRow]));
   const recommended = (plan.recommended_skill_ids as string[])
     .map((id) => skillMap.get(id))
-    .filter(Boolean) as { id: string; category: string; color: string; title_de: string; description_de: string }[];
+    .filter(Boolean) as SkillRow[];
 
   const brief = recommended.slice(0, 3);
   const categoryStats = plan.category_stats as Record<string, { failed: number; total: number }>;
 
-  // Group full plan by category (Flutter-style)
+  // Group full plan by translated domain label (Flutter-style) -- grouping
+  // by the raw s.category would split rows into their (sometimes English)
+  // per-skill taxonomy category instead of the intended per-domain sections.
   const recommendedByCategory = new Map<string, typeof recommended>();
   for (const s of recommended) {
-    if (!recommendedByCategory.has(s.category)) recommendedByCategory.set(s.category, []);
-    recommendedByCategory.get(s.category)!.push(s);
+    const label = catLabel(s);
+    if (!recommendedByCategory.has(label)) recommendedByCategory.set(label, []);
+    recommendedByCategory.get(label)!.push(s);
   }
 
   // Per-question detail rows
@@ -217,7 +241,8 @@ export default async function FoerderplanPage({ params }: Props) {
         ) : (
           <div className="space-y-3">
             {brief.map((skill) => {
-              const style = domainStyle(skill.category);
+              const label = catLabel(skill);
+              const style = domainStyle(label);
               return (
                 <div key={skill.id} className="border border-gray-200 rounded-xl p-4 bg-white flex items-stretch gap-3">
                   <div className={`w-1 rounded-full ${style.bar} flex-shrink-0`} />
@@ -225,7 +250,7 @@ export default async function FoerderplanPage({ params }: Props) {
                     <p className="font-semibold">{skill.title_de}</p>
                     <p className="text-sm text-gray-600 mt-1">{skill.description_de}</p>
                     <span className={`inline-block text-xs px-2 py-0.5 rounded-full border mt-2 ${style.badge}`}>
-                      {skill.category}
+                      {label}
                     </span>
                   </div>
                 </div>

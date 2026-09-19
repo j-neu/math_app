@@ -1043,19 +1043,21 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     if (mounted) _responseTimer?.resume();
   }
 
-  /// Plays [audioUrl] -- on web a full Supabase Storage URL, otherwise a
-  /// bundled asset path relative to the app root (e.g.
+  /// Plays [audioUrl], a bundled asset path relative to the app root (e.g.
   /// "Research/zahlen_diktat_17_47_70_72_84.m4a", matching pubspec's assets
-  /// entry and [DiagnosticQuestion.audioAsset]).
+  /// entry and [DiagnosticQuestion.audioAsset] -- always sourced straight
+  /// from the diagnostic CSV's `AudioAsset` column, never a Supabase
+  /// Storage URL).
   Future<void> _playAudio(String audioUrl) async {
     await _audioPlayer.stop();
     Source source;
-    if (kIsWeb) {
-      // On web, load from the public Supabase Storage URL.
-      source = UrlSource(audioUrl);
-    } else if (defaultTargetPlatform == TargetPlatform.windows) {
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
       // audioplayers_windows doesn't resolve AssetSource paths reliably;
-      // extract to a temp file once per asset and reuse.
+      // extract to a temp file once per asset and reuse. Guarded on
+      // `!kIsWeb` too: Flutter Web reports the *host OS* via
+      // defaultTargetPlatform (so a browser on Windows also matches
+      // TargetPlatform.windows), and dart:io File/getTemporaryDirectory
+      // are unavailable on web.
       var tempPath = _audioTempFilePaths[audioUrl];
       if (tempPath == null) {
         final data = await rootBundle.load(audioUrl);
@@ -1067,6 +1069,14 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
       }
       source = DeviceFileSource(tempPath);
     } else {
+      // Bundled asset on every other platform, including web:
+      // audioplayers_web resolves AssetSource against the Flutter web
+      // build's own assets/ path. The previous web-only branch
+      // (UrlSource(audioUrl)) wrongly assumed audioUrl was already a full
+      // Supabase Storage URL -- a stale assumption from an earlier content
+      // pipeline -- so it 404'd against the deployed site's own origin
+      // instead of resolving the bundled asset. Caught 2026-09-19: no
+      // audio on question 55 in the Vercel build.
       source = AssetSource(audioUrl);
     }
     await _audioPlayer.play(source);

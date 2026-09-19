@@ -15,11 +15,13 @@ import 'answer_pad.dart';
 class ZehnerfeldReadWidget extends StatefulWidget {
   final Problem problem;
   final ValueChanged<String> onValueChanged;
+  final VoidCallback? onSubmit;
 
   const ZehnerfeldReadWidget({
     super.key,
     required this.problem,
     required this.onValueChanged,
+    this.onSubmit,
   });
 
   @override
@@ -99,6 +101,7 @@ class _ZehnerfeldReadWidgetState extends State<ZehnerfeldReadWidget> {
         BigAnswerField(
           controller: _controller,
           onChanged: widget.onValueChanged,
+          onSubmit: widget.onSubmit,
           hintText: '?',
         ),
       ],

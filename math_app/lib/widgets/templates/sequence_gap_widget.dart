@@ -12,11 +12,13 @@ import '../../models/problem.dart';
 class SequenceGapWidget extends StatefulWidget {
   final Problem problem;
   final ValueChanged<String> onValueChanged;
+  final VoidCallback? onSubmit;
 
   const SequenceGapWidget({
     super.key,
     required this.problem,
     required this.onValueChanged,
+    this.onSubmit,
   });
 
   @override
@@ -96,6 +98,9 @@ class _SequenceGapWidgetState extends State<SequenceGapWidget> {
             contentPadding: EdgeInsets.symmetric(vertical: 10),
           ),
           onChanged: (_) => widget.onValueChanged(_currentValue),
+          onSubmitted: (_) {
+            if (_currentValue.isNotEmpty) widget.onSubmit?.call();
+          },
         ),
       ),
     );

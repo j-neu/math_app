@@ -13,12 +13,14 @@ class QuantityCompareCore extends StatefulWidget {
   final Problem problem;
   final ValueChanged<String> onValueChanged;
   final Widget Function(BuildContext context, int value) buildQuantity;
+  final VoidCallback? onSubmit;
 
   const QuantityCompareCore({
     super.key,
     required this.problem,
     required this.onValueChanged,
     required this.buildQuantity,
+    this.onSubmit,
   });
 
   @override
@@ -107,6 +109,7 @@ class _QuantityCompareCoreState extends State<QuantityCompareCore> {
             key: const ValueKey('qc-diff-field'),
             controller: _controller,
             onChanged: _submitDifference,
+            onSubmit: widget.onSubmit,
             hintText: '?',
           ),
         ],

@@ -11,11 +11,13 @@ import '../../models/problem.dart';
 class HalvingMirrorSymbolischWidget extends StatefulWidget {
   final Problem problem;
   final ValueChanged<String> onValueChanged;
+  final VoidCallback? onSubmit;
 
   const HalvingMirrorSymbolischWidget({
     super.key,
     required this.problem,
     required this.onValueChanged,
+    this.onSubmit,
   });
 
   @override
@@ -96,6 +98,7 @@ class _HalvingMirrorSymbolischWidgetState
             textAlign: TextAlign.center,
             autofocus: true,
             onChanged: widget.onValueChanged,
+            onSubmitted: (_) => widget.onSubmit?.call(),
           ),
         ),
       ],

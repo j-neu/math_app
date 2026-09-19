@@ -9,11 +9,13 @@ import 'quantity_compare_common.dart';
 class QuantityCompareSymbolischWidget extends StatelessWidget {
   final Problem problem;
   final ValueChanged<String> onValueChanged;
+  final VoidCallback? onSubmit;
 
   const QuantityCompareSymbolischWidget({
     super.key,
     required this.problem,
     required this.onValueChanged,
+    this.onSubmit,
   });
 
   static Widget _numeral(BuildContext context, int value) {
@@ -39,6 +41,7 @@ class QuantityCompareSymbolischWidget extends StatelessWidget {
       problem: problem,
       onValueChanged: onValueChanged,
       buildQuantity: _numeral,
+      onSubmit: onSubmit,
     );
   }
 }

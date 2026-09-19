@@ -233,6 +233,43 @@ Future<void> _answerCorrect(WidgetTester tester, PracticeController controller) 
 }
 
 void main() {
+  testWidgets(
+      'pressing Enter in the answer field submits, matching a "Weiter" tap '
+      '(2026-09-19: Jakob reported Enter worked in the diagnostic but not '
+      'in practice exercises)', (tester) async {
+    final backend = _Backend();
+    final service = LearningPathService(client: backend.client);
+    final spec = _spec(3, 'equation_solve', {
+      'op': '+',
+      'unknown': 'result',
+      'zr': 10,
+      'a_range': [1, 5],
+      'b_range': [1, 5],
+      'mode': 'standard',
+    });
+    final controller = PracticeController(
+      token: 'tok',
+      spec: spec,
+      level: 3,
+      service: service,
+    );
+    await _pumpScreen(tester, controller, spec, store: _unlockStore());
+
+    final expected = controller.currentProblem!.expected.single;
+    await tester.enterText(find.byType(TextField), expected);
+    await tester.pump();
+
+    // Enter/"done" on the field, not a button tap.
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pump();
+    await tester.pump();
+
+    expect(find.text(_praise[0]), findsOneWidget,
+        reason: 'Enter must submit the answer just like tapping "Weiter"');
+
+    await tester.pump(const Duration(seconds: 2)); // flush the auto-advance timer
+  });
+
   testWidgets('full all-correct session: progress, feedback, summary, /end '
       'and submit gated on a reported value', (tester) async {
     final backend = _Backend();

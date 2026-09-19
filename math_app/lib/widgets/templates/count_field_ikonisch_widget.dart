@@ -17,11 +17,13 @@ import 'answer_pad.dart';
 class CountFieldIkonischWidget extends StatefulWidget {
   final Problem problem;
   final ValueChanged<String> onValueChanged;
+  final VoidCallback? onSubmit;
 
   const CountFieldIkonischWidget({
     super.key,
     required this.problem,
     required this.onValueChanged,
+    this.onSubmit,
   });
 
   @override
@@ -155,6 +157,7 @@ class _CountFieldIkonischWidgetState extends State<CountFieldIkonischWidget> {
         BigAnswerField(
           controller: _controller,
           onChanged: widget.onValueChanged,
+          onSubmit: widget.onSubmit,
           hintText: '?',
         ),
       ],

@@ -23,11 +23,13 @@ import 'answer_pad.dart';
 class FlashSubitizeWidget extends StatefulWidget {
   final Problem problem;
   final ValueChanged<String> onValueChanged;
+  final VoidCallback? onSubmit;
 
   const FlashSubitizeWidget({
     super.key,
     required this.problem,
     required this.onValueChanged,
+    this.onSubmit,
   });
 
   @override
@@ -171,6 +173,7 @@ class _FlashSubitizeWidgetState extends State<FlashSubitizeWidget> {
         BigAnswerField(
           controller: _controller,
           onChanged: widget.onValueChanged,
+          onSubmit: widget.onSubmit,
           hintText: '?',
         ),
       ],

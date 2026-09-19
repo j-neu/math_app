@@ -14,11 +14,13 @@ import 'answer_pad.dart';
 class CountFieldEnaktivWidget extends StatefulWidget {
   final Problem problem;
   final ValueChanged<String> onValueChanged;
+  final VoidCallback? onSubmit;
 
   const CountFieldEnaktivWidget({
     super.key,
     required this.problem,
     required this.onValueChanged,
+    this.onSubmit,
   });
 
   @override
@@ -117,6 +119,7 @@ class _CountFieldEnaktivWidgetState extends State<CountFieldEnaktivWidget> {
         BigAnswerField(
           controller: _controller,
           onChanged: widget.onValueChanged,
+          onSubmit: widget.onSubmit,
           hintText: '?',
         ),
       ],

@@ -11,11 +11,13 @@ import '../../models/problem.dart';
 class DoublingMirrorIkonischWidget extends StatefulWidget {
   final Problem problem;
   final ValueChanged<String> onValueChanged;
+  final VoidCallback? onSubmit;
 
   const DoublingMirrorIkonischWidget({
     super.key,
     required this.problem,
     required this.onValueChanged,
+    this.onSubmit,
   });
 
   @override
@@ -294,5 +296,6 @@ class _DoublingMirrorIkonischWidgetState
         style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
         textAlign: TextAlign.center,
         onChanged: widget.onValueChanged,
+        onSubmitted: (_) => widget.onSubmit?.call(),
       );
 }

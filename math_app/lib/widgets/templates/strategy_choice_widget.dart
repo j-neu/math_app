@@ -12,11 +12,13 @@ import '../../models/problem.dart';
 class StrategyChoiceWidget extends StatefulWidget {
   final Problem problem;
   final ValueChanged<String> onValueChanged;
+  final VoidCallback? onSubmit;
 
   const StrategyChoiceWidget({
     super.key,
     required this.problem,
     required this.onValueChanged,
+    this.onSubmit,
   });
 
   @override
@@ -138,6 +140,12 @@ class _StrategyChoiceWidgetState extends State<StrategyChoiceWidget> {
                   contentPadding: EdgeInsets.symmetric(vertical: 10),
                 ),
                 onChanged: (_) => _report(),
+                onSubmitted: (_) {
+                  if (_resultController.text.trim().isNotEmpty &&
+                      _strategy != null) {
+                    widget.onSubmit?.call();
+                  }
+                },
               ),
             ),
           ],

@@ -17,11 +17,13 @@ import 'hint_text.dart';
 class UnbundlingWidget extends StatefulWidget {
   final Problem problem;
   final ValueChanged<String> onValueChanged;
+  final VoidCallback? onSubmit;
 
   const UnbundlingWidget({
     super.key,
     required this.problem,
     required this.onValueChanged,
+    this.onSubmit,
   });
 
   @override
@@ -107,6 +109,7 @@ class _UnbundlingWidgetState extends State<UnbundlingWidget> {
           BigAnswerField(
             controller: _controller,
             onChanged: widget.onValueChanged,
+            onSubmit: widget.onSubmit,
             hintText: '?',
           ),
         ] else ...[

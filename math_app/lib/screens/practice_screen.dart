@@ -168,6 +168,27 @@ class _PracticeScreenState extends State<PracticeScreen> {
     await _controller.submit(_lastValue);
   }
 
+  /// The action Enter/"done" in a template widget's answer field should
+  /// trigger — the same primary action `_buildActionArea` currently shows
+  /// as the "Weiter"/"Nochmal" button for the controller's current state,
+  /// so the keyboard shortcut never does something the visible button
+  /// wouldn't. `null` disables the shortcut (mirrors a disabled button).
+  VoidCallback? get _primaryEnterAction {
+    switch (_controller.state) {
+      case PracticeState.ready:
+        return _canSubmit ? _submit : null;
+      case PracticeState.correct:
+        return _advance;
+      case PracticeState.incorrect:
+        return _lastValue.isNotEmpty ? _submit : null;
+      case PracticeState.starting:
+      case PracticeState.submitting:
+      case PracticeState.failed:
+      case PracticeState.finished:
+        return null;
+    }
+  }
+
   /// Advances to the next problem, or — after the last one — asks the
   /// controller to finish the session.
   void _advance() {
@@ -326,6 +347,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 child: buildTemplateWidget(
                   problem: problem,
                   onValueChanged: _onValueChanged,
+                  onSubmit: _primaryEnterAction,
                 ),
               ),
               const SizedBox(height: 20),

@@ -19,11 +19,13 @@ import '../../models/problem.dart';
 class DoublingMirrorEnaktivWidget extends StatefulWidget {
   final Problem problem;
   final ValueChanged<String> onValueChanged;
+  final VoidCallback? onSubmit;
 
   const DoublingMirrorEnaktivWidget({
     super.key,
     required this.problem,
     required this.onValueChanged,
+    this.onSubmit,
   });
 
   @override
@@ -257,5 +259,6 @@ class _DoublingMirrorEnaktivWidgetState
         style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
         textAlign: TextAlign.center,
         onChanged: widget.onValueChanged,
+        onSubmitted: (_) => widget.onSubmit?.call(),
       );
 }

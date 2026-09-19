@@ -13,11 +13,13 @@ import 'answer_pad.dart';
 class EquationSolveWidget extends StatefulWidget {
   final Problem problem;
   final ValueChanged<String> onValueChanged;
+  final VoidCallback? onSubmit;
 
   const EquationSolveWidget({
     super.key,
     required this.problem,
     required this.onValueChanged,
+    this.onSubmit,
   });
 
   @override
@@ -79,6 +81,7 @@ class _EquationSolveWidgetState extends State<EquationSolveWidget> {
         BigAnswerField(
           controller: _controller,
           onChanged: widget.onValueChanged,
+          onSubmit: widget.onSubmit,
           hintText: '?',
         ),
       ],

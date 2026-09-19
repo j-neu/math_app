@@ -12,11 +12,13 @@ import 'answer_pad.dart';
 class WordProblemWidget extends StatefulWidget {
   final Problem problem;
   final ValueChanged<String> onValueChanged;
+  final VoidCallback? onSubmit;
 
   const WordProblemWidget({
     super.key,
     required this.problem,
     required this.onValueChanged,
+    this.onSubmit,
   });
 
   @override
@@ -48,6 +50,7 @@ class _WordProblemWidgetState extends State<WordProblemWidget> {
     return BigAnswerField(
       controller: _controller,
       onChanged: widget.onValueChanged,
+      onSubmit: widget.onSubmit,
       hintText: '?',
     );
   }

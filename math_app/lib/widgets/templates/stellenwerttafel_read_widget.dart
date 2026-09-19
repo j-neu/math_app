@@ -17,11 +17,13 @@ import 'answer_pad.dart';
 class StellenwerttafelReadWidget extends StatefulWidget {
   final Problem problem;
   final ValueChanged<String> onValueChanged;
+  final VoidCallback? onSubmit;
 
   const StellenwerttafelReadWidget({
     super.key,
     required this.problem,
     required this.onValueChanged,
+    this.onSubmit,
   });
 
   @override
@@ -122,6 +124,7 @@ class _StellenwerttafelReadWidgetState extends State<StellenwerttafelReadWidget>
         BigAnswerField(
           controller: _controller,
           onChanged: widget.onValueChanged,
+          onSubmit: widget.onSubmit,
           hintText: '?',
         ),
       ],

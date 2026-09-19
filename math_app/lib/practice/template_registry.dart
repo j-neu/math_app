@@ -6,6 +6,18 @@
 /// Every template widget shares the construction contract
 /// `({required Problem problem, required ValueChanged<String> onValueChanged})`
 /// and reports `""` while no answer is set (see the template widget tasks).
+/// Widgets whose answer is typed into a text field also accept an optional
+/// `VoidCallback? onSubmit`, wired to the field's Enter/"done" key — it is
+/// the practice screen's current primary action (submit / retry / advance,
+/// matching its "Weiter" button), so pressing Enter does the same thing as
+/// tapping that button. Tap/drag-only widgets (no text field, hence no
+/// keyboard focus to submit from — `drag_partition`, `order_cards`,
+/// `numberline_place`/`_mark`/`_step`/`_locate`, `place_counters`,
+/// `bundle_sticks`, `bundling`, `compare_symbols`) keep the plain 2-param
+/// contract. Added 2026-09-19 after Jakob reported the Enter key worked in
+/// the diagnostic but not in practice exercises: every leaf widget's
+/// `BigAnswerField`/`TextField` already had the plumbing for an on-submit
+/// callback, but nothing above them ever supplied one.
 library;
 
 import 'package:flutter/widgets.dart';
@@ -47,7 +59,8 @@ import '../widgets/templates/unbundling_widget.dart';
 import '../widgets/templates/word_problem_widget.dart';
 import '../widgets/templates/zehnerfeld_read_widget.dart';
 
-/// Builds the input widget for [problem].
+/// Builds the input widget for [problem]. [onSubmit], when supplied, is
+/// wired to the Enter/"done" key of the widget's answer field(s).
 ///
 /// The fallback (`_UnavailableTemplateWidget`) is unreachable in practice —
 /// [SkillSpec] validation rejects unknown templates and custom-widget keys —
@@ -56,6 +69,7 @@ import '../widgets/templates/zehnerfeld_read_widget.dart';
 Widget buildTemplateWidget({
   required Problem problem,
   required ValueChanged<String> onValueChanged,
+  VoidCallback? onSubmit,
 }) {
   return switch (problem.template) {
     'drag_partition' => DragPartitionWidget(
@@ -81,14 +95,17 @@ Widget buildTemplateWidget({
     'zehnerfeld_read' => ZehnerfeldReadWidget(
         problem: problem,
         onValueChanged: onValueChanged,
+        onSubmit: onSubmit,
       ),
     'fingerbild_read' => FingerbildReadWidget(
         problem: problem,
         onValueChanged: onValueChanged,
+        onSubmit: onSubmit,
       ),
     'stellenwerttafel_read' => StellenwerttafelReadWidget(
         problem: problem,
         onValueChanged: onValueChanged,
+        onSubmit: onSubmit,
       ),
     'numberline_locate' => NumberlineLocateWidget(
         problem: problem,
@@ -97,18 +114,22 @@ Widget buildTemplateWidget({
     'picture_compare' => PictureCompareWidget(
         problem: problem,
         onValueChanged: onValueChanged,
+        onSubmit: onSubmit,
       ),
     'equation_solve' => EquationSolveWidget(
         problem: problem,
         onValueChanged: onValueChanged,
+        onSubmit: onSubmit,
       ),
     'equation_gap' => EquationGapWidget(
         problem: problem,
         onValueChanged: onValueChanged,
+        onSubmit: onSubmit,
       ),
     'sequence_gap' => SequenceGapWidget(
         problem: problem,
         onValueChanged: onValueChanged,
+        onSubmit: onSubmit,
       ),
     'compare_symbols' => CompareSymbolsWidget(
         problem: problem,
@@ -117,10 +138,12 @@ Widget buildTemplateWidget({
     'strategy_choice' => StrategyChoiceWidget(
         problem: problem,
         onValueChanged: onValueChanged,
+        onSubmit: onSubmit,
       ),
     'word_problem' => WordProblemWidget(
         problem: problem,
         onValueChanged: onValueChanged,
+        onSubmit: onSubmit,
       ),
     'custom_widget' => switch (problem.display['custom_widget']) {
       'bundling' => BundlingWidget(
@@ -130,6 +153,7 @@ Widget buildTemplateWidget({
       'unbundling' => UnbundlingWidget(
           problem: problem,
           onValueChanged: onValueChanged,
+          onSubmit: onSubmit,
         ),
       'numberline_mark' => NumberlineMarkWidget(
           problem: problem,
@@ -138,46 +162,57 @@ Widget buildTemplateWidget({
       'flash_subitize' => FlashSubitizeWidget(
           problem: problem,
           onValueChanged: onValueChanged,
+          onSubmit: onSubmit,
         ),
       'doubling_mirror_enaktiv' => DoublingMirrorEnaktivWidget(
           problem: problem,
           onValueChanged: onValueChanged,
+          onSubmit: onSubmit,
         ),
       'doubling_mirror_ikonisch' => DoublingMirrorIkonischWidget(
           problem: problem,
           onValueChanged: onValueChanged,
+          onSubmit: onSubmit,
         ),
       'doubling_mirror_symbolisch' => DoublingMirrorSymbolischWidget(
           problem: problem,
           onValueChanged: onValueChanged,
+          onSubmit: onSubmit,
         ),
       'halving_mirror_enaktiv' => HalvingMirrorEnaktivWidget(
           problem: problem,
           onValueChanged: onValueChanged,
+          onSubmit: onSubmit,
         ),
       'halving_mirror_ikonisch' => HalvingMirrorIkonischWidget(
           problem: problem,
           onValueChanged: onValueChanged,
+          onSubmit: onSubmit,
         ),
       'halving_mirror_symbolisch' => HalvingMirrorSymbolischWidget(
           problem: problem,
           onValueChanged: onValueChanged,
+          onSubmit: onSubmit,
         ),
       'count_field_enaktiv' => CountFieldEnaktivWidget(
           problem: problem,
           onValueChanged: onValueChanged,
+          onSubmit: onSubmit,
         ),
       'count_field_ikonisch' => CountFieldIkonischWidget(
           problem: problem,
           onValueChanged: onValueChanged,
+          onSubmit: onSubmit,
         ),
       'count_field_symbolisch' => CountFieldSymbolischWidget(
           problem: problem,
           onValueChanged: onValueChanged,
+          onSubmit: onSubmit,
         ),
       'hundred_chart_skip' => HundredChartStepWidget(
           problem: problem,
           onValueChanged: onValueChanged,
+          onSubmit: onSubmit,
         ),
       'order_cards' => OrderCardsWidget(
           problem: problem,
@@ -190,14 +225,17 @@ Widget buildTemplateWidget({
       'quantity_compare_enaktiv' => QuantityCompareEnaktivWidget(
           problem: problem,
           onValueChanged: onValueChanged,
+          onSubmit: onSubmit,
         ),
       'quantity_compare_ikonisch' => QuantityCompareIkonischWidget(
           problem: problem,
           onValueChanged: onValueChanged,
+          onSubmit: onSubmit,
         ),
       'quantity_compare_symbolisch' => QuantityCompareSymbolischWidget(
           problem: problem,
           onValueChanged: onValueChanged,
+          onSubmit: onSubmit,
         ),
       _ => const _UnavailableTemplateWidget(),
     },

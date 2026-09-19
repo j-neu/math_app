@@ -10,11 +10,13 @@ import 'quantity_compare_common.dart';
 class QuantityCompareIkonischWidget extends StatelessWidget {
   final Problem problem;
   final ValueChanged<String> onValueChanged;
+  final VoidCallback? onSubmit;
 
   const QuantityCompareIkonischWidget({
     super.key,
     required this.problem,
     required this.onValueChanged,
+    this.onSubmit,
   });
 
   static Widget _frame(BuildContext context, int value) {
@@ -27,6 +29,7 @@ class QuantityCompareIkonischWidget extends StatelessWidget {
       problem: problem,
       onValueChanged: onValueChanged,
       buildQuantity: _frame,
+      onSubmit: onSubmit,
     );
   }
 }

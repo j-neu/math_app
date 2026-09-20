@@ -1,0 +1,54 @@
+{
+  "spec_version": 1,
+  "skill_id": "tens_add_tens",
+  "construct_id": "tens_add_sub",
+  "domain": "C",
+  "title_de": "Zehnerzahl plus Zehnerzahl",
+  "level_titles_de": [
+    "Zehner zusammenlegen (Zehnerstreifen)",
+    "Zehner zusammenlegen (Bildkarten)",
+    "Zehner addieren (im Kopf)"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "custom_widget",
+      "custom_widget": "tens_add_enaktiv",
+      "params": { "tens_a_range": [1, 5], "sum_max": 9 },
+      "problem_count": 8,
+      "prompt_de": "Wie viel sind die Zehnerstreifen zusammen?",
+      "slow_band_ms": 12000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "custom_widget",
+      "custom_widget": "tens_add_ikonisch",
+      "params": { "tens_a_range": [1, 5], "sum_max": 9 },
+      "problem_count": 8,
+      "prompt_de": "Wie viel sind die Zehner-Karten zusammen?",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "custom_widget",
+      "custom_widget": "tens_add_symbolisch",
+      "params": { "tens_a_range": [1, 5], "sum_max": 9 },
+      "problem_count": 8,
+      "prompt_de": "Rechne im Kopf.",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "sign_error", "label_de": "Rechenzeichen vertauscht", "hint_de": "Schau genau hin: Sollst du zusammenzählen oder wegnehmen?" },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Zähl die Zehner noch einmal genau." }
+  ],
+  "provenance": {
+    "sources": ["iMINT S3.7 Rechnen mit Zehnern", "Padberg/Benz, Analogie zum Einspluseins"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

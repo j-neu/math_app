@@ -5,8 +5,8 @@
   "domain": "A",
   "title_de": "Nachfolger über die Zehnergrenze (ZR100)",
   "level_titles_de": [
-    "Nachfolger über die Zehnergrenze",
-    "Zehnergrenze bei größeren Zahlen",
+    "Nachfolger einer Zehnerzahl",
+    "Zehnerzahl und Zehnergrenze",
     "Zehnergrenze bis zur Hundert"
   ],
   "levels": [
@@ -18,11 +18,11 @@
         "direction": "up",
         "step": 1,
         "start_range": [
-          19,
-          49
+          20,
+          60
         ],
         "start_ones_digits": [
-          9
+          0
         ],
         "length": 2,
         "gap_indices": [
@@ -30,7 +30,7 @@
         ]
       },
       "problem_count": 8,
-      "prompt_de": "Vorsicht, hier wechselt der Zehner! Welche Zahl kommt direkt danach?",
+      "prompt_de": "Welche Zahl kommt direkt nach dieser Zehnerzahl?",
       "slow_band_ms": 14000
     },
     {
@@ -41,10 +41,11 @@
         "direction": "up",
         "step": 1,
         "start_range": [
-          39,
-          79
+          40,
+          80
         ],
         "start_ones_digits": [
+          0,
           9
         ],
         "length": 2,
@@ -53,7 +54,7 @@
         ]
       },
       "problem_count": 8,
-      "prompt_de": "Vorsicht, hier wechselt der Zehner! Welche Zahl kommt direkt danach?",
+      "prompt_de": "Welche Zahl kommt direkt danach?",
       "slow_band_ms": 12000
     },
     {

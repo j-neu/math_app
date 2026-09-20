@@ -572,3 +572,7 @@ Run `git status --porcelain` afterwards and confirm none of the 16 paths above i
 - **Range feasibility:** each `start_range` contains at least one start with each required ones digit (e.g. mid L3 `[21,88]` ones 8 ⇒ 28…88; predecessor mid L3 `[20,80]` ones 0 ⇒ 20,30,…,80; decade L1 `[19,49]` ones 9 ⇒ 19,29,39,49) so the "no matching start" `SpecFormatException` can never fire for shipped specs.
 - **Placeholder scan:** none — Steps 2–6 give the complete per-spec delta against the fully written Step 1 skeleton; every non-differing field is explicitly stated as identical.
 - **Lessons built in:** plan file committed in Step 13 (Batch 1.12/1.13 miss); all six synced assets `ls`-checked in Step 10 and `git add`ed in Step 13 (Batch 1.12 miss); plain Done-entry format (Batch 1.12 miss); the Tier-2 "shipped" sentence made evergreen (Batch 2.1 minor).
+
+## Post-review amendment
+
+`successor_zr100_decade` was changed after the final review so that level 1 asks the successor of a full ten (start ones digit 0, range [20, 60]), level 2 mixes both (ones digits [0, 9], range [40, 80]) and level 3 keeps the hardest crossing case (ones digit 9, range [69, 99]). The design doc §5 entry and the diagnostic item routed to this skill ("nach 90 → 91") define it as "successor of a full ten". Level titles and the L1/L2 prompts were adjusted accordingly. The Task 2 Step 5 / Step 7 text above describes the pre-amendment values.

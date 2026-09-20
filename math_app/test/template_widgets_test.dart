@@ -24,6 +24,10 @@ import 'package:math_app/widgets/templates/tens_add_symbolisch_widget.dart';
 import 'package:math_app/widgets/templates/tens_sub_enaktiv_widget.dart';
 import 'package:math_app/widgets/templates/tens_sub_ikonisch_widget.dart';
 import 'package:math_app/widgets/templates/tens_sub_symbolisch_widget.dart';
+import 'package:math_app/widgets/templates/compensation_enaktiv_widget.dart';
+import 'package:math_app/widgets/templates/compensation_ikonisch_widget.dart';
+import 'package:math_app/widgets/templates/compensation_symbolisch_widget.dart';
+import 'package:math_app/widgets/common/wendeplaettchen_widget.dart';
 import 'package:math_app/widgets/templates/halving_mirror_enaktiv_widget.dart';
 import 'package:math_app/widgets/templates/halving_mirror_ikonisch_widget.dart';
 import 'package:math_app/widgets/templates/halving_mirror_symbolisch_widget.dart';
@@ -3313,6 +3317,173 @@ void main() {
       await tester.pump();
 
       expect(find.text('100 - 20 = ?'), findsOneWidget);
+    });
+  });
+
+  group('CompensationEnaktivWidget', () {
+    Problem compProblem({
+      required int total,
+      required int red,
+      required int blue,
+      required String flip,
+    }) {
+      final newRed = flip == 'red_to_blue' ? red - 1 : red + 1;
+      final newBlue = flip == 'red_to_blue' ? blue + 1 : blue - 1;
+      return _problem(
+        template: 'custom_widget',
+        display: {
+          'custom_widget': 'compensation_enaktiv',
+          'total': total,
+          'red': red,
+          'blue': blue,
+          'flip': flip,
+        },
+        expected: ['$newRed,$newBlue'],
+      );
+    }
+
+    testWidgets(
+        'pressing Zudecken covers the pile and reveals the input fields; '
+        'filling both reports the joined answer', (tester) async {
+      final values = <String>[];
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: CompensationEnaktivWidget(
+              problem: compProblem(
+                total: 8,
+                red: 6,
+                blue: 2,
+                flip: 'red_to_blue',
+              ),
+              onValueChanged: values.add,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('Gesamt: 8'), findsOneWidget);
+      expect(find.text('Eine rote wird blau.'), findsOneWidget);
+      expect(find.byType(TextField), findsNothing);
+
+      await tester.tap(find.byKey(const ValueKey('comp-cover-button')));
+      await tester.pump();
+
+      expect(find.byType(TextField), findsNWidgets(2));
+      await tester.enterText(
+        find.byKey(const ValueKey('comp-input-Rot')),
+        '5',
+      );
+      await tester.pump();
+      expect(values.last, '');
+      await tester.enterText(
+        find.byKey(const ValueKey('comp-input-Blau')),
+        '3',
+      );
+      await tester.pump();
+
+      expect(values.last, '5,3');
+    });
+
+    testWidgets('a new problem resets to uncovered with no fields',
+        (tester) async {
+      final values = <String>[];
+      Widget host(Problem p) => MaterialApp(
+            home: Scaffold(
+              body: CompensationEnaktivWidget(
+                problem: p,
+                onValueChanged: values.add,
+              ),
+            ),
+          );
+
+      await tester.pumpWidget(
+        host(compProblem(total: 8, red: 6, blue: 2, flip: 'red_to_blue')),
+      );
+      await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('comp-cover-button')));
+      await tester.pump();
+      expect(find.byType(TextField), findsNWidgets(2));
+
+      await tester.pumpWidget(
+        host(compProblem(total: 9, red: 4, blue: 5, flip: 'blue_to_red')),
+      );
+      await tester.pump();
+
+      expect(values.last, '');
+      expect(find.byType(TextField), findsNothing);
+      expect(find.byKey(const ValueKey('comp-cover-button')), findsOneWidget);
+    });
+  });
+
+  group('CompensationIkonischWidget', () {
+    testWidgets('renders the pile and fields together, no cover step',
+        (tester) async {
+      final values = <String>[];
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: CompensationIkonischWidget(
+              problem: _problem(
+                template: 'custom_widget',
+                display: {
+                  'custom_widget': 'compensation_ikonisch',
+                  'total': 10,
+                  'red': 4,
+                  'blue': 6,
+                  'flip': 'blue_to_red',
+                },
+                expected: ['5,5'],
+              ),
+              onValueChanged: values.add,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('Gesamt: 10'), findsOneWidget);
+      expect(find.text('Eine blaue wird rot.'), findsOneWidget);
+      expect(find.byType(TextField), findsNWidgets(2));
+
+      await tester.enterText(find.byKey(const ValueKey('comp-input-Rot')), '5');
+      await tester.enterText(find.byKey(const ValueKey('comp-input-Blau')), '5');
+      await tester.pump();
+
+      expect(values.last, '5,5');
+    });
+  });
+
+  group('CompensationSymbolischWidget', () {
+    testWidgets('renders bare numbers and text, no counter pile',
+        (tester) async {
+      final values = <String>[];
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: CompensationSymbolischWidget(
+              problem: _problem(
+                template: 'custom_widget',
+                display: {
+                  'custom_widget': 'compensation_symbolisch',
+                  'total': 15,
+                  'red': 9,
+                  'blue': 6,
+                  'flip': 'red_to_blue',
+                },
+                expected: ['8,7'],
+              ),
+              onValueChanged: values.add,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('9 rot, 6 blau (zusammen 15)'), findsOneWidget);
+      expect(find.text('Eine rote wird blau.'), findsOneWidget);
+      expect(find.byType(WendeplaettchenWidget), findsNothing);
     });
   });
 

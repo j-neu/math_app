@@ -41,6 +41,9 @@ import '../widgets/templates/tens_add_symbolisch_widget.dart';
 import '../widgets/templates/tens_sub_enaktiv_widget.dart';
 import '../widgets/templates/tens_sub_ikonisch_widget.dart';
 import '../widgets/templates/tens_sub_symbolisch_widget.dart';
+import '../widgets/templates/compensation_enaktiv_widget.dart';
+import '../widgets/templates/compensation_ikonisch_widget.dart';
+import '../widgets/templates/compensation_symbolisch_widget.dart';
 import '../widgets/templates/halving_mirror_enaktiv_widget.dart';
 import '../widgets/templates/halving_mirror_ikonisch_widget.dart';
 import '../widgets/templates/halving_mirror_symbolisch_widget.dart';
@@ -305,6 +308,21 @@ Widget buildTemplateWidget({
           onSubmit: onSubmit,
         ),
       'tens_sub_symbolisch' => TensSubSymbolischWidget(
+          problem: problem,
+          onValueChanged: onValueChanged,
+          onSubmit: onSubmit,
+        ),
+      'compensation_enaktiv' => CompensationEnaktivWidget(
+          problem: problem,
+          onValueChanged: onValueChanged,
+          onSubmit: onSubmit,
+        ),
+      'compensation_ikonisch' => CompensationIkonischWidget(
+          problem: problem,
+          onValueChanged: onValueChanged,
+          onSubmit: onSubmit,
+        ),
+      'compensation_symbolisch' => CompensationSymbolischWidget(
           problem: problem,
           onValueChanged: onValueChanged,
           onSubmit: onSubmit,

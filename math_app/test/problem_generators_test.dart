@@ -3998,6 +3998,42 @@ void main() {
         }
       }
     });
+
+    test('compensation_enaktiv: red/blue always >= 1, sum invariant after '
+        'the flip, expected == "newRed,newBlue"', () {
+      final s = spec('compensation_enaktiv', {
+        'total_range': [4, 10],
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final total = p.display['total'] as int;
+          final red = p.display['red'] as int;
+          final blue = p.display['blue'] as int;
+          final flip = p.display['flip'] as String;
+          expect(total, inInclusiveRange(4, 10));
+          expect(red, greaterThanOrEqualTo(1));
+          expect(blue, greaterThanOrEqualTo(1));
+          expect(red + blue, total);
+          expect(['red_to_blue', 'blue_to_red'], contains(flip));
+
+          final newRed = flip == 'red_to_blue' ? red - 1 : red + 1;
+          final newBlue = flip == 'red_to_blue' ? blue + 1 : blue - 1;
+          expect(newRed + newBlue, total, reason: 'sum stays invariant');
+          expect(p.expected, ['$newRed,$newBlue']);
+          expect(p.display['custom_widget'], 'compensation_enaktiv');
+        }
+      }
+    });
+
+    test('compensation: total_range outside [2,20] throws', () {
+      final s = spec('compensation_enaktiv', {
+        'total_range': [1, 10],
+      });
+      expect(
+        () => generateProblems(spec: s, level: 2, seed: 0),
+        throwsA(isA<SpecFormatException>()),
+      );
+    });
   });
 
   group('Problem JSON round-trip', () {

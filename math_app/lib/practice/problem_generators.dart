@@ -2010,6 +2010,10 @@ Problem _generateCustomWidget(
     case 'tens_sub_ikonisch':
     case 'tens_sub_symbolisch':
       return _generateTensSub(spec, level, levelNumber, seed, index, gen);
+    case 'compensation_enaktiv':
+    case 'compensation_ikonisch':
+    case 'compensation_symbolisch':
+      return _generateCompensation(spec, level, levelNumber, seed, index, gen);
     case 'halving_mirror_enaktiv':
     case 'halving_mirror_ikonisch':
     case 'halving_mirror_symbolisch':
@@ -2548,6 +2552,64 @@ Problem _generateTensSub(
       'target': target,
     },
     expected: [target.toString()],
+  );
+}
+
+/// Registry keys `"compensation_enaktiv"`, `"compensation_ikonisch"`,
+/// `"compensation_symbolisch"` (compensation_strategy_zr20, BUILD_ORDER.md
+/// Batch 1.13): splits a `total` into `red`/`blue` (both >= 1 by
+/// construction -- `red` is drawn from `[1, total-1]`, so `blue = total -
+/// red` is also in `[1, total-1]`), then coin-flips a direction for which
+/// colour loses one unit to the other -- the sum stays invariant
+/// ("gegensinniges Verändern"). `display` carries `total`/`red`/`blue`
+/// plus `flip` (`"red_to_blue"` or `"blue_to_red"`); `expected` is the
+/// single joined string `"<newRed>,<newBlue>"`, matching exactly what
+/// every widget's two number fields report once both parse -- graded by
+/// the default plain string match in `_evaluateCustomWidget`.
+Problem _generateCompensation(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final totalRange = level.intListParam('total_range');
+  if (totalRange.length != 2) {
+    throw SpecFormatException(
+      'compensation: "total_range" must be a 2-element [min, max] list',
+    );
+  }
+  final lo = totalRange[0];
+  final hi = totalRange[1];
+  if (lo < 2 || hi > 20 || lo > hi) {
+    throw SpecFormatException(
+      'compensation: total_range [$lo, $hi] must be within [2, 20]',
+    );
+  }
+
+  final total = gen.nextIntInRange(lo, hi);
+  final red = gen.nextIntInRange(1, total - 1);
+  final blue = total - red;
+  final flipToBlue = gen.nextInt(2) == 0;
+  final newRed = flipToBlue ? red - 1 : red + 1;
+  final newBlue = flipToBlue ? blue + 1 : blue - 1;
+
+  return Problem(
+    template: 'custom_widget',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: {
+      'custom_widget': level.customWidget,
+      'total': total,
+      'red': red,
+      'blue': blue,
+      'flip': flipToBlue ? 'red_to_blue' : 'blue_to_red',
+    },
+    expected: ['$newRed,$newBlue'],
   );
 }
 

@@ -3521,6 +3521,88 @@ void main() {
     });
 
     test(
+        'real ZR100 successor/predecessor specs (Batch 2.2): gap position, '
+        '+/-1, ZR100 bounds and each skill/level ones-digit rule of the '
+        'given number', () {
+      const successorGivenOnes = <String, List<Set<int>>>{
+        'successor_zr100_mid': [
+          {1, 2, 3, 4, 5, 6, 7},
+          {1, 2, 3, 4, 5, 6, 7},
+          {8},
+        ],
+        'successor_zr100_five': [
+          {5},
+          {5},
+          {5},
+        ],
+        'successor_zr100_decade': [
+          {9},
+          {9},
+          {9},
+        ],
+      };
+      const predecessorGivenOnes = <String, List<Set<int>>>{
+        'predecessor_zr100_mid': [
+          {2, 3, 4, 5, 6, 7, 8},
+          {2, 3, 4, 5, 6, 7, 8},
+          {1},
+        ],
+        'predecessor_zr100_five': [
+          {5},
+          {5},
+          {5},
+        ],
+        'predecessor_zr100_decade': [
+          {0},
+          {0},
+          {0},
+        ],
+      };
+
+      for (final entry in successorGivenOnes.entries) {
+        final s = _realSpec(entry.key);
+        for (var level = 1; level <= 3; level++) {
+          for (var seed = 0; seed < 150; seed++) {
+            for (final p in generateProblems(spec: s, level: level, seed: seed)) {
+              final reason = '${entry.key} level $level seed $seed';
+              expect(p.template, 'sequence_gap', reason: reason);
+              final values = (p.display['values'] as List).cast<int>();
+              expect(values, hasLength(2), reason: reason);
+              expect(p.display['gap_indices'], [1], reason: reason);
+              expect(values[1], values[0] + 1, reason: reason);
+              expect(p.expected, [values[1].toString()], reason: reason);
+              expect(values[0], inInclusiveRange(1, 99), reason: reason);
+              expect(values[1], lessThanOrEqualTo(100), reason: reason);
+              expect(entry.value[level - 1], contains(values[0] % 10),
+                  reason: '$reason: given ${values[0]}');
+            }
+          }
+        }
+      }
+
+      for (final entry in predecessorGivenOnes.entries) {
+        final s = _realSpec(entry.key);
+        for (var level = 1; level <= 3; level++) {
+          for (var seed = 0; seed < 150; seed++) {
+            for (final p in generateProblems(spec: s, level: level, seed: seed)) {
+              final reason = '${entry.key} level $level seed $seed';
+              expect(p.template, 'sequence_gap', reason: reason);
+              final values = (p.display['values'] as List).cast<int>();
+              expect(values, hasLength(2), reason: reason);
+              expect(p.display['gap_indices'], [0], reason: reason);
+              expect(values[0], values[1] - 1, reason: reason);
+              expect(p.expected, [values[0].toString()], reason: reason);
+              expect(values[0], inInclusiveRange(1, 99), reason: reason);
+              expect(values[1], lessThanOrEqualTo(100), reason: reason);
+              expect(entry.value[level - 1], contains(values[1] % 10),
+                  reason: '$reason: given ${values[1]}');
+            }
+          }
+        }
+      }
+    });
+
+    test(
         'real skip2_forward_zr20: L1/L2 tap runs step by 2 up to target, '
         'within [0, 20]', () {
       final s = _realSpec('skip2_forward_zr20');

@@ -1,0 +1,108 @@
+{
+  "spec_version": 1,
+  "skill_id": "predecessor_zr100_five",
+  "construct_id": "predecessor",
+  "domain": "A",
+  "title_de": "Vorgänger von Zahlen auf 5 (ZR100)",
+  "level_titles_de": [
+    "Vorgänger einer Zahl auf 5",
+    "Vorgänger bei größeren Zehnern",
+    "Vorgänger bei den größten Zehnern"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "sequence_gap",
+      "params": {
+        "direction": "up",
+        "step": 1,
+        "start_range": [
+          14,
+          44
+        ],
+        "start_ones_digits": [
+          4
+        ],
+        "length": 2,
+        "gap_indices": [
+          0
+        ]
+      },
+      "problem_count": 8,
+      "prompt_de": "Welche Zahl kommt direkt davor?",
+      "slow_band_ms": 12000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "sequence_gap",
+      "params": {
+        "direction": "up",
+        "step": 1,
+        "start_range": [
+          44,
+          74
+        ],
+        "start_ones_digits": [
+          4
+        ],
+        "length": 2,
+        "gap_indices": [
+          0
+        ]
+      },
+      "problem_count": 8,
+      "prompt_de": "Welche Zahl kommt direkt vor dieser Zahl?",
+      "slow_band_ms": 10000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "sequence_gap",
+      "params": {
+        "direction": "up",
+        "step": 1,
+        "start_range": [
+          64,
+          94
+        ],
+        "start_ones_digits": [
+          4
+        ],
+        "length": 2,
+        "gap_indices": [
+          0
+        ]
+      },
+      "problem_count": 8,
+      "prompt_de": "Achtung, große Zahl! Welche Zahl kommt direkt davor?",
+      "slow_band_ms": 8000
+    }
+  ],
+  "mastery": {
+    "correct_of": 8
+  },
+  "error_taxonomy": [
+    {
+      "code": "miscount",
+      "label_de": "knapp daneben",
+      "hint_de": "Ganz nah dran! Zähl noch einmal genau."
+    },
+    {
+      "code": "other",
+      "label_de": "noch einmal probieren",
+      "hint_de": "Schau dir die Zahl noch einmal an und probiere es noch einmal."
+    }
+  ],
+  "provenance": {
+    "sources": [
+      "RLP BE/BB Teil C, L1, Niveaustufe A",
+      "Padberg/Benz, Nachfolger-Vorgänger-Konzept und Zahlwortreihe",
+      "Gaidoschik, Zehnerübergang und Stellenwertverständnis",
+      "Wartha/Schulz, Ablösung vom zählenden Rechnen"
+    ],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

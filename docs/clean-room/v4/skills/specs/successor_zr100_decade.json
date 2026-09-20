@@ -1,0 +1,108 @@
+{
+  "spec_version": 1,
+  "skill_id": "successor_zr100_decade",
+  "construct_id": "successor",
+  "domain": "A",
+  "title_de": "Nachfolger über die Zehnergrenze (ZR100)",
+  "level_titles_de": [
+    "Nachfolger über die Zehnergrenze",
+    "Zehnergrenze bei größeren Zahlen",
+    "Zehnergrenze bis zur Hundert"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "sequence_gap",
+      "params": {
+        "direction": "up",
+        "step": 1,
+        "start_range": [
+          19,
+          49
+        ],
+        "start_ones_digits": [
+          9
+        ],
+        "length": 2,
+        "gap_indices": [
+          1
+        ]
+      },
+      "problem_count": 8,
+      "prompt_de": "Vorsicht, hier wechselt der Zehner! Welche Zahl kommt direkt danach?",
+      "slow_band_ms": 14000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "sequence_gap",
+      "params": {
+        "direction": "up",
+        "step": 1,
+        "start_range": [
+          39,
+          79
+        ],
+        "start_ones_digits": [
+          9
+        ],
+        "length": 2,
+        "gap_indices": [
+          1
+        ]
+      },
+      "problem_count": 8,
+      "prompt_de": "Vorsicht, hier wechselt der Zehner! Welche Zahl kommt direkt danach?",
+      "slow_band_ms": 12000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "sequence_gap",
+      "params": {
+        "direction": "up",
+        "step": 1,
+        "start_range": [
+          69,
+          99
+        ],
+        "start_ones_digits": [
+          9
+        ],
+        "length": 2,
+        "gap_indices": [
+          1
+        ]
+      },
+      "problem_count": 8,
+      "prompt_de": "Vorsicht, hier wechselt der Zehner! Welche Zahl kommt direkt danach?",
+      "slow_band_ms": 10000
+    }
+  ],
+  "mastery": {
+    "correct_of": 8
+  },
+  "error_taxonomy": [
+    {
+      "code": "miscount",
+      "label_de": "knapp daneben",
+      "hint_de": "Ganz nah dran! Zähl noch einmal genau."
+    },
+    {
+      "code": "other",
+      "label_de": "noch einmal probieren",
+      "hint_de": "Schau dir die Zahl noch einmal an und probiere es noch einmal."
+    }
+  ],
+  "provenance": {
+    "sources": [
+      "RLP BE/BB Teil C, L1, Niveaustufe A",
+      "Padberg/Benz, Nachfolger-Vorgänger-Konzept und Zahlwortreihe",
+      "Gaidoschik, Zehnerübergang und Stellenwertverständnis",
+      "Wartha/Schulz, Ablösung vom zählenden Rechnen"
+    ],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

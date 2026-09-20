@@ -435,5 +435,44 @@ void main() {
       expect(spec.levels.map((l) => l.template),
           ['sequence_gap', 'sequence_gap', 'sequence_gap']);
     });
+
+    test('the six ZR100 successor/predecessor specs (Batch 2.2) parse with the '
+        'sequence_gap template', () {
+      final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+      const expected = <String, ({String construct, String title})>{
+        'successor_zr100_mid':
+            (construct: 'successor', title: 'Nachfolger im ZR100'),
+        'predecessor_zr100_mid':
+            (construct: 'predecessor', title: 'Vorgänger im ZR100'),
+        'successor_zr100_five': (
+          construct: 'successor',
+          title: 'Nachfolger von Zahlen auf 5 (ZR100)',
+        ),
+        'predecessor_zr100_five': (
+          construct: 'predecessor',
+          title: 'Vorgänger von Zahlen auf 5 (ZR100)',
+        ),
+        'successor_zr100_decade': (
+          construct: 'successor',
+          title: 'Nachfolger über die Zehnergrenze (ZR100)',
+        ),
+        'predecessor_zr100_decade': (
+          construct: 'predecessor',
+          title: 'Vorgänger über die Zehnergrenze (ZR100)',
+        ),
+      };
+      for (final e in expected.entries) {
+        final spec = store.byId(e.key);
+        expect(spec.constructId, e.value.construct, reason: e.key);
+        expect(spec.domain, 'A', reason: e.key);
+        expect(spec.titleDe, e.value.title, reason: e.key);
+        expect(spec.levels.map((l) => l.template),
+            ['sequence_gap', 'sequence_gap', 'sequence_gap'],
+            reason: e.key);
+        expect(spec.levels.map((l) => l.representation),
+            ['enaktiv', 'ikonisch', 'symbolisch'],
+            reason: e.key);
+      }
+    });
   });
 }

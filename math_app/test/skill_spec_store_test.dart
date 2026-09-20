@@ -157,6 +157,20 @@ void main() {
       );
     });
 
+    test('compensation_strategy_zr20 parses with the compensation widgets',
+        () {
+      final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+      final spec = store.byId('compensation_strategy_zr20');
+      expect(spec.constructId, 'compensation_strategy');
+      expect(spec.domain, 'C');
+      expect(spec.titleDe, 'Gegensinniges Verändern');
+      expect(spec.levels.map((l) => l.customWidget), [
+        'compensation_enaktiv',
+        'compensation_ikonisch',
+        'compensation_symbolisch',
+      ]);
+    });
+
     test('halve_zr10 (Pilot B) parses with the new halving-mirror widgets',
         () {
       final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());

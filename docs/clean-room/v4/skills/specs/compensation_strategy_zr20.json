@@ -1,0 +1,53 @@
+{
+  "spec_version": 1,
+  "skill_id": "compensation_strategy_zr20",
+  "construct_id": "compensation_strategy",
+  "domain": "C",
+  "title_de": "Gegensinniges Verändern",
+  "level_titles_de": [
+    "Zugedeckt merken (ZR10)",
+    "Bild bleibt sichtbar (ZR15)",
+    "Nur Zahlen (ZR20)"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "custom_widget",
+      "custom_widget": "compensation_enaktiv",
+      "params": { "total_range": [4, 10] },
+      "problem_count": 8,
+      "prompt_de": "Merke dir Rot und Blau. Wie viele sind es nach der Veränderung?",
+      "slow_band_ms": 14000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "custom_widget",
+      "custom_widget": "compensation_ikonisch",
+      "params": { "total_range": [6, 15] },
+      "problem_count": 8,
+      "prompt_de": "Wie viele sind es nach der Veränderung?",
+      "slow_band_ms": 11000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "custom_widget",
+      "custom_widget": "compensation_symbolisch",
+      "params": { "total_range": [10, 20] },
+      "problem_count": 8,
+      "prompt_de": "Rechne im Kopf.",
+      "slow_band_ms": 8000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Eine Farbe wird zur anderen. Die Gesamtzahl bleibt gleich." }
+  ],
+  "provenance": {
+    "sources": ["iMINT S2.3 Opposite Change", "Padberg/Benz, Gegensinniges Verändern"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

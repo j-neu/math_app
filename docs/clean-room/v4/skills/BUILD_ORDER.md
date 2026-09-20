@@ -1,6 +1,6 @@
 # v4 skill-spec build order
 
-66 of 93 skills remain (27 shipped as of Batch 1.11 —
+63 of 93 skills remain (30 shipped as of Batch 1.12 —
 `docs/superpowers/plans/2026-09-15-exercise-plan-foundation.md`). Run
 `python scripts/check_skill_spec_coverage.py` for live status; this file is
 the *order* to close the gap in, not the live status itself.
@@ -15,7 +15,7 @@ New — widget exists / 21 New — from scratch) minus the two shipped skills:
 29 / 31 / 11 / 20 remaining. Every archetype tag and manipulative below is
 taken from `docs/superpowers/specs/2026-09-15-exercise-plan-design.md` §5.
 
-## Tier 1: Reused (4 remaining of 30)
+## Tier 1: Reused (1 remaining of 30)
 
 Cheapest tier — a close 1:1 old exercise exists, so most instances are an
 id/field retarget like Task 4's double_zr10.
@@ -70,9 +70,9 @@ id/field retarget like Task 4's double_zr10.
 - [x] `double_decade` — shipped, `docs/superpowers/plans/2026-09-19-double-zr10-to-zr20-crossing10-decade.md`; Reused from S3.6 `Zehner verdoppeln` (`doubling_tens_exercise.dart`); ten-rod material or scaled mirror (e.g. double 30)
 
 ### Batch 1.12 — tens arithmetic (construct `tens_add_sub`)
-- [ ] `tens_add_tens` — Reused from S3.7 `Rechnen mit Zehnern` (`tens_calculation_exercise.dart`); Visual Add → Symbolic + levels
-- [ ] `tens_sub_tens` — Reused from the same S3.7 file; Visual Sub → Symbolic − levels
-- [ ] `tens_sub_crossing_hundred` — Reused from the same S3.7 file, plus its 100-crossing level (e.g. 100−20)
+- [x] `tens_add_tens` — shipped, `docs/superpowers/plans/2026-09-20-tens-add-sub-batch-1-12.md`; Reused from S3.7 `Rechnen mit Zehnern` (`tens_calculation_exercise.dart`); Visual Add → Symbolic + levels
+- [x] `tens_sub_tens` — shipped, `docs/superpowers/plans/2026-09-20-tens-add-sub-batch-1-12.md`; Reused from the same S3.7 file; Visual Sub → Symbolic − levels
+- [x] `tens_sub_crossing_hundred` — shipped, `docs/superpowers/plans/2026-09-20-tens-add-sub-batch-1-12.md`; Reused from the same S3.7 file, plus its 100-crossing level (e.g. 100−20)
 
 ### Batch 1.13 — compensation (construct `compensation_strategy`)
 - [ ] `compensation_strategy_zr20` — Reused from S2.3 `Opposite Change` (`opposite_change_exercise.dart`); two-pile counters, simultaneous +1/−1 manipulation
@@ -258,7 +258,10 @@ conventions (CRA progression, `MinimalistExerciseScaffold`,
 - [x] double_zr10_to_zr20 — `docs/superpowers/plans/2026-09-19-double-zr10-to-zr20-crossing10-decade.md`
 - [x] double_crossing_10 — `docs/superpowers/plans/2026-09-19-double-zr10-to-zr20-crossing10-decade.md`
 - [x] double_decade — `docs/superpowers/plans/2026-09-19-double-zr10-to-zr20-crossing10-decade.md`
+- [x] `tens_add_tens` — shipped, `docs/superpowers/plans/2026-09-20-tens-add-sub-batch-1-12.md`; Reused from S3.7 `Rechnen mit Zehnern` (`tens_calculation_exercise.dart`); tens-rod visual → decade-chip icon → bare numeral, all 3 tiers sharing `TensAddCore`
+- [x] `tens_sub_tens` — shipped, `docs/superpowers/plans/2026-09-20-tens-add-sub-batch-1-12.md`; Reused from the same S3.7 file; tap-to-cross-out ten-rods (enaktiv) → static crossed chips (ikonisch) → bare equation (symbolisch)
+- [x] `tens_sub_crossing_hundred` — shipped, `docs/superpowers/plans/2026-09-20-tens-add-sub-batch-1-12.md`; Reused from the same S3.7 file's 100-crossing level; shares all 3 `tens_sub_*` widgets and the generator with `tens_sub_tens` over `tens_a_range: [10,10]` (a fixed at 100)
 
 (Ids are left unbackticked here on purpose: the completeness check counts
-each skill id once inside backticks, and these twenty-seven are tracked in
-Batches 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 1.10, 1.11 and 4.3 above.)
+each skill id once inside backticks, and these thirty are tracked in
+Batches 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 1.10, 1.11, 1.12 and 4.3 above.)

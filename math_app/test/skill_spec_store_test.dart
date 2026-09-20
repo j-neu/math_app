@@ -138,6 +138,25 @@ void main() {
       ]);
     });
 
+    test('tens_sub_crossing_hundred parses, sharing the tens-sub widgets '
+        'with tens_sub_tens', () {
+      final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+      final spec = store.byId('tens_sub_crossing_hundred');
+      expect(spec.constructId, 'tens_add_sub');
+      expect(spec.domain, 'C');
+      expect(spec.titleDe, 'Zehnerzahl minus Zehnerzahl (Sprung über die 100)');
+      expect(spec.levels.map((l) => l.customWidget), [
+        'tens_sub_enaktiv',
+        'tens_sub_ikonisch',
+        'tens_sub_symbolisch',
+      ]);
+      expect(
+        spec.levels.map((l) => (l.params['tens_a_range'] as List)),
+        everyElement(equals([10, 10])),
+        reason: 'a is fixed at 100 (the "Sprung über die 100" landmark)',
+      );
+    });
+
     test('halve_zr10 (Pilot B) parses with the new halving-mirror widgets',
         () {
       final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());

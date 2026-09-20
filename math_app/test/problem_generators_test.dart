@@ -3286,6 +3286,62 @@ void main() {
       );
     });
 
+    test('count_field20_enaktiv: count in [8,12], expected == count', () {
+      final s = spec('count_field20_enaktiv', {'count_range': [8, 12]});
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final count = p.display['count'] as int;
+          expect(count, inInclusiveRange(8, 12));
+          expect(p.expected, [count.toString()]);
+          expect(p.display['custom_widget'], 'count_field20_enaktiv');
+        }
+      }
+    });
+
+    test('count_field20_ikonisch: count in [12,16], expected == count', () {
+      final s = spec('count_field20_ikonisch', {'count_range': [12, 16]});
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final count = p.display['count'] as int;
+          expect(count, inInclusiveRange(12, 16));
+          expect(p.expected, [count.toString()]);
+          expect(p.display['custom_widget'], 'count_field20_ikonisch');
+        }
+      }
+    });
+
+    test('count_field20_symbolisch: count in [16,20], expected == count', () {
+      final s = spec('count_field20_symbolisch', {'count_range': [16, 20]});
+      final seen = <int>{};
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final count = p.display['count'] as int;
+          seen.add(count);
+          expect(count, inInclusiveRange(16, 20));
+          expect(p.expected, [count.toString()]);
+          expect(p.display['custom_widget'], 'count_field20_symbolisch');
+        }
+      }
+      expect(seen, contains(20), reason: 'the ZR20 upper bound is reachable');
+    });
+
+    test('count_field20: an invalid count_range throws instead of clamping',
+        () {
+      for (final bad in [
+        [0, 10],
+        [10, 21],
+        [12, 8],
+        [12],
+      ]) {
+        final s = spec('count_field20_enaktiv', {'count_range': bad});
+        expect(
+          () => generateProblems(spec: s, level: 2, seed: 1),
+          throwsA(isA<SpecFormatException>()),
+          reason: 'count_range $bad must be rejected',
+        );
+      }
+    });
+
     test('real double_zr10 generates valid doubling-mirror problems', () {
       final s = _realSpec('double_zr10');
       for (var level = 1; level <= 3; level++) {

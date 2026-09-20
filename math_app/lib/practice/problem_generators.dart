@@ -2022,6 +2022,10 @@ Problem _generateCustomWidget(
     case 'count_field_ikonisch':
     case 'count_field_symbolisch':
       return _generateCountField(spec, level, levelNumber, seed, index, gen);
+    case 'count_field20_enaktiv':
+    case 'count_field20_ikonisch':
+    case 'count_field20_symbolisch':
+      return _generateCountField20(spec, level, levelNumber, seed, index, gen);
     case 'hundred_chart_skip':
       return _generateHundredChartStep(spec, level, levelNumber, seed, index, gen);
     case 'order_cards':
@@ -2671,6 +2675,52 @@ Problem _generateCountField(
   if (lo > hi) {
     throw SpecFormatException(
       'count_field: count_range [$lo, $hi] must be within [1, 10] for ZR10',
+    );
+  }
+  final count = gen.nextIntInRange(lo, hi);
+
+  return Problem(
+    template: 'custom_widget',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: {
+      'custom_widget': level.customWidget,
+      'count': count,
+    },
+    expected: [count.toString()],
+  );
+}
+
+/// Registry keys `"count_field20_enaktiv"`, `"count_field20_ikonisch"`,
+/// `"count_field20_symbolisch"` (quantify_count_zr20, alle drei Level
+/// derselben Skill-Spec, BUILD_ORDER.md Batch 2.1): the ZR20 sibling of
+/// [_generateCountField]. `display.count` is the number of dots the widget
+/// scatters; the typed total is a plain string match against `expected`,
+/// handled by `_evaluateCustomWidget`'s default branch. Unlike the ZR10
+/// generator this one does not clamp: a `count_range` outside `[1, 20]` (or
+/// not a 2-element `[min, max]` list) is a spec-authoring mistake and throws.
+Problem _generateCountField20(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final countRange = level.intListParam('count_range');
+  if (countRange.length != 2) {
+    throw SpecFormatException(
+      'count_field20: "count_range" must be a 2-element [min, max] list',
+    );
+  }
+  final lo = countRange[0];
+  final hi = countRange[1];
+  if (lo < 1 || hi > 20 || lo > hi) {
+    throw SpecFormatException(
+      'count_field20: count_range [$lo, $hi] must be within [1, 20]',
     );
   }
   final count = gen.nextIntInRange(lo, hi);

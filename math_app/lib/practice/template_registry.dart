@@ -44,6 +44,9 @@ import '../widgets/templates/tens_sub_symbolisch_widget.dart';
 import '../widgets/templates/compensation_enaktiv_widget.dart';
 import '../widgets/templates/compensation_ikonisch_widget.dart';
 import '../widgets/templates/compensation_symbolisch_widget.dart';
+import '../widgets/templates/count_field20_enaktiv_widget.dart';
+import '../widgets/templates/count_field20_ikonisch_widget.dart';
+import '../widgets/templates/count_field20_symbolisch_widget.dart';
 import '../widgets/templates/halving_mirror_enaktiv_widget.dart';
 import '../widgets/templates/halving_mirror_ikonisch_widget.dart';
 import '../widgets/templates/halving_mirror_symbolisch_widget.dart';
@@ -323,6 +326,21 @@ Widget buildTemplateWidget({
           onSubmit: onSubmit,
         ),
       'compensation_symbolisch' => CompensationSymbolischWidget(
+          problem: problem,
+          onValueChanged: onValueChanged,
+          onSubmit: onSubmit,
+        ),
+      'count_field20_enaktiv' => CountField20EnaktivWidget(
+          problem: problem,
+          onValueChanged: onValueChanged,
+          onSubmit: onSubmit,
+        ),
+      'count_field20_ikonisch' => CountField20IkonischWidget(
+          problem: problem,
+          onValueChanged: onValueChanged,
+          onSubmit: onSubmit,
+        ),
+      'count_field20_symbolisch' => CountField20SymbolischWidget(
           problem: problem,
           onValueChanged: onValueChanged,
           onSubmit: onSubmit,

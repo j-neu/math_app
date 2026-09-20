@@ -68,6 +68,9 @@ const Set<String> kKnownCustomWidgets = {
   'compensation_enaktiv',
   'compensation_ikonisch',
   'compensation_symbolisch',
+  'count_field20_enaktiv',
+  'count_field20_ikonisch',
+  'count_field20_symbolisch',
 };
 
 /// Thrown when a skill-spec JSON document violates the P2 §4 schema.

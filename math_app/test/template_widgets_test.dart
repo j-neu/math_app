@@ -34,6 +34,10 @@ import 'package:math_app/widgets/templates/halving_mirror_symbolisch_widget.dart
 import 'package:math_app/widgets/templates/count_field_enaktiv_widget.dart';
 import 'package:math_app/widgets/templates/count_field_ikonisch_widget.dart';
 import 'package:math_app/widgets/templates/count_field_symbolisch_widget.dart';
+import 'package:math_app/widgets/templates/count_field20_common.dart';
+import 'package:math_app/widgets/templates/count_field20_enaktiv_widget.dart';
+import 'package:math_app/widgets/templates/count_field20_ikonisch_widget.dart';
+import 'package:math_app/widgets/templates/count_field20_symbolisch_widget.dart';
 import 'package:math_app/widgets/templates/drag_partition_widget.dart';
 import 'package:math_app/widgets/templates/equation_gap_widget.dart';
 import 'package:math_app/widgets/templates/equation_solve_widget.dart';
@@ -3941,6 +3945,205 @@ void main() {
       expect(values.last, '');
       expect(find.text('Angetippt: 0'), findsOneWidget);
     });
+  });
+
+  group('layoutCountField20', () {
+    for (final sizes in <List<double>>[
+      [48],
+      [44, 54, 62],
+    ]) {
+      test('no two dots overlap and every dot stays inside the play area '
+          '(sizes $sizes, counts 1..20, many seeds)', () {
+        for (var count = 1; count <= 20; count++) {
+          for (var seed = 0; seed < 60; seed++) {
+            for (var index = 0; index < 4; index++) {
+              final dots = layoutCountField20(
+                seed: seed,
+                index: index,
+                count: count,
+                sizes: sizes,
+              );
+              expect(dots, hasLength(count));
+              const area = Rect.fromLTWH(
+                0,
+                0,
+                kCountField20Area,
+                kCountField20Area,
+              );
+              for (var i = 0; i < dots.length; i++) {
+                final r = dots[i].rect;
+                expect(area.contains(r.topLeft), isTrue);
+                expect(area.contains(r.bottomRight), isTrue);
+                expect(sizes, contains(dots[i].size));
+                for (var j = i + 1; j < dots.length; j++) {
+                  expect(
+                    r.overlaps(dots[j].rect),
+                    isFalse,
+                    reason: 'dots $i and $j overlap '
+                        '(seed $seed, index $index, count $count)',
+                  );
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    test('the layout is a pure function of seed, index, count and sizes', () {
+      final a = layoutCountField20(
+          seed: 42, index: 3, count: 18, sizes: const [44, 54, 62]);
+      final b = layoutCountField20(
+          seed: 42, index: 3, count: 18, sizes: const [44, 54, 62]);
+      for (var i = 0; i < a.length; i++) {
+        expect(a[i].left, b[i].left);
+        expect(a[i].top, b[i].top);
+        expect(a[i].size, b[i].size);
+      }
+    });
+  });
+
+  for (final tier in <({
+    String name,
+    String key,
+    bool tally,
+    Widget Function(Problem, ValueChanged<String>, VoidCallback?) build,
+  })>[
+    (
+      name: 'CountField20EnaktivWidget',
+      key: 'count_field20_enaktiv',
+      tally: true,
+      build: (p, cb, submit) => CountField20EnaktivWidget(
+            problem: p,
+            onValueChanged: cb,
+            onSubmit: submit,
+          ),
+    ),
+    (
+      name: 'CountField20IkonischWidget',
+      key: 'count_field20_ikonisch',
+      tally: false,
+      build: (p, cb, submit) => CountField20IkonischWidget(
+            problem: p,
+            onValueChanged: cb,
+            onSubmit: submit,
+          ),
+    ),
+    (
+      name: 'CountField20SymbolischWidget',
+      key: 'count_field20_symbolisch',
+      tally: false,
+      build: (p, cb, submit) => CountField20SymbolischWidget(
+            problem: p,
+            onValueChanged: cb,
+            onSubmit: submit,
+          ),
+    ),
+  ]) {
+    group(tier.name, () {
+      Problem countProblem(int count, {int seed = 7, int index = 0}) => Problem(
+            template: 'custom_widget',
+            skillId: 'G1',
+            level: 1,
+            seed: seed,
+            index: index,
+            promptDe: '',
+            display: {'custom_widget': tier.key, 'count': count},
+            expected: [count.toString()],
+          );
+
+      testWidgets('renders exactly count dots, up to the ZR20 maximum of 20',
+          (tester) async {
+        await _pumpApp(tester, tier.build(countProblem(20), (_) {}, null));
+        for (var i = 0; i < 20; i++) {
+          expect(find.byKey(ValueKey('cf20-dot-$i')), findsOneWidget);
+        }
+        expect(find.byKey(const ValueKey('cf20-dot-20')), findsNothing);
+      });
+
+      testWidgets('tapping a dot marks it counted, tapping again unmarks it',
+          (tester) async {
+        await _pumpApp(tester, tier.build(countProblem(15), (_) {}, null));
+        expect(find.byIcon(Icons.check), findsNothing);
+        await tester.tap(find.byKey(const ValueKey('cf20-dot-0')));
+        await tester.pump();
+        expect(find.byIcon(Icons.check), findsOneWidget);
+        await tester.tap(find.byKey(const ValueKey('cf20-dot-0')));
+        await tester.pump();
+        expect(find.byIcon(Icons.check), findsNothing);
+      });
+
+      testWidgets(
+          tier.tally
+              ? 'shows a live "Angetippt" tally'
+              : 'hides the "Angetippt" tally', (tester) async {
+        await _pumpApp(tester, tier.build(countProblem(15), (_) {}, null));
+        await tester.tap(find.byKey(const ValueKey('cf20-dot-0')));
+        await tester.pump();
+        expect(
+          find.byKey(const ValueKey('cf20-tapped-count')),
+          tier.tally ? findsOneWidget : findsNothing,
+        );
+        if (tier.tally) expect(find.text('Angetippt: 1'), findsOneWidget);
+      });
+
+      testWidgets('typing the total reports it via onValueChanged and Enter '
+          'submits', (tester) async {
+        final values = <String>[];
+        var submitted = false;
+        await _pumpApp(
+          tester,
+          tier.build(countProblem(17), values.add, () => submitted = true),
+        );
+        await tester.enterText(find.byType(TextField), '17');
+        expect(values.last, '17');
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pump();
+        expect(submitted, isTrue);
+      });
+
+      testWidgets('a new problem resets the marks and the field, reports ""',
+          (tester) async {
+        final values = <String>[];
+        await _pumpApp(tester, tier.build(countProblem(12), values.add, null));
+        await tester.tap(find.byKey(const ValueKey('cf20-dot-0')));
+        await tester.enterText(find.byType(TextField), '12');
+        await tester.pump();
+        expect(find.byIcon(Icons.check), findsOneWidget);
+
+        await _pumpApp(tester, tier.build(countProblem(19), values.add, null));
+        expect(values.last, '');
+        expect(find.byIcon(Icons.check), findsNothing);
+        expect(find.byKey(const ValueKey('cf20-dot-18')), findsOneWidget);
+        expect(find.byKey(const ValueKey('cf20-dot-19')), findsNothing);
+      });
+    });
+  }
+
+  testWidgets('CountField20SymbolischWidget draws dots at varying sizes',
+      (tester) async {
+    await _pumpApp(
+      tester,
+      CountField20SymbolischWidget(
+        problem: Problem(
+          template: 'custom_widget',
+          skillId: 'G1',
+          level: 3,
+          seed: 1,
+          index: 0,
+          promptDe: '',
+          display: {'custom_widget': 'count_field20_symbolisch', 'count': 20},
+          expected: const ['20'],
+        ),
+        onValueChanged: (_) {},
+      ),
+    );
+    final sizes = <double>{
+      for (var i = 0; i < 20; i++)
+        tester.getSize(find.byKey(ValueKey('cf20-dot-$i'))).width,
+    };
+    expect(sizes.length, greaterThan(1));
+    expect(sizes.every((s) => s >= 44), isTrue);
   });
 
   group('HundredChartStepWidget', () {

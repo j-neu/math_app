@@ -77,7 +77,7 @@ class _TensSubEnaktivWidgetState extends State<TensSubEnaktivWidget> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Streiche $_b Zehner durch!',
+          'Streiche ${_b ~/ 10} Zehner durch!',
           style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
         ),
         const SizedBox(height: 16),

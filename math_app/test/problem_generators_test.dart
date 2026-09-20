@@ -3206,6 +3206,18 @@ void main() {
       }
     });
 
+    test('tens_sub_enaktiv: tens_b_range minimum exceeding tens_a_range '
+        'minimum throws (would otherwise allow a negative result)', () {
+      final s = spec('tens_sub_enaktiv', {
+        'tens_a_range': [2, 9],
+        'tens_b_range': [5, 9],
+      });
+      expect(
+        () => generateProblems(spec: s, level: 2, seed: 0),
+        throwsA(isA<SpecFormatException>()),
+      );
+    });
+
     test('halving_mirror_enaktiv: half in [1,5], full == half*2, expected '
         '== half', () {
       final s = spec('halving_mirror_enaktiv', {'count_range': [1, 5]});

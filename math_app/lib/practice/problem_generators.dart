@@ -2513,10 +2513,17 @@ Problem _generateTensSub(
   final hiA = tensARange[1];
   final loB = tensBRange[0];
   final hiB = tensBRange[1];
-  if (loA < 1 || hiA > 10 || loA > hiA || loB < 1 || hiB > 10 || loB > hiB) {
+  if (loA < 1 ||
+      hiA > 10 ||
+      loA > hiA ||
+      loB < 1 ||
+      hiB > 10 ||
+      loB > hiB ||
+      loB > loA) {
     throw SpecFormatException(
       'tens_sub: tens_a_range [$loA, $hiA] / tens_b_range [$loB, $hiB] '
-      'invalid -- both must be within [1, 10] (10 tens == 100)',
+      'invalid -- both must be within [1, 10] (10 tens == 100), and '
+      'tens_b_range\'s minimum must not exceed tens_a_range\'s minimum',
     );
   }
 

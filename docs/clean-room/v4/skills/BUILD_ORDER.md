@@ -258,9 +258,9 @@ conventions (CRA progression, `MinimalistExerciseScaffold`,
 - [x] double_zr10_to_zr20 — `docs/superpowers/plans/2026-09-19-double-zr10-to-zr20-crossing10-decade.md`
 - [x] double_crossing_10 — `docs/superpowers/plans/2026-09-19-double-zr10-to-zr20-crossing10-decade.md`
 - [x] double_decade — `docs/superpowers/plans/2026-09-19-double-zr10-to-zr20-crossing10-decade.md`
-- [x] `tens_add_tens` — shipped, `docs/superpowers/plans/2026-09-20-tens-add-sub-batch-1-12.md`; Reused from S3.7 `Rechnen mit Zehnern` (`tens_calculation_exercise.dart`); tens-rod visual → decade-chip icon → bare numeral, all 3 tiers sharing `TensAddCore`
-- [x] `tens_sub_tens` — shipped, `docs/superpowers/plans/2026-09-20-tens-add-sub-batch-1-12.md`; Reused from the same S3.7 file; tap-to-cross-out ten-rods (enaktiv) → static crossed chips (ikonisch) → bare equation (symbolisch)
-- [x] `tens_sub_crossing_hundred` — shipped, `docs/superpowers/plans/2026-09-20-tens-add-sub-batch-1-12.md`; Reused from the same S3.7 file's 100-crossing level; shares all 3 `tens_sub_*` widgets and the generator with `tens_sub_tens` over `tens_a_range: [10,10]` (a fixed at 100)
+- [x] tens_add_tens — `docs/superpowers/plans/2026-09-20-tens-add-sub-batch-1-12.md`
+- [x] tens_sub_tens — `docs/superpowers/plans/2026-09-20-tens-add-sub-batch-1-12.md`
+- [x] tens_sub_crossing_hundred — `docs/superpowers/plans/2026-09-20-tens-add-sub-batch-1-12.md`
 
 (Ids are left unbackticked here on purpose: the completeness check counts
 each skill id once inside backticks, and these thirty are tracked in

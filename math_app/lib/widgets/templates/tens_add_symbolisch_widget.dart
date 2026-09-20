@@ -21,7 +21,6 @@ class TensAddSymbolischWidget extends StatelessWidget {
   static Widget _numeral(BuildContext context, int tensCount) {
     final value = tensCount * 10;
     return Container(
-      key: ValueKey('tens-add-numeral-$value'),
       width: 64,
       height: 64,
       alignment: Alignment.center,

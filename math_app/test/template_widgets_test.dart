@@ -3163,6 +3163,35 @@ void main() {
       expect(find.text('20'), findsOneWidget);
       expect(find.text('10 + 20 = ?'), findsOneWidget);
     });
+
+    testWidgets('equal addends (e.g. 30 + 30) render without a duplicate-key '
+        'crash', (tester) async {
+      final values = <String>[];
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: TensAddSymbolischWidget(
+              problem: _problem(
+                template: 'custom_widget',
+                display: {
+                  'custom_widget': 'tens_add_symbolisch',
+                  'op': '+',
+                  'a': 30,
+                  'b': 30,
+                  'target': 60,
+                },
+                expected: ['60'],
+              ),
+              onValueChanged: values.add,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('30 + 30 = ?'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
   });
 
   group('TensSubEnaktivWidget', () {
@@ -3194,6 +3223,9 @@ void main() {
       await tester.pump();
 
       expect(find.text('90 - 20 = ?'), findsOneWidget);
+      // Hint must show the tens *count* to cross out (2), not the decade
+      // number (20) -- regression for the wrong-hint-text bug.
+      expect(find.text('Streiche 2 Zehner durch!'), findsOneWidget);
       // 9 rods rendered for a == 90.
       expect(find.byKey(const ValueKey('tens-sub-rod-9-0')), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('tens-sub-rod-9-0')));

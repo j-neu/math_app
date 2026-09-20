@@ -26,7 +26,7 @@ class CountField20SymbolischWidget extends StatelessWidget {
       problem: problem,
       onValueChanged: onValueChanged,
       onSubmit: onSubmit,
-      dotSizes: const [44, 54, 62],
+      dotSizes: const [44, 50, 56],
       showTally: false,
     );
   }

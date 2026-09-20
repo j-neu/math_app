@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:math_app/models/problem.dart';
+import 'package:math_app/practice/template_registry.dart';
 import 'package:math_app/widgets/manipulatives/fingerbild.dart';
 import 'package:math_app/widgets/manipulatives/stellenwerttafel.dart';
 import 'package:math_app/widgets/manipulatives/zehnerfeld.dart';
@@ -3950,7 +3951,7 @@ void main() {
   group('layoutCountField20', () {
     for (final sizes in <List<double>>[
       [48],
-      [44, 54, 62],
+      [44, 50, 56],
     ]) {
       test('no two dots overlap and every dot stays inside the play area '
           '(sizes $sizes, counts 1..20, many seeds)', () {
@@ -3992,14 +3993,53 @@ void main() {
 
     test('the layout is a pure function of seed, index, count and sizes', () {
       final a = layoutCountField20(
-          seed: 42, index: 3, count: 18, sizes: const [44, 54, 62]);
+          seed: 42, index: 3, count: 18, sizes: const [44, 50, 56]);
       final b = layoutCountField20(
-          seed: 42, index: 3, count: 18, sizes: const [44, 54, 62]);
+          seed: 42, index: 3, count: 18, sizes: const [44, 50, 56]);
       for (var i = 0; i < a.length; i++) {
         expect(a[i].left, b[i].left);
         expect(a[i].top, b[i].top);
         expect(a[i].size, b[i].size);
       }
+    });
+
+    test('different seeds and different indices change the layout', () {
+      bool differs(dynamic a, dynamic b) {
+        for (var i = 0; i < a.length; i++) {
+          if (a[i].left != b[i].left || a[i].top != b[i].top) return true;
+        }
+        return false;
+      }
+
+      final base = layoutCountField20(
+          seed: 1, index: 0, count: 15, sizes: const [48]);
+      final otherSeed = layoutCountField20(
+          seed: 2, index: 0, count: 15, sizes: const [48]);
+      final otherIndex = layoutCountField20(
+          seed: 1, index: 1, count: 15, sizes: const [48]);
+      expect(differs(base, otherSeed), isTrue);
+      expect(differs(base, otherIndex), isTrue);
+    });
+  });
+
+  group('buildTemplateWidget CountField20 registry arms', () {
+    final arms = <String, Matcher>{
+      'count_field20_enaktiv': isA<CountField20EnaktivWidget>(),
+      'count_field20_ikonisch': isA<CountField20IkonischWidget>(),
+      'count_field20_symbolisch': isA<CountField20SymbolischWidget>(),
+    };
+    arms.forEach((key, matcher) {
+      test('$key builds its widget', () {
+        final widget = buildTemplateWidget(
+          problem: _problem(
+            template: 'custom_widget',
+            display: {'custom_widget': key, 'count': 12},
+            expected: ['12'],
+          ),
+          onValueChanged: (_) {},
+        );
+        expect(widget, matcher);
+      });
     });
   });
 

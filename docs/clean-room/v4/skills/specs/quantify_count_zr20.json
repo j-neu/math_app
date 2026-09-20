@@ -18,7 +18,7 @@
       "params": { "count_range": [8, 12] },
       "problem_count": 8,
       "prompt_de": "Tippe jeden Punkt an und zähle. Wie viele sind es?",
-      "slow_band_ms": 20000
+      "slow_band_ms": 22000
     },
     {
       "level": 2,
@@ -28,7 +28,7 @@
       "params": { "count_range": [12, 16] },
       "problem_count": 8,
       "prompt_de": "Zähle die Punkte. Tippe sie an, damit du keinen doppelt zählst. Wie viele sind es?",
-      "slow_band_ms": 18000
+      "slow_band_ms": 20000
     },
     {
       "level": 3,
@@ -38,7 +38,7 @@
       "params": { "count_range": [16, 20] },
       "problem_count": 8,
       "prompt_de": "Zähle genau, auch wenn die Punkte unterschiedlich groß sind. Wie viele sind es?",
-      "slow_band_ms": 16000
+      "slow_band_ms": 18000
     }
   ],
   "mastery": { "correct_of": 8 },

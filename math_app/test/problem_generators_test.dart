@@ -69,6 +69,7 @@ SkillSpec _sequenceSpec({
   int length = 5,
   List<int> gapIndices = const [2],
   String? progression,
+  List<int>? startOnesDigits,
 }) => SkillSpec.fromJson(
   _baseSpec(
     _level(2, 'symbolisch', 'sequence_gap', {
@@ -78,6 +79,7 @@ SkillSpec _sequenceSpec({
       'length': length,
       'gap_indices': gapIndices,
       if (progression != null) 'progression': progression,
+      if (startOnesDigits != null) 'start_ones_digits': startOnesDigits,
     }, 7000),
   ),
 );
@@ -247,6 +249,60 @@ void main() {
   });
 
   group('sequence_gap generator', () {
+    test('start_ones_digits restricts the start to the given ones digits', () {
+      final spec = _sequenceSpec(
+        startRange: [10, 60],
+        length: 2,
+        gapIndices: [1],
+        startOnesDigits: [5],
+      );
+      final starts = <int>{};
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: spec, level: 2, seed: seed)) {
+          final values = (p.display['values'] as List).cast<int>();
+          expect(values[0] % 10, 5);
+          expect(values[0], inInclusiveRange(10, 60));
+          expect(values[1], values[0] + 1);
+          expect(p.expected, [values[1].toString()]);
+          starts.add(values[0]);
+        }
+      }
+      expect(starts.length, greaterThan(2),
+          reason: 'the start must actually vary among 15, 25, 35, 45, 55');
+    });
+
+    test('start_ones_digits accepts several digits', () {
+      final spec = _sequenceSpec(
+        startRange: [20, 49],
+        length: 2,
+        gapIndices: [0],
+        startOnesDigits: [1, 2, 3],
+      );
+      final seen = <int>{};
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: spec, level: 2, seed: seed)) {
+          final values = (p.display['values'] as List).cast<int>();
+          expect([1, 2, 3], contains(values[0] % 10));
+          seen.add(values[0] % 10);
+        }
+      }
+      expect(seen, {1, 2, 3});
+    });
+
+    test('start_ones_digits with no matching start in range is a spec error',
+        () {
+      final spec = _sequenceSpec(
+        startRange: [11, 14],
+        length: 2,
+        gapIndices: [1],
+        startOnesDigits: [7],
+      );
+      expect(
+        () => generateProblems(spec: spec, level: 2, seed: 1),
+        throwsA(isA<SpecFormatException>()),
+      );
+    });
+
     test(
       'arithmetic up sequence: values increase by step and expected is exact',
       () {

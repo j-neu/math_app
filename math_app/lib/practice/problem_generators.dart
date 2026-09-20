@@ -256,6 +256,11 @@ Problem _generateForTemplate(
 /// given gaps. With `progression: "double"` the sequence doubles
 /// geometrically instead and `step` is ignored. `expected` holds the missing
 /// values in `gap_indices` order.
+/// The optional `start_ones_digits` list restricts the start to numbers in the
+/// (clamped) start range whose ones digit is in the list -- used by the ZR100
+/// successor/predecessor skills (BUILD_ORDER.md Batch 2.2) for "numbers
+/// ending in 5" and decade-boundary numbers. Absent: the start is drawn
+/// uniformly from the whole range exactly as before.
 Problem _generateSequenceGap(
   SkillSpec spec,
   LevelSpec level,
@@ -271,6 +276,7 @@ Problem _generateSequenceGap(
   final length = level.intParam('length', fallback: 5);
   final startRange = level.intListParam('start_range');
   final gapIndices = level.intListParam('gap_indices');
+  final onesDigits = level.intListParam('start_ones_digits');
 
   final startLo = startRange.isEmpty ? 1 : startRange[0];
   final startHi = startRange.isEmpty ? 9 : startRange[1];
@@ -295,7 +301,22 @@ Problem _generateSequenceGap(
   }
   if (maxStart < minStart) maxStart = minStart;
 
-  final start = gen.nextIntInRange(minStart, maxStart);
+  final int start;
+  if (onesDigits.isEmpty) {
+    start = gen.nextIntInRange(minStart, maxStart);
+  } else {
+    final candidates = [
+      for (var s = minStart; s <= maxStart; s++)
+        if (onesDigits.contains(s % 10)) s,
+    ];
+    if (candidates.isEmpty) {
+      throw SpecFormatException(
+        'sequence_gap: no start in [$minStart, $maxStart] has a ones digit '
+        'in $onesDigits',
+      );
+    }
+    start = candidates[gen.nextInt(candidates.length)];
+  }
 
   final values = <int>[];
   var current = start;

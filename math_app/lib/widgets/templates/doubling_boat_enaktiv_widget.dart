@@ -112,7 +112,7 @@ class _DoublingBoatEnaktivWidgetState
       } else {
         setState(() {
           _feedbackMessage =
-              'Schau auf den roten Rahmen. $remainder Plättchen.';
+              'Verdopple den Rest. ${_target - 5} + ${_target - 5} = ?';
           _feedbackColor = Colors.orange;
           _stepController.clear();
         });

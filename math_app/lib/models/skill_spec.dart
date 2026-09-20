@@ -53,6 +53,12 @@ const Set<String> kKnownCustomWidgets = {
   'quantity_compare_enaktiv',
   'quantity_compare_ikonisch',
   'quantity_compare_symbolisch',
+  'doubling_boat_enaktiv',
+  'doubling_boat_ikonisch',
+  'doubling_boat_symbolisch',
+  'doubling_tens_enaktiv',
+  'doubling_tens_ikonisch',
+  'doubling_tens_symbolisch',
 };
 
 /// Thrown when a skill-spec JSON document violates the P2 §4 schema.

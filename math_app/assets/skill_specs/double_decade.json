@@ -1,0 +1,54 @@
+{
+  "spec_version": 1,
+  "skill_id": "double_decade",
+  "construct_id": "double",
+  "domain": "C",
+  "title_de": "Verdoppeln von Zehnerzahlen",
+  "level_titles_de": [
+    "Zehner verdoppeln mit dem Spiegel",
+    "Zehner verdoppeln mit Streifen",
+    "Zehner verdoppeln im Kopf"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "custom_widget",
+      "custom_widget": "doubling_tens_enaktiv",
+      "params": { "count_range": [1, 5] },
+      "problem_count": 8,
+      "prompt_de": "Wie groß ist die Zehnerzahl? Drücke den Spiegel-Knopf, um zu verdoppeln.",
+      "slow_band_ms": 12000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "custom_widget",
+      "custom_widget": "doubling_tens_ikonisch",
+      "params": { "count_range": [1, 5] },
+      "problem_count": 8,
+      "prompt_de": "Lege genauso viele Zehnerstreifen. Wie groß ist die Zahl jetzt?",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "custom_widget",
+      "custom_widget": "doubling_tens_symbolisch",
+      "params": { "count_range": [1, 5] },
+      "problem_count": 8,
+      "prompt_de": "Was ist das Doppelte dieser Zehnerzahl?",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "miscount", "label_de": "knapp daneben", "hint_de": "Ganz nah dran! Zähl die Zehner noch einmal genau." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau dir die Zehnerstreifen noch einmal an und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["RLP BE/BB Teil C, L1, Niveaustufe A", "Padberg/Benz, Verdoppeln als Kernaufgabe", "Krajewski, Anzahlerfassung strukturierter Mengen", "Wartha/Schulz, Ablösung vom zählenden Rechnen"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

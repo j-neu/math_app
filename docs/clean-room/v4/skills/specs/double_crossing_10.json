@@ -1,0 +1,54 @@
+{
+  "spec_version": 1,
+  "skill_id": "double_crossing_10",
+  "construct_id": "double",
+  "domain": "C",
+  "title_de": "Verdoppeln mit Zehnerübergang",
+  "level_titles_de": [
+    "Verdoppeln am Rechenschiffchen",
+    "Rechenschiffchen verdeckt",
+    "Verdoppeln im Kopf"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "custom_widget",
+      "custom_widget": "doubling_boat_enaktiv",
+      "params": { "count_range": [6, 9] },
+      "problem_count": 8,
+      "prompt_de": "Lege genauso viele Plättchen wie oben. Verdopple!",
+      "slow_band_ms": 12000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "custom_widget",
+      "custom_widget": "doubling_boat_ikonisch",
+      "params": { "count_range": [6, 9] },
+      "problem_count": 8,
+      "prompt_de": "Stell dir die Plättchen vor. Wie viele sind es zusammen?",
+      "slow_band_ms": 9000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "custom_widget",
+      "custom_widget": "doubling_boat_symbolisch",
+      "params": { "count_range": [6, 9] },
+      "problem_count": 8,
+      "prompt_de": "Verdopple im Kopf. Wie viele sind es?",
+      "slow_band_ms": 6000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "miscount", "label_de": "knapp daneben", "hint_de": "Ganz nah dran! Denk an den Zehnerübergang." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau dir das Rechenschiffchen noch einmal an und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["RLP BE/BB Teil C, L1, Niveaustufe A", "Padberg/Benz, Verdoppeln als Kernaufgabe", "Krajewski, Anzahlerfassung strukturierter Mengen", "Wartha/Schulz, Ablösung vom zählenden Rechnen"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

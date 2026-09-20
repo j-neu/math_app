@@ -1994,6 +1994,14 @@ Problem _generateCustomWidget(
     case 'doubling_mirror_ikonisch':
     case 'doubling_mirror_symbolisch':
       return _generateDoublingMirror(spec, level, levelNumber, seed, index, gen);
+    case 'doubling_boat_enaktiv':
+    case 'doubling_boat_ikonisch':
+    case 'doubling_boat_symbolisch':
+      return _generateDoublingBoat(spec, level, levelNumber, seed, index, gen);
+    case 'doubling_tens_enaktiv':
+    case 'doubling_tens_ikonisch':
+    case 'doubling_tens_symbolisch':
+      return _generateDoublingTens(spec, level, levelNumber, seed, index, gen);
     case 'halving_mirror_enaktiv':
     case 'halving_mirror_ikonisch':
     case 'halving_mirror_symbolisch':
@@ -2293,11 +2301,93 @@ Problem _generateFlashSubitize(
 }
 
 /// Registry keys `"doubling_mirror_enaktiv"`, `"doubling_mirror_ikonisch"`,
-/// `"doubling_mirror_symbolisch"` (verdoppeln-halbieren.ZR10, alle drei
-/// Level derselben Skill-Spec): the widget shows `display.target` and the
-/// child reports the doubled total; correctness is a plain string match
-/// against `expected`, handled by `_evaluateCustomWidget`'s default branch.
+/// `"doubling_mirror_symbolisch"`: the widget shows `display.target` and
+/// the child reports the doubled total; correctness is a plain string
+/// match against `expected`, handled by `_evaluateCustomWidget`'s default
+/// branch. Two skills share these widgets over two disjoint subranges:
+/// `double_zr10` uses `count_range` [1,5] (level_titles "...im ZR10"),
+/// `double_zr10_to_zr20` uses [6,10] (same widgets, same mechanic, just a
+/// higher target range) -- the widget itself doesn't know or care which
+/// skill invoked it, it only reads `display.target`.
 Problem _generateDoublingMirror(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final countRange = level.intListParam('count_range');
+  final lo = countRange.isEmpty ? 1 : countRange[0];
+  final hi = countRange.isEmpty ? 5 : countRange[1];
+  if (lo < 1 || hi > 10 || lo > hi) {
+    throw SpecFormatException(
+      'doubling_mirror: count_range [$lo, $hi] must be within [1, 10]',
+    );
+  }
+  final target = gen.nextIntInRange(lo, hi);
+
+  return Problem(
+    template: 'custom_widget',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: {'custom_widget': level.customWidget, 'target': target},
+    expected: ['${target * 2}'],
+  );
+}
+
+/// Registry keys `"doubling_boat_enaktiv"`, `"doubling_boat_ikonisch"`,
+/// `"doubling_boat_symbolisch"` (double_crossing_10, alle drei Level
+/// derselben Skill-Spec): the widget shows `display.target` on the
+/// Rechenschiffchen and the child reports the doubled total; correctness
+/// is a plain string match against `expected`, handled by
+/// `_evaluateCustomWidget`'s default branch. `count_range` must stay
+/// within [6, 9] -- every value in that range genuinely crosses a ten
+/// when doubled, which is the whole point of this skill (5 doesn't cross,
+/// below 5 doesn't reach a ten at all).
+Problem _generateDoublingBoat(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final countRange = level.intListParam('count_range');
+  final lo = countRange.isEmpty ? 6 : countRange[0];
+  final hi = countRange.isEmpty ? 9 : countRange[1];
+  if (lo < 6 || hi > 9 || lo > hi) {
+    throw SpecFormatException(
+      'doubling_boat: count_range [$lo, $hi] must be within [6, 9] so '
+      'every value crosses a ten when doubled',
+    );
+  }
+  final target = gen.nextIntInRange(lo, hi);
+
+  return Problem(
+    template: 'custom_widget',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: {'custom_widget': level.customWidget, 'target': target},
+    expected: ['${target * 2}'],
+  );
+}
+
+/// Registry keys `"doubling_tens_enaktiv"`, `"doubling_tens_ikonisch"`,
+/// `"doubling_tens_symbolisch"` (double_decade, alle drei Level derselben
+/// Skill-Spec): `count_range` bounds the TENS DIGIT (e.g. [1, 5] means
+/// 1-5 tens), but `display.target` and `expected` are always the actual
+/// decade number and its double (e.g. tensCount 3 -> target 30 -> expected
+/// "60") -- consistent with every other skill in the `double` family,
+/// which always reports the full number, never an intermediate tens-only
+/// abstraction.
+Problem _generateDoublingTens(
   SkillSpec spec,
   LevelSpec level,
   int levelNumber,
@@ -2310,10 +2400,11 @@ Problem _generateDoublingMirror(
   final hi = countRange.isEmpty ? 5 : countRange[1];
   if (lo < 1 || hi > 5 || lo > hi) {
     throw SpecFormatException(
-      'doubling_mirror: count_range [$lo, $hi] must be within [1, 5] for ZR10',
+      'doubling_tens: count_range [$lo, $hi] must be within [1, 5] tens',
     );
   }
-  final target = gen.nextIntInRange(lo, hi);
+  final tensCount = gen.nextIntInRange(lo, hi);
+  final target = tensCount * 10;
 
   return Problem(
     template: 'custom_widget',

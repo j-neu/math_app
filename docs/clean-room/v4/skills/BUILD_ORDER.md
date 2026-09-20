@@ -1,6 +1,6 @@
 # v4 skill-spec build order
 
-91 of 93 skills remain (double_zr10 and halve_zr10 shipped —
+66 of 93 skills remain (27 shipped as of Batch 1.11 —
 `docs/superpowers/plans/2026-09-15-exercise-plan-foundation.md`). Run
 `python scripts/check_skill_spec_coverage.py` for live status; this file is
 the *order* to close the gap in, not the live status itself.
@@ -15,7 +15,7 @@ New — widget exists / 21 New — from scratch) minus the two shipped skills:
 29 / 31 / 11 / 20 remaining. Every archetype tag and manipulative below is
 taken from `docs/superpowers/specs/2026-09-15-exercise-plan-design.md` §5.
 
-## Tier 1: Reused (29 remaining of 30)
+## Tier 1: Reused (4 remaining of 30)
 
 Cheapest tier — a close 1:1 old exercise exists, so most instances are an
 id/field retarget like Task 4's double_zr10.
@@ -65,9 +65,9 @@ id/field retarget like Task 4's double_zr10.
 
 ### Batch 1.11 — doubling (construct `double`)
 - [x] `double_zr10` — shipped, Task 4 of this plan (`docs/superpowers/plans/2026-09-15-exercise-plan-foundation.md`); Reused from S3.1 `Doubling with Mirror (ZR10)` (`doubling_mirror_exercise.dart`, min 1–5), retargeted onto its v4 id
-- [ ] `double_zr10_to_zr20` — Reused from S3.2 `Doubling with Mirror (ZR20)` (same file, min 6–10); same 3-level mirror progression
-- [ ] `double_crossing_10` — Reused from S3.4 `Doubling on Calculation Boat` (`doubling_boat_exercise.dart`); Rechenschiffchen 5/10-structure (e.g. double 7)
-- [ ] `double_decade` — Reused from S3.6 `Zehner verdoppeln` (`doubling_tens_exercise.dart`); ten-rod material or scaled mirror (e.g. double 30)
+- [x] `double_zr10_to_zr20` — shipped, `docs/superpowers/plans/2026-09-19-double-zr10-to-zr20-crossing10-decade.md`; Reused from S3.2 `Doubling with Mirror (ZR20)` (same file, min 6–10); same 3-level mirror progression, shares its widgets with double_zr10 over a disjoint range
+- [x] `double_crossing_10` — shipped, `docs/superpowers/plans/2026-09-19-double-zr10-to-zr20-crossing10-decade.md`; Reused from S3.4 `Doubling on Calculation Boat` (`doubling_boat_exercise.dart`); Rechenschiffchen 5/10-structure (e.g. double 7)
+- [x] `double_decade` — shipped, `docs/superpowers/plans/2026-09-19-double-zr10-to-zr20-crossing10-decade.md`; Reused from S3.6 `Zehner verdoppeln` (`doubling_tens_exercise.dart`); ten-rod material or scaled mirror (e.g. double 30)
 
 ### Batch 1.12 — tens arithmetic (construct `tens_add_sub`)
 - [ ] `tens_add_tens` — Reused from S3.7 `Rechnen mit Zehnern` (`tens_calculation_exercise.dart`); Visual Add → Symbolic + levels
@@ -255,7 +255,10 @@ conventions (CRA progression, `MinimalistExerciseScaffold`,
 - [x] derive_via_10_add_minus1 — `docs/superpowers/plans/2026-09-17-derive-via-10.md`
 - [x] derive_via_10_add_plus1 — `docs/superpowers/plans/2026-09-17-derive-via-10.md`
 - [x] derive_via_10_sub — `docs/superpowers/plans/2026-09-17-derive-via-10.md`
+- [x] double_zr10_to_zr20 — `docs/superpowers/plans/2026-09-19-double-zr10-to-zr20-crossing10-decade.md`
+- [x] double_crossing_10 — `docs/superpowers/plans/2026-09-19-double-zr10-to-zr20-crossing10-decade.md`
+- [x] double_decade — `docs/superpowers/plans/2026-09-19-double-zr10-to-zr20-crossing10-decade.md`
 
 (Ids are left unbackticked here on purpose: the completeness check counts
-each skill id once inside backticks, and these twenty-four are tracked in
-Batches 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 1.10 and 4.3 above.)
+each skill id once inside backticks, and these twenty-seven are tracked in
+Batches 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 1.10, 1.11 and 4.3 above.)

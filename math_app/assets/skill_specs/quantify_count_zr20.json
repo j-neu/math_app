@@ -1,0 +1,54 @@
+{
+  "spec_version": 1,
+  "skill_id": "quantify_count_zr20",
+  "construct_id": "quantify_count",
+  "domain": "A",
+  "title_de": "Mengen zählen bis 20",
+  "level_titles_de": [
+    "Zählen mit Tipp-Zähler",
+    "Zählen verstreut",
+    "Zählen mit verschiedenen Größen"
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "representation": "enaktiv",
+      "template": "custom_widget",
+      "custom_widget": "count_field20_enaktiv",
+      "params": { "count_range": [8, 12] },
+      "problem_count": 8,
+      "prompt_de": "Tippe jeden Punkt an und zähle. Wie viele sind es?",
+      "slow_band_ms": 20000
+    },
+    {
+      "level": 2,
+      "representation": "ikonisch",
+      "template": "custom_widget",
+      "custom_widget": "count_field20_ikonisch",
+      "params": { "count_range": [12, 16] },
+      "problem_count": 8,
+      "prompt_de": "Zähle die Punkte. Tippe sie an, damit du keinen doppelt zählst. Wie viele sind es?",
+      "slow_band_ms": 18000
+    },
+    {
+      "level": 3,
+      "representation": "symbolisch",
+      "template": "custom_widget",
+      "custom_widget": "count_field20_symbolisch",
+      "params": { "count_range": [16, 20] },
+      "problem_count": 8,
+      "prompt_de": "Zähle genau, auch wenn die Punkte unterschiedlich groß sind. Wie viele sind es?",
+      "slow_band_ms": 16000
+    }
+  ],
+  "mastery": { "correct_of": 8 },
+  "error_taxonomy": [
+    { "code": "miscount", "label_de": "knapp daneben", "hint_de": "Ganz nah dran! Zähl noch einmal genau." },
+    { "code": "other", "label_de": "noch einmal probieren", "hint_de": "Schau dir die Punkte noch einmal an und probiere es noch einmal." }
+  ],
+  "provenance": {
+    "sources": ["RLP BE/BB Teil C, L1, Niveaustufe A", "Padberg/Benz, Zählprinzipien nach Gelman & Gallistel", "Krajewski, Anzahlerfassung und Zählkompetenz", "Gaidoschik, Ablösung vom zählenden Rechnen als Zielperspektive"],
+    "author": "Claude (domain author)",
+    "reviewed_by": "open"
+  }
+}

@@ -1,6 +1,6 @@
 # v4 skill-spec build order
 
-62 of 93 skills remain (31 shipped as of Batch 1.13 —
+61 of 93 skills remain (32 shipped as of Batch 2.1 —
 `docs/superpowers/plans/2026-09-15-exercise-plan-foundation.md`). Run
 `python scripts/check_skill_spec_coverage.py` for live status; this file is
 the *order* to close the gap in, not the live status itself.
@@ -11,8 +11,8 @@ Each batch below is sized for one follow-on plan (`writing-plans`, using
 manipulative are authored together.
 
 Tier totals are the design doc §3 tally (30 Reused / 31 Extended / 11
-New — widget exists / 21 New — from scratch) minus the thirty-one shipped
-skills: 0 / 31 / 11 / 20 remaining. Every archetype tag and manipulative
+New — widget exists / 21 New — from scratch) minus the thirty-two shipped
+skills: 0 / 30 / 11 / 20 remaining. Every archetype tag and manipulative
 below is taken from `docs/superpowers/specs/2026-09-15-exercise-plan-design.md` §5.
 
 ## Tier 1: Reused (0 remaining of 30)
@@ -77,13 +77,13 @@ id/field retarget like Task 4's double_zr10.
 ### Batch 1.13 — compensation (construct `compensation_strategy`)
 - [x] `compensation_strategy_zr20` — shipped, `docs/superpowers/plans/2026-09-20-compensation-strategy-zr20-batch-1-13.md`; Reused from S2.3 `Opposite Change` (`opposite_change_exercise.dart`); two-pile counters, simultaneous +1/−1 manipulation
 
-## Tier 2: Extended (31)
+## Tier 2: Extended (30 remaining of 31)
 
 An old exercise's manipulative and level structure is stretched to a new
-range or twist. None shipped yet.
+range or twist. Batch 2.1 shipped.
 
 ### Batch 2.1 — counting quantities, unstructured (construct `quantify_count`)
-- [ ] `quantify_count_zr20` — Extended from C1.1's dot field, range raised to 20 with unstructured layouts only (ZR20 becomes the always-unstructured half)
+- [x] `quantify_count_zr20` — shipped, `docs/superpowers/plans/2026-09-20-quantify-count-zr20-batch-2-1.md`; Extended from C1.1's dot field, range raised to 20 with unstructured layouts only (ZR20 becomes the always-unstructured half); seeded grid-cell scatter (no overlap by construction), tally aid at level 1 only, mixed dot sizes at level 3
 
 ### Batch 2.2 — successor & predecessor in ZR100 (constructs `successor`, `predecessor`)
 - [ ] `successor_zr100_mid` — Extended from C4.1's number-card widget, ZR100 mid-range (ones-digit 1–7, then 8–9 near-carry)
@@ -261,8 +261,9 @@ conventions (CRA progression, `MinimalistExerciseScaffold`,
 - [x] tens_add_tens — `docs/superpowers/plans/2026-09-20-tens-add-sub-batch-1-12.md`
 - [x] tens_sub_tens — `docs/superpowers/plans/2026-09-20-tens-add-sub-batch-1-12.md`
 - [x] tens_sub_crossing_hundred — `docs/superpowers/plans/2026-09-20-tens-add-sub-batch-1-12.md`
-- [x] compensation_strategy_zr20 — docs/superpowers/plans/2026-09-20-compensation-strategy-zr20-batch-1-13.md
+- [x] compensation_strategy_zr20 — `docs/superpowers/plans/2026-09-20-compensation-strategy-zr20-batch-1-13.md`
+- [x] quantify_count_zr20 — `docs/superpowers/plans/2026-09-20-quantify-count-zr20-batch-2-1.md`
 
 (Ids are left unbackticked here on purpose: the completeness check counts
-each skill id once inside backticks, and these thirty-one are tracked in
-Batches 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 1.10, 1.11, 1.12, 1.13 and 4.3 above.)
+each skill id once inside backticks, and these thirty-two are tracked in
+Batches 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 1.10, 1.11, 1.12, 1.13, 2.1 and 4.3 above.)

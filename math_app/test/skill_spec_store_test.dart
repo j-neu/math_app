@@ -200,6 +200,21 @@ void main() {
     });
 
     test(
+        'quantify_count_zr20 (Batch 2.1) parses with the count-field20 widgets',
+        () {
+      final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+      final spec = store.byId('quantify_count_zr20');
+      expect(spec.constructId, 'quantify_count');
+      expect(spec.domain, 'A');
+      expect(spec.titleDe, 'Mengen zählen bis 20');
+      expect(spec.levels.map((l) => l.customWidget), [
+        'count_field20_enaktiv',
+        'count_field20_ikonisch',
+        'count_field20_symbolisch',
+      ]);
+    });
+
+    test(
         'count_forward_zr20 (Batch 1.2) parses with the sequence_gap template',
         () {
       final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());

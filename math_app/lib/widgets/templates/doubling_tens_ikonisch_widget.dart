@@ -91,8 +91,9 @@ class _DoublingTensIkonischWidgetState
               const VerticalDivider(),
               Expanded(
                 child: DragTarget<int>(
-                  onWillAccept: (data) => _droppedTens < _tensCount,
-                  onAccept: (data) => _onStripDropped(),
+                  onWillAcceptWithDetails: (details) =>
+                      _droppedTens < _tensCount,
+                  onAcceptWithDetails: (details) => _onStripDropped(),
                   builder: (context, candidateData, rejectedData) {
                     return Container(
                       margin: const EdgeInsets.all(8),

@@ -160,8 +160,8 @@ class _DoublingTensEnaktivWidgetState extends State<DoublingTensEnaktivWidget>
                         child: _isMirrored
                             ? ScaleTransition(
                                 scale: _scaleAnimation,
-                                child: _buildTenStrips(
-                                    _tensCount, Colors.blue.withOpacity(0.7)),
+                                child: _buildTenStrips(_tensCount,
+                                    Colors.blue.withValues(alpha: 0.7)),
                               )
                             : null,
                       ),

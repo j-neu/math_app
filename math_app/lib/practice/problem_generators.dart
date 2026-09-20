@@ -2002,6 +2002,10 @@ Problem _generateCustomWidget(
     case 'doubling_tens_ikonisch':
     case 'doubling_tens_symbolisch':
       return _generateDoublingTens(spec, level, levelNumber, seed, index, gen);
+    case 'tens_add_enaktiv':
+    case 'tens_add_ikonisch':
+    case 'tens_add_symbolisch':
+      return _generateTensAdd(spec, level, levelNumber, seed, index, gen);
     case 'halving_mirror_enaktiv':
     case 'halving_mirror_ikonisch':
     case 'halving_mirror_symbolisch':
@@ -2415,6 +2419,62 @@ Problem _generateDoublingTens(
     promptDe: level.promptDe,
     display: {'custom_widget': level.customWidget, 'target': target},
     expected: ['${target * 2}'],
+  );
+}
+
+/// Registry keys `"tens_add_enaktiv"`, `"tens_add_ikonisch"`,
+/// `"tens_add_symbolisch"` (tens_add_tens, BUILD_ORDER.md Batch 1.12):
+/// draws two decade addends `a`/`b` (each a multiple of 10) whose tens
+/// digits sum to at most `sum_max`, so the total never reaches 3 digits.
+/// `display` carries `op: "+"` plus the actual `a`/`b` numbers (not their
+/// tens counts) so `TemplateEvaluator` can detect a `sign_error`; `expected`
+/// holds the summed decade number as a plain string.
+Problem _generateTensAdd(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final tensARange = level.intListParam('tens_a_range');
+  final sumMax = level.intParam('sum_max', fallback: 9);
+  if (tensARange.length != 2) {
+    throw SpecFormatException(
+      'tens_add: "tens_a_range" must be a 2-element [min, max] list',
+    );
+  }
+  final loA = tensARange[0];
+  final hiA = tensARange[1];
+  if (loA < 1 || hiA > sumMax - 1 || loA > hiA || sumMax < 2 || sumMax > 9) {
+    throw SpecFormatException(
+      'tens_add: tens_a_range [$loA, $hiA] / sum_max $sumMax invalid -- '
+      'tens_a_range must be within [1, sum_max - 1] and sum_max within '
+      '[2, 9]',
+    );
+  }
+
+  final tensA = gen.nextIntInRange(loA, hiA);
+  final tensB = gen.nextIntInRange(1, sumMax - tensA);
+  final a = tensA * 10;
+  final b = tensB * 10;
+  final target = a + b;
+
+  return Problem(
+    template: 'custom_widget',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: {
+      'custom_widget': level.customWidget,
+      'op': '+',
+      'a': a,
+      'b': b,
+      'target': target,
+    },
+    expected: [target.toString()],
   );
 }
 

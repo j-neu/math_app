@@ -3135,6 +3135,40 @@ void main() {
       );
     });
 
+    test('tens_add_enaktiv: a/b are decade numbers, expected == a+b, '
+        'op == "+"', () {
+      final s = spec('tens_add_enaktiv', {
+        'tens_a_range': [1, 5],
+        'sum_max': 9,
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          expect(a % 10, 0, reason: 'a is a decade number');
+          expect(b % 10, 0, reason: 'b is a decade number');
+          expect(a ~/ 10, inInclusiveRange(1, 5));
+          expect(b ~/ 10, greaterThanOrEqualTo(1));
+          expect(a ~/ 10 + b ~/ 10, lessThanOrEqualTo(9));
+          expect(p.display['op'], '+');
+          expect(p.expected, ['${a + b}']);
+          expect(p.display['custom_widget'], 'tens_add_enaktiv');
+        }
+      }
+    });
+
+    test('tens_add: tens_a_range that cannot leave room under sum_max '
+        'throws', () {
+      final s = spec('tens_add_enaktiv', {
+        'tens_a_range': [1, 9],
+        'sum_max': 9,
+      });
+      expect(
+        () => generateProblems(spec: s, level: 2, seed: 0),
+        throwsA(isA<SpecFormatException>()),
+      );
+    });
+
     test('halving_mirror_enaktiv: half in [1,5], full == half*2, expected '
         '== half', () {
       final s = spec('halving_mirror_enaktiv', {'count_range': [1, 5]});

@@ -18,6 +18,9 @@ import 'package:math_app/widgets/templates/doubling_boat_symbolisch_widget.dart'
 import 'package:math_app/widgets/templates/doubling_tens_enaktiv_widget.dart';
 import 'package:math_app/widgets/templates/doubling_tens_ikonisch_widget.dart';
 import 'package:math_app/widgets/templates/doubling_tens_symbolisch_widget.dart';
+import 'package:math_app/widgets/templates/tens_add_enaktiv_widget.dart';
+import 'package:math_app/widgets/templates/tens_add_ikonisch_widget.dart';
+import 'package:math_app/widgets/templates/tens_add_symbolisch_widget.dart';
 import 'package:math_app/widgets/templates/halving_mirror_enaktiv_widget.dart';
 import 'package:math_app/widgets/templates/halving_mirror_ikonisch_widget.dart';
 import 'package:math_app/widgets/templates/halving_mirror_symbolisch_widget.dart';
@@ -3040,6 +3043,122 @@ void main() {
       await tester.pump();
 
       expect(values.last, '60');
+    });
+  });
+
+  group('TensAddEnaktivWidget', () {
+    Problem addProblem(int a, int b) => _problem(
+          template: 'custom_widget',
+          display: {
+            'custom_widget': 'tens_add_enaktiv',
+            'op': '+',
+            'a': a,
+            'b': b,
+            'target': a + b,
+          },
+          expected: ['${a + b}'],
+        );
+
+    testWidgets('typing the sum reports it live', (tester) async {
+      final values = <String>[];
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: TensAddEnaktivWidget(
+              problem: addProblem(30, 40),
+              onValueChanged: values.add,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('30 + 40 = ?'), findsOneWidget);
+      await tester.enterText(find.byType(TextField), '70');
+      await tester.pump();
+
+      expect(values.last, '70');
+    });
+
+    testWidgets('a new problem clears the field', (tester) async {
+      final values = <String>[];
+      Widget host(Problem p) => MaterialApp(
+            home: Scaffold(
+              body: TensAddEnaktivWidget(problem: p, onValueChanged: values.add),
+            ),
+          );
+
+      await tester.pumpWidget(host(addProblem(10, 20)));
+      await tester.pump();
+      await tester.enterText(find.byType(TextField), '30');
+      await tester.pump();
+
+      await tester.pumpWidget(host(addProblem(20, 30)));
+      await tester.pump();
+
+      expect(values.last, '');
+      expect(find.text('20 + 30 = ?'), findsOneWidget);
+    });
+  });
+
+  group('TensAddIkonischWidget', () {
+    testWidgets('renders the equation and a chip per ten', (tester) async {
+      final values = <String>[];
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: TensAddIkonischWidget(
+              problem: _problem(
+                template: 'custom_widget',
+                display: {
+                  'custom_widget': 'tens_add_ikonisch',
+                  'op': '+',
+                  'a': 20,
+                  'b': 30,
+                  'target': 50,
+                },
+                expected: ['50'],
+              ),
+              onValueChanged: values.add,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('20 + 30 = ?'), findsOneWidget);
+      expect(find.text('10'), findsNWidgets(5)); // 2 chips + 3 chips
+    });
+  });
+
+  group('TensAddSymbolischWidget', () {
+    testWidgets('renders bare numeral boxes, no chips or rods', (tester) async {
+      final values = <String>[];
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: TensAddSymbolischWidget(
+              problem: _problem(
+                template: 'custom_widget',
+                display: {
+                  'custom_widget': 'tens_add_symbolisch',
+                  'op': '+',
+                  'a': 10,
+                  'b': 20,
+                  'target': 30,
+                },
+                expected: ['30'],
+              ),
+              onValueChanged: values.add,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('10'), findsOneWidget);
+      expect(find.text('20'), findsOneWidget);
+      expect(find.text('10 + 20 = ?'), findsOneWidget);
     });
   });
 

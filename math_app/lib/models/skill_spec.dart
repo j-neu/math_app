@@ -62,6 +62,9 @@ const Set<String> kKnownCustomWidgets = {
   'tens_add_enaktiv',
   'tens_add_ikonisch',
   'tens_add_symbolisch',
+  'tens_sub_enaktiv',
+  'tens_sub_ikonisch',
+  'tens_sub_symbolisch',
 };
 
 /// Thrown when a skill-spec JSON document violates the P2 §4 schema.

@@ -21,6 +21,9 @@ import 'package:math_app/widgets/templates/doubling_tens_symbolisch_widget.dart'
 import 'package:math_app/widgets/templates/tens_add_enaktiv_widget.dart';
 import 'package:math_app/widgets/templates/tens_add_ikonisch_widget.dart';
 import 'package:math_app/widgets/templates/tens_add_symbolisch_widget.dart';
+import 'package:math_app/widgets/templates/tens_sub_enaktiv_widget.dart';
+import 'package:math_app/widgets/templates/tens_sub_ikonisch_widget.dart';
+import 'package:math_app/widgets/templates/tens_sub_symbolisch_widget.dart';
 import 'package:math_app/widgets/templates/halving_mirror_enaktiv_widget.dart';
 import 'package:math_app/widgets/templates/halving_mirror_ikonisch_widget.dart';
 import 'package:math_app/widgets/templates/halving_mirror_symbolisch_widget.dart';
@@ -3159,6 +3162,125 @@ void main() {
       expect(find.text('10'), findsOneWidget);
       expect(find.text('20'), findsOneWidget);
       expect(find.text('10 + 20 = ?'), findsOneWidget);
+    });
+  });
+
+  group('TensSubEnaktivWidget', () {
+    Problem subProblem(int a, int b) => _problem(
+          template: 'custom_widget',
+          display: {
+            'custom_widget': 'tens_sub_enaktiv',
+            'op': '-',
+            'a': a,
+            'b': b,
+            'target': a - b,
+          },
+          expected: ['${a - b}'],
+        );
+
+    testWidgets('tapping rods crosses them out; typing the result reports '
+        'it live', (tester) async {
+      final values = <String>[];
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: TensSubEnaktivWidget(
+              problem: subProblem(90, 20),
+              onValueChanged: values.add,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('90 - 20 = ?'), findsOneWidget);
+      // 9 rods rendered for a == 90.
+      expect(find.byKey(const ValueKey('tens-sub-rod-9-0')), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('tens-sub-rod-9-0')));
+      await tester.pump();
+
+      await tester.enterText(find.byType(TextField), '70');
+      await tester.pump();
+
+      expect(values.last, '70');
+    });
+
+    testWidgets('a == 100 renders 10 rods (crossing-hundred case)',
+        (tester) async {
+      final values = <String>[];
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: TensSubEnaktivWidget(
+              problem: subProblem(100, 30),
+              onValueChanged: values.add,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('100 - 30 = ?'), findsOneWidget);
+      expect(find.byKey(const ValueKey('tens-sub-rod-10-9')), findsOneWidget);
+    });
+  });
+
+  group('TensSubIkonischWidget', () {
+    testWidgets('renders the equation and a chip per ten', (tester) async {
+      final values = <String>[];
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: TensSubIkonischWidget(
+              problem: _problem(
+                template: 'custom_widget',
+                display: {
+                  'custom_widget': 'tens_sub_ikonisch',
+                  'op': '-',
+                  'a': 90,
+                  'b': 20,
+                  'target': 70,
+                },
+                expected: ['70'],
+              ),
+              onValueChanged: values.add,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('90 - 20 = ?'), findsOneWidget);
+      expect(find.byKey(const ValueKey('tens-sub-chip-9-2-0')), findsOneWidget);
+    });
+  });
+
+  group('TensSubSymbolischWidget', () {
+    testWidgets('renders bare equation text, no chips or rods', (tester) async {
+      final values = <String>[];
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: TensSubSymbolischWidget(
+              problem: _problem(
+                template: 'custom_widget',
+                display: {
+                  'custom_widget': 'tens_sub_symbolisch',
+                  'op': '-',
+                  'a': 100,
+                  'b': 20,
+                  'target': 80,
+                },
+                expected: ['80'],
+              ),
+              onValueChanged: values.add,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('100 - 20 = ?'), findsOneWidget);
     });
   });
 

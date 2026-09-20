@@ -3169,6 +3169,43 @@ void main() {
       );
     });
 
+    test('tens_sub_enaktiv: a/b are decade numbers, b <= a, expected == '
+        'a-b, op == "-"', () {
+      final s = spec('tens_sub_enaktiv', {
+        'tens_a_range': [2, 9],
+        'tens_b_range': [1, 9],
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          final a = p.display['a'] as int;
+          final b = p.display['b'] as int;
+          expect(a % 10, 0, reason: 'a is a decade number');
+          expect(b % 10, 0, reason: 'b is a decade number');
+          expect(a ~/ 10, inInclusiveRange(2, 9));
+          expect(b, lessThanOrEqualTo(a), reason: 'never a negative result');
+          expect(p.display['op'], '-');
+          expect(p.expected, ['${a - b}']);
+          expect(p.display['custom_widget'], 'tens_sub_enaktiv');
+        }
+      }
+    });
+
+    test('tens_sub_enaktiv: tens_a_range fixed at 10 models the '
+        'crossing-hundred case (a == 100 always)', () {
+      final s = spec('tens_sub_enaktiv', {
+        'tens_a_range': [10, 10],
+        'tens_b_range': [1, 9],
+      });
+      for (var seed = 0; seed < 200; seed++) {
+        for (final p in generateProblems(spec: s, level: 2, seed: seed)) {
+          expect(p.display['a'], 100);
+          final b = p.display['b'] as int;
+          expect(b, inInclusiveRange(10, 90));
+          expect(p.expected, ['${100 - b}']);
+        }
+      }
+    });
+
     test('halving_mirror_enaktiv: half in [1,5], full == half*2, expected '
         '== half', () {
       final s = spec('halving_mirror_enaktiv', {'count_range': [1, 5]});

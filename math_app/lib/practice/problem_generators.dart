@@ -2006,6 +2006,10 @@ Problem _generateCustomWidget(
     case 'tens_add_ikonisch':
     case 'tens_add_symbolisch':
       return _generateTensAdd(spec, level, levelNumber, seed, index, gen);
+    case 'tens_sub_enaktiv':
+    case 'tens_sub_ikonisch':
+    case 'tens_sub_symbolisch':
+      return _generateTensSub(spec, level, levelNumber, seed, index, gen);
     case 'halving_mirror_enaktiv':
     case 'halving_mirror_ikonisch':
     case 'halving_mirror_symbolisch':
@@ -2470,6 +2474,68 @@ Problem _generateTensAdd(
     display: {
       'custom_widget': level.customWidget,
       'op': '+',
+      'a': a,
+      'b': b,
+      'target': target,
+    },
+    expected: [target.toString()],
+  );
+}
+
+/// Registry keys `"tens_sub_enaktiv"`, `"tens_sub_ikonisch"`,
+/// `"tens_sub_symbolisch"` -- shared by two skills, BUILD_ORDER.md Batch
+/// 1.12: `tens_sub_tens` (`tens_a_range: [2,9]`) and
+/// `tens_sub_crossing_hundred` (`tens_a_range: [10,10]`, i.e. `a` fixed at
+/// 100), exactly like `double_zr10`/`double_zr10_to_zr20` share the
+/// doubling-mirror widgets over disjoint ranges. `tensB` is drawn via the
+/// existing [_clampedDraw] helper so it never exceeds the drawn `tensA`,
+/// guaranteeing a non-negative result for both skills. `display` carries
+/// `op: "-"` plus the actual `a`/`b` decade numbers (not tens counts) so
+/// `TemplateEvaluator` can detect a `sign_error`; `expected` holds the
+/// subtracted decade number as a plain string.
+Problem _generateTensSub(
+  SkillSpec spec,
+  LevelSpec level,
+  int levelNumber,
+  int seed,
+  int index,
+  SeededGenerator gen,
+) {
+  final tensARange = level.intListParam('tens_a_range');
+  final tensBRange = level.intListParam('tens_b_range');
+  if (tensARange.length != 2 || tensBRange.length != 2) {
+    throw SpecFormatException(
+      'tens_sub: "tens_a_range" and "tens_b_range" must each be a '
+      '2-element [min, max] list',
+    );
+  }
+  final loA = tensARange[0];
+  final hiA = tensARange[1];
+  final loB = tensBRange[0];
+  final hiB = tensBRange[1];
+  if (loA < 1 || hiA > 10 || loA > hiA || loB < 1 || hiB > 10 || loB > hiB) {
+    throw SpecFormatException(
+      'tens_sub: tens_a_range [$loA, $hiA] / tens_b_range [$loB, $hiB] '
+      'invalid -- both must be within [1, 10] (10 tens == 100)',
+    );
+  }
+
+  final tensA = gen.nextIntInRange(loA, hiA);
+  final tensB = _clampedDraw(gen, loB, hiB, tensA);
+  final a = tensA * 10;
+  final b = tensB * 10;
+  final target = a - b;
+
+  return Problem(
+    template: 'custom_widget',
+    skillId: spec.skillId,
+    level: levelNumber,
+    seed: seed,
+    index: index,
+    promptDe: level.promptDe,
+    display: {
+      'custom_widget': level.customWidget,
+      'op': '-',
       'a': a,
       'b': b,
       'target': target,

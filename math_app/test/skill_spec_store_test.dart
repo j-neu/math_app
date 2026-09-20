@@ -125,6 +125,19 @@ void main() {
       ]);
     });
 
+    test('tens_sub_tens parses with the tens-sub widgets', () {
+      final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());
+      final spec = store.byId('tens_sub_tens');
+      expect(spec.constructId, 'tens_add_sub');
+      expect(spec.domain, 'C');
+      expect(spec.titleDe, 'Zehnerzahl minus Zehnerzahl');
+      expect(spec.levels.map((l) => l.customWidget), [
+        'tens_sub_enaktiv',
+        'tens_sub_ikonisch',
+        'tens_sub_symbolisch',
+      ]);
+    });
+
     test('halve_zr10 (Pilot B) parses with the new halving-mirror widgets',
         () {
       final store = SkillSpecStore.fromJsonMap(_loadRealSpecJsons());

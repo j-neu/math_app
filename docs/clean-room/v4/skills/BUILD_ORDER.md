@@ -11,9 +11,9 @@ Each batch below is sized for one follow-on plan (`writing-plans`, using
 manipulative are authored together.
 
 Tier totals are the design doc §3 tally (30 Reused / 31 Extended / 11
-New — widget exists / 21 New — from scratch) minus the two shipped skills:
-29 / 31 / 11 / 20 remaining. Every archetype tag and manipulative below is
-taken from `docs/superpowers/specs/2026-09-15-exercise-plan-design.md` §5.
+New — widget exists / 21 New — from scratch) minus the thirty-one shipped
+skills: 0 / 31 / 11 / 20 remaining. Every archetype tag and manipulative
+below is taken from `docs/superpowers/specs/2026-09-15-exercise-plan-design.md` §5.
 
 ## Tier 1: Reused (0 remaining of 30)
 

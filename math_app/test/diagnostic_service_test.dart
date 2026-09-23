@@ -94,7 +94,7 @@ void main() {
       'order', () {
     final question = bySkill('number_word_dictation_zr100');
     expect(question.audioAsset,
-        'Research/zahlen_diktat_17_47_70_72_84.m4a');
+        'Research/zahlen_diktat_17_47_70_72_84.mp3');
     expect(AnswerGrading.modeFor(question), DiagnosticAnswerMode.sequence);
     expect(AnswerGrading.boxCount(question), 5);
     expect(

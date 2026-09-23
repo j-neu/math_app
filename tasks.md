@@ -35,6 +35,24 @@ Tier 4 (New — from scratch).
 
 ## B. Legal / compliance / pilot-readiness backlog
 
+- [ ] Manual override for `diagnostic_results.was_correct` in the dashboard —
+      a teacher reviewing the Detail-Tabelle (already shows `response_time_seconds`
+      per question, retained indefinitely, no purge job runs) should be able to flip
+      a "richtig" answer to "falsch" when the response time indicates zählendes
+      Rechnen rather than automatized recall, then have the cached `foerderplaene`
+      row regenerate. Two options scoped 2026-09-23, neither built yet: (a) a documented
+      SQL runbook (UPDATE the row + delete the cached plan so it regenerates on next
+      view) — zero new code/deploy risk; (b) a dashboard button wired through a new
+      API route with its own school-ownership check (mirroring the `teacher read
+      results` RLS policy), since `diagnostic_results` currently has no teacher
+      UPDATE policy at all. Deferred past the first pilot session (2026-09-24) by
+      Jakob's decision — do the SQL-runbook version by hand if needed before this
+      is built properly.
+- [ ] Re-tune the per-question diagnostic timeout — flattened to 30 s for every
+      item 2026-09-23 (was `max(15, 5*boxCount)`, too short for some items) so the
+      first real-kid pilot session collects an unbiased response-time distribution
+      per item. Once that data exists, derive real per-item budgets from it instead
+      of guessing again (`diagnostic_screen.dart:_timeoutSecondsFor`).
 - [ ] Fill legal placeholders in `dashboard/app/impressum/page.tsx` and
       `dashboard/app/datenschutz/page.tsx` (`[NAME/ADRESSE/EMAIL]`)
 - [ ] AVV/DPA signature with Supabase (`supabase.com/legal/dpa`) and with each pilot school

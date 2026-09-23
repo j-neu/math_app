@@ -129,7 +129,7 @@ class KurzFoerderplanService {
       buf.write(
           'Im Bereich $label wurden ${stats.failed} von ${stats.total} Aufgaben nicht gelöst.');
     } else {
-      buf.write('Im Bereich $label besteht Förderbedarf.');
+      buf.write('Im Bereich $label zeigt sich Förderbedarf.');
     }
     buf.write('\nBeobachtete Schwierigkeiten:');
     for (final s in skills) {
@@ -143,15 +143,17 @@ class KurzFoerderplanService {
   }
 
   String _buildSoll(List<SkillRecommendation> skills) {
-    return skills.map((s) => '- Das Kind kann: ${s.descriptionDe}').join('\n');
-  }
-
-  String _buildLernweg(List<SkillRecommendation> skills) {
-    final buf = StringBuffer('Fördervorschläge:');
+    final buf = StringBuffer('Das Kind kann:');
     for (final s in skills) {
-      buf.write('\n- ${s.skillNameDe}');
-      buf.write('\n  ${s.descriptionDe}');
+      buf.write('\n- ${s.descriptionDe}');
     }
     return buf.toString();
   }
+
+  /// Left blank for now (Jakob's 2026-09-14 feedback): real per-skill
+  /// teaching methods/materials (Lernarrangements) haven't been designed
+  /// yet -- until then this just repeated the Ziele text under a different
+  /// heading, which is worse than an honest blank for the teacher to fill
+  /// in by hand.
+  String _buildLernweg(List<SkillRecommendation> skills) => '';
 }

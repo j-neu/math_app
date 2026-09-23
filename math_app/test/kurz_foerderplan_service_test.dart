@@ -113,7 +113,7 @@ void main() {
     // Ist uses the neutral domain label, not the placeholder legacy category.
     final istA = data.rows.first.ist;
     expect(istA,
-        contains('Im Bereich Domäne A — Zahlbegriff besteht Förderbedarf.'));
+        contains('Im Bereich Domäne A — Zahlbegriff zeigt sich Förderbedarf.'));
     expect(istA, contains('Beobachtete Schwierigkeiten:'));
     expect(istA, contains('- Vorwärtszählen bis 20'));
     expect(istA, isNot(contains('Im Bereich Zählen')));
@@ -169,8 +169,12 @@ void main() {
       data.rows.single.ist,
       contains('Im Bereich Zählen wurden 2 von 3 Aufgaben nicht gelöst.'),
     );
-    expect(data.rows.single.soll, contains('- Das Kind kann:'));
-    expect(data.rows.single.lernweg, startsWith('Fördervorschläge:'));
+    expect(data.rows.single.soll, startsWith('Das Kind kann:'));
+    expect(data.rows.single.soll,
+        contains('- Das Kind versteht die Zahlenfolge bis 20.'));
+    // Angebote/Lernarrangements left blank (Jakob's 2026-09-14 feedback):
+    // no real per-skill teaching methods/materials have been authored yet.
+    expect(data.rows.single.lernweg, isEmpty);
   });
 
   test('keeps the slow-response note on the first row', () {

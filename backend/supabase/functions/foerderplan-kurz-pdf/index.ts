@@ -84,6 +84,7 @@ function wrapText(text: string, maxWidth: number, fontSize: number, font: PDFFon
 interface SkillRow {
   id: string;
   category: string;
+  domain: string | null;
   color: string;
   title_de: string;
   description_de: string;
@@ -96,7 +97,16 @@ interface KurzRow {
   lernweg: string;
 }
 
+// Domain letter (A-D) first -- the reliable field for v3/v4-taxonomy skills.
+// The `^[A-D]\d` ID-prefix match only ever fit the retired dotted taxonomy
+// (e.g. "A1.1a") and never matches a flat skill id like
+// "number_line_rechenstrich", so every new-taxonomy skill fell through to
+// the raw `category` text -- which is untranslated English for several
+// PIKAS-sourced categories ("Advanced Number Line", "Operational Sense",
+// "Representation Networking", "Ordinal Numbers"). Jakob caught this
+// 2026-09-14 in a generated PDF.
 function groupLabel(s: SkillRow): string {
+  if (s.domain && DOMAIN_LABELS[s.domain]) return DOMAIN_LABELS[s.domain];
   const m = DOMAIN_PATTERN.exec(s.id);
   if (m) return DOMAIN_LABELS[m[1]] ?? s.category;
   return s.category;
@@ -139,7 +149,7 @@ function buildKurzRows(
     if (stats && stats.failed > 0) {
       istParts.push(`Im Bereich ${label} wurden ${stats.failed} von ${stats.total} Aufgaben nicht gelöst.`);
     } else {
-      istParts.push(`Im Bereich ${label} besteht Förderbedarf.`);
+      istParts.push(`Im Bereich ${label} zeigt sich Förderbedarf.`);
     }
     istParts.push("Beobachtete Schwierigkeiten:");
     for (const s of skills) istParts.push(`- ${s.title_de}`);
@@ -148,16 +158,16 @@ function buildKurzRows(
     }
 
     // Soll
-    const soll = skills.map((s) => `- Das Kind kann: ${s.description_de}`).join("\n");
+    const soll = ["Das Kind kann:", ...skills.map((s) => `- ${s.description_de}`)].join("\n");
 
-    // Lernweg
-    const lernParts = ["Fördervorschläge:"];
-    for (const s of skills) {
-      lernParts.push(`- ${s.title_de}`);
-      lernParts.push(`  ${s.description_de}`);
-    }
+    // Lernweg -- left blank for now (Jakob's 2026-09-14 feedback): real
+    // per-skill teaching methods/materials (Lernarrangements) haven't been
+    // designed yet -- until then this just repeated the Ziele text under a
+    // different heading, which is worse than an honest blank for the
+    // teacher to fill in by hand.
+    const lernweg = "";
 
-    rows.push({ category: label, ist: istParts.join("\n"), soll, lernweg: lernParts.join("\n") });
+    rows.push({ category: label, ist: istParts.join("\n"), soll, lernweg });
     firstRow = false;
   }
   return rows;
@@ -217,7 +227,7 @@ Deno.serve(async (req) => {
   // Load skills
   const { data: skillsData } = await supabase
     .from("skills")
-    .select("id, category, color, title_de, description_de")
+    .select("id, category, domain, color, title_de, description_de")
     .in("id", plan.recommended_skill_ids as string[]);
 
   const skillMap = new Map(

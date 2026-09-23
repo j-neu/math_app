@@ -104,21 +104,21 @@ class DocxKurzFoerderplanService {
     buf.write('<w:body>');
 
     // Title
-    buf.write(_para('Foerderplan', bold: true, sz: 28));
+    buf.write(_para('Förderplan', bold: true, sz: 28));
     buf.write(_spacer());
 
     // Name field
-    buf.write(_labelLine('Name der Schulerin / des Schulers:'));
+    buf.write(_labelLine('Name der Schülerin / des Schülers:'));
     buf.write(_spacer());
 
     // Date range
-    buf.write(_labelLine('Fur die Zeit von: ________________  bis: ________________'));
+    buf.write(_labelLine('Für die Zeit von: ________________  bis: ________________'));
     buf.write(_spacer());
 
     // Table
     if (data.rows.isEmpty) {
       buf.write(_para(
-        'Keine Foerderschwerpunkte erkannt - herzlichen Glueckwunsch!',
+        'Keine Förderschwerpunkte erkannt - herzlichen Glückwunsch!',
         italic: true,
       ));
     } else {
@@ -133,9 +133,9 @@ class DocxKurzFoerderplanService {
     buf.write(_spacer());
     buf.write(_writingLines(10));
     buf.write(_spacer());
-    buf.write(_para('Gesprachsdokumentation', bold: true, sz: 22));
+    buf.write(_para('Gesprächsdokumentation', bold: true, sz: 22));
     buf.write(_spacer());
-    buf.write(_labelLine('Gesprach wurde durchgefuhrt am: __________  mit: ___________________________'));
+    buf.write(_labelLine('Gespräch wurde durchgeführt am: __________  mit: ___________________________'));
     buf.write(_spacer());
     buf.write(_para('Unterschrift der Anwesenden', bold: true, sz: 22));
     buf.write(_spacer());
@@ -209,7 +209,7 @@ class DocxKurzFoerderplanService {
       ('', _wLabel),
       ('Beobachtung / Bedarf\n(= Stellungnahme)', _wIst),
       ('Ziele', _wSoll),
-      ('Paed. Angebote /\nMassnahmen /\nLernarrangements', _wLernweg),
+      ('Päd. Angebote /\nMaßnahmen /\nLernarrangements', _wLernweg),
       ('Absprachen\n(Wer? Wie?\nMit wem? Bis wann?)', _wAbsprachen),
       ('Reflexion /\nEvaluation /\nModifikation', _wReflexion),
     ];

@@ -12,6 +12,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
   PDFDocument,
+  PDFFont,
   rgb,
   StandardFonts,
 } from "https://esm.sh/pdf-lib@1.17.1";
@@ -53,6 +54,47 @@ function catColor(cat: string): [number, number, number] {
     if (label === cat) return DOMAIN_COLORS[domain]!;
   }
   return DEFAULT_COLOR;
+}
+
+// Domain letter (A-D) first -- the reliable field for v3/v4-taxonomy skills.
+// `s.category` is the raw taxonomy category text, which is untranslated
+// English for several PIKAS-sourced categories ("Advanced Number Line",
+// "Operational Sense", "Representation Networking", "Ordinal Numbers").
+// Jakob caught this 2026-09-14 in a generated PDF where those names leaked
+// straight into the teacher-facing document.
+function catLabel(s: SkillRow): string {
+  if (s.domain && DOMAIN_LABELS[s.domain]) return DOMAIN_LABELS[s.domain];
+  return s.category;
+}
+
+// Splits `text` into lines that each fit within `maxWidth` at `fontSize`,
+// breaking on word boundaries (never mid-word). pdf-lib's own `drawText`
+// wraps internally when given `maxWidth`, but only reports back a single
+// line of vertical advance to the caller -- so a caller that steps its own
+// y-cursor by one line per drawText() call ends up overlapping every
+// following line onto text that actually wrapped to 2+ lines. Wrapping here
+// ourselves lets the caller advance y once per *visual* line instead.
+function wrapText(text: string, maxWidth: number, fontSize: number, font: PDFFont): string[] {
+  const lines: string[] = [];
+  for (const para of text.split("\n")) {
+    if (para === "") {
+      lines.push("");
+      continue;
+    }
+    const words = para.split(" ");
+    let current = "";
+    for (const word of words) {
+      const candidate = current ? `${current} ${word}` : word;
+      if (font.widthOfTextAtSize(candidate, fontSize) > maxWidth && current) {
+        lines.push(current);
+        current = word;
+      } else {
+        current = candidate;
+      }
+    }
+    if (current) lines.push(current);
+  }
+  return lines;
 }
 
 // Recommendation rows store the short category ("Domäne A") that never equals a
@@ -148,15 +190,12 @@ Deno.serve(async (req) => {
     bold = false,
     color: [number, number, number] = [0, 0, 0],
   ) {
-    page.drawText(text, {
-      x,
-      y,
-      size: fontSize,
-      font: bold ? fontBold : fontReg,
-      color: rgb(...color),
-      maxWidth: W - x - MARGIN,
-    });
-    y -= fontSize + 4;
+    const font = bold ? fontBold : fontReg;
+    const lines = wrapText(text, W - x - MARGIN, fontSize, font);
+    for (const line of lines) {
+      page.drawText(line, { x, y, size: fontSize, font, color: rgb(...color) });
+      y -= fontSize + 4;
+    }
   }
 
   function drawHRule(color: [number, number, number] = [0.85, 0.85, 0.85]) {
@@ -191,7 +230,7 @@ Deno.serve(async (req) => {
       page.drawRectangle({ x: MARGIN, y: y - 2, width: 4, height: 14, color: rgb(...c) });
       drawText(`${i + 1}. ${s.title_de}`, MARGIN + 10, 11, true);
       drawText(s.description_de, MARGIN + 10, 10);
-      drawText(`${s.category}`, MARGIN + 10, 9, false, [0.5, 0.5, 0.5]);
+      drawText(catLabel(s), MARGIN + 10, 9, false, [0.5, 0.5, 0.5]);
       y -= 4;
     }
   }
@@ -246,7 +285,7 @@ Deno.serve(async (req) => {
       page.drawRectangle({ x: MARGIN, y: y - 2, width: 4, height: 14, color: rgb(...c) });
       drawText(`${i + 1}. ${s.title_de}`, MARGIN + 10, 10, true);
       drawText(s.description_de, MARGIN + 10, 9);
-      drawText(`${s.category}`, MARGIN + 10, 8, false, [0.5, 0.5, 0.5]);
+      drawText(catLabel(s), MARGIN + 10, 8, false, [0.5, 0.5, 0.5]);
       y -= 2;
     }
   }

@@ -930,9 +930,28 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    'Aufgabe ${_currentQuestionIndex + 1}/${questions.length}',
-                    style: Theme.of(context).textTheme.headlineSmall,
+                  // No raw "X/Y" counter here on purpose: in abbreviated
+                  // mode the denominator (full item bank) never matches how
+                  // many questions this child will actually see, and the
+                  // break-off skip logic can jump the numerator forward in
+                  // one leap -- both are confusing/demotivating for a child.
+                  // A continuous bar shows movement without exposing counts.
+                  Semantics(
+                    label: 'Fortschritt in der Diagnostik',
+                    child: SizedBox(
+                      width: 260,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: LinearProgressIndicator(
+                          value: _currentQuestionIndex / questions.length,
+                          minHeight: 10,
+                          backgroundColor: Colors.grey.shade300,
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                            Color(0xFF4CAF50),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 20),
                   QuestionPrompt(question: question),

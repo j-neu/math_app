@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io' show File;
-import 'dart:math' show max;
 import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -215,11 +214,13 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     super.dispose();
   }
 
-  /// Response-time budget for [question]: floor 15 s, else 5 s per answer
-  /// box (diagnostic usability rework §4.6) — a multi-box item gets
-  /// proportionally more time than a one-number calculation.
-  int _timeoutSecondsFor(DiagnosticQuestion question) =>
-      max(15, 5 * AnswerGrading.boxCount(question));
+  /// Response-time budget for [question]: flat 30 s for every item
+  /// (Jakob, 2026-09-23) — the previous per-box formula (floor 15 s, else
+  /// 5 s per answer box) cut some items too short. Flat for now so the
+  /// first real-kid pilot run collects an unbiased response-time
+  /// distribution per item; a future per-item budget should be derived
+  /// from that data instead of guessed again.
+  int _timeoutSecondsFor(DiagnosticQuestion question) => 30;
 
   /// Start timer for the current question (runs silently in background)
   void _startQuestionTimer(List<DiagnosticQuestion> questions) {
@@ -235,6 +236,20 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
       budget: Duration(seconds: _timeoutSecondsFor(question)),
       onTimeout: () => _handleTimeout(questions),
     )..start();
+  }
+
+  /// Replay the question's audio (if any) and give the existing timer
+  /// another full budget's worth of time, keeping [_responseTimer.elapsed]
+  /// counting from the question's true start — see [extend].
+  void _grantMoreTime(List<DiagnosticQuestion> questions) {
+    if (_currentQuestionIndex >= questions.length) return;
+    final question = questions[_currentQuestionIndex];
+
+    if (question.audioAsset != null) {
+      _playAudio(question.audioAsset!);
+    }
+
+    _responseTimer?.extend(Duration(seconds: _timeoutSecondsFor(question)));
   }
 
   /// Handle timeout - show popup asking if child wants to skip
@@ -254,8 +269,12 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
             TextButton(
               onPressed: () {
                 Navigator.of(dialogContext).pop();
-                // Give them more time - restart the timer
-                _startQuestionTimer(questions);
+                // Give them more time — extend the existing timer rather
+                // than starting a new one: _startQuestionTimer would zero
+                // _responseTimer.elapsed, so the time already spent
+                // waiting (the whole reason the popup fired) would be
+                // lost from the recorded response time (Jakob, 2026-09-23).
+                _grantMoreTime(questions);
               },
               child: const Text('Weiter versuchen'),
             ),

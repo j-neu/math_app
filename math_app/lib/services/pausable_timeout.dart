@@ -8,7 +8,7 @@ import 'package:flutter/foundation.dart' show VoidCallback;
 /// with a virtualized [Timer]; production code omits it and gets
 /// [DateTime.now].
 class PausableTimeout {
-  final Duration budget;
+  Duration _budget;
   final VoidCallback onTimeout;
   final DateTime Function() _now;
 
@@ -18,17 +18,20 @@ class PausableTimeout {
   Timer? _timer;
 
   PausableTimeout({
-    required this.budget,
+    required Duration budget,
     required this.onTimeout,
     DateTime Function()? now,
-  }) : _now = now ?? DateTime.now;
+  })  : _budget = budget,
+        _now = now ?? DateTime.now;
+
+  Duration get budget => _budget;
 
   /// Starts (or restarts) the budget from zero.
   void start() {
     _startedAt = _now();
     _pausedTotal = Duration.zero;
     _pausedAt = null;
-    _armTimer(budget);
+    _armTimer(_budget);
   }
 
   /// Stops the countdown; [elapsed] freezes until [resume].
@@ -43,7 +46,18 @@ class PausableTimeout {
     if (_pausedAt == null) return;
     _pausedTotal += _now().difference(_pausedAt!);
     _pausedAt = null;
-    final remaining = budget - elapsed;
+    final remaining = _budget - elapsed;
+    _armTimer(remaining.isNegative ? Duration.zero : remaining);
+  }
+
+  /// Grants [extra] additional time on top of the current budget without
+  /// resetting [_startedAt]/[_pausedTotal] — unlike [start], [elapsed] keeps
+  /// counting from the original start. Used when a timeout popup's "try
+  /// again" choice should give more time without wiping out the time
+  /// already spent (that time is still real response-time data).
+  void extend(Duration extra) {
+    _budget += extra;
+    final remaining = _budget - elapsed;
     _armTimer(remaining.isNegative ? Duration.zero : remaining);
   }
 

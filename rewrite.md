@@ -1,3 +1,24 @@
+> **⛔ STATUS 2026-09-12 — superseded by decision (Jakob). This document is now a historical record, not an active constraint.**
+>
+> Two attempts to execute this plan (`tasks.md` R0–R7, then the v2 Deckungsmatrix/Konstruktkarte
+> rebuild under `docs/clean-room/v2/`) each produced a diagnostic that was pedagogically worse than
+> the original iMINT/PIKAS-derived instrument — see `docs/clean-room/00-v1-assessment.md` for the
+> v1 post-mortem. Jakob's decision: revert to the pre-rewrite diagnostic and skill catalog
+> (`_sources_private/MathApp_Diagnostic_with_skills.csv`, 92 items; `_sources_private/skills_taxonomy_legacy.csv`,
+> 88 skills) as the base, extract one skill per diagnostic-card question, cross-check completeness
+> against the exercise Kartei, and write fresh item wording per skill (different numbers, one
+> simple sentence, no revealed procedure). **The legal analysis in this document is explicitly and
+> completely disregarded for that work, on Jakob's direct instruction (2026-09-12) — not revisited,
+> not partially applied.** Everything below stays as a record of the reasoning that drove R0–R9 and
+> the v2 rebuild, in case a future commercial launch decision needs to reconsider it. It is not
+> being followed right now. Current plan: `STATUS.md` "Active #1".
+>
+> The non-commercial posture (no sales, no invoicing) is a **separate, still-open question** — this
+> decision is about content sourcing, not about whether/when to charge. Don't infer one from the
+> other without asking.
+
+---
+
 Clean-Room Rewrite Plan — Math Diagnostic App
 Purpose: Convert the current iMINT-derived diagnostic into an independently-developed product that can be sold without copyright, database-right, or CC-license violations, while preserving and explicitly attributing the scientific foundations of the work.
 

@@ -1,10 +1,37 @@
 # Project Status
 
-**Last updated:** 2026-09-08 (Phase 2 des Inhaltsneubaus v2 abgeschlossen: Konstruktkarte (54 Konstrukte) und Blueprint (86 geplante Items) werden aus der freigegebenen Deckungsmatrix erzeugt und gegen Drift gesichert, Itemregeln I1-I12 und das Darstellungsregister stehen, Deckungsgate gruen — siehe Active #1)
+**⛔⛔ 2026-09-12 — Clean-room content strategy abandoned by decision (Jakob). Reverting to the
+pre-rewrite iMINT/PIKAS-based diagnostic and skill catalog as the base.** Both the v1 clean-room
+rewrite and the v2 Deckungsmatrix rebuild (banner below, "Active #1") produced diagnostics judged
+worse than the original. New direction: `_sources_private/MathApp_Diagnostic_with_skills.csv` (92
+questions) and `_sources_private/skills_taxonomy_legacy.csv` (88 skills) — both untouched since
+they were archived out of the shipped tree in R0.2 — become the base again. Process: one skill per
+diagnostic-card question (fine-grained — forward counting ≠ backward counting ≠ skip-counting
+forward ≠ skip-counting backward, etc.) → cross-check against the exercise Kartei for skills
+practiced but never diagnosed → complete skill list → fresh item wording per skill (different
+numbers, one simple sentence, no revealed procedure, a real single-answer field — the same wording
+bar already written up in `docs/clean-room/v2/wortlaut-review-core.md`, now retargeted at this
+skill list instead of the v2 construct map). **Legal/copyright considerations are explicitly and
+completely set aside for this work, on Jakob's direct instruction — `rewrite.md` is now a
+historical record, not an active constraint** (see the banner at the top of that file). The
+non-commercial posture is a separate, still-open question, not automatically resolved by this.
+Superseded by this banner: everything below that describes the clean-room v1/v2 effort as the
+active content plan (kept for history, not as current direction) — see `tasks.md` for the matching
+banner on that side.
 
-**Previously:** 2026-09-07 (Phase 1 des Inhaltsneubaus v2 abgeschlossen: Deckungsmatrix mit 20 Straengen ueber ZR10/ZR20/ZR100 geschrieben und von Jakob freigegeben, Uebungsinventar eingelesen, Deckungsgate gruen — siehe Active #1)
+**Last updated:** 2026-09-17 (exercise-plan-foundation merged to `main`: the v4 practice pipeline
+works end-to-end, 2/93 skills playable (`double_zr10`, `halve_zr10`), coverage checker + authoring
+guide + 91-skill build-order backlog all in place — see Active #1)
 
-**⛔ Diagnostik `cleanroom-v1` VERWORFEN — Neuentwicklung (v2) beschlossen 2026-09-07.** Das ausgelieferte Diagnostikum ist in seiner jetzigen Form fachlich nicht brauchbar und darf keiner Lehrkraft als Diagnoseinstrument vorgelegt werden: Verdoppeln/Halbieren fehlt im ZR20 (kein direktes Kern-Item) und im ZR100 (weder Konstrukt noch Item), zahlreiche ZR100-Items sind mehrsätzige Anleitungstexte, die dem Kind das Verfahren vorschreiben und damit Anweisungsbefolgung statt Strategie messen, und das Leitkonstrukt „zählendes Rechnen“ wird nicht direkt erhoben. Sämtliche Clean-Room-Gates waren dabei grün — sie prüfen die Papierlage, nicht die fachliche Abdeckung. Befunde und Konsequenzen: [docs/clean-room/00-v1-assessment.md](docs/clean-room/00-v1-assessment.md). Der Clean-Room-Inhalt (Konstruktkarte, Blueprint, Itembank, Skill-Taxonomie, Förderplan-Zuordnung) wird neu gemacht; Infrastruktur, App, Dashboard, Backend und Lernpfad-Runtime bleiben bestehen. **Stand 2026-09-07: das Wurzelartefakt des Neuaufbaus, die [Deckungsmatrix](docs/clean-room/v2/10-deckungsmatrix.md), ist geschrieben und freigegeben** (Phase 1, siehe Active #1).
+**Previously:** 2026-09-13 (v4 content reversion executed: 108-item `diagnostic_v4_master.csv` and
+93-skill taxonomy wired in, clean-room v1/v2 retired from the runtime — see the banner above)
+
+**Superseded entries below**, kept for history only: 2026-09-08 (v2 Konstruktkarte/Blueprint) and
+2026-09-07 (v2 Deckungsmatrix). The entire v2 Deckungsmatrix effort they describe was abandoned
+2026-09-12 (top banner) and replaced by the v4 reversion (banner above this line) — nothing in the
+two entries below is current.
+
+**🔴 Historical: `cleanroom-v1` was rejected 2026-09-07** for real pedagogical gaps (Verdoppeln/Halbieren missing in ZR20/ZR100, procedure-revealing ZR100 items, "zählendes Rechnen" never directly measured — findings in [docs/clean-room/00-v1-assessment.md](docs/clean-room/00-v1-assessment.md)). The v2 Deckungsmatrix rebuild that followed is *also* dead (2026-09-12 top banner). Both are superseded by the v4 legacy reversion — see the "2026-09-13" section above for what's actually live.
 
 **Gauntlet loop CLOSED by decision 2026-09-06.** The Numeris Gauntlet and its child-development (§3a) gate loop are closed; the project is back to human-in-the-loop development and **no automatic next round will run**. All §3a rounds, fixes, and the final gate numbers are recorded in the closing entry of [GAUNTLET_PROGRESS.md](Archive/GAUNTLET_PROGRESS.md) ("Gauntlet closed (decision) — handoff to human-in-the-loop development"). Standing handoff: every task starts from an explicit human request; no commit/push/deploy and no production data change (including throwaway fixtures) without explicit authorization; the open items listed in the P1–P4 bullet below (R6.4 device run, F5, P5 art nits, the unwired `bundling` widget) are ordinary product/QA tasks awaiting human instruction, not loop iterations.
 
@@ -12,17 +39,57 @@ One-screen view of what's shipped, what's active, and what's paused. For the doc
 
 ---
 
-## ⚖️ Rechtlicher Status — Clean-Room Rewrite in progress (since 2026-08-29)
+## ⚖️ Rechtlicher Status — Clean-Room Rewrite abandoned by decision (2026-09-12)
 
-**The product is non-commercial until the clean-room rewrite completes.** Free, school-internal, research-partnership use only. No pricing conversations, no invoices, no sales.
+**The clean-room content strategy (`rewrite.md`, `tasks.md` R0–R9, and the v2 Deckungsmatrix
+rebuild) is no longer being executed.** Jakob's decision, 2026-09-12: content is rebuilt on top of
+the original iMINT/PIKAS-derived diagnostic and skill catalog again, with fresh item wording —
+legal/copyright considerations explicitly and completely disregarded for that work, on direct
+instruction. `rewrite.md` is kept as a historical record of the legal reasoning, not an active
+constraint. See the banner at the top of this file for the new plan.
 
-The diagnostic content (92 items), the 88-skill catalog and the Förderplan mappings are derived from the iMINT-Kartei and PIKAS FÖDIMA, and cannot be sold in that form. They are being rebuilt from the primary scientific literature.
+**The non-commercial posture (free, school-internal, research-partnership use only — no pricing
+conversations, no invoices, no sales) stays in force by default**, because this decision was about
+*where content comes from*, not about *whether/when to sell*. Nobody has decided to lift it; it
+just no longer has the R7.5-Fachanwalt-opinion gate it used to have, since that gate belonged to a
+plan that's no longer running. Treat "can we charge for this yet" as its own open question, to be
+asked explicitly, not inferred from this decision.
 
-- **What to do:** [tasks.md](tasks.md) — the execution plan, highest priority.
-- **Why:** [rewrite.md](rewrite.md) — the legal reasoning.
-- **Freeze lifts** only at `tasks.md` R7.5, after a Fachanwalt opinion is in hand.
+Everything below is still accurate about the **infrastructure**. Content sections describing the
+clean-room v1/v2 effort as the *active* plan are historical — see the top banner and `tasks.md`.
 
-Everything below is still accurate about the **infrastructure**. It is out of date about the **content** and about anything implying the product is ready to sell.
+---
+
+## ✅ 2026-09-13 — the v4 reversion above was actually executed, not just decided
+
+The 2026-09-12 banner above describes a *decision*. It was carried out over the following days:
+
+- **2026-09-13, `content(v4): wire full legacy-derived diagnostic bank, retire clean-room v1/v2`.**
+  Every iMINT/PIKAS-derived category (Zählen, Zahlzerlegung, Stellenwerte, Grundstrategien,
+  Kombinierte Strategien, plus the small PIKAS-only categories) reviewed and wired into
+  `DiagnosticScreen`, consolidated into `math_app/Research/diagnostic_v4_master.csv` (108 items,
+  Jakob-reviewed and reordered), which `DiagnosticService` now serves exclusively.
+  `diagnostic_core_v1.csv` and the v2 item-quality-fix CSV are deleted; the six per-category v3 CSVs
+  stay on disk as unit-test fixtures only. `skill_catalog` rebuilt from the same taxonomy (93 skills,
+  `math_app/Research/skills_taxonomy.csv`), `ACTIVE_DIAG_ID` repointed, items reordered into their
+  pedagogical families (`a2659d6`, 2026-09-14).
+- **2026-09-15/17, `docs/superpowers/plans/2026-09-15-exercise-plan-foundation.md`.** The diagnostic
+  above is content-complete, but every one of the 93 diagnosed skills routed a child to "keine
+  Aufgaben vorhanden" — the practice/exercise layer behind it didn't exist yet for the new taxonomy.
+  This plan built the pipeline and proved the authoring pattern on 2 skills: `double_zr10` (retarget
+  an existing widget onto its v4 id) and `halve_zr10` (author 3 new interactive widgets from
+  scratch). **Merged to `main` 2026-09-17** (`da4393b`, full suite 562/562 green). Ships:
+  `scripts/check_skill_spec_coverage.py` (one command reports which of the 93 skills are playable —
+  currently 2/93), `docs/skill_spec_authoring_guide.md` (the checklist for authoring the next one),
+  and `docs/clean-room/v4/skills/BUILD_ORDER.md` (all 91 remaining skills classified and batched by
+  archetype tier and shared manipulative, ready to slice into follow-on plans).
+- **What this makes true now:** `tasks.md` (R0–R9), the v2 Deckungsmatrix tree under
+  `docs/clean-room/v2/`, and `docs/clean-room/00-v1-assessment.md` are **fully historical** — nothing
+  in them describes the live content anymore. The current content authority is
+  `math_app/Research/diagnostic_v4_master.csv` (108 items) and `skills_taxonomy.csv` (93 skills); the
+  current practice-authoring authority is `docs/skill_spec_authoring_guide.md` +
+  `docs/superpowers/specs/2026-09-15-exercise-plan-design.md` §5 + `BUILD_ORDER.md`. See
+  `DOCS_INDEX.md`'s "Start here" for the full current doc set.
 
 ---
 
@@ -53,31 +120,42 @@ Everything below is still accurate about the **infrastructure**. It is out of da
 
 Work in flight or queued in priority order.
 
-**1. Inhalte v2 — Neuaufbau von Diagnostik und Übungsinhalten (seit 2026-09-07, höchste Priorität).** Der Clean-Room-Durchlauf v1 ist inhaltlich verworfen (Banner oben, Befunde in [docs/clean-room/00-v1-assessment.md](docs/clean-room/00-v1-assessment.md)). Der Neuaufbau kehrt die Ableitungsrichtung um: zuerst eine **Deckungsmatrix** (Inhaltsstrang × Zahlenraum ZR10/20/100 × Repräsentation) aus Rahmenlehrplan BE/BB Teil C und KMK-Bildungsstandards, gelesen durch die Primärliteratur; daraus Konstruktkarte, Blueprint, Items und Übungen. Jede Matrixzelle bindet Item, Skill und Übung zusammen und wird von Jakob zweimal abgenommen — auf Papier und im laufenden Kind-Screen. Diagnostik bleibt kindseitig allein durchführbar, aber radikal vereinfacht (ein Satz pro Item, gesprochene Prompts, kein verratenes Verfahren); Vollständigkeit geht vor Kürze, die Abkürzung überspringt nur noch den höheren Zahlenraum desselben Strangs, und eine Sitzung bleibt über Wochen fortsetzbar. Die handgebaute Übungs-Engine (mehrstufig, manipulativ, mit Belohnungen) kommt als kindseitiges Modell zurück; die Server-Schicht des Lernpfads bleibt. Auslieferung als neue Zeile `cleanroom-v2`; `cleanroom-v1` und seine Sitzungen bleiben unangetastet. **Entwurf: [docs/superpowers/specs/2026-09-07-diagnostik-v2-design.md](docs/superpowers/specs/2026-09-07-diagnostik-v2-design.md)** — erster Slice: Verdoppeln/Halbieren über ZR10/ZR20/ZR100.
+**1. Practice pipeline for the v4 taxonomy (since 2026-09-15, highest priority).** The v4 diagnostic
+(93 skills, `math_app/Research/skills_taxonomy.csv`) has been content-complete and live since
+2026-09-13, but until 2026-09-17 every diagnosed skill routed a child to "keine Aufgaben vorhanden"
+— the practice/exercise layer behind the diagnostic didn't exist for the new taxonomy at all.
+**`docs/superpowers/plans/2026-09-15-exercise-plan-foundation.md` closed that gap and merged to
+`main` 2026-09-17** (`da4393b`, full suite 562/562 green): the v4 skill-spec source tree is wired
+into the existing sync pipeline, `scripts/check_skill_spec_coverage.py` turns "which skills are
+playable" into one command (currently **2/93**: `double_zr10`, `halve_zr10`), and two authoring
+patterns are proven and documented in `docs/skill_spec_authoring_guide.md` — "port an old exercise's
+widget onto its v4 id" (`double_zr10`, cheap) and "build new interactive widgets from scratch"
+(`halve_zr10`, three new widgets, went through two real defect-and-fix rounds before merge — see the
+plan's own ledger, since deleted, or the branch's commit history for the fix reasoning).
 
-  **Phase 1 abgeschlossen 2026-09-07.** Die [Deckungsmatrix](docs/clean-room/v2/10-deckungsmatrix.md) ist geschrieben und von Jakob freigegeben (Gate 1): **20 Stränge × ZR10/ZR20/ZR100 × enaktiv/ikonisch/symbolisch = 180 Zellen, davon 152 lebend** mit Quelle und konkretem Fehlerbild, 28 mit begründeter Ausnahme. Sie ist ab sofort die Quelle der Wahrheit für alle inhaltlichen Fragen und steht an der Spitze der Vorrangregel in [DOCS_INDEX.md](DOCS_INDEX.md). Dazu: ein Inventar des alten Übungsbestands (`docs/clean-room/v2/inventory_uebungen.csv`, 27 Übungen aus `exercise_service.dart`) und der Deckungsgate `scripts/check_deckung.py` (Regeln R1–R8, 16 Tests, exit 0) — er scheitert an einer leeren Zelle ohne Ausnahme, an einer Übung, die es nicht gibt, und an einem Item, das in zwei Zellen steht. **Befund aus der Zuordnung: der Altbestand deckt nur 27 der 152 lebenden Zellen**; sieben Stränge haben keinen einzigen Kandidaten, darunter beide Subtraktionsstränge, `stellenwerttafel` und `buendeln-entbuendeln`, und das Halbieren fehlt vollständig. **Als Nächstes Phase 2:** Konstruktkarte und Blueprint aus der Matrix ableiten, dann der erste vertikale Slice.
+**As next:** `docs/clean-room/v4/skills/BUILD_ORDER.md` orders the remaining 91 skills into batches
+by archetype tier (Reused → Extended → New-widget-exists → New-from-scratch) and shared manipulative,
+sized so each batch becomes its own follow-on plan (`writing-plans`, against the authoring guide +
+`docs/superpowers/specs/2026-09-15-exercise-plan-design.md` §5, executed via
+`subagent-driven-development` the same way this one was). No batch has been picked yet.
 
-**Phase 2 abgeschlossen (2026-09-08).** Konstruktkarte (54 Konstrukte) und Blueprint
-(86 Items) werden aus der Matrix erzeugt; `derive_ableitungen.py --check` verhindert
-Drift. Itemregeln I1–I12 und das Darstellungsregister stehen; `check_item_quality.py`
-prüft die mechanische Hälfte davon gegen ein Regressionskorpus aus vier Items, die v1
-tatsächlich ausgeliefert hat. Die Freigaberegel der Matrix ist präzisiert: Übung je Zelle,
-Diagnostik je Konstrukt. Noch kein einziges Item geschrieben — das ist Phase 3.
+**Diagnostic usability rework — CLOSED, superseded by the v4 content reversion.** This item (2026-09-05
+onward) was interaction-layer fixes to the old `cleanroom-v1`/v2 diagnostic: Workstream A (prompt
+rendering, quote-stripping, Rekenrek flash timing, sort widget wiring, box-scaled timeouts, Hilfetext
+channel) shipped and merged 2026-09-05 and survives in the code today — `DiagnosticScreen` and its
+interaction layer are content-agnostic, so those fixes apply equally to the v4 diagnostic that now
+runs through them. Workstreams B/C/D (item revision, integrity gates, migration) targeted the v1/v2
+item banks specifically and are moot now that `diagnostic_v4_master.csv` replaced them outright
+(2026-09-13). No on-device smoke test of the interaction layer has ever been run (no Android tablet
+available in any session to date) — that gap is real but now belongs to whichever pilot-readiness
+task picks it up next, not to this closed item.
 
-**Gate 1 am 2026-09-08 von Jakob freigegeben:** der Konstruktbegriff (Strang × Zahlenraum),
-die 86 Items als Ergebnis der Zuteilungsregel, die fünf Blitz-Stränge, und als maßgebliche
-Sprachgrenze „ein einfacher Satz" — I1/I2/I4 sind deren maschinenlesbare Zerlegung.
-`15-darstellungen.md` ist als Einziges noch nicht gegengelesen (Widget-Register, maschinell
-gegen den Flutter-Quelltext geprüft); seine `reviewed_on`-Zeile bleibt bis dahin leer.
+**Learning path / practice runtime (P5/P6, not started).** P1–P4 (see Shipped) are built, reviewed, and live — and this is the exact runtime (`SkillSpec`, `PracticeController`, `template_registry`, `template_evaluator`) that Active #1's exercise-plan-foundation work authors new v4 skill specs against; it's infrastructure, not something the content reversion replaced. P5 (art direction/engagement) and P6 (publish hardening: perf, load, error handling, physical-device testing) haven't been scheduled. F5 (dangling session rows) has a decision (timeout-based cleanup) but no implementation yet — queued backlog item, not urgent.
 
-**Als Nächstes Phase 3:** der erste vertikale Slice, Verdoppeln/Halbieren × ZR10 · ZR20 ·
-ZR100, von den Items über die handgebauten Übungsstufen bis in die Lehrerkonsole.
-
-**Diagnostic usability rework (in progress, since 2026-09-05).** Reviewing the running diagnostic surfaced real defects: the prompt renders twice per item, prompts carry meaningless quote-wrapping, some counting-sequence items are structurally unenterable, the A2.1-01 Rekenrek flash fires before the child is looking, a Stäbchen bundle renders too small to count, a working sort widget sits unwired, the response-time timeout ignores how many boxes an item has, and a written `Hilfetext` help field never reaches the app. Design doc: `docs/superpowers/specs/2026-09-05-diagnostic-usability-rework-design.md`. Workstream A (interaction layer, no item content) was a 10-task plan at `docs/superpowers/plans/2026-09-05-diagnostic-interaction-layer.md` — **all ten tasks implemented, task-reviewed, whole-branch-reviewed by a fresh-context critic, and merged to `main` on 2026-09-05** (prompt rendered once, quotes stripped, sequence anchors, Bereit-gated Rekenrek flash, sort mode wired, box-scaled time budget, Dienes place-value visuals, Hilfetext channel, `PausableTimeout`, Hilfe-pauses-the-clock); evidence log in `Archive/GAUNTLET_PROGRESS.md`. Remaining: rebuild + redeploy the Flutter web child client (`prozedia-app`) and smoke-test the interaction fixes on the deployed client. **Rebuild + redeploy DONE 2026-09-05** — `prozedia-app` is git-connected to `main`, so every push auto-builds the child client; today's production deployments (`prozedia-dulmpr622` → `prozedia-cpn7sch47`, latest READY) all postdate the Workstream-A merge and carry it. Live-verified this session: deep routes 200, A1.2b asset `length: 6`, and the §3a follow-up fixes (instruction rendered once, Nochmal-emphasised retry) confirmed on the deployed alias in `Archive/GAUNTLET_PROGRESS.md`. What remains of this item is only the **on-device smoke-test** of the interaction fixes (no Android tablet available — the §3a physical-device step and R6.4 stay open). **Workstreams B (67-item revision) / C (integrity gates) / D (migration+deploy) sind durch den v2-Neuaufbau abgelöst** — die Itemrevision findet dort statt, die Integritätsgates werden dort durch `check_deckung.py` und `check_item_quality.py` ersetzt. Was aus Workstream A bereits im Code steht (Interaktionsschicht) bleibt und wird von v2 weiterverwendet. `cleanroom-v2` kommt aus dem v2-Entwurf, nicht mehr aus diesem Plan; `cleanroom-v1` and its pilot sessions are untouched throughout.
-
-**Learning path / practice runtime (P5/P6, not started).** P1–P4 (see Shipped) are built, reviewed, and live. P5 (art direction/engagement) and P6 (publish hardening: perf, load, error handling, physical-device testing) haven't been scheduled. F5 (dangling session rows) has a decision (timeout-based cleanup) but no implementation yet — queued backlog item, not urgent.
-
-The clean-room rewrite's remaining tasks below are **manual sign-off / deploy** steps (see `tasks.md` for the full status per checkbox):
+The items below are **manual sign-off / deploy / legal / pilot** backlog, independent of the content
+workstream above (see `tasks.md` for the full status per checkbox — `tasks.md` itself is fully
+historical for content, but Phase R9's legal items and the Impressum/Datenschutz placeholders are
+still real open work, tracked there):
 
 1. ~~**Jakob sign-offs**~~ — **DONE.** R2.9 completed 2026-08-30 (all 127 provenance rows carry `reviewed_by=Jakob`); R1.3/R1.4/R1.8, R3.1–R3.3, R4.1–R4.3, R6.1/R6.2, ordering-rule, form-mapping and ADRs 0003–0007/0009 signed off 2026-09-04. Mechanical gates R2.11 and R7.3 both pass. **59-vs-60 delta fully resolved 2026-09-05** — runtime CSV regenerated to 59 + independence sidecar re-keyed (`20`→`19`) on 2026-09-04, and the two live migrations were verified ALREADY APPLIED: live `cleanroom-v1` reports `question_count=59`, and a live REST query shows 59 core (gapless 1–59) + 32 deep-dive (gapless 60–91) + A1.5-01 retired at 900, with **0 content mismatches** against the runtime CSV (see the prompt-quote note below). (STATUS previously claimed the live row still said 60 and the migrations were pending — stale; corrected this session.)
 2. ~~**Apply the 59-vs-60 migrations to live**~~ — **DONE, verified 2026-09-04/05.** `20260904000000_cleanroom_v1_core_59.sql` (retire A1.5-01, renumber core 1–59 / deep-dive 60–91) and `20260904000001_cleanroom_v1_sync_prompts.sql` (27 drifted `prompt_de` rows) are both listed as applied on the live project (`supabase migration list`), and the live data matches (see item 1). *Prompt-quote residual from Workstream-A Task 2:* the runtime CSV strips the item files' wrapping quote marks, but the live `prompt_de` column still carried them on all rows (quote-only drift, 0 content drift). **CLOSED 2026-09-05** — the live column was stripped (all 92 cleanroom rows; migration `20260905000000_cleanroom_v1_strip_prompt_quotes.sql` retained for repo/fresh-environment consistency), and a live REST diff now shows **0 mismatches** against the signed core and deep-dive CSVs. Child client and teacher dashboard now render identical prompt text.
@@ -94,9 +172,11 @@ The clean-room rewrite's remaining tasks below are **manual sign-off / deploy** 
 
 ## Paused / retired
 
-**Nicht mehr pausiert:** die handgebaute Übungs-Engine. Sie kehrt als kindseitiges Modell zurück
-(Entwurf §6) — mehrstufige, manipulativ-basierte Skills mit Belohnungen, angebunden an die
-Server-Schicht des Lernpfads. Damit sind auch ihre Steuerungsdokumente **wieder in Kraft**:
+**Nicht mehr pausiert, jetzt real im Code:** die handgebaute Übungs-Engine. Die Rückkehr war zunächst
+nur im (inzwischen verworfenen) v2-Entwurf §6 vorgesehen; `exercise-plan-foundation` (Active #1) hat
+sie tatsächlich gebaut — mehrstufige, manipulativ-basierte `custom_widget`-Skills (bisher
+`double_zr10`, `halve_zr10`), angebunden an die bestehende Server-Schicht des Lernpfads. Damit sind
+auch ihre Steuerungsdokumente **wieder in Kraft**:
 
 - `DIFFICULTY_CURVE.md`
 - `COMPLETION_CRITERIA.md`

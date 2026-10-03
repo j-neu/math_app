@@ -53,6 +53,17 @@ Tier 4 (New — from scratch).
       first real-kid pilot session collects an unbiased response-time distribution
       per item. Once that data exists, derive real per-item budgets from it instead
       of guessing again (`diagnostic_screen.dart:_timeoutSecondsFor`).
+- [ ] TTS for every diagnostic question — read the prompt aloud, not just the
+      one dedicated listening-exercise item. Decided 2026-10-03: pre-generate
+      the audio files rather than synthesize client-side (browser/OS TTS
+      voices are inconsistent across devices and German voice support on
+      Android WebView tablets, the pilot's actual target, is often poor or
+      missing); run each generated file through the same denoise/loudnorm
+      pipeline already built for `zahlen_diktat_17_47_70_72_84.mp3`. Use a
+      stock German neural TTS voice (cloud API or local, e.g. Piper) for the
+      first pass — training a voice-clone of Jakob's own voice is a
+      nice-to-have that can swap in later without changing the architecture,
+      not a prerequisite. Not started.
 - [ ] Fill legal placeholders in `dashboard/app/impressum/page.tsx` and
       `dashboard/app/datenschutz/page.tsx` (`[NAME/ADRESSE/EMAIL]`)
 - [ ] AVV/DPA signature with Supabase (`supabase.com/legal/dpa`) and with each pilot school

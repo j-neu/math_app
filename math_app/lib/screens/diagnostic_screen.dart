@@ -973,7 +973,22 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  QuestionPrompt(question: question),
+                  // Items whose prompt text carries its own "__" blanks (a
+                  // counting sequence, a completion equation) render those
+                  // blanks as live boxes right where they appear in the
+                  // sentence instead of a separate, disconnected row of
+                  // boxes below it — see InlineBlankPrompt. Visual items
+                  // keep the old split layout since the picture, not the
+                  // sentence, carries the blank.
+                  if (_usesInlineBlanks(question))
+                    InlineBlankPrompt(
+                      key: ValueKey('prompt_${question.listNumber}'),
+                      question: question,
+                      controller: _textController,
+                      onSubmit: () => _nextQuestion(questions),
+                    )
+                  else
+                    QuestionPrompt(question: question),
                   if (question.hilfetext != null &&
                       question.hilfetext!.isNotEmpty) ...[
                     const SizedBox(height: 12),
@@ -988,8 +1003,11 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
                     _buildAudioReplayButton(question.audioAsset!),
                     const SizedBox(height: 12),
                   ],
-                  // Dynamically build the answer widget based on format
-                  _buildAnswerWidget(question, questions),
+                  // Dynamically build the answer widget based on format —
+                  // skipped when InlineBlankPrompt already rendered the
+                  // input boxes inline within the sentence above.
+                  if (!_usesInlineBlanks(question))
+                    _buildAnswerWidget(question, questions),
                   const SizedBox(height: 40),
                   ElevatedButton(
                     onPressed: _savingAnswer
@@ -1012,6 +1030,13 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
       ),
     );
   }
+
+  /// Visual items keep the split prompt/input layout even when
+  /// [InlineBlankPrompt.appliesTo] would otherwise match, since the picture
+  /// (not the sentence) is what the child is reading the blank from.
+  bool _usesInlineBlanks(DiagnosticQuestion question) =>
+      question.sourceType != QuestionType.image &&
+      InlineBlankPrompt.appliesTo(question);
 
   Widget _buildAnswerWidget(
       DiagnosticQuestion question, List<DiagnosticQuestion> questions) {

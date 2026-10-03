@@ -542,6 +542,133 @@ class _FreeField extends StatelessWidget {
   }
 }
 
+/// Renders [question.german] with its literal "__" placeholders replaced by
+/// live input boxes in place, instead of a static sentence followed by a
+/// disconnected row of boxes below it — kids in the 2026-09-24 pilot test
+/// didn't connect the blanks they read ("11, 12, 13, __, __, __") to the
+/// separate boxes rendered underneath. Only applies to `number`/`sequence`
+/// items whose prompt text actually contains a blank (see [appliesTo]);
+/// everything else still goes through [QuestionPrompt] +
+/// [DiagnosticAnswerInput] unchanged.
+class InlineBlankPrompt extends StatefulWidget {
+  final DiagnosticQuestion question;
+  final TextEditingController controller;
+  final VoidCallback? onSubmit;
+
+  const InlineBlankPrompt({
+    super.key,
+    required this.question,
+    required this.controller,
+    this.onSubmit,
+  });
+
+  /// Whether [question] should render via [InlineBlankPrompt] rather than
+  /// the separate prompt-then-input layout: its answer is a flat list of
+  /// numbers (no row labels, no decomposition pairs) and its German text
+  /// contains at least one "__" to substitute.
+  static bool appliesTo(DiagnosticQuestion question) {
+    final mode = AnswerGrading.modeFor(question);
+    if (mode != DiagnosticAnswerMode.number &&
+        mode != DiagnosticAnswerMode.sequence) {
+      return false;
+    }
+    return question.german.contains('__');
+  }
+
+  @override
+  State<InlineBlankPrompt> createState() => _InlineBlankPromptState();
+}
+
+class _InlineBlankPromptState extends State<InlineBlankPrompt> {
+  late List<String> _segments;
+  late List<TextEditingController> _fields;
+  late List<FocusNode> _focusNodes;
+
+  @override
+  void initState() {
+    super.initState();
+    _segments = widget.question.german.split('__');
+    final blankCount = _segments.length - 1;
+    _fields = List.generate(blankCount, (_) => TextEditingController());
+    _focusNodes = List.generate(blankCount, (_) => FocusNode());
+    for (final c in _fields) {
+      c.addListener(_join);
+    }
+  }
+
+  @override
+  void dispose() {
+    for (final c in _fields) {
+      c.removeListener(_join);
+      c.dispose();
+    }
+    for (final n in _focusNodes) {
+      n.dispose();
+    }
+    super.dispose();
+  }
+
+  void _join() {
+    widget.controller.text = _fields
+        .map((c) => c.text.trim())
+        .where((t) => t.isNotEmpty)
+        .join(', ');
+  }
+
+  void _submitted(int index) {
+    if (index < _fields.length - 1) {
+      _focusNodes[index + 1].requestFocus();
+    } else {
+      widget.onSubmit?.call();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final textStyle = Theme.of(context).textTheme.titleLarge;
+    final children = <Widget>[];
+    for (var i = 0; i < _segments.length; i++) {
+      final segment = _segments[i];
+      if (segment.isNotEmpty) {
+        children.add(Text(segment, style: textStyle));
+      }
+      if (i < _fields.length) {
+        final isLast = i == _fields.length - 1;
+        children.add(SizedBox(
+          width: 64,
+          child: TextField(
+            controller: _fields[i],
+            focusNode: _focusNodes[i],
+            autofocus: i == 0,
+            keyboardType: TextInputType.number,
+            textInputAction:
+                isLast ? TextInputAction.done : TextInputAction.next,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            onSubmitted: (_) => _submitted(i),
+            textAlign: TextAlign.center,
+            style: textStyle,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              contentPadding: EdgeInsets.symmetric(vertical: 10),
+            ),
+          ),
+        ));
+      }
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: Wrap(
+        spacing: 6,
+        runSpacing: 10,
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: children,
+      ),
+    );
+  }
+}
+
 /// Drag-to-reorder input for `DiagnosticAnswerMode.sort` items. Shuffles on
 /// entry; a shuffle that already matches the solution is re-rolled so the
 /// item can't be answered by leaving it alone (diagnostic usability rework

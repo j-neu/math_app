@@ -2,3 +2,8 @@ _sources_private/
 .playwright-mcp/
 __pycache__/
 
+
+# intro video build
+tools/intro_video/work/
+tools/intro_video/node_modules/
+out/

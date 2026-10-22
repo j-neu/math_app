@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Intro Diagnose</title>
+<style>
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #DCE6EF;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif; color: #181C20; }
+  .abs { position: absolute; }
+  #win { left: 180px; top: 20px; width: 1560px; height: 640px; background: #F6FAFE; border-radius: 22px;
+    box-shadow: 0 10px 34px rgba(0,0,0,.16); overflow: hidden; }
+  #appbar { left: 32px; top: 18px; font-size: 30px; }
+  #progress { left: 600px; top: 80px; width: 360px; height: 10px; border-radius: 5px; background: #DDE3EA; }
+  #progress div { width: 12%; height: 100%; border-radius: 5px; background: #2E6385; }
+  #prompt { left: 0; top: 120px; width: 1560px; display: flex; justify-content: center; align-items: center;
+    gap: 14px; font-size: 46px; }
+  .tok { padding: 2px 6px; border-radius: 10px; }
+  .box { width: 120px; height: 84px; border: 3px solid #73777F; border-radius: 12px; background: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 46px; position: relative; }
+  .caret { position: absolute; width: 5px; height: 52px; background: #154761; top: 16px; }
+  #buttons { left: 0; top: 245px; width: 1560px; display: flex; justify-content: center; gap: 26px; }
+  .btn { height: 86px; border-radius: 43px; display: flex; align-items: center; gap: 14px; padding: 0 36px;
+    font-size: 32px; position: relative; }
+  #replay { background: #D3E4F5; color: #0E1D2A; }
+  #hilfe { background: #FFB300; color: #000; }
+  .card { left: 330px; width: 900px; height: 62px; background: #FFF8E1; border-radius: 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,.14); display: flex; align-items: center; gap: 18px; padding: 0 18px;
+    font-size: 28px; box-sizing: border-box; }
+  .badge { width: 42px; height: 42px; border-radius: 21px; background: #FFB300; display: flex;
+    align-items: center; justify-content: center; font-size: 24px; flex: none; }
+  .card .spk { margin-left: auto; }
+  #weiter { left: 700px; width: 160px; height: 56px; border-radius: 28px; background: #F0F3F8;
+    box-shadow: 0 2px 4px rgba(0,0,0,.2); display: flex; align-items: center; justify-content: center;
+    font-size: 24px; color: #2E6385; }
+  #kbd { left: 180px; width: 1560px; height: 404px; background: #2B2F36; border-radius: 22px; }
+  .key { position: absolute; background: #4A505A; color: #fff; border-radius: 8px; display: flex;
+    align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 3px 0 #1d2026; }
+  .key.dim { color: #9aa1ab; font-size: 20px; }
+  .tag { padding: 10px 22px; border-radius: 30px; font-size: 34px; font-weight: 600; background: #FFE082;
+    color: #222; box-shadow: 0 4px 12px rgba(0,0,0,.25); white-space: nowrap; }
+  .num { width: 76px; height: 76px; border-radius: 38px; background: #E53935; color: #fff; font-size: 40px;
+    font-weight: 700; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,.3); }
+  #cursor { width: 72px; height: 72px; left: 0; top: 0; transform-origin: 0 0; z-index: 50; }
+  .ring { border: 6px solid #FFB300; border-radius: 50%; z-index: 49; }
+  #end { inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: rgba(246,250,254,.96); font-size: 96px; font-weight: 700; color: #154761; z-index: 60; }
+  #black { inset: 0; background: #000; z-index: 70; }
+  .conf { width: 16px; height: 10px; z-index: 55; }
+</style>
+</head>
+<body>
+<div id="win" class="abs">
+  <div id="appbar" class="abs">Diagnose</div>
+  <div id="progress" class="abs"><div></div></div>
+  <div id="prompt" class="abs">
+    <span class="tok">Zähle</span><span class="tok">in</span><span class="tok">Fünferschritten</span><span class="tok">weiter:</span>
+    <span class="tok">5,</span><span class="tok">10,</span><span class="tok">15,</span>
+    <div class="box" id="box1"><span></span><div class="caret"></div></div><span>,</span>
+    <div class="box" id="box2"><span></span><div class="caret"></div></div>
+  </div>
+  <div id="buttons" class="abs">
+    <div class="btn" id="replay"><span class="ico" id="replayIco"></span>Nochmal hören</div>
+    <div class="btn" id="hilfe"><span class="ico" id="bulb"></span>Hilfe</div>
+  </div>
+  <div id="weiter" class="abs">Weiter</div>
+</div>
+<div id="kbd" class="abs"></div>
+<svg id="cursor" class="abs" viewBox="0 0 24 24"><path d="M2 1 L2 19 L7 14.5 L10.5 22 L13.5 20.6 L10 13.3 L17 13.3 Z"
+  fill="#fff" stroke="#000" stroke-width="1.4" stroke-linejoin="round"/></svg>
+<div id="end" class="abs"><div id="star"></div><div>Du schaffst das!</div></div>
+<div id="black" class="abs"></div>
+<script src="work/timeline.js"></script>
+<script>
+// ---------- helpers ----------
+const $ = (id) => document.getElementById(id);
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const ease = (x) => (x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2);
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const within = (t, a, b) => t >= a && t < b;
+const SPK = (c = '#0E1D2A') => `<svg width="40" height="40" viewBox="0 0 24 24"><path fill="${c}" d="M3 9v6h4l5 5V4L7 9H3z"/><path class="w1" fill="none" stroke="${c}" stroke-width="2" d="M15 9.5a3.5 3.5 0 0 1 0 5"/><path class="w2" fill="none" stroke="${c}" stroke-width="2" d="M17.5 7a7 7 0 0 1 0 10"/></svg>`;
+$('replayIco').innerHTML = SPK();
+$('bulb').innerHTML = '<svg width="40" height="40" viewBox="0 0 24 24"><path d="M9 21h6v-1H9v1zm3-19a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z" fill="#000"/></svg>';
+$('star').innerHTML = '<svg width="200" height="200" viewBox="0 0 24 24"><path fill="#FFB300" stroke="#E69500" stroke-width=".6" d="M12 2l3 6.5 7 .8-5.2 4.8 1.5 7L12 17.6 5.7 21.1l1.5-7L2 9.3l7-.8z"/></svg>';
+
+// ---------- timeline ----------
+const PAD = 0.6;
+const D = window.TIMELINE || [5, 8, 7, 4, 5, 7, 9, 6, 6, 11, 10, 4, 7, 6, 3, 7, 6];
+const S = []; { let acc = 0; for (const d of D) { S.push(acc); acc += d + PAD; } }
+const at = (i, f) => S[i] + D[i] * f;           // absolute time at fraction f of scene i
+const END = S[16] + D[16] + 1;
+window.TOTAL = END;
+
+// ---------- hint cards ----------
+const HINTS = ['Die Zahlen werden immer um 5 größer.', 'Schau auf die 15. Zähle 5 weiter.', 'Rechne zu jeder Zahl plus 5.'];
+const cards = HINTS.map((h, i) => {
+  const c = document.createElement('div');
+  c.className = 'card abs';
+  c.innerHTML = `<div class="badge">${i + 1}</div><div>${h}</div><span class="spk">${SPK('#444')}</span>`;
+  $('win').appendChild(c);
+  return c;
+});
+const HELP_CLICK = [S[4] - 0.3, at(5, 0.4), at(6, 0.3)];
+const CARD_T = HELP_CLICK.map((c) => c + 0.15);
+const CARD_END = [D.length ? S[4] + D[4] : 0, S[5] + D[5], S[6] + D[6]];
+
+// ---------- keyboard ----------
+const U = 58, G = 6, R = 8, KX0 = 150, KY0 = 26;
+const keys = {};
+function key(id, label, x, y, w = 1, h = 1, dim = false) {
+  const k = document.createElement('div');
+  k.className = 'key' + (dim ? ' dim' : '');
+  k.textContent = label;
+  Object.assign(k.style, { left: x + 'px', top: y + 'px', width: (w * U + (w - 1) * G) + 'px', height: (h * U + (h - 1) * (G + R)) + 'px' });
+  $('kbd').appendChild(k);
+  (keys[id] = keys[id] || []).push(k);
+  return k;
+}
+function row(y, items) {
+  let x = KX0;
+  for (const [id, label, w, dim] of items) { key(id, label, x, y, w, 1, dim); x += w * U + w * G; }
+  return x;
+}
+const rowY = (r) => KY0 + r * (U + G + R);
+const numRow = [['circ', '^', 1, true], ...'1234567890'.split('').map((d) => ['n' + d, d, 1, false]),
+  ['sz', 'ß', 1, true], ['acc', '´', 1, true], ['bs', '⟵', 2, false]];
+row(rowY(0), numRow);
+const r1end = row(rowY(1), [['tab', 'Tab', 1.5, true], ...'QWERTZUIOPÜ+'.split('').map((c) => ['l' + c, c, 1, true])]);
+row(rowY(2), [['caps', '⇩', 1.75, true], ...'ASDFGHJKLÖÄ#'.split('').map((c) => ['l' + c, c, 1, true])]);
+row(rowY(3), [['shl', '⇧', 1.25, true], ...'<YXCVBNM,.-'.split('').map((c, i) => ['m' + i, c, 1, true]), ['shr', '⇧', 2.75, true]]);
+row(rowY(4), [['ctl', 'Strg', 1.5, true], ['win', '', 1.25, true], ['alt', 'Alt', 1.25, true], ['sp', '', 6.5, true],
+  ['agr', 'AltGr', 1.25, true], ['ctr', 'Strg', 1.5, true]]);
+// L-shaped Enter: top part at the end of row 1, bottom part at the end of row 2
+const mainRight = KX0 + 15 * (U + G) - G;
+const entTop = key('ent', '↵', r1end, rowY(1), (mainRight - r1end + G) / (U + G));
+entTop.style.height = (2 * U + G + R) + 'px';
+entTop.style.fontSize = '40px';
+// numpad
+const NX = mainRight + 60;
+const nx = (c) => NX + c * (U + G);
+key('nl', 'Num', nx(0), rowY(0), 1, 1, true); key('nd', '/', nx(1), rowY(0), 1, 1, true);
+key('nm', '*', nx(2), rowY(0), 1, 1, true); key('nmi', '-', nx(3), rowY(0), 1, 1, true);
+[['7', '8', '9'], ['4', '5', '6'], ['1', '2', '3']].forEach((r, ri) => r.forEach((d, ci) => key('p' + d, d, nx(ci), rowY(ri + 1))));
+key('npl', '+', nx(3), rowY(1), 1, 2, true);
+key('pent', '↵', nx(3), rowY(3), 1, 2, true);
+key('p0', '0', nx(0), rowY(4), 2); key('pc', ',', nx(2), rowY(4), 1, 1, true);
+const NUMROW = '1234567890'.split('').map((d) => 'n' + d);
+const NUMPAD = '0123456789'.split('').map((d) => 'p' + d);
+
+// ---------- script of events ----------
+const PRESSES = [
+  ['n2', at(9, 0.28)], ['p0', at(9, 0.55)],
+  ['ent', at(10, 0.76)],
+  ['p2', S[11] + 0.25], ['p6', S[11] + 0.55],
+  ['bs', at(13, 0.55)], ['bs', at(13, 0.7)],
+  ['p2', at(14, 0.45)], ['p5', at(14, 0.62)],
+  ['ent', at(15, 0.4)],
+];
+const GLOWS = [
+  [NUMROW, at(8, 0.35), at(8, 0.62)], [NUMPAD, at(8, 0.62), S[8] + D[8] + 0.3],
+  [NUMROW, at(9, 0.18), at(9, 0.4)], [NUMPAD, at(9, 0.42), at(9, 0.62)],
+  [NUMROW, at(9, 0.68), S[9] + D[9] + 0.3], [NUMPAD, at(9, 0.68), S[9] + D[9] + 0.3],
+  [['ent'], at(10, 0.3), at(10, 0.85)],
+  [['bs'], at(13, 0.1), at(13, 0.8)],
+  [['ent'], at(15, 0.15), at(15, 0.5)],
+];
+const BOX1 = [[at(9, 0.28), '2'], [at(9, 0.55), '20']];
+const BOX2 = [[S[11] + 0.25, '2'], [S[11] + 0.55, '26'], [at(13, 0.55), '2'], [at(13, 0.7), ''], [at(14, 0.45), '2'], [at(14, 0.62), '25']];
+const ENTER1 = at(10, 0.76), ENTER2 = at(15, 0.4);
+const BOX2_CLICK = at(12, 0.42);
+const SUCCESS = ENTER2 + 0.1;
+
+// ---------- measured targets (stage coords) ----------
+let T = {};
+function center(el) { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }
+
+// ---------- confetti ----------
+const conf = [];
+let seed = 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+const COLORS = ['#E53935', '#FFB300', '#43A047', '#1E88E5', '#8E24AA'];
+for (let i = 0; i < 70; i++) {
+  const c = document.createElement('div'); c.className = 'conf abs'; c.style.background = COLORS[i % 5];
+  document.body.appendChild(c);
+  conf.push({ el: c, vx: (rnd() - 0.5) * 900, vy: -400 - rnd() * 700, rot: rnd() * 720 });
+}
+const rings = [];
+for (let i = 0; i < 4; i++) { const r = document.createElement('div'); r.className = 'ring abs'; document.body.appendChild(r); rings.push(r); }
+const extra = {};
+for (const id of ['num1', 'num2', 'beides', 'trail', 'check']) {
+  const d = document.createElement('div'); d.className = 'abs'; d.style.zIndex = 45; document.body.appendChild(d); extra[id] = d;
+}
+extra.num1.className = 'num abs'; extra.num1.textContent = '1.';
+extra.num2.className = 'num abs'; extra.num2.textContent = '2.';
+extra.beides.className = 'tag abs'; extra.beides.textContent = '✓ Beides geht';
+extra.check.innerHTML = '<svg width="120" height="120" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#43A047"/><path d="M6.5 12.5l3.5 3.5 7.5-8" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+function textAt(list, t) { let v = ''; for (const [time, s] of list) if (t >= time) v = s; return v; }
+
+// ---------- render ----------
+window.renderAt = function (t) {
+  // window fade-in
+  $('win').style.opacity = ease(prog(t, 0, 0.8));
+
+  // keyboard slide
+  const kIn = ease(prog(t, S[8], S[8] + 0.8)) - ease(prog(t, S[16], S[16] + 0.6));
+  const kbdTop = 1080 - kIn * (1080 - 670);
+  $('kbd').style.top = kbdTop + 'px';
+
+  // prompt word highlight while the question is read (scene 1)
+  const toks = document.querySelectorAll('.tok');
+  const w = (D[1] * 0.8) / toks.length;
+  toks.forEach((el, k) => {
+    const on = within(t, S[1] + 0.4 + k * w, S[1] + 0.4 + (k + 1) * w + 0.15);
+    el.style.background = on ? '#FFE082' : 'transparent';
+  });
+
+  // buttons: Hilfe hover pulse, press flash, fade out after hint 3
+  const hilfe = $('hilfe');
+  const pulse = within(t, S[3] + 1.2, HELP_CLICK[0]) ? (0.5 + 0.5 * Math.sin((t - S[3]) * 7)) : 0;
+  const pressedH = HELP_CLICK.some((c) => within(t, c, c + 0.2));
+  hilfe.style.boxShadow = `0 0 0 ${pulse * 12}px rgba(255,179,0,.45)`;
+  hilfe.style.filter = pressedH ? 'brightness(.8)' : 'none';
+  hilfe.style.opacity = 1 - prog(t, CARD_T[2] + 0.6, CARD_T[2] + 1.0);
+  const REPLAY_CLICK = at(2, 0.5);
+  $('replay').style.filter = within(t, REPLAY_CLICK, REPLAY_CLICK + 0.2) ? 'brightness(.85)' : 'none';
+  // speaker waves while the question is being read
+  const readQ = within(t, S[1], S[1] + D[1]) || within(t, REPLAY_CLICK, S[2] + D[2]);
+  const wave = (el, on) => {
+    const ph = (t * 3) % 1;
+    el.querySelector('.w1').style.opacity = on ? (ph > 0.2 ? 1 : 0.2) : 1;
+    el.querySelector('.w2').style.opacity = on ? (ph > 0.55 ? 1 : 0.2) : 1;
+  };
+  wave($('replayIco'), readQ);
+
+  // hint cards
+  let cardsShown = 0;
+  cards.forEach((c, i) => {
+    const p = ease(prog(t, CARD_T[i], CARD_T[i] + 0.35));
+    if (p > 0) cardsShown = i + 1 - (1 - p);
+    c.style.opacity = p;
+    c.style.top = (350 + i * 70 + (1 - p) * 20) + 'px';
+    wave(c.querySelector('.spk'), within(t, CARD_T[i], CARD_END[i]));
+  });
+
+  // Weiter button follows the cards; pulses in scene 15
+  const weiter = $('weiter');
+  weiter.style.top = (360 + cardsShown * 70) + 'px';
+  const wp = within(t, at(15, 0.5), at(15, 0.8)) ? 0.5 + 0.5 * Math.sin((t - S[15]) * 8) : 0;
+  weiter.style.boxShadow = `0 2px 4px rgba(0,0,0,.2), 0 0 0 ${wp * 14}px rgba(255,179,0,.5)`;
+
+  // boxes: text, focus, caret, enlarge, wobble
+  const b1 = $('box1'), b2 = $('box2');
+  b1.querySelector('span').textContent = textAt(BOX1, t);
+  b2.querySelector('span').textContent = textAt(BOX2, t);
+  const focus = t >= S[7] && t < ENTER1 ? 1 : (t >= ENTER1 && t < ENTER2 ? 2 : 0);
+  const blinkOn = Math.floor(t * 2) % 2 === 0;
+  for (const [n, b] of [[1, b1], [2, b2]]) {
+    const cr = b.querySelector('.caret');
+    const txt = b.querySelector('span').textContent;
+    cr.style.display = focus === n && blinkOn ? 'block' : 'none';
+    cr.style.left = (60 + txt.length * 13) + 'px';
+    b.style.borderColor = focus === n ? '#154761' : '#73777F';
+    b.style.boxShadow = focus === n ? '0 0 0 6px rgba(255,193,7,.55)' : 'none';
+  }
+  const grow = ease(prog(t, S[7], S[7] + 0.5)) - ease(prog(t, S[8], S[8] + 0.4));
+  b1.style.transform = `scale(${1 + 0.22 * grow})`;
+  const wrong = t >= S[11] + 0.7 && t < at(13, 0.7);
+  if (wrong) b2.style.borderColor = '#E53935';
+  if (t >= at(14, 0.62)) b2.style.borderColor = '#43A047';
+  const wob = prog(t, S[11] + 0.7, S[11] + 1.7);
+  b2.style.transform = wob > 0 && wob < 1 ? `translateX(${10 * Math.sin(wob * Math.PI * 12) * (1 - wob)}px)` : 'none';
+  if (within(t, BOX2_CLICK, BOX2_CLICK + 1.2)) b2.style.boxShadow = '0 0 0 10px rgba(255,193,7,.7)';
+
+  // keys: glow + press
+  for (const list of Object.values(keys)) for (const k of list) { k.style.background = '#4A505A'; k.style.transform = 'none'; k.style.color = ''; }
+  for (const [ids, a, b] of GLOWS) {
+    if (!within(t, a, b)) continue;
+    const g = 0.75 + 0.25 * Math.sin((t - a) * 8);
+    for (const id of ids) for (const k of keys[id]) { k.style.background = `rgba(255,193,7,${g})`; k.style.color = '#000'; }
+  }
+  for (const [id, time] of PRESSES) {
+    if (!within(t, time - 0.05, time + 0.18)) continue;
+    for (const k of keys[id]) { k.style.background = '#FF8F00'; k.style.color = '#000'; k.style.transform = 'translateY(4px)'; }
+  }
+
+  // badges
+  const [b2x, b2y] = T.box2;
+  extra.num1.style.left = (b2x - 38) + 'px';
+  extra.num1.style.top = (b2y - 150) + 'px';
+  extra.num1.style.opacity = prog(t, BOX2_CLICK, BOX2_CLICK + 0.3) * (1 - prog(t, S[13] + D[13], S[13] + D[13] + 0.4));
+  const bsRect = keys.bs[0];
+  extra.num2.style.left = (180 + parseFloat(bsRect.style.left) + 40) + 'px';
+  extra.num2.style.top = (kbdTop + parseFloat(bsRect.style.top) - 90) + 'px';
+  extra.num2.style.opacity = prog(t, at(13, 0.1), at(13, 0.1) + 0.3) * (1 - prog(t, S[13] + D[13], S[13] + D[13] + 0.4));
+  extra.beides.style.left = (180 + NX - 10) + 'px';
+  extra.beides.style.top = (kbdTop - 76) + 'px';
+  extra.beides.style.opacity = prog(t, at(9, 0.68), at(9, 0.68) + 0.3) * (1 - prog(t, S[10], S[10] + 0.3));
+
+  // Enter: arrow trail from box 1 to box 2
+  const tp = prog(t, ENTER1, ENTER1 + 0.6);
+  const [x1, y1] = T.box1;
+  extra.trail.style.left = (x1 + (b2x - x1) * ease(tp) - 30) + 'px';
+  extra.trail.style.top = (y1 - 80) + 'px';
+  extra.trail.style.fontSize = '60px';
+  extra.trail.style.color = '#E69500';
+  extra.trail.textContent = '➜';
+  extra.trail.style.opacity = tp > 0 && tp < 1 ? 1 : 0;
+
+  // success check + confetti
+  extra.check.style.left = (b2x + 90) + 'px';
+  extra.check.style.top = (b2y - 60) + 'px';
+  extra.check.style.opacity = prog(t, SUCCESS, SUCCESS + 0.3) * (1 - prog(t, S[16], S[16] + 0.4));
+  const ct = t - SUCCESS;
+  conf.forEach((c, i) => {
+    const on = ct > 0 && ct < 2.2;
+    c.el.style.opacity = on ? clamp(1 - ct / 2.2) : 0;
+    if (!on) return;
+    const x = 960 + c.vx * ct, y = 330 + c.vy * ct + 900 * ct * ct;
+    c.el.style.left = x + 'px'; c.el.style.top = y + 'px';
+    c.el.style.transform = `rotate(${c.rot * ct}deg)`;
+  });
+
+  // cursor
+  const P = cursorAt(t);
+  const cur = $('cursor');
+  cur.style.opacity = P.vis;
+  const clicks = [REPLAY_CLICK, ...HELP_CLICK, BOX2_CLICK];
+  const pressing = clicks.some((c) => within(t, c, c + 0.15));
+  cur.style.transform = `translate(${P.x}px, ${P.y}px) scale(${pressing ? 0.85 : 1})`;
+  rings.forEach((r) => (r.style.opacity = 0));
+  clicks.forEach((c, i) => {
+    const rp = prog(t, c, c + 0.5);
+    if (rp <= 0 || rp >= 1) return;
+    const r = rings[i % rings.length], size = 20 + rp * 90;
+    Object.assign(r.style, { opacity: 1 - rp, left: (P.x - size / 2) + 'px', top: (P.y - size / 2) + 'px', width: size + 'px', height: size + 'px' });
+  });
+
+  // ending
+  $('end').style.opacity = ease(prog(t, S[16] + 0.3, S[16] + 0.9));
+  $('star').style.transform = `scale(${0.6 + 0.4 * ease(prog(t, S[16] + 0.3, S[16] + 1.1))}) rotate(${(t - S[16]) * 20}deg)`;
+  $('black').style.opacity = prog(t, END - 1.0, END - 0.1);
+};
+
+// cursor keyframes: [time, x, y]; visibility windows separately
+function cursorAt(t) {
+  const off = [1500, 900];
+  const K = [
+    [0, ...off], [S[2], ...off], [S[2] + 1.2, ...T.replay], [S[3], ...T.replay], [S[3] + 1.2, ...T.hilfe],
+    [S[7], ...T.hilfe], [S[7] + 0.8, 1640, 560], [S[12], 1600, 560], [at(12, 0.35), ...T.box2click], [S[14], ...T.box2click],
+  ];
+  let x = K[0][1], y = K[0][2];
+  for (let i = 0; i < K.length - 1; i++) {
+    const [ta, xa, ya] = K[i], [tb, xb, yb] = K[i + 1];
+    if (t >= ta && t <= tb) { const p = ease(prog(t, ta, tb)); x = xa + (xb - xa) * p; y = ya + (yb - ya) * p; break; }
+    if (t > tb) { x = xb; y = yb; }
+  }
+  const vis = within(t, S[2], S[8]) ? Math.min(prog(t, S[2], S[2] + 0.3), 1 - prog(t, S[7] + 0.6, S[7] + 1.0))
+    : within(t, S[12], S[14]) ? Math.min(prog(t, S[12], S[12] + 0.3), 1 - prog(t, S[13] + 0.2, S[13] + 0.6)) : 0;
+  return { x, y, vis };
+}
+
+window.addEventListener('load', () => {
+  T = { replay: center($('replay')), hilfe: center($('hilfe')), box1: center($('box1')), box2: center($('box2')) };
+  // click with the arrow tip slightly inside the target, not dead centre
+  T.replay = [T.replay[0] - 40, T.replay[1]];
+  T.box2click = [T.box2[0] + 34, T.box2[1] + 26];
+  window.renderAt(0);
+  window.ready = true;
+});
+</script>
+</body>
+</html>

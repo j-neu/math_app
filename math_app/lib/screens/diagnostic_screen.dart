@@ -889,8 +889,12 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
             });
           }
 
-          return Center(
+          // Top-aligned, not centred: revealing a hint card must not move
+          // the Hilfe button out from under the child's next click.
+          return Align(
+            alignment: Alignment.topCenter,
             child: SingleChildScrollView(
+              padding: const EdgeInsets.only(top: 40, bottom: 32),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -935,17 +939,25 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
                   else
                     QuestionPrompt(question: question),
                   const SizedBox(height: 20),
-                  HelpPanel(
-                    key: ValueKey('help_${question.listNumber}'),
-                    hints: question.hilfen,
-                    revealed: _helpLevel,
-                    onReplayQuestion: () => _playQuestionAudio(question),
-                    onRequestHelp: () => _requestHelp(question),
-                    onReplayHint: (stage) {
-                      _queuedAudio = null;
-                      _playAudio(
-                          DiagnosticAudio.hintAsset(question.listNumber, stage));
-                    },
+                  // TextFieldTapRegion: clicking Hilfe / Nochmal hören must
+                  // not pull the cursor out of the answer box, or the
+                  // child's next keystrokes would go nowhere.
+                  TextFieldTapRegion(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 720),
+                      child: HelpPanel(
+                        key: ValueKey('help_${question.listNumber}'),
+                        hints: question.hilfen,
+                        revealed: _helpLevel,
+                        onReplayQuestion: () => _playQuestionAudio(question),
+                        onRequestHelp: () => _requestHelp(question),
+                        onReplayHint: (stage) {
+                          _queuedAudio = null;
+                          _playAudio(DiagnosticAudio.hintAsset(
+                              question.listNumber, stage));
+                        },
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 20),
                   // Dynamically build the answer widget based on format —

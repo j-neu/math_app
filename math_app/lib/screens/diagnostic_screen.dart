@@ -13,10 +13,6 @@ import 'package:math_app/widgets/common/counting_dots_widget.dart';
 import 'package:math_app/widgets/common/hundred_field_widget.dart';
 import 'package:math_app/widgets/common/bundling_blocks_widget.dart';
 import 'package:math_app/widgets/common/flash_presentation_widget.dart';
-import 'package:math_app/widgets/common/number_wall_widget.dart';
-import 'package:math_app/widgets/common/number_wall_legend_widget.dart';
-import 'package:math_app/widgets/common/calculation_triangle_widget.dart';
-import 'package:math_app/widgets/common/calculation_triangle_legend_widget.dart';
 import 'package:math_app/widgets/common/ten_frame_widget.dart';
 import 'package:math_app/widgets/common/number_line_endpoints_widget.dart';
 import 'package:math_app/widgets/common/number_line_read_widget.dart';
@@ -1270,46 +1266,6 @@ Widget buildVisualDisplay(
     // construct on a 0-100 line.
     case 'V3Z-04':
       return const NumberLineReadWidget(lo: 0, hi: 100, markAt: 68);
-    // V3K-01 — number_wall_zr20 (Kombi-Arbeitskarte 9 gap skill): base
-    // [4, 5, 3] -> 9, 8 -> 17. A worked 1/2/4 example with arrows precedes
-    // the real puzzle so "(siehe Bild)" isn't the child's only explanation
-    // of the rule (Jakob's 2026-09-12 feedback).
-    case 'V3K-01':
-      return const Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          NumberWallLegendWidget(),
-          SizedBox(height: 20),
-          Divider(),
-          SizedBox(height: 12),
-          Text('Deine Aufgabe:',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-          SizedBox(height: 8),
-          NumberWallWidget(base: [4, 5, 3]),
-        ],
-      );
-    // V3K-02 — calculation_triangle_zr20 (Kombi-Arbeitskarte 10 gap skill):
-    // corners 9/6/4, blank bottom side (6+4=10). Same worked-example
-    // treatment as the number wall above.
-    case 'V3K-02':
-      return const Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CalculationTriangleLegendWidget(),
-          SizedBox(height: 20),
-          Divider(),
-          SizedBox(height: 12),
-          Text('Deine Aufgabe:',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-          SizedBox(height: 8),
-          CalculationTriangleWidget(
-            cornerTop: 9,
-            cornerLeft: 6,
-            cornerRight: 4,
-            blankSide: TriangleSide.leftRight,
-          ),
-        ],
-      );
     // V3S-03 — hundred_chart_navigation (Arbeitskarte 6 gap skill).
     case 'V3S-03':
       return const HundredChartWidget(blankValue: 44);

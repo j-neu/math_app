@@ -22,11 +22,15 @@ void main() {
     );
   });
 
-  test('master CSV parses with sequential ListNumbers and no parse errors',
-      () {
+  // 108 (Zahlenmauer) and 109 (Rechendreieck) were removed on 2026-10-22 as
+  // too hard. The other numbers stay put because saved results are keyed by
+  // ListNumber.
+  test('master CSV parses with stable ListNumbers and no parse errors', () {
     expect(master, isNotEmpty);
-    expect(master.map((q) => q.listNumber).toList(),
-        List<int>.generate(master.length, (i) => i + 1));
+    expect(master.map((q) => q.listNumber).toList(), [
+      for (var n = 1; n <= 111; n++)
+        if (n != 108 && n != 109) n,
+    ]);
   });
 
   test('every item has a non-empty Wording, CorrectAnswer and skill tag', () {
@@ -56,6 +60,9 @@ void main() {
     // review (2026-09-13); everything else survives.
     expect(visualIds, isNot(contains('V3D-04')));
     expect(visualIds, isNot(contains('V3S-03')));
+    // Zahlenmauer and Rechendreieck were removed 2026-10-22 (too hard).
+    expect(visualIds, isNot(contains('V3K-01')));
+    expect(visualIds, isNot(contains('V3K-02')));
     expect(
         visualIds,
         containsAll(<String>[
@@ -63,7 +70,6 @@ void main() {
           'V3D-01', 'V3D-05', 'V3D-06', 'V3D-10',
           'V3S-01', 'V3S-05',
           'V3G-01',
-          'V3K-01', 'V3K-02',
           'V3M-01', 'V3M-02', 'V3M-03',
         ]));
   });
@@ -164,11 +170,17 @@ void main() {
     expect(evenOdd.correctAnswer, 'gerade');
   });
 
-  test('derive_via_near_double_add and the number-wall/triangle items grade '
-      'the expected values', () {
+  test('derive_via_near_double_add grades the expected value', () {
     expect(bySkill('derive_via_near_double_add').correctAnswer, '15');
-    expect(bySkill('number_wall_zr20').correctAnswer, '17');
-    expect(bySkill('calculation_triangle_zr20').correctAnswer, '10');
+  });
+
+  test('no Zahlenmauer or Rechendreieck items remain', () {
+    for (final q in master) {
+      expect(q.ifWrongPracticeSkills,
+          isNot(anyOf(contains('number_wall_zr20'),
+              contains('calculation_triangle_zr20'))),
+          reason: 'ListNumber ${q.listNumber}');
+    }
   });
 
   test('ordinal_1 and operation_sense_story grade the expected values', () {

@@ -92,7 +92,7 @@ const END = S[16] + D[16] + 1;
 window.TOTAL = END;
 
 // ---------- hint cards ----------
-const HINTS = ['Die Zahlen werden immer um 5 größer.', 'Schau auf die 15. Zähle 5 weiter.', 'Rechne zu jeder Zahl plus 5.'];
+const HINTS = ['Die Zahlen werden immer um 5 größer.', 'Schau auf die 15. Was ist 15 plus 5?', 'Rechne zu jeder Zahl plus 5.'];
 const cards = HINTS.map((h, i) => {
   const c = document.createElement('div');
   c.className = 'card abs';
@@ -142,7 +142,7 @@ key('nl', 'Num', nx(0), rowY(0), 1, 1, true); key('nd', '/', nx(1), rowY(0), 1, 
 key('nm', '*', nx(2), rowY(0), 1, 1, true); key('nmi', '-', nx(3), rowY(0), 1, 1, true);
 [['7', '8', '9'], ['4', '5', '6'], ['1', '2', '3']].forEach((r, ri) => r.forEach((d, ci) => key('p' + d, d, nx(ci), rowY(ri + 1))));
 key('npl', '+', nx(3), rowY(1), 1, 2, true);
-key('pent', '↵', nx(3), rowY(3), 1, 2, true);
+key('pent', '↵', nx(3), rowY(3), 1, 2).style.fontSize = '40px';
 key('p0', '0', nx(0), rowY(4), 2); key('pc', ',', nx(2), rowY(4), 1, 1, true);
 const NUMROW = '1234567890'.split('').map((d) => 'n' + d);
 const NUMPAD = '0123456789'.split('').map((d) => 'p' + d);
@@ -150,7 +150,7 @@ const NUMPAD = '0123456789'.split('').map((d) => 'p' + d);
 // ---------- script of events ----------
 const PRESSES = [
   ['n2', at(9, 0.28)], ['p0', at(9, 0.55)],
-  ['ent', at(10, 0.76)],
+  ['pent', at(10, 0.85)],
   ['p2', S[11] + 0.25], ['p6', S[11] + 0.55],
   ['bs', at(13, 0.55)], ['bs', at(13, 0.7)],
   ['p2', at(14, 0.45)], ['p5', at(14, 0.62)],
@@ -160,13 +160,14 @@ const GLOWS = [
   [NUMROW, at(8, 0.35), at(8, 0.62)], [NUMPAD, at(8, 0.62), S[8] + D[8] + 0.3],
   [NUMROW, at(9, 0.18), at(9, 0.4)], [NUMPAD, at(9, 0.42), at(9, 0.62)],
   [NUMROW, at(9, 0.68), S[9] + D[9] + 0.3], [NUMPAD, at(9, 0.68), S[9] + D[9] + 0.3],
-  [['ent'], at(10, 0.3), at(10, 0.85)],
+  // Scene 10: the big Enter, then the Zahlenblock Enter, then both ("Beides geht")
+  [['ent'], at(10, 0.12), at(10, 0.5)], [['pent'], at(10, 0.5), at(10, 0.88)], [['ent'], at(10, 0.7), at(10, 0.88)],
   [['bs'], at(13, 0.1), at(13, 0.8)],
   [['ent'], at(15, 0.15), at(15, 0.5)],
 ];
 const BOX1 = [[at(9, 0.28), '2'], [at(9, 0.55), '20']];
 const BOX2 = [[S[11] + 0.25, '2'], [S[11] + 0.55, '26'], [at(13, 0.55), '2'], [at(13, 0.7), ''], [at(14, 0.45), '2'], [at(14, 0.62), '25']];
-const ENTER1 = at(10, 0.76), ENTER2 = at(15, 0.4);
+const ENTER1 = at(10, 0.85), ENTER2 = at(15, 0.4);
 const BOX2_CLICK = at(12, 0.42);
 const SUCCESS = ENTER2 + 0.1;
 
@@ -294,7 +295,9 @@ window.renderAt = function (t) {
   extra.num2.style.opacity = prog(t, at(13, 0.1), at(13, 0.1) + 0.3) * (1 - prog(t, S[13] + D[13], S[13] + D[13] + 0.4));
   extra.beides.style.left = (180 + NX - 10) + 'px';
   extra.beides.style.top = (kbdTop - 76) + 'px';
-  extra.beides.style.opacity = prog(t, at(9, 0.68), at(9, 0.68) + 0.3) * (1 - prog(t, S[10], S[10] + 0.3));
+  extra.beides.style.opacity = Math.max(
+    prog(t, at(9, 0.68), at(9, 0.68) + 0.3) * (1 - prog(t, S[10], S[10] + 0.3)),
+    prog(t, at(10, 0.7), at(10, 0.7) + 0.3) * (1 - prog(t, at(10, 0.9), at(10, 0.9) + 0.3)));
 
   // Enter: arrow trail from box 1 to box 2
   const tp = prog(t, ENTER1, ENTER1 + 0.6);

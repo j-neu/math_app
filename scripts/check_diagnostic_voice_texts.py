@@ -11,6 +11,9 @@ FIELDS = ['Sprechtext', 'Hilfe1', 'Hilfe2', 'Hilfe3']
 MAX_WORDS = 30
 # Tap-choice answers: a direct instruction may name both options
 # ("tippst du auf ja, sonst auf nein") without giving anything away.
+# Help must build calculating, never counting (Jakob, 2026-10-22): no
+# "zähle", "weiterzählen", "zusammenzählen", finger counting. "erzählen" is fine.
+COUNTING = re.compile(r'(?<!er)zähl|mit den Fingern|Schritte? (?:weiter|rückwärts)', re.I)
 CHOICE_WORDS = {'ja', 'nein', 'gerade', 'ungerade', 'größer', 'kleiner'}
 
 
@@ -28,6 +31,8 @@ def check(rows):
                 errors.append(f'Q{n}: {f} fehlt')
             elif f != 'Sprechtext' and len(text.split()) > MAX_WORDS:
                 errors.append(f'Q{n}: {f} zu lang ({len(text.split())} Wörter)')
+            if f != 'Sprechtext' and COUNTING.search(text):
+                errors.append(f'Q{n}: {f} sagt Zählen: {text}')
         h3 = r.get('Hilfe3') or ''
         tokens = _answer_tokens(r.get('CorrectAnswer') or '')
         if all(t.lower() in CHOICE_WORDS for t in tokens):

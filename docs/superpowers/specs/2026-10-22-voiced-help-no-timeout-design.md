@@ -46,6 +46,11 @@ and every hint read aloud.
 Rules for the hint texts:
 - German, short sentences, words a 6–8-year-old knows.
 - Hint 3 says *what to do*, but it never gives the answer itself.
+- **Never tell the child to count** (Jakob, 2026-10-22). The point is to move from counting to
+  calculating. Hints use plus/minus 1, the power of 5 and 10, place value, doubling, and the
+  reverse operation ("Rechne 10 minus 4"), never "zähle weiter", counting fingers or counting steps.
+  The checker enforces this. The item's own question wording (e.g. "Zähle in Fünferschritten
+  weiter") stays, since that is the task.
 - The `Hilfetext` column and its single-dialog UI are retired.
 
 ### UI

@@ -21,7 +21,7 @@ def test_hint3_must_not_contain_answer():
 
 def test_single_answer_leak_is_whole_word_only():
     # answer 9 must not match inside 90 or 19
-    assert check([row(CorrectAnswer='9', Hilfe3='Zähle 19 und 90 nicht mit.')]) == []
+    assert check([row(CorrectAnswer='9', Hilfe3='Die 19 und die 90 gehören nicht dazu.')]) == []
     assert any('verrät' in e for e in check([row(CorrectAnswer='9', Hilfe3='Es sind 9.')]))
 
 def test_overlong_hint_fails():
@@ -29,3 +29,8 @@ def test_overlong_hint_fails():
 
 def test_choice_word_answers_may_be_named():
     assert check([row(CorrectAnswer='ja', Hilfe3='Sind beide gleich, tippst du auf ja. Sonst auf nein.')]) == []
+
+def test_hints_must_not_tell_the_child_to_count():
+    assert any('Zählen' in e for e in check([row(Hilfe2='Schau auf die 70. Zähle 5 weiter.')]))
+    assert any('Zählen' in e for e in check([row(Hilfe3='Dann zähle beide Ergebnisse zusammen.')]))
+    assert check([row(Hilfe1='Welche Rechnung erzählt die gleiche Geschichte?')]) == []

@@ -108,7 +108,7 @@ so moving between boxes can be shown. The real skip-5 items (Q24/Q25) use other 
 4. **Typing numbers:** the keyboard is shown with the number row *and* the Zahlenblock
    (number pad on the right) highlighted. "Die Zahlen findest du hier oben oder hier
    rechts." The first box is already blinking: "Hier blinkt es. Hier kommt deine Zahl
-   rein." Type 2, then 0.
+   rein." Type the 2 on the number row and the 0 on the Zahlenblock: "Beides geht."
 5. **Enter moves to the next box:** the Enter key is highlighted and pressed, and the
    cursor jumps to box 2. "Mit der Enter-Taste kommst du zum nächsten Kästchen." Type 25.
 6. **Fixing a mistake with backspace:** a wrong digit is typed. **First** the finger

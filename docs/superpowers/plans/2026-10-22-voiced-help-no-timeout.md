@@ -1074,7 +1074,7 @@ Jetzt schreibst du deine Antwort. Siehst du das Kästchen? Da blinkt ein kleiner
 
 Die Zahlen findest du auf der Tastatur. Entweder hier oben in der Reihe. Oder hier rechts, auf dem Zahlenblock.
 
-Wir schreiben die zwanzig. Erst die Zwei. Dann die Null.
+Wir schreiben die zwanzig. Die Zwei tippe ich oben in der Reihe. Die Null tippe ich rechts auf dem Zahlenblock. Siehst du? Beides geht. Du kannst dir aussuchen, welche Zahlen du nimmst.
 
 Es gibt noch ein zweites Kästchen. Um dorthin zu kommen, drückst du die Enter-Taste. Das ist die große Taste mit dem Pfeil, der um die Ecke geht. Schau, jetzt blinkt es im zweiten Kästchen.
 
@@ -1142,7 +1142,7 @@ The scene table (index = paragraph from Step 1). Each scene's start time is the 
 | 6 | Press Hilfe; hint card 3; the Hilfe button fades out. |
 | 7 | Box 1 enlarges with a glow; the caret blinks. |
 | 8 | The keyboard slides up; the number row glows, then the Zahlenblock glows. |
-| 9 | Key "2" pressed, "2" in box 1; key "0" pressed, "20". |
+| 9 | "2" pressed on the **number row** (row glows) → "2" in box 1; "0" pressed on the **Zahlenblock** (block glows) → "20"; both key groups glow together with a "✓ beides geht" badge. |
 | 10 | Enter key glows and is pressed; the caret jumps to box 2 with an arrow trail. |
 | 11 | "26" appears in box 2 with a red wobble. |
 | 12 | Hand → taps box 2; the box glows; a big "1." badge. |

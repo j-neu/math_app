@@ -144,3 +144,22 @@ Check this on each device before the session.
   resolves to an existing audio file.
 - Manual run in the browser: autoplay, replay, all three hints, Enter and backspace flow,
   no dialog after a long wait, and `help_level` visible in the dashboard.
+
+## Implementation notes (2026-10-22)
+
+- **Screen layout:** the question screen is now top-aligned instead of vertically centred.
+  Centred, every new hint card pushed the Hilfe button up, and the child's next click missed it.
+- **Cursor:** the help panel sits in a `TextFieldTapRegion`. Without it, clicking Hilfe or
+  Nochmal hören took the cursor out of the answer box (Flutter's tap-outside unfocus), and
+  the child's next keystrokes went nowhere.
+- **Asset paths:** the audio player's cache prefix is empty, so every asset key (the new
+  `assets/audio/diagnostic/...` clips and Q55's `Research/...` dictation) resolves to
+  `assets/<key>` on the web. With the default `assets/` prefix, Q55's dictation URL was doubled.
+- **Video wording:** the children use a mouse, so on-screen buttons are "klicken" and keys
+  are "drücken/tippen". The Weiter button isn't green in the app, so the narration doesn't
+  call it green.
+- **Video backspace scene:** the wrong number is in box 2, where the cursor already is. The
+  "click into the box first" rule is still shown and said as a fixed rule.
+- **Hilfe3 leak check:** tap-choice answers (ja/nein, gerade/ungerade, größer/kleiner) are
+  exempt, since a direct instruction names both options.
+- **Q30** (which word matches the number 6) is voiced without ever saying the number.

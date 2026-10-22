@@ -886,15 +886,6 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
                     )
                   else
                     QuestionPrompt(question: question),
-                  if (question.hilfetext != null &&
-                      question.hilfetext!.isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    OutlinedButton.icon(
-                      icon: const Icon(Icons.help_outline),
-                      label: const Text('Hilfe'),
-                      onPressed: () => _showHilfe(question.hilfetext!),
-                    ),
-                  ],
                   const SizedBox(height: 20),
                   if (question.audioAsset != null) ...[
                     _buildAudioReplayButton(question.audioAsset!),
@@ -976,25 +967,6 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
       label: const Text('Nochmal anhören'),
       onPressed: () => _playAudio(audioUrl),
     );
-  }
-
-  /// Opens the on-demand task explanation behind the Hilfe button.
-  Future<void> _showHilfe(String hilfetext) async {
-    if (mounted) {
-      await showDialog<void>(
-        context: context,
-        builder: (dialogContext) => AlertDialog(
-          title: const Text('Hilfe'),
-          content: Text(hilfetext),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Schließen'),
-            ),
-          ],
-        ),
-      );
-    }
   }
 
   /// Plays [audioUrl], a bundled asset path relative to the app root (e.g.

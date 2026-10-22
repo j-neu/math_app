@@ -25,8 +25,8 @@ import 'diagnostic_shortening.dart'
 /// exercise the grading/parsing mechanics rather than live content.
 /// The schema is unchanged (ListNumber,SourceType,QuestionText,AnswerFormat,
 /// CorrectAnswer,German,English,IfWrong_practice_skills,Ifwrong_skip,Notes,
-/// SkipGroup,Zahlenraum,AudioAsset,Hilfetext); rows without the optional
-/// Hilfetext (index 13) still parse via the `row.length > 13` guard.
+/// SkipGroup,Zahlenraum,AudioAsset,Sprechtext,Hilfe1,Hilfe2,Hilfe3); rows
+/// without the optional voice columns (index 13-16) still parse.
 class DiagnosticService {
   Future<List<DiagnosticQuestion>> loadQuestions() async {
     final masterCsv =
@@ -61,7 +61,10 @@ class DiagnosticService {
         final skipGroupRaw = row.length > 10 ? row[10].toString().trim() : '';
         final zahlenraumRaw = row.length > 11 ? row[11].toString().trim() : '';
         final audioAssetRaw = row.length > 12 ? row[12].toString().trim() : '';
-        final hilfetextRaw = row.length > 13 ? row[13].toString().trim() : '';
+        String col(int i) => row.length > i ? row[i].toString().trim() : '';
+        final sprechtextRaw = col(13);
+        final hilfen =
+            [col(14), col(15), col(16)].where((h) => h.isNotEmpty).toList();
         questions.add(
           DiagnosticQuestion(
             listNumber: listNumber,
@@ -81,7 +84,8 @@ class DiagnosticService {
                 skipGroupRaw.isEmpty ? null : skipGroupRaw, skillsList),
             difficulty: difficultyFromZahlenraum(
                 zahlenraumRaw.isEmpty ? null : zahlenraumRaw),
-            hilfetext: hilfetextRaw.isEmpty ? null : hilfetextRaw,
+            sprechtext: sprechtextRaw.isEmpty ? null : sprechtextRaw,
+            hilfen: hilfen,
           ),
         );
       } catch (e) {

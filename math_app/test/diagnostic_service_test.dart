@@ -182,4 +182,21 @@ void main() {
     expect(bySkill('number_line_rechenstrich').questionText, 'V3M-02');
     expect(bySkill('number_line_zahlenstrahl').questionText, 'V3M-03');
   });
+
+  group('voice text columns', () {
+    const header =
+        'ListNumber,SourceType,QuestionText,AnswerFormat,CorrectAnswer,German,English,IfWrong_practice_skills,Ifwrong_skip,Notes,SkipGroup,Zahlenraum,AudioAsset,Sprechtext,Hilfe1,Hilfe2,Hilfe3\n';
+    test('parses Sprechtext and three hints in order', () {
+      final qs = DiagnosticService.loadQuestionsFromCsv(header +
+          '24,Text,"Zähle: 5, 10, __",Single,15,"Zähle: 5, 10, __",x,skip5_forward_zr100,,,,ZR100,,Sprich das,H eins,H zwei,H drei\n');
+      expect(qs.single.sprechtext, 'Sprich das');
+      expect(qs.single.hilfen, ['H eins', 'H zwei', 'H drei']);
+    });
+    test('missing hint columns give an empty list', () {
+      final qs = DiagnosticService.loadQuestionsFromCsv(header +
+          '1,Text,Q,Single,1,Q,x,quantify_count_zr10,,,,ZR10,\n');
+      expect(qs.single.sprechtext, isNull);
+      expect(qs.single.hilfen, isEmpty);
+    });
+  });
 }

@@ -39,7 +39,8 @@ class DiagnosticQuestion {
   final String? audioAsset; // Public URL for audio asset (e.g. Supabase Storage URL)
   final String? constructId; // Construct code (e.g. "A1.1"), parsed from the Notes column
   final QuestionDifficulty? difficulty; // easy/medium/hard ladder position
-  final String? hilfetext; // On-demand help text, shown behind a Hilfe button
+  final String? sprechtext; // What the voice says for the question (TTS source)
+  final List<String> hilfen; // Help stages 1..3: rephrase, breakdown, direct instruction
 
   DiagnosticQuestion({
     required this.listNumber,
@@ -58,6 +59,7 @@ class DiagnosticQuestion {
     this.audioAsset,
     this.constructId,
     this.difficulty,
-    this.hilfetext,
+    this.sprechtext,
+    this.hilfen = const [],
   });
 }

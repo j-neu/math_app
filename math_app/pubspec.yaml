@@ -44,6 +44,7 @@ dependencies:
   pdf: ^3.10.4
   printing: ^5.11.0
   audioplayers: ^6.0.0
+  web: ^1.1.0
   path_provider: ^2.1.0
   archive: ^4.0.0
   go_router: ^14.0.0

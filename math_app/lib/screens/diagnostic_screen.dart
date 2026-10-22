@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'dart:io' show File;
-import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, TargetPlatform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:math_app/widgets/manipulatives/fingerbild.dart';
 import 'package:math_app/widgets/manipulatives/rekenrek.dart';
 import 'package:math_app/widgets/manipulatives/dienes_place_value.dart';
@@ -36,8 +34,7 @@ import '../services/help_grading.dart';
 import '../services/user_service.dart';
 import '../screens/diagnostic_complete_screen.dart';
 import '../screens/diagnostic_report_screen.dart';
-import 'package:audioplayers/audioplayers.dart';
-import 'package:path_provider/path_provider.dart';
+import '../services/clip_player.dart';
 
 /// One persisted diagnostic result row (web/API mode).
 typedef _AnswerRow = ({
@@ -105,12 +102,15 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   AnswerClock? _answerClock;
   // Highest help stage the child opened on the current question (0-3).
   int _helpLevel = 0;
-  final AudioPlayer _audioPlayer = AudioPlayer();
+  final ClipPlayer _clips = ClipPlayer();
   StreamSubscription<void>? _audioCompleteSub;
   // Clip to play once the current one finishes (Q55: the dictation
   // after its spoken instruction).
   String? _queuedAudio;
-  final Map<String, String> _audioTempFilePaths = {};
+  // Browsers only allow sound after a tap. A ticket link opens the
+  // diagnostic without one, so on web the first question waits behind a
+  // "Los geht's!" button whose tap starts the question audio.
+  bool _needsStartTap = kIsWeb && !ClipPlayer.unlocked;
 
   // Break-off (shortened diagnostic) gate: construct-keyed, difficulty-graded.
   // See ConstructGates in services/diagnostic_shortening.dart for the rule.
@@ -119,10 +119,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   @override
   void initState() {
     super.initState();
-    // Asset keys are passed as-is ("assets/audio/...", "Research/...");
-    // audioplayers' default 'assets/' prefix would double it.
-    _audioPlayer.audioCache = AudioCache(prefix: '');
-    _audioCompleteSub = _audioPlayer.onPlayerComplete.listen((_) {
+    _audioCompleteSub = _clips.onComplete.listen((_) {
       final next = _queuedAudio;
       _queuedAudio = null;
       if (next != null) {
@@ -234,7 +231,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   void dispose() {
     _textController.dispose();
     _audioCompleteSub?.cancel();
-    _audioPlayer.dispose();
+    _clips.dispose();
     super.dispose();
   }
 
@@ -878,6 +875,14 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
 
           final question = questions[_currentQuestionIndex];
 
+          if (_needsStartTap) {
+            return _StartTapView(onStart: () {
+              // Called straight from the tap so the browser allows sound.
+              setState(() => _needsStartTap = false);
+              _startQuestion(questions);
+            });
+          }
+
           // Start timer if not already started
           if (_answerClock == null) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -1031,45 +1036,31 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   /// entry and [DiagnosticQuestion.audioAsset] -- always sourced straight
   /// from the diagnostic CSV's `AudioAsset` column, never a Supabase
   /// Storage URL).
+  ///
+  /// Must not await anything before calling [ClipPlayer.play]: on web the
+  /// clip has to start inside the tap handler that asked for it.
   Future<void> _playAudio(String audioUrl) async {
-    try {
-      await _audioPlayer.stop();
-      Source source;
-      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
-        // audioplayers_windows doesn't resolve AssetSource paths reliably;
-        // extract to a temp file once per asset and reuse. Guarded on
-        // `!kIsWeb` too: Flutter Web reports the *host OS* via
-        // defaultTargetPlatform (so a browser on Windows also matches
-        // TargetPlatform.windows), and dart:io File/getTemporaryDirectory
-        // are unavailable on web.
-        var tempPath = _audioTempFilePaths[audioUrl];
-        if (tempPath == null) {
-          final data = await rootBundle.load(audioUrl);
-          final dir = await getTemporaryDirectory();
-          final file = File('${dir.path}/${audioUrl.split('/').last}');
-          await file.writeAsBytes(data.buffer.asUint8List());
-          tempPath = file.path;
-          _audioTempFilePaths[audioUrl] = tempPath;
-        }
-        source = DeviceFileSource(tempPath);
-      } else {
-        // Bundled asset on every other platform, including web:
-        // audioplayers_web resolves AssetSource against the Flutter web
-        // build's own assets/ path. The previous web-only branch
-        // (UrlSource(audioUrl)) wrongly assumed audioUrl was already a full
-        // Supabase Storage URL -- a stale assumption from an earlier content
-        // pipeline -- so it 404'd against the deployed site's own origin
-        // instead of resolving the bundled asset. Caught 2026-09-19: no
-        // audio on question 55 in the Vercel build.
-        source = AssetSource(audioUrl);
-      }
-      await _audioPlayer.play(source);
-    } catch (e) {
-      // A missing clip or blocked autoplay must never leave the clock
-      // unstarted; the replay button still works afterwards.
-      debugPrint('audio failed: $audioUrl $e');
-      _queuedAudio = null;
-      _answerClock?.startIfIdle();
+    final result = await _clips.play(audioUrl);
+    if (!mounted) return;
+    switch (result) {
+      case ClipResult.played:
+      case ClipResult.superseded:
+        return;
+      case ClipResult.blocked:
+        // No tap yet in this page: ask for one. The tap restarts the
+        // question, so the clock starts fresh then.
+        debugPrint('audio blocked by browser: $audioUrl');
+        _queuedAudio = null;
+        setState(() {
+          _needsStartTap = true;
+          _answerClock = null;
+        });
+      case ClipResult.failed:
+        // A missing clip must never leave the clock unstarted; the replay
+        // button still works afterwards.
+        debugPrint('audio failed: $audioUrl');
+        _queuedAudio = null;
+        _answerClock?.startIfIdle();
     }
   }
 }
@@ -1304,5 +1295,36 @@ Widget buildVisualDisplay(
       );
     default:
       return const SizedBox.shrink();
+  }
+}
+
+/// Shown before the first question on web: browsers only play sound after
+/// a tap, and the tap on this button starts the question audio.
+class _StartTapView extends StatelessWidget {
+  final VoidCallback onStart;
+
+  const _StartTapView({required this.onStart});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.volume_up_rounded, size: 72, color: Color(0xFF4CAF50)),
+          const SizedBox(height: 24),
+          FilledButton.icon(
+            onPressed: onStart,
+            icon: const Icon(Icons.play_arrow_rounded, size: 40),
+            label: const Text("Los geht's!"),
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFF4CAF50),
+              padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 24),
+              textStyle: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -134,7 +134,7 @@ export default async function FoerderplanPage({ params }: Props) {
   // Per-question detail rows
   const { data: results } = await supabase
     .from("diagnostic_results")
-    .select("question_id, was_correct, response_time_seconds, status, user_answer")
+    .select("question_id, was_correct, response_time_seconds, status, user_answer, help_level")
     .eq("session_id", params.sessionId);
 
   const questionIds = (results ?? []).map((r) => r.question_id);
@@ -157,6 +157,7 @@ export default async function FoerderplanPage({ params }: Props) {
       response_time_seconds: number | null;
       status: string;
       user_answer: string | null;
+      help_level: number;
       question_number: number;
       prompt_de: string;
       correct_answer: unknown;
@@ -342,6 +343,13 @@ export default async function FoerderplanPage({ params }: Props) {
                 } else if (row.was_correct) {
                   statusLabel = "Richtig";
                   statusClass = "text-green-700 bg-green-50 border-green-200";
+                }
+                // Hint use (spec 2026-10-22): correct after Hilfe 3 is
+                // already stored as was_correct=false.
+                if (row.help_level > 0 && row.status !== "skipped") {
+                  statusLabel += row.help_level === 3 && !row.was_correct
+                    ? " · nach Hilfe 3"
+                    : ` · Hilfe ${row.help_level}`;
                 }
                 return (
                   <tr key={row.question_id} className="hover:bg-gray-50 align-top">

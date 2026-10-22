@@ -16,12 +16,16 @@ class DiagnosticResult {
   /// The user's answer (for analysis purposes)
   final String? userAnswer;
 
+  /// Highest help stage the child opened (0-3)
+  final int helpLevel;
+
   DiagnosticResult({
     required this.questionId,
     required this.wasCorrect,
     required this.responseTimeSeconds,
     this.status = 'attempted',
     this.userAnswer,
+    this.helpLevel = 0,
   });
 
   /// Convert to JSON for storage
@@ -32,6 +36,7 @@ class DiagnosticResult {
       'responseTimeSeconds': responseTimeSeconds,
       'status': status,
       'userAnswer': userAnswer,
+      'helpLevel': helpLevel,
     };
   }
 
@@ -43,6 +48,7 @@ class DiagnosticResult {
       responseTimeSeconds: (json['responseTimeSeconds'] as num).toDouble(),
       status: json['status'] as String? ?? 'attempted',
       userAnswer: json['userAnswer'] as String?,
+      helpLevel: json['helpLevel'] as int? ?? 0,
     );
   }
 
@@ -53,6 +59,7 @@ class DiagnosticResult {
     double? responseTimeSeconds,
     String? status,
     String? userAnswer,
+    int? helpLevel,
   }) {
     return DiagnosticResult(
       questionId: questionId ?? this.questionId,
@@ -60,6 +67,7 @@ class DiagnosticResult {
       responseTimeSeconds: responseTimeSeconds ?? this.responseTimeSeconds,
       status: status ?? this.status,
       userAnswer: userAnswer ?? this.userAnswer,
+      helpLevel: helpLevel ?? this.helpLevel,
     );
   }
 }

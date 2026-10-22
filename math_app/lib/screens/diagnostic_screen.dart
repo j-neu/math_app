@@ -50,6 +50,7 @@ typedef _AnswerRow = ({
   double responseTimeSeconds,
   String status,
   String? userAnswer,
+  int helpLevel,
 });
 
 class DiagnosticScreen extends StatefulWidget {
@@ -183,6 +184,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
         responseTimeSeconds: r.responseTimeSeconds ?? 0,
         status: r.status,
         userAnswer: r.userAnswer,
+        helpLevel: r.helpLevel,
       ));
       _gates.noteAnswered(q, r.wasCorrect);
       if (!r.wasCorrect) {
@@ -411,6 +413,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
       responseTimeSeconds: responseTime,
       status: answerStatus,
       userAnswer: userAnswer,
+      helpLevel: _helpLevel,
     );
 
     _diagnosticResults.add(result);
@@ -438,6 +441,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
         responseTimeSeconds: responseTime,
         status: answerStatus,
         userAnswer: userAnswer.isEmpty ? null : userAnswer,
+        helpLevel: _helpLevel,
       );
       final advanced = await _advanceAfterPersist(questions, currentRow);
       if (!advanced) return;
@@ -537,6 +541,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
         responseTimeSeconds: 0,
         status: 'skipped',
         userAnswer: null,
+        helpLevel: 0,
       ), maxAttempts: 1);
       nextIndex++;
     }
@@ -573,6 +578,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
           responseTimeSeconds: row.responseTimeSeconds,
           status: row.status,
           userAnswer: row.userAnswer,
+          helpLevel: row.helpLevel,
         );
         return true;
       } catch (e) {

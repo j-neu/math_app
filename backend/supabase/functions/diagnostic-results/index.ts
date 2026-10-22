@@ -1,5 +1,5 @@
 // POST /diagnostic-results
-// Body: { session_id, question_number, was_correct, response_time_seconds, status?, user_answer? }
+// Body: { session_id, question_number, was_correct, response_time_seconds, status?, user_answer?, help_level? }
 // Appends one answer to a session. When all questions are answered,
 // marks the session as completed.
 //
@@ -19,6 +19,7 @@ interface ResultPayload {
   response_time_seconds?: number;
   status?: "attempted" | "skipped" | "timeout";
   user_answer?: string;
+  help_level?: number; // highest help stage opened, 0-3
 }
 
 Deno.serve(async (req) => {
@@ -41,7 +42,7 @@ Deno.serve(async (req) => {
     return json({ error: "Invalid JSON body" }, 400);
   }
 
-  const { session_id, question_number, was_correct, response_time_seconds, user_answer } = body;
+  const { session_id, question_number, was_correct, response_time_seconds, user_answer, help_level } = body;
   const status = body.status ?? "attempted";
 
   if (!session_id || question_number == null || was_correct == null) {
@@ -78,6 +79,7 @@ Deno.serve(async (req) => {
       response_time_seconds: response_time_seconds ?? null,
       status,
       user_answer: user_answer ?? null,
+      help_level: Number.isInteger(help_level) && help_level! >= 0 && help_level! <= 3 ? help_level : 0,
       answered_at: new Date().toISOString(),
     }, { onConflict: "session_id,question_id" });
 

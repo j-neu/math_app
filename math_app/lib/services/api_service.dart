@@ -32,6 +32,7 @@ class ServerResult {
   final double? responseTimeSeconds;
   final String status; // 'attempted' | 'skipped' | 'timeout'
   final String? userAnswer;
+  final int helpLevel; // highest help stage opened, 0-3
 
   const ServerResult({
     required this.questionNumber,
@@ -39,6 +40,7 @@ class ServerResult {
     required this.responseTimeSeconds,
     required this.status,
     required this.userAnswer,
+    this.helpLevel = 0,
   });
 
   factory ServerResult.fromJson(Map<String, dynamic> j) => ServerResult(
@@ -47,6 +49,7 @@ class ServerResult {
         responseTimeSeconds: (j['response_time_seconds'] as num?)?.toDouble(),
         status: j['status'] as String? ?? 'attempted',
         userAnswer: j['user_answer'] as String?,
+        helpLevel: j['help_level'] as int? ?? 0,
       );
 }
 
@@ -97,6 +100,7 @@ class ApiService {
     required double responseTimeSeconds,
     required String status, // 'attempted' | 'skipped' | 'timeout'
     String? userAnswer,
+    int helpLevel = 0,
   }) async {
     final response = await _postJson(
         Uri.parse('$supabaseFunctionsUrl/diagnostic-results'), {
@@ -106,6 +110,7 @@ class ApiService {
       'response_time_seconds': responseTimeSeconds,
       'status': status,
       if (userAnswer != null && userAnswer.isNotEmpty) 'user_answer': userAnswer,
+      'help_level': helpLevel,
     });
 
     if (response.statusCode != 200) {

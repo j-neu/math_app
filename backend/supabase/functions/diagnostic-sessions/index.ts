@@ -117,7 +117,7 @@ Deno.serve(async (req) => {
     const { data: priorResults } = await supabase
       .from("diagnostic_results")
       .select(
-        "question_id, was_correct, response_time_seconds, status, user_answer, " +
+        "question_id, was_correct, response_time_seconds, status, user_answer, help_level, " +
         "diagnostic_questions!inner(question_number)",
       )
       .eq("session_id", existing.id);
@@ -129,6 +129,7 @@ Deno.serve(async (req) => {
       response_time_seconds: r.response_time_seconds as number | null,
       status: r.status as string,
       user_answer: r.user_answer as string | null,
+      help_level: (r.help_level as number | null) ?? 0,
     }));
 
     return json({

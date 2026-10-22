@@ -33,7 +33,8 @@ import '../services/diagnostic_shortening.dart';
 import '../services/answer_grading.dart';
 import '../services/diagnostic_report_generator.dart';
 import '../services/api_service.dart';
-import '../services/pausable_timeout.dart';
+import '../services/answer_clock.dart';
+import '../services/help_grading.dart';
 import '../services/user_service.dart';
 import '../screens/diagnostic_complete_screen.dart';
 import '../screens/diagnostic_report_screen.dart';
@@ -99,9 +100,12 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   // drives the disabled-Weiter progress state.
   bool _savingAnswer = false;
 
-  // Response-time budget for the current question. Paused while the Hilfe
-  // panel is open, so reading a hint does not count against the child.
-  PausableTimeout? _responseTimer;
+  // Response time for the current question. No budget, no dialog: the
+  // child-facing timeout was removed after the first real-kid runs
+  // (spec 2026-10-22). Recorded for the teacher only.
+  AnswerClock? _answerClock;
+  // Highest help stage the child opened on the current question (0-3).
+  int _helpLevel = 0;
   final AudioPlayer _audioPlayer = AudioPlayer();
   final Map<String, String> _audioTempFilePaths = {};
 
@@ -208,120 +212,23 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
 
   @override
   void dispose() {
-    _responseTimer?.cancel();
     _textController.dispose();
     _audioPlayer.dispose();
     super.dispose();
   }
 
-  /// Response-time budget for [question]: flat 30 s for every item
-  /// (Jakob, 2026-09-23) — the previous per-box formula (floor 15 s, else
-  /// 5 s per answer box) cut some items too short. Flat for now so the
-  /// first real-kid pilot run collects an unbiased response-time
-  /// distribution per item; a future per-item budget should be derived
-  /// from that data instead of guessed again.
-  int _timeoutSecondsFor(DiagnosticQuestion question) => 30;
-
-  /// Start timer for the current question (runs silently in background)
-  void _startQuestionTimer(List<DiagnosticQuestion> questions) {
+  /// Starts the current question: a fresh response-time clock (no budget,
+  /// no dialog — the child-facing timeout was removed after the first
+  /// real-kid runs, spec 2026-10-22) and the question's audio, if any.
+  void _startQuestion(List<DiagnosticQuestion> questions) {
     if (_currentQuestionIndex >= questions.length) return;
-
     final question = questions[_currentQuestionIndex];
-
+    _answerClock = AnswerClock();
+    _helpLevel = 0;
     if (question.audioAsset != null) {
       _playAudio(question.audioAsset!);
     }
-
-    _responseTimer = PausableTimeout(
-      budget: Duration(seconds: _timeoutSecondsFor(question)),
-      onTimeout: () => _handleTimeout(questions),
-    )..start();
-  }
-
-  /// Replay the question's audio (if any) and give the existing timer
-  /// another full budget's worth of time, keeping [_responseTimer.elapsed]
-  /// counting from the question's true start — see [extend].
-  void _grantMoreTime(List<DiagnosticQuestion> questions) {
-    if (_currentQuestionIndex >= questions.length) return;
-    final question = questions[_currentQuestionIndex];
-
-    if (question.audioAsset != null) {
-      _playAudio(question.audioAsset!);
-    }
-
-    _responseTimer?.extend(Duration(seconds: _timeoutSecondsFor(question)));
-  }
-
-  /// Handle timeout - show popup asking if child wants to skip
-  void _handleTimeout(List<DiagnosticQuestion> questions) {
-    // Stop the timer so it doesn't keep firing
-    _responseTimer?.cancel();
-
-    // Show dialog asking if they want to skip
-    showDialog(
-      context: context,
-      barrierDismissible: false, // Must choose an option
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: const Text('Noch mehr Zeit?'),
-          content: const Text('Soll diese Aufgabe übersprungen werden?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-                // Give them more time — extend the existing timer rather
-                // than starting a new one: _startQuestionTimer would zero
-                // _responseTimer.elapsed, so the time already spent
-                // waiting (the whole reason the popup fired) would be
-                // lost from the recorded response time (Jakob, 2026-09-23).
-                _grantMoreTime(questions);
-              },
-              child: const Text('Weiter versuchen'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-                // Skip this question
-                _skipCurrentQuestion(questions);
-              },
-              child: const Text('Überspringen'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  /// Skip the current question due to timeout
-  void _skipCurrentQuestion(List<DiagnosticQuestion> questions) {
-    // The timeout dialog and the answer field can race: if the child already
-    // submitted an answer and the persist is in flight, the guard in
-    // _nextQuestion would swallow this skip — but the local 'timeout' row,
-    // skill tags and false break-off failure below would already have been
-    // applied. Do nothing instead: the submitted answer decides the outcome.
-    if (_savingAnswer) return;
-
-    final question = questions[_currentQuestionIndex];
-    final responseTime =
-        _responseTimer!.elapsed.inSeconds.toDouble();
-
-    // Record as timeout/skipped
-    final result = DiagnosticResult(
-      questionId: question.listNumber.toString(),
-      wasCorrect: false,
-      responseTimeSeconds: responseTime,
-      status: 'timeout',
-      userAnswer: _textController.text.trim(),
-    );
-
-    _diagnosticResults.add(result);
-    _skillTagsToPractice.addAll(question.ifWrongPracticeSkills);
-
-    // Update the break-off gate
-    _gates.noteAnswered(question, false);
-
-    // Move to next question
-    _nextQuestion(questions);
+    _answerClock!.startIfIdle();
   }
 
   void _loadDiagnosticProgress(List<DiagnosticQuestion> questions) {
@@ -427,11 +334,11 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   }
 
   Future<void> _nextQuestionInner(List<DiagnosticQuestion> questions) async {
-    // Stop the timer
-    _responseTimer?.cancel();
-
-    // Calculate response time (net of any Hilfe pause)
-    final responseTime = _responseTimer?.elapsed.inSeconds.toDouble() ?? 0.0;
+    // Response time is recorded for the teacher only; it never makes an
+    // answer wrong (spec 2026-10-22).
+    _answerClock?.stop();
+    final responseTime =
+        (_answerClock?.elapsed.inMilliseconds ?? 0) / 1000.0;
 
     // Save the answer from the controller
     final userAnswer = _textController.text.trim();
@@ -441,14 +348,10 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     final currentQuestion = questions[_currentQuestionIndex];
     final textCorrect = _checkAnswer(currentQuestion, userAnswer);
 
-    // Determine time threshold based on the item's answer boxes
-    final timeThreshold = _timeoutSecondsFor(currentQuestion);
-
-    // Answer is considered FAILED if:
-    // 1. Text answer is wrong, OR
-    // 2. Response time exceeds threshold (indicates counting/inefficient strategy)
-    final tookTooLong = responseTime > timeThreshold;
-    final wasCorrect = textCorrect && !tookTooLong;
+    // Correct after the last (direct-instruction) hint counts as not
+    // mastered; hints 1-2 do not change correctness.
+    final wasCorrect =
+        gradeWithHelp(textCorrect: textCorrect, helpLevel: _helpLevel);
 
     // The server's status vocabulary is attempted|skipped|timeout (DB check
     // constraint diagnostic_results_status_check); 'leer' was never accepted
@@ -470,18 +373,12 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
 
     _diagnosticResults.add(result);
 
-    // If incorrect OR took too long, add skill tags and update the gate
+    // If incorrect, add skill tags and update the gate
     _gates.noteAnswered(currentQuestion, wasCorrect);
+    debugPrint('Q${currentQuestion.listNumber}: correct=$wasCorrect '
+        'text=$textCorrect help=$_helpLevel t=${responseTime}s');
     if (!wasCorrect) {
-      print('=== Question ${currentQuestion.listNumber} FAILED ===');
-      print('  - Text correct: $textCorrect');
-      print('  - Response time: ${responseTime}s (threshold: ${timeThreshold}s)');
-      print('  - Took too long: $tookTooLong');
-      print('  - Adding skill tags: ${currentQuestion.ifWrongPracticeSkills}');
       _skillTagsToPractice.addAll(currentQuestion.ifWrongPracticeSkills);
-    } else {
-      print('=== Question ${currentQuestion.listNumber} PASSED ===');
-      print('  - Response time: ${responseTime}s (threshold: ${timeThreshold}s)');
     }
 
     // Web/API mode: the answer must be persisted to the server BEFORE the
@@ -527,7 +424,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
 
         // Start timer for next question if not at end
         if (_currentQuestionIndex < questions.length) {
-          _startQuestionTimer(questions);
+          _startQuestion(questions);
         }
 
         await _saveDiagnosticProgress();
@@ -564,7 +461,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     });
 
     if (_currentQuestionIndex < questions.length) {
-      _startQuestionTimer(questions);
+      _startQuestion(questions);
     } else {
       _processResults(questions);
     }
@@ -938,9 +835,9 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
           final question = questions[_currentQuestionIndex];
 
           // Start timer if not already started
-          if (_responseTimer == null) {
+          if (_answerClock == null) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              _startQuestionTimer(questions);
+              _startQuestion(questions);
             });
           }
 
@@ -1081,11 +978,8 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     );
   }
 
-  /// Opens the on-demand task explanation behind the Hilfe button and pauses
-  /// the response-time budget while it is open — reading a hint must not cost
-  /// the child their answer time (diagnostic usability rework §4.9).
+  /// Opens the on-demand task explanation behind the Hilfe button.
   Future<void> _showHilfe(String hilfetext) async {
-    _responseTimer?.pause();
     if (mounted) {
       await showDialog<void>(
         context: context,
@@ -1101,9 +995,6 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
         ),
       );
     }
-    // If the screen went away while the dialog was open, do not re-arm a
-    // response timer against a defunct context.
-    if (mounted) _responseTimer?.resume();
   }
 
   /// Plays [audioUrl], a bundled asset path relative to the app root (e.g.

@@ -34,6 +34,8 @@ import '../services/answer_grading.dart';
 import '../services/diagnostic_report_generator.dart';
 import '../services/api_service.dart';
 import '../services/answer_clock.dart';
+import '../services/diagnostic_audio.dart';
+import 'package:math_app/widgets/diagnostic/help_panel.dart';
 import '../services/help_grading.dart';
 import '../services/user_service.dart';
 import '../screens/diagnostic_complete_screen.dart';
@@ -107,6 +109,10 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   // Highest help stage the child opened on the current question (0-3).
   int _helpLevel = 0;
   final AudioPlayer _audioPlayer = AudioPlayer();
+  StreamSubscription<void>? _audioCompleteSub;
+  // Clip to play once the current one finishes (Q55: the dictation
+  // after its spoken instruction).
+  String? _queuedAudio;
   final Map<String, String> _audioTempFilePaths = {};
 
   // Break-off (shortened diagnostic) gate: construct-keyed, difficulty-graded.
@@ -116,6 +122,22 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   @override
   void initState() {
     super.initState();
+    // Asset keys are passed as-is ("assets/audio/...", "Research/...");
+    // audioplayers' default 'assets/' prefix would double it.
+    _audioPlayer.audioCache = AudioCache(prefix: '');
+    _audioCompleteSub = _audioPlayer.onPlayerComplete.listen((_) {
+      final next = _queuedAudio;
+      _queuedAudio = null;
+      if (next != null) {
+        _playAudio(next);
+      } else {
+        _answerClock?.startIfIdle();
+      }
+    });
+    // Typing before the audio ends also starts the response clock.
+    _textController.addListener(() {
+      if (_textController.text.isNotEmpty) _answerClock?.startIfIdle();
+    });
     _gates = ConstructGates(abbreviated: widget.userProfile.useBreakOffLogic);
     _questionsFuture = _loadQuestions();
 
@@ -213,22 +235,42 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   @override
   void dispose() {
     _textController.dispose();
+    _audioCompleteSub?.cancel();
     _audioPlayer.dispose();
     super.dispose();
   }
 
   /// Starts the current question: a fresh response-time clock (no budget,
   /// no dialog — the child-facing timeout was removed after the first
-  /// real-kid runs, spec 2026-10-22) and the question's audio, if any.
+  /// real-kid runs, spec 2026-10-22) and the voiced prompt. The clock
+  /// starts when the prompt finishes, on first input, or on audio failure.
   void _startQuestion(List<DiagnosticQuestion> questions) {
     if (_currentQuestionIndex >= questions.length) return;
     final question = questions[_currentQuestionIndex];
     _answerClock = AnswerClock();
-    _helpLevel = 0;
-    if (question.audioAsset != null) {
-      _playAudio(question.audioAsset!);
+    setState(() => _helpLevel = 0);
+    _playQuestionAudio(question);
+  }
+
+  /// The voiced prompt, then (Q55 only) the dictation clip queued behind it.
+  void _playQuestionAudio(DiagnosticQuestion question) {
+    _queuedAudio = question.audioAsset;
+    if (question.sprechtext != null) {
+      _playAudio(DiagnosticAudio.questionAsset(question.listNumber));
+    } else if (_queuedAudio != null) {
+      final a = _queuedAudio!;
+      _queuedAudio = null;
+      _playAudio(a);
+    } else {
+      _answerClock?.startIfIdle();
     }
-    _answerClock!.startIfIdle();
+  }
+
+  void _requestHelp(DiagnosticQuestion question) {
+    if (_helpLevel >= question.hilfen.length) return;
+    setState(() => _helpLevel++);
+    _queuedAudio = null;
+    _playAudio(DiagnosticAudio.hintAsset(question.listNumber, _helpLevel));
   }
 
   void _loadDiagnosticProgress(List<DiagnosticQuestion> questions) {
@@ -887,10 +929,19 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
                   else
                     QuestionPrompt(question: question),
                   const SizedBox(height: 20),
-                  if (question.audioAsset != null) ...[
-                    _buildAudioReplayButton(question.audioAsset!),
-                    const SizedBox(height: 12),
-                  ],
+                  HelpPanel(
+                    key: ValueKey('help_${question.listNumber}'),
+                    hints: question.hilfen,
+                    revealed: _helpLevel,
+                    onReplayQuestion: () => _playQuestionAudio(question),
+                    onRequestHelp: () => _requestHelp(question),
+                    onReplayHint: (stage) {
+                      _queuedAudio = null;
+                      _playAudio(
+                          DiagnosticAudio.hintAsset(question.listNumber, stage));
+                    },
+                  ),
+                  const SizedBox(height: 20),
                   // Dynamically build the answer widget based on format —
                   // skipped when InlineBlankPrompt already rendered the
                   // input boxes inline within the sentence above.
@@ -961,51 +1012,51 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
     return buildVisualDisplay(question, controller: _textController);
   }
 
-  Widget _buildAudioReplayButton(String audioUrl) {
-    return OutlinedButton.icon(
-      icon: const Icon(Icons.replay),
-      label: const Text('Nochmal anhören'),
-      onPressed: () => _playAudio(audioUrl),
-    );
-  }
-
   /// Plays [audioUrl], a bundled asset path relative to the app root (e.g.
   /// "Research/zahlen_diktat_17_47_70_72_84.m4a", matching pubspec's assets
   /// entry and [DiagnosticQuestion.audioAsset] -- always sourced straight
   /// from the diagnostic CSV's `AudioAsset` column, never a Supabase
   /// Storage URL).
   Future<void> _playAudio(String audioUrl) async {
-    await _audioPlayer.stop();
-    Source source;
-    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
-      // audioplayers_windows doesn't resolve AssetSource paths reliably;
-      // extract to a temp file once per asset and reuse. Guarded on
-      // `!kIsWeb` too: Flutter Web reports the *host OS* via
-      // defaultTargetPlatform (so a browser on Windows also matches
-      // TargetPlatform.windows), and dart:io File/getTemporaryDirectory
-      // are unavailable on web.
-      var tempPath = _audioTempFilePaths[audioUrl];
-      if (tempPath == null) {
-        final data = await rootBundle.load(audioUrl);
-        final dir = await getTemporaryDirectory();
-        final file = File('${dir.path}/${audioUrl.split('/').last}');
-        await file.writeAsBytes(data.buffer.asUint8List());
-        tempPath = file.path;
-        _audioTempFilePaths[audioUrl] = tempPath;
+    try {
+      await _audioPlayer.stop();
+      Source source;
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+        // audioplayers_windows doesn't resolve AssetSource paths reliably;
+        // extract to a temp file once per asset and reuse. Guarded on
+        // `!kIsWeb` too: Flutter Web reports the *host OS* via
+        // defaultTargetPlatform (so a browser on Windows also matches
+        // TargetPlatform.windows), and dart:io File/getTemporaryDirectory
+        // are unavailable on web.
+        var tempPath = _audioTempFilePaths[audioUrl];
+        if (tempPath == null) {
+          final data = await rootBundle.load(audioUrl);
+          final dir = await getTemporaryDirectory();
+          final file = File('${dir.path}/${audioUrl.split('/').last}');
+          await file.writeAsBytes(data.buffer.asUint8List());
+          tempPath = file.path;
+          _audioTempFilePaths[audioUrl] = tempPath;
+        }
+        source = DeviceFileSource(tempPath);
+      } else {
+        // Bundled asset on every other platform, including web:
+        // audioplayers_web resolves AssetSource against the Flutter web
+        // build's own assets/ path. The previous web-only branch
+        // (UrlSource(audioUrl)) wrongly assumed audioUrl was already a full
+        // Supabase Storage URL -- a stale assumption from an earlier content
+        // pipeline -- so it 404'd against the deployed site's own origin
+        // instead of resolving the bundled asset. Caught 2026-09-19: no
+        // audio on question 55 in the Vercel build.
+        source = AssetSource(audioUrl);
       }
-      source = DeviceFileSource(tempPath);
-    } else {
-      // Bundled asset on every other platform, including web:
-      // audioplayers_web resolves AssetSource against the Flutter web
-      // build's own assets/ path. The previous web-only branch
-      // (UrlSource(audioUrl)) wrongly assumed audioUrl was already a full
-      // Supabase Storage URL -- a stale assumption from an earlier content
-      // pipeline -- so it 404'd against the deployed site's own origin
-      // instead of resolving the bundled asset. Caught 2026-09-19: no
-      // audio on question 55 in the Vercel build.
-      source = AssetSource(audioUrl);
+      await _audioPlayer.play(source);
+    } catch (e) {
+      // A missing clip or blocked autoplay must never leave the clock
+      // unstarted; the replay button still works afterwards.
+      debugPrint('audio failed: $audioUrl $e');
+      _queuedAudio = null;
+      _answerClock?.startIfIdle();
     }
-    await _audioPlayer.play(source);
   }
 }
 

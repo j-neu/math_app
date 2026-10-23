@@ -112,11 +112,17 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   // diagnostic without one, so on web the first question waits behind a
   // "Los geht's!" button whose tap starts the question audio.
   bool _needsStartTap = kIsWeb && !ClipPlayer.unlocked;
-  // A new diagnostic on web opens with the intro video; its "Los geht's!"
-  // is the start tap. Resumed and retry sessions skip it.
-  late bool _showIntroVideo = kIsWeb &&
-      !widget.retryMode &&
-      (widget.priorResults == null || widget.priorResults!.isEmpty);
+  // On web every diagnostic opens with the intro video; its "Los geht's!"
+  // is the start tap. A child who has started this diagnostic before may
+  // skip it (see _introSkippable).
+  bool _showIntroVideo = kIsWeb;
+
+  /// True once this child has answered at least one question of this
+  /// diagnostic, or is redoing questions in a retry session.
+  bool get _introSkippable =>
+      widget.retryMode ||
+      (widget.priorResults?.isNotEmpty ?? false) ||
+      _currentQuestionIndex > 0;
 
   // Break-off (shortened diagnostic) gate: construct-keyed, difficulty-graded.
   // See ConstructGates in services/diagnostic_shortening.dart for the rule.
@@ -891,10 +897,11 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
               _startQuestion(questions);
             }
 
-            // Only before the very first question; a local save may have
-            // moved a "new" session past it.
-            return _showIntroVideo && _currentQuestionIndex == 0
-                ? IntroVideoView(onStart: onStart)
+            return _showIntroVideo
+                ? IntroVideoView(
+                    onStart: onStart,
+                    canSkip: _introSkippable,
+                  )
                 : _StartTapView(onStart: onStart);
           }
 

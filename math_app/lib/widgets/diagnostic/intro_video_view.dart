@@ -7,14 +7,23 @@ import 'package:video_player/video_player.dart';
 /// When it ends, "Los geht's!" calls [onStart], and that tap also lets the
 /// first question's audio play. If the video can't load, the child gets
 /// "Los geht's!" straight away.
+///
+/// With [canSkip] (the child has started this diagnostic before), a
+/// "Video überspringen" button under the video goes straight to [onStart].
 class IntroVideoView extends StatefulWidget {
   final VoidCallback onStart;
+  final bool canSkip;
 
   /// Where the video is served. `math_app/web/intro_video.mp4` is copied
   /// to the site root by `flutter build web`.
   final Uri? videoUrl;
 
-  const IntroVideoView({super.key, required this.onStart, this.videoUrl});
+  const IntroVideoView({
+    super.key,
+    required this.onStart,
+    this.canSkip = false,
+    this.videoUrl,
+  });
 
   @override
   State<IntroVideoView> createState() => _IntroVideoViewState();
@@ -105,6 +114,21 @@ class _IntroVideoViewState extends State<IntroVideoView> {
                 ),
               ),
               const SizedBox(height: 24),
+              if (widget.canSkip && _phase != _Phase.finished)
+                OutlinedButton.icon(
+                  // Straight from the tap, so the question audio may play.
+                  onPressed: () {
+                    _controller.pause();
+                    widget.onStart();
+                  },
+                  icon: const Icon(Icons.skip_next_rounded, size: 28),
+                  label: const Text('Video überspringen'),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 18),
+                    textStyle: const TextStyle(fontSize: 20),
+                  ),
+                ),
               if (_phase == _Phase.finished)
                 Wrap(
                   spacing: 24,

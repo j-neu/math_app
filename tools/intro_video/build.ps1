@@ -49,5 +49,9 @@ ffmpeg -y -loglevel error -f concat -safe 0 -i $list -c copy $audio
 $outDir = Join-Path (Resolve-Path "$here\..\..") 'out'; New-Item -ItemType Directory -Force $outDir | Out-Null
 $mp4 = Join-Path $outDir 'intro_video.mp4'
 ffmpeg -y -loglevel error -framerate 30 -i (Join-Path $work 'frames\f%05d.png') -i $audio `
-  -af apad -c:v libx264 -pix_fmt yuv420p -crf 20 -c:a aac -b:a 160k -shortest $mp4
+  -af apad -c:v libx264 -pix_fmt yuv420p -crf 20 -c:a aac -b:a 160k -shortest -movflags +faststart $mp4
 Write-Host "wrote $mp4"
+# The child app plays this copy before a new diagnostic starts.
+$appCopy = Join-Path (Resolve-Path "$here\..\..") 'math_app\web\intro_video.mp4'
+Copy-Item $mp4 $appCopy -Force
+Write-Host "copied to $appCopy"

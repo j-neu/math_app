@@ -35,6 +35,7 @@ import '../services/user_service.dart';
 import '../screens/diagnostic_complete_screen.dart';
 import '../screens/diagnostic_report_screen.dart';
 import '../services/clip_player.dart';
+import '../widgets/diagnostic/intro_video_view.dart';
 
 /// One persisted diagnostic result row (web/API mode).
 typedef _AnswerRow = ({
@@ -111,6 +112,11 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
   // diagnostic without one, so on web the first question waits behind a
   // "Los geht's!" button whose tap starts the question audio.
   bool _needsStartTap = kIsWeb && !ClipPlayer.unlocked;
+  // A new diagnostic on web opens with the intro video; its "Los geht's!"
+  // is the start tap. Resumed and retry sessions skip it.
+  late bool _showIntroVideo = kIsWeb &&
+      !widget.retryMode &&
+      (widget.priorResults == null || widget.priorResults!.isEmpty);
 
   // Break-off (shortened diagnostic) gate: construct-keyed, difficulty-graded.
   // See ConstructGates in services/diagnostic_shortening.dart for the rule.
@@ -875,12 +881,21 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
 
           final question = questions[_currentQuestionIndex];
 
-          if (_needsStartTap) {
-            return _StartTapView(onStart: () {
+          if (_showIntroVideo || _needsStartTap) {
+            void onStart() {
               // Called straight from the tap so the browser allows sound.
-              setState(() => _needsStartTap = false);
+              setState(() {
+                _showIntroVideo = false;
+                _needsStartTap = false;
+              });
               _startQuestion(questions);
-            });
+            }
+
+            // Only before the very first question; a local save may have
+            // moved a "new" session past it.
+            return _showIntroVideo && _currentQuestionIndex == 0
+                ? IntroVideoView(onStart: onStart)
+                : _StartTapView(onStart: onStart);
           }
 
           // Start timer if not already started
